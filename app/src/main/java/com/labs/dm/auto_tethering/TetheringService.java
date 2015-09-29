@@ -11,28 +11,65 @@ import android.widget.Toast;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 public class TetheringService extends IntentService {
 
     private static final String TAG = "MyTetheringService";
+    private AppProperties props;
+    private boolean state;
 
     public TetheringService() {
         super("TetheringService");
+        props = new AppProperties(getBaseContext());
+    }
+
+    private void switcher(boolean state) {
+        this.state = state;
+        if (props.isActivateOnStartup()) {
+            Log.i(TAG, "Start working...");
+            if (props.isActivate3G()) {
+                setMobileDataEnabled(getApplicationContext(), !state);
+                setMobileDataEnabled(getApplicationContext(), state);
+            }
+            if (props.isActivateTethering()) {
+                setWifiTetheringEnabled(state);
+            }
+        }
+
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.i(TAG, "Start working...");
+        switcher(true);
 
-        Toast.makeText(getApplicationContext(), "Start tethering", Toast.LENGTH_LONG);
-        try {
-            setMobileDataEnabled(getApplicationContext(), true);
-        } catch (Exception e) {
-            Log.e(TAG, "Switch on 3G", e);
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG);
+        while (true) {
+            try {
+                TimeUnit.SECONDS.sleep(15);
+                Calendar c = Calendar.getInstance();
+
+                Calendar timeOff = Calendar.getInstance();
+                timeOff.set(Calendar.HOUR, 24);
+                timeOff.set(Calendar.MINUTE, 15);
+                Calendar timeOn = Calendar.getInstance();
+                timeOff.set(Calendar.HOUR, 24);
+                timeOff.set(Calendar.MINUTE, 18);
+
+                if (c.after(timeOff) && c.before(timeOn)) {
+                    if (state) {
+                        switcher(false);
+                    }
+                } else {
+                    if (!state) {
+                        switcher(true);
+                    }
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-
-        setWifiTetheringEnabled(true);
     }
 
     private void setWifiTetheringEnabled(boolean enable) {
@@ -65,17 +102,22 @@ public class TetheringService extends IntentService {
         }
     }
 
-    private void setMobileDataEnabled(Context context, boolean enabled) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    private void setMobileDataEnabled(Context context, boolean enabled) {
         final ConnectivityManager conman = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        final Class conmanClass = Class.forName(conman.getClass().getName());
-        final Field iConnectivityManagerField = conmanClass.getDeclaredField("mService");
-        iConnectivityManagerField.setAccessible(true);
-        final Object iConnectivityManager = iConnectivityManagerField.get(conman);
-        final Class iConnectivityManagerClass = Class.forName(iConnectivityManager.getClass().getName());
-        final Method setMobileDataEnabledMethod = iConnectivityManagerClass.getDeclaredMethod("setMobileDataEnabled", Boolean.TYPE);
-        setMobileDataEnabledMethod.setAccessible(true);
+        try {
+            final Class conmanClass = Class.forName(conman.getClass().getName());
+            final Field iConnectivityManagerField = conmanClass.getDeclaredField("mService");
+            iConnectivityManagerField.setAccessible(true);
+            final Object iConnectivityManager = iConnectivityManagerField.get(conman);
+            final Class iConnectivityManagerClass = Class.forName(iConnectivityManager.getClass().getName());
+            final Method setMobileDataEnabledMethod = iConnectivityManagerClass.getDeclaredMethod("setMobileDataEnabled", Boolean.TYPE);
+            setMobileDataEnabledMethod.setAccessible(true);
 
-        setMobileDataEnabledMethod.invoke(iConnectivityManager, enabled);
+            setMobileDataEnabledMethod.invoke(iConnectivityManager, enabled);
+        } catch (Exception e) {
+            Log.e(TAG, "Switch on 3G", e);
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG);
+        }
     }
 
     private boolean isSharingWiFi() {
