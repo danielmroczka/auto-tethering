@@ -2,15 +2,19 @@
 
     <!-- These settings headers are only used on tablets. -->
 
-    <header android:fragment="com.labs.dm.autotethering.SettingsActivity$GeneralPreferenceFragment"
-        android:title="@string/pref_header_general" android:icon="@drawable/ic_info_black_24dp" />
+    <header
+        android:fragment="com.labs.dm.autotethering.SettingsActivity$GeneralPreferenceFragment"
+        android:icon="@drawable/ic_info_black_24dp"
+        android:title="@string/pref_header_general" />
 
     <header
         android:fragment="com.labs.dm.autotethering.SettingsActivity$NotificationPreferenceFragment"
-        android:title="@string/pref_header_notifications"
-        android:icon="@drawable/ic_notifications_black_24dp" />
+        android:icon="@drawable/ic_notifications_black_24dp"
+        android:title="@string/pref_header_notifications" />
 
-    <header android:fragment="com.labs.dm.autotethering.SettingsActivity$DataSyncPreferenceFragment"
-        android:title="@string/pref_header_data_sync" android:icon="@drawable/ic_sync_black_24dp" />
+    <header
+        android:fragment="com.labs.dm.autotethering.SettingsActivity$DataSyncPreferenceFragment"
+        android:icon="@drawable/ic_sync_black_24dp"
+        android:title="@string/pref_header_data_sync" />
 
 </preference-headers>
