@@ -22,7 +22,13 @@ public class TetheringService extends IntentService {
 
     public TetheringService() {
         super("TetheringService");
-        props = new AppProperties(getBaseContext());
+        props = new AppProperties();
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        props.load(getBaseContext());
     }
 
     private void switcher(boolean state) {
@@ -50,11 +56,13 @@ public class TetheringService extends IntentService {
                 Calendar c = Calendar.getInstance();
 
                 Calendar timeOff = Calendar.getInstance();
-                timeOff.set(Calendar.HOUR, 24);
-                timeOff.set(Calendar.MINUTE, 15);
+                timeOff.set(Calendar.HOUR, 0);
+                timeOff.set(Calendar.MINUTE, 25);
+                timeOff.set(Calendar.SECOND, 0);
                 Calendar timeOn = Calendar.getInstance();
-                timeOff.set(Calendar.HOUR, 24);
-                timeOff.set(Calendar.MINUTE, 18);
+                timeOn.set(Calendar.HOUR, 0);
+                timeOn.set(Calendar.MINUTE, 28);
+                timeOn.set(Calendar.SECOND, 0);
 
                 if (c.after(timeOff) && c.before(timeOn)) {
                     if (state) {
