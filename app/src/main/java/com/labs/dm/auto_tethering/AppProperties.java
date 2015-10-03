@@ -15,15 +15,18 @@ public class AppProperties {
     private static final String SCHEDULER = "scheduler.on";
     private static final String TIME_OFF = "time.off";
     private static final String TIME_ON = "time.on";
-
+    private static final String ACTIVATE_ON_PHONE_NUMBER = "activate.only.on.phone.number";
+    private static final String PHONE_NUMBER = "activated.phone.number";
 
     private SharedPreferences sp;
     private boolean activateOnStartup;
     private boolean activate3G;
     private boolean activateTethering;
     private boolean scheduler;
+    private boolean activateOnPhoneNumber;
     private String timeOff;
     private String timeOn;
+    private String phoneNumber;
 
     public boolean isScheduler() {
         return scheduler;
@@ -36,7 +39,7 @@ public class AppProperties {
     public void load(Context ctx) {
         sp = PreferenceManager.getDefaultSharedPreferences(ctx);
         activateOnStartup = sp.getBoolean(AppProperties.ACTIVATE_ON_STARTUP, true);
-        activate3G = sp.getBoolean(AppProperties.ACTIVATE_3G, true);
+        activate3G = sp.getBoolean(AppProperties.ACTIVATE_3G, false);
         activateTethering = sp.getBoolean(AppProperties.ACTIVATE_TETHERING, true);
         scheduler = sp.getBoolean(AppProperties.SCHEDULER, false);
         timeOff = sp.getString(AppProperties.TIME_OFF, "0:00");
@@ -93,5 +96,21 @@ public class AppProperties {
 
     public void setTimeOn(String timeOn) {
         this.timeOn = timeOn;
+    }
+
+    public boolean isActivateOnPhoneNumber() {
+        return activateOnPhoneNumber;
+    }
+
+    public void setActivateOnPhoneNumber(boolean activateOnPhoneNumber) {
+        this.activateOnPhoneNumber = activateOnPhoneNumber;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

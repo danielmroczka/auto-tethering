@@ -8,7 +8,9 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+
+    >
 
     <ScrollView
         android:layout_width="fill_parent"
@@ -66,77 +68,94 @@
                 android:checked="false"
                 android:text="Scheduler" />
 
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:text="Switch off:"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <EditText
+                    android:id="@+id/switchOffTime"
+                    android:layout_width="131dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/textView3"
+                    android:ems="10"
+                    android:enabled="false"
+                    android:inputType="time"
+                    android:text="0:00" />
+
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/switchOnTime"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignStart="@+id/switchOnTime"
+                    android:text="Schwitch on:"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <EditText
+                    android:id="@+id/switchOnTime"
+                    android:layout_width="132dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/textView"
+                    android:ems="10"
+                    android:enabled="false"
+                    android:inputType="time"
+                    android:text="6:00" />
+            </RelativeLayout>
+
+            <CheckBox
+                android:id="@+id/onlyOnPhoneNumberCheckBox"
+                android:layout_width="289dp"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="Activate only on phone number:" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+
+                <EditText
+                    android:id="@+id/editText2"
+                    android:layout_width="174dp"
+                    android:layout_height="wrap_content"
+                    android:editable="false"
+                    android:ems="10"
+                    android:enabled="false"
+                    android:inputType="phone" />
+
+                <Button
+                    android:id="@+id/readButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Use current" />
+
+            </LinearLayout>
+
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="Close"
+                android:visibility="invisible" />
         </LinearLayout>
     </ScrollView>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:text="Switch off:"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <EditText
-            android:id="@+id/switchOffTime"
-            android:layout_width="131dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/textView3"
-            android:layout_toStartOf="@+id/switchOnTime"
-            android:ems="10"
-            android:inputType="time"
-            android:text="0:00" />
-
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/switchOnTime"
-            android:layout_alignParentTop="true"
-            android:layout_alignStart="@+id/switchOnTime"
-            android:text="Schwitch on:"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <EditText
-            android:id="@+id/switchOnTime"
-            android:layout_width="132dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/textView"
-            android:ems="10"
-            android:inputType="time"
-            android:text="7:00" />
-    </RelativeLayout>
-
-    <CheckBox
-        android:id="@+id/onlyOnPhoneNumberCheckBox"
-        android:layout_width="289dp"
-        android:layout_height="wrap_content"
-        android:checked="false"
-        android:text="Activate only on phone number:" />
-
-    <EditText
-        android:id="@+id/editText2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:ems="10"
-        android:inputType="phone" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:text="Close" />
-
 </LinearLayout>

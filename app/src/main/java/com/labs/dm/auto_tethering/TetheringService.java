@@ -11,6 +11,9 @@ import android.widget.Toast;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
@@ -19,6 +22,8 @@ public class TetheringService extends IntentService {
     private static final String TAG = "MyTetheringService";
     private AppProperties props;
     private boolean state;
+    private Calendar timeOff;
+    private Calendar timeOn;
 
     public TetheringService() {
         super("TetheringService");
@@ -29,6 +34,17 @@ public class TetheringService extends IntentService {
     public void onCreate() {
         super.onCreate();
         props.load(getBaseContext());
+        DateFormat formatter = new SimpleDateFormat("HH:mm");
+        timeOff = Calendar.getInstance();
+        timeOn = Calendar.getInstance();
+        try {
+            timeOff.setTime(formatter.parse(props.getTimeOff()));
+            timeOn.setTime(formatter.parse(props.getTimeOn()));
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void switcher(boolean state) {
@@ -51,32 +67,31 @@ public class TetheringService extends IntentService {
         switcher(true);
 
         while (true) {
-            try {
-                TimeUnit.SECONDS.sleep(15);
-                Calendar c = Calendar.getInstance();
-
-                Calendar timeOff = Calendar.getInstance();
-                timeOff.set(Calendar.HOUR, 0);
-                timeOff.set(Calendar.MINUTE, 25);
-                timeOff.set(Calendar.SECOND, 0);
-                Calendar timeOn = Calendar.getInstance();
-                timeOn.set(Calendar.HOUR, 0);
-                timeOn.set(Calendar.MINUTE, 28);
-                timeOn.set(Calendar.SECOND, 0);
-
-                if (c.after(timeOff) && c.before(timeOn)) {
-                    if (state) {
-                        switcher(false);
-                    }
-                } else {
-                    if (!state) {
-                        switcher(true);
-                    }
-                }
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (props.isScheduler()) {
+                onTick();
             }
+        }
+    }
+
+    private void onTick() {
+
+        Calendar c = Calendar.getInstance();
+        timeOn.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+        timeOff.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+
+        try {
+            if (c.after(timeOff) && c.before(timeOn)) {
+                if (state) {
+                    switcher(false);
+                }
+            } else {
+                if (!state) {
+                    switcher(true);
+                }
+            }
+            TimeUnit.SECONDS.sleep(15);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

@@ -2,17 +2,18 @@ package com.labs.dm.auto_tethering;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
-public class MainActivity extends Activity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends Activity {
 
     private Button btn;
+    private Button reeadButton;
     private CheckBox activateOnStartup;
     private CheckBox activate3G;
     private CheckBox activateTethering;
@@ -21,6 +22,7 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 
     private EditText switchOffTime;
     private EditText switchOnTime;
+    private EditText phoneNumber;
 
     private AppProperties props;
 
@@ -39,20 +41,24 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 
         switchOffTime = (EditText) findViewById(R.id.switchOffTime);
         switchOnTime = (EditText) findViewById(R.id.switchOnTime);
-        btn = (Button) findViewById(R.id.button);
+        phoneNumber = (EditText) findViewById(R.id.editText2);
 
-        btn.setOnClickListener(new View.OnClickListener() {
+        btn = (Button) findViewById(R.id.button);
+        reeadButton = (Button) findViewById(R.id.readButton);
+
+        reeadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                persist();
+                TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+                String mPhoneNumber = tMgr.getLine1Number();
+                phoneNumber.setText(mPhoneNumber);
             }
         });
 
         activateOnPhoneNumber.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                switchOffTime.setEnabled(isChecked);
-                switchOnTime.setEnabled(isChecked);
+                phoneNumber.setEnabled(isChecked);
             }
         });
 
@@ -95,7 +101,8 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
+    protected void onPause() {
+        super.onPause();
+        persist();
     }
 }
