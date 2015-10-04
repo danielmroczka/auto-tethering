@@ -10,3 +10,14 @@ Functionalities should be completed in a future:
 - switching on/off opening service just after boot
 - switching on for provided telephone number (to avoid additional charges if user replace simcard and forget to switching service off)
 - delay after boot
+
+## Usage
+Signing apk needs to set credentials in local file gradle.properties and add following settings:
+RELEASE_STORE_FILE={path to your keystore}
+RELEASE_STORE_PASSWORD=*****
+RELEASE_KEY_ALIAS=*****
+RELEASE_KEY_PASSWORD=*****
+More about signing apk files you may find here: http://developer.android.com/tools/publishing/app-signing.html
+
+## Google Play app
+Built app you may install here: https://play.google.com/store/apps/details?id=com.labs.dm.auto_tethering
