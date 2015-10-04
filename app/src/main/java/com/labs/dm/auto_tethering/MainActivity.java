@@ -13,7 +13,7 @@ import android.widget.EditText;
 public class MainActivity extends Activity {
 
     private Button btn;
-    private Button reeadButton;
+    private Button readButton;
     private CheckBox activateOnStartup;
     private CheckBox activate3G;
     private CheckBox activateTethering;
@@ -44,9 +44,9 @@ public class MainActivity extends Activity {
         phoneNumber = (EditText) findViewById(R.id.editText2);
 
         btn = (Button) findViewById(R.id.button);
-        reeadButton = (Button) findViewById(R.id.readButton);
+        readButton = (Button) findViewById(R.id.readButton);
 
-        reeadButton.setOnClickListener(new View.OnClickListener() {
+        readButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
