@@ -13,10 +13,13 @@ Functionalities should be completed in a future:
 
 ## Usage
 Signing apk needs to set credentials in local file gradle.properties and add following settings:
+```
 RELEASE_STORE_FILE={path to your keystore}
 RELEASE_STORE_PASSWORD=*****
 RELEASE_KEY_ALIAS=*****
 RELEASE_KEY_PASSWORD=*****
+```
+
 More about signing apk files you may find here: http://developer.android.com/tools/publishing/app-signing.html
 
 ## Google Play app
