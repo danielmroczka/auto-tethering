@@ -1,5 +1,6 @@
 language: android
-install: gradle app:assembleDebug
+script:
+    - ./gradle clean test
 android:
   components:
     # Uncomment the lines below if you want to
