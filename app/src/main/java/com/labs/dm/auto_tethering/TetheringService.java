@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -24,6 +25,7 @@ public class TetheringService extends IntentService {
     private boolean state;
     private Calendar timeOff;
     private Calendar timeOn;
+    private boolean correctSimCard;
 
     public TetheringService() {
         super("TetheringService");
@@ -49,7 +51,7 @@ public class TetheringService extends IntentService {
 
     private void switcher(boolean state) {
         this.state = state;
-        if (props.isActivateOnStartup()) {
+        if (props.isActivateOnStartup() && isCorrectSimCard()) {
             Log.i(TAG, "Start working...");
             if (props.isActivate3G()) {
                 setMobileDataEnabled(getApplicationContext(), !state);
@@ -74,7 +76,7 @@ public class TetheringService extends IntentService {
     }
 
     private void onTick() {
-
+        props.load(getBaseContext());
         Calendar c = Calendar.getInstance();
         timeOn.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
         timeOff.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
@@ -161,4 +163,13 @@ public class TetheringService extends IntentService {
     }
 
 
+    public boolean isCorrectSimCard() {
+        if (props.getSimCard() != null || !props.getSimCard().isEmpty()) {
+            TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+            String simCard = tMgr.getSimSerialNumber();
+            return props.getSimCard().equals(simCard);
+        } else {
+            return true;
+        }
+    }
 }

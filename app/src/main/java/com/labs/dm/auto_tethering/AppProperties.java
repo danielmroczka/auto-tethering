@@ -17,6 +17,8 @@ public class AppProperties {
     private static final String TIME_ON = "time.on";
     private static final String ACTIVATE_ON_PHONE_NUMBER = "activate.only.on.phone.number";
     private static final String PHONE_NUMBER = "activated.phone.number";
+    private static final String SIMCARD = "sim.card";
+    private static final String LATEST_VERSION = "latest.version";
 
     private SharedPreferences sp;
     private boolean activateOnStartup;
@@ -27,6 +29,8 @@ public class AppProperties {
     private String timeOff;
     private String timeOn;
     private String phoneNumber;
+    private String simCard;
+    private String latestVersion;
 
     public boolean isScheduler() {
         return scheduler;
@@ -44,6 +48,8 @@ public class AppProperties {
         scheduler = sp.getBoolean(AppProperties.SCHEDULER, false);
         timeOff = sp.getString(AppProperties.TIME_OFF, "0:00");
         timeOn = sp.getString(AppProperties.TIME_ON, "6:00");
+        simCard = sp.getString(AppProperties.SIMCARD, "");
+        latestVersion = sp.getString(AppProperties.LATEST_VERSION, "");
     }
 
     public void save(Context ctx) {
@@ -55,6 +61,8 @@ public class AppProperties {
         editor.putBoolean(SCHEDULER, scheduler);
         editor.putString(TIME_OFF, timeOff);
         editor.putString(TIME_ON, timeOn);
+        editor.putString(SIMCARD, simCard);
+        editor.putString(LATEST_VERSION, latestVersion);
         editor.commit();
     }
 
@@ -112,5 +120,21 @@ public class AppProperties {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getSimCard() {
+        return simCard;
+    }
+
+    public void setSimCard(String simCard) {
+        this.simCard = simCard;
+    }
+
+    public String getLatestVersion() {
+        return latestVersion;
+    }
+
+    public void setLatestVersion(String latestVersion) {
+        this.latestVersion = latestVersion;
     }
 }
