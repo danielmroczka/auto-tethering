@@ -1,4 +1,7 @@
 # auto-tethering
+
+[![Travis Build Status](https://travis-ci.org/danielmroczka/auto-tethering.png?branch=master)](https://travis-ci.org/danielmroczka/auto-tethering)
+
 The intention to create this project is a need to use android phone as a 3G Router. 
 Phone is connected through 3G/4G/LTE connection to internet and shares connection using tethering functionality. 
 Application triggers just after boot has been completed and switching on 3G connection and switch on tethering.
