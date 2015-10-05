@@ -121,10 +121,50 @@
                 android:layout_width="289dp"
                 android:layout_height="wrap_content"
                 android:checked="false"
+                android:hint="Blrblr"
                 android:text="Activate on this SIM Card" />
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:text="SSID:"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                <TextView
+                    android:id="@+id/ssidText"
+                    android:layout_width="wrap_content"
+
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/textView2"
+                    android:layout_toLeftOf="@+id/button"
+                    android:layout_toStartOf="@+id/button"
+                    android:width="200dp"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="#26ff0a" />
+
+                <Button
+                    android:id="@+id/button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_gravity="right"
+                    android:enabled="false"
+                    android:text="Change SSID" />
+            </RelativeLayout>
         </LinearLayout>
     </ScrollView>
-
 </LinearLayout>

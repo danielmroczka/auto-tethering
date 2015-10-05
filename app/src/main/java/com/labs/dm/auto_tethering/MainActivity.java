@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.wifi.WifiConfiguration;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
@@ -23,6 +25,7 @@ public class MainActivity extends Activity {
     private EditText switchOffTime;
     private EditText switchOnTime;
 
+    private TextView ssidText;
 
     private AppProperties props;
 
@@ -32,7 +35,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         props = new AppProperties();
-        props.load(getBaseContext());
+
         activateOnStartup = (CheckBox) findViewById(R.id.activateOnStartupCheckBox);
         activate3G = (CheckBox) findViewById(R.id.turnOn3GCheckBox);
         activateTethering = (CheckBox) findViewById(R.id.turnOnWifiCheckBox);
@@ -41,6 +44,7 @@ public class MainActivity extends Activity {
 
         switchOffTime = (EditText) findViewById(R.id.switchOffTime);
         switchOnTime = (EditText) findViewById(R.id.switchOnTime);
+        ssidText = (TextView) findViewById(R.id.ssidText);
 
         activeOnSIMCard.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -56,7 +60,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        activeOnSIMCard.setChecked(props.getSimCard() != null || !props.getSimCard().isEmpty());
 
         scheduler.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -66,11 +69,15 @@ public class MainActivity extends Activity {
             }
         });
 
+        props.load(getBaseContext());
+        activeOnSIMCard.setChecked(props.getSimCard() != null || !props.getSimCard().isEmpty());
+
         activateOnStartup.setChecked(props.isActivateOnStartup());
         activate3G.setChecked(props.isActivate3G());
         activateTethering.setChecked(props.isActivateTethering());
         switchOnTime.setText(props.getTimeOn());
         switchOffTime.setText(props.getTimeOff());
+        scheduler.setChecked(props.isScheduler());
     }
 
     @Override
@@ -78,6 +85,8 @@ public class MainActivity extends Activity {
         super.onPostCreate(savedInstanceState);
         Intent serviceIntent = new Intent(this, TetheringService.class);
         startService(serviceIntent);
+        WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
+        ssidText.setText(cfg.SSID);
         displayPrompt();
     }
 

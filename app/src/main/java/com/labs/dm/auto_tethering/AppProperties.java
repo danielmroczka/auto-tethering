@@ -63,7 +63,7 @@ public class AppProperties {
         editor.putString(TIME_ON, timeOn);
         editor.putString(SIMCARD, simCard);
         editor.putString(LATEST_VERSION, latestVersion);
-        editor.commit();
+        editor.apply();
     }
 
     public boolean isActivateOnStartup() {

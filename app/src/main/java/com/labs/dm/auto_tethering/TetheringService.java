@@ -4,6 +4,8 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -30,6 +32,40 @@ public class TetheringService extends IntentService {
     public TetheringService() {
         super("TetheringService");
         props = new AppProperties();
+    }
+
+    public static WifiConfiguration getWifiApConfiguration(final Context ctx) {
+        final WifiManager wifiManager = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+        final Method m = getWifiManagerMethod("getWifiApConfiguration", wifiManager);
+        if (m != null) {
+            try {
+                return (WifiConfiguration) m.invoke(wifiManager);
+            } catch (Exception e) {
+            }
+        }
+        return null;
+    }
+
+    private static Method getWifiManagerMethod(final String methodName, final WifiManager wifiManager) {
+        final Method[] methods = wifiManager.getClass().getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.getName().equals(methodName)) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Check if there is any connectivity
+     *
+     * @param context
+     * @return
+     */
+    public static boolean isConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        return (info != null && info.isConnected());
     }
 
     @Override
@@ -69,9 +105,9 @@ public class TetheringService extends IntentService {
         switcher(true);
 
         while (true) {
-            if (props.isScheduler()) {
-                onTick();
-            }
+            //if (props.isScheduler()) {
+            onTick();
+            // }
         }
     }
 
@@ -91,7 +127,17 @@ public class TetheringService extends IntentService {
                     switcher(true);
                 }
             }
-            TimeUnit.SECONDS.sleep(15);
+
+            if (props.isActivateTethering() && !isSharingWiFi()) {
+                setWifiTetheringEnabled(true);
+            }
+
+            if (props.isActivate3G() && !isConnected(getApplicationContext())) {
+                setMobileDataEnabled(getApplicationContext(), false);
+                setMobileDataEnabled(getApplicationContext(), true);
+            }
+
+            TimeUnit.SECONDS.sleep(30);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -161,7 +207,6 @@ public class TetheringService extends IntentService {
 
         return false;
     }
-
 
     public boolean isCorrectSimCard() {
         if (props.getSimCard() != null || !props.getSimCard().isEmpty()) {
