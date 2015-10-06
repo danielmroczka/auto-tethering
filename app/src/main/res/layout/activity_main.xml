@@ -162,7 +162,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_alignParentTop="true"
                     android:layout_gravity="right"
-                    android:enabled="false"
+                    android:enabled="true"
                     android:text="Change SSID" />
             </RelativeLayout>
         </LinearLayout>

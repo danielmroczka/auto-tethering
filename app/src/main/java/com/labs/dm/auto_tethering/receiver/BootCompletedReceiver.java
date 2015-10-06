@@ -1,8 +1,10 @@
-package com.labs.dm.auto_tethering;
+package com.labs.dm.auto_tethering.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
+import com.labs.dm.auto_tethering.service.TetheringService;
 
 public class BootCompletedReceiver extends BroadcastReceiver {
 

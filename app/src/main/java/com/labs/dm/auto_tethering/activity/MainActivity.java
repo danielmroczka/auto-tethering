@@ -1,4 +1,4 @@
-package com.labs.dm.auto_tethering;
+package com.labs.dm.auto_tethering.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -7,11 +7,17 @@ import android.content.Intent;
 import android.net.wifi.WifiConfiguration;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
+import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.labs.dm.auto_tethering.AppProperties;
+import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.service.TetheringService;
 
 public class MainActivity extends Activity {
 
@@ -27,7 +33,10 @@ public class MainActivity extends Activity {
 
     private TextView ssidText;
 
+    private Button ssidButton;
+
     private AppProperties props;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +54,7 @@ public class MainActivity extends Activity {
         switchOffTime = (EditText) findViewById(R.id.switchOffTime);
         switchOnTime = (EditText) findViewById(R.id.switchOnTime);
         ssidText = (TextView) findViewById(R.id.ssidText);
+        ssidButton = (Button) findViewById(R.id.button);
 
         activeOnSIMCard.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -66,6 +76,16 @@ public class MainActivity extends Activity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 switchOffTime.setEnabled(isChecked);
                 switchOnTime.setEnabled(isChecked);
+
+            }
+        });
+
+        ssidButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent tetherSettings = new Intent();
+                tetherSettings.setClassName("com.android.settings", "com.android.settings.TetherSettings");
+                startActivityForResult(tetherSettings, 1);
             }
         });
 
@@ -78,6 +98,19 @@ public class MainActivity extends Activity {
         switchOnTime.setText(props.getTimeOn());
         switchOffTime.setText(props.getTimeOff());
         scheduler.setChecked(props.isScheduler());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case 1: {
+                WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
+                ssidText.setText(cfg.SSID);
+                break;
+            }
+        }
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.labs.dm.auto_tethering;
+package com.labs.dm.auto_tethering.service;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -10,6 +10,8 @@ import android.net.wifi.WifiManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.labs.dm.auto_tethering.AppProperties;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -105,9 +107,7 @@ public class TetheringService extends IntentService {
         switcher(true);
 
         while (true) {
-            //if (props.isScheduler()) {
             onTick();
-            // }
         }
     }
 
