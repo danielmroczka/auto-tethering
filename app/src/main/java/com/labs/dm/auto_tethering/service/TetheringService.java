@@ -3,10 +3,12 @@ package com.labs.dm.auto_tethering.service;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -29,11 +31,11 @@ public class TetheringService extends IntentService {
     private boolean state;
     private Calendar timeOff;
     private Calendar timeOn;
-    private boolean correctSimCard;
+    private SharedPreferences prefs;
 
     public TetheringService() {
         super("TetheringService");
-        props = new AppProperties();
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     }
 
     public static WifiConfiguration getWifiApConfiguration(final Context ctx) {
@@ -73,13 +75,12 @@ public class TetheringService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        props.load(getBaseContext());
         DateFormat formatter = new SimpleDateFormat("HH:mm");
         timeOff = Calendar.getInstance();
         timeOn = Calendar.getInstance();
         try {
-            timeOff.setTime(formatter.parse(props.getTimeOff()));
-            timeOn.setTime(formatter.parse(props.getTimeOn()));
+            timeOff.setTime(formatter.parse(prefs.getString(AppProperties.TIME_OFF, "")));
+            timeOn.setTime(formatter.parse(prefs.getString(AppProperties.TIME_ON, "")));
 
         } catch (ParseException e) {
             e.printStackTrace();
@@ -89,13 +90,13 @@ public class TetheringService extends IntentService {
 
     private void switcher(boolean state) {
         this.state = state;
-        if (props.isActivateOnStartup() && isCorrectSimCard()) {
+        if (prefs.getBoolean(AppProperties.ACTIVATE_ON_STARTUP, false) && isCorrectSimCard()) {
             Log.i(TAG, "Start working...");
-            if (props.isActivate3G()) {
+            if (prefs.getBoolean(AppProperties.ACTIVATE_3G, false)) {
                 setMobileDataEnabled(getApplicationContext(), !state);
                 setMobileDataEnabled(getApplicationContext(), state);
             }
-            if (props.isActivateTethering()) {
+            if (prefs.getBoolean(AppProperties.ACTIVATE_TETHERING, false)) {
                 setWifiTetheringEnabled(state);
             }
         }
@@ -112,7 +113,6 @@ public class TetheringService extends IntentService {
     }
 
     private void onTick() {
-        props.load(getBaseContext());
         Calendar c = Calendar.getInstance();
         timeOn.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
         timeOff.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
@@ -128,11 +128,11 @@ public class TetheringService extends IntentService {
                 }
             }
 
-            if (props.isActivateTethering() && !isSharingWiFi()) {
+            if (prefs.getBoolean(AppProperties.ACTIVATE_TETHERING, false) && !isSharingWiFi()) {
                 setWifiTetheringEnabled(true);
             }
 
-            if (props.isActivate3G() && !isConnected(getApplicationContext())) {
+            if (prefs.getBoolean(AppProperties.ACTIVATE_3G, false) && !isConnected(getApplicationContext())) {
                 setMobileDataEnabled(getApplicationContext(), false);
                 setMobileDataEnabled(getApplicationContext(), true);
             }
@@ -209,10 +209,10 @@ public class TetheringService extends IntentService {
     }
 
     public boolean isCorrectSimCard() {
-        if (props.getSimCard() != null || !props.getSimCard().isEmpty()) {
+        if (!prefs.getString(AppProperties.SIMCARD, "").isEmpty()) {
             TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
             String simCard = tMgr.getSimSerialNumber();
-            return props.getSimCard().equals(simCard);
+            return prefs.getString(AppProperties.SIMCARD, "").equals(simCard);
         } else {
             return true;
         }
