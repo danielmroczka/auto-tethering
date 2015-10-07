@@ -11,10 +11,9 @@ public class AppProperties {
     public static final String SCHEDULER = "scheduler.on";
     public static final String TIME_OFF = "schedule.time.off";
     public static final String TIME_ON = "schedule.time.on";
-    public static final String ACTIVATE_ON_PHONE_NUMBER = "activate.only.on.phone.number";
+    public static final String ACTIVATE_ON_SIMCARD = "activate.simcard";
     public static final String PHONE_NUMBER = "activated.phone.number";
     public static final String SIMCARD = "sim.card";
     public static final String LATEST_VERSION = "latest.version";
-
-
+    public static final String SSID = "ssid";
 }

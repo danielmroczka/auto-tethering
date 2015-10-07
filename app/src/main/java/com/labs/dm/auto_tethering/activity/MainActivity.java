@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.wifi.WifiConfiguration;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -11,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
+import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
@@ -30,15 +32,17 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         super.onPostCreate(savedInstanceState);
         Intent serviceIntent = new Intent(this, TetheringService.class);
         startService(serviceIntent);
-        //WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
-        //ssidText.setText(cfg.SSID);
-        //displayPrompt();
+        WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
+        prefs.edit().putString(AppProperties.SSID, cfg.SSID).apply();
+        displayPrompt();
     }
 
     private void displayPrompt() {
-        //if (props.getLatestVersion() != null || !props.getLatestVersion().isEmpty()) {
-        //    return;
-        //}
+        if (!prefs.getString(AppProperties.LATEST_VERSION, "").isEmpty()) {
+            return;
+        } else {
+            prefs.edit().putString(AppProperties.LATEST_VERSION, "1").apply();
+        }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -52,9 +56,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //activate3G.setChecked(true);
-                //activateTethering.setChecked(true);
-                //persist();
+                prefs.edit().putBoolean(AppProperties.ACTIVATE_3G, true).apply();
+                prefs.edit().putBoolean(AppProperties.ACTIVATE_TETHERING, true).apply();
             }
 
         });
@@ -73,14 +76,18 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
-            case "activate.simcard": {
-                TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-                String simCard = tMgr.getSimSerialNumber();
-                if (simCard == null || simCard.isEmpty()) {
-                    Toast.makeText(getApplicationContext(), "Unable to retrieve SIM Card Serial!", Toast.LENGTH_LONG).show();
-                    //activeOnSIMCard.setChecked(false);
+            case AppProperties.ACTIVATE_ON_SIMCARD: {
+                if (sharedPreferences.getBoolean(AppProperties.ACTIVATE_ON_SIMCARD, false)) {
+                    TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+                    String simCard = tMgr.getSimSerialNumber();
+                    if (simCard == null || simCard.isEmpty()) {
+                        Toast.makeText(getApplicationContext(), "Unable to retrieve SIM Card Serial!", Toast.LENGTH_LONG).show();
+                        prefs.edit().putBoolean(AppProperties.ACTIVATE_ON_SIMCARD, false).apply();
+                        prefs.edit().putString(AppProperties.SIMCARD, "").apply();
+                    } else {
+                        prefs.edit().putString(AppProperties.SIMCARD, simCard);
+                    }
                 }
-                System.out.println(key);
             }
         }
     }
@@ -96,7 +103,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         super.onResume();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
     }
-
 
     @Override
     protected void onPause() {

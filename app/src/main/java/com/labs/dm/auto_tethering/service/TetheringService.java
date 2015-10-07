@@ -35,7 +35,6 @@ public class TetheringService extends IntentService {
 
     public TetheringService() {
         super("TetheringService");
-        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     }
 
     public static WifiConfiguration getWifiApConfiguration(final Context ctx) {
@@ -76,6 +75,7 @@ public class TetheringService extends IntentService {
     public void onCreate() {
         super.onCreate();
         DateFormat formatter = new SimpleDateFormat("HH:mm");
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         timeOff = Calendar.getInstance();
         timeOn = Calendar.getInstance();
         try {
@@ -212,7 +212,7 @@ public class TetheringService extends IntentService {
         if (!prefs.getString(AppProperties.SIMCARD, "").isEmpty()) {
             TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
             String simCard = tMgr.getSimSerialNumber();
-            return prefs.getString(AppProperties.SIMCARD, "").equals(simCard);
+            return simCard != null && prefs.getString(AppProperties.SIMCARD, "").equals(simCard);
         } else {
             return true;
         }

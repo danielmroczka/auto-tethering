@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Auto WIFI Tethering</string>
     <string name="title_activity_settings">SettingsActivity</string>
-    <string name="activate.on.startup">Activate on startup</string>
+    <string name="activate.on.startup">Activate service on startup</string>
+    <string name="activate.only.summary">Activate only when this simcard is in the phone</string>
+    <string name="activate.only.title">Activate on this SIM Card</string>
+    <string name="activate.title">Activation</string>
 </resources>
