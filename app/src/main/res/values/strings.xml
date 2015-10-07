@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Auto WIFI Tethering</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="activate.on.startup">Activate on startup</string>
 </resources>

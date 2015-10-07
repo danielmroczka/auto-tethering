@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Startup activation">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="activate.on.startup"
+            android:summary="@string/activate.on.startup"
+            android:title="Activate on startup" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="activate.3g"
+            android:summary="Activate 3G"
+            android:title="Activate 3G" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="activate.tethering"
+            android:summary="Activate Tethering"
+            android:title="Activate Tethering" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Scheduler">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="scheduler.on"
+            android:summary="Activate Scheduler"
+            android:title="Activate Scheduler" />
+        <EditTextPreference
+            android:defaultValue="0:00"
+            android:inputType="time"
+            android:key="scheduler.time.on"
+            android:summary="Switch OFF"
+            android:title="Current value %s" />
+        <EditTextPreference
+            android:defaultValue="6:00"
+            android:inputType="time"
+            android:key="scheduler.time.off"
+            android:summary="Switch ON"
+            android:title="Current value %s" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Activation">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="activate.simcard"
+            android:summary="Activate on this SIM Card"
+            android:title="Activate on this SIM Card" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="AP SSID">
+        <PreferenceScreen
+            android:key="activate.simcard.number"
+            android:summary="SSID"
+            android:title="SSID">
+            <intent
+                android:targetClass="com.android.settings.TetherSettings"
+                android:targetPackage="com.android.settings" />
+        </PreferenceScreen>
+    </PreferenceCategory>
+
+</PreferenceScreen>
