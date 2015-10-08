@@ -23,21 +23,23 @@
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="scheduler.on"
-            android:summary=""
+            android:summary="@string/scheduler"
             android:title="Activate Scheduler" />
         <EditTextPreference
             android:defaultValue="0:00"
-            android:dialogTitle="Enter value"
+            android:dependency="scheduler.on"
+            android:dialogTitle="@string/enter.value"
             android:inputType="time"
-            android:key="scheduler.time.on"
-            android:summary="Activate router at"
+            android:key="scheduler.time.off"
+            android:summary="..."
             android:title="Switch OFF time" />
         <EditTextPreference
             android:defaultValue="6:00"
-            android:dialogTitle="Enter value"
+            android:dependency="scheduler.on"
+            android:dialogTitle="@string/enter.value"
             android:inputType="time"
-            android:key="scheduler.time.off"
-            android:summary="Deactivate router at"
+            android:key="scheduler.time.on"
+            android:summary="..."
             android:title="Switch ON time" />
     </PreferenceCategory>
 

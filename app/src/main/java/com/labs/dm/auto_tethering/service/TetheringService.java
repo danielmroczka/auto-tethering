@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 public class TetheringService extends IntentService {
 
     private static final String TAG = "MyTetheringService";
-    private AppProperties props;
     private boolean state;
     private Calendar timeOff;
     private Calendar timeOn;
@@ -44,6 +43,7 @@ public class TetheringService extends IntentService {
             try {
                 return (WifiConfiguration) m.invoke(wifiManager);
             } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
             }
         }
         return null;
@@ -59,56 +59,20 @@ public class TetheringService extends IntentService {
         return null;
     }
 
-    /**
-     * Check if there is any connectivity
-     *
-     * @param context
-     * @return
-     */
-    public static boolean isConnected(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = cm.getActiveNetworkInfo();
-        return (info != null && info.isConnected());
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        DateFormat formatter = new SimpleDateFormat("HH:mm");
-        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        timeOff = Calendar.getInstance();
-        timeOn = Calendar.getInstance();
-        try {
-            timeOff.setTime(formatter.parse(prefs.getString(AppProperties.TIME_OFF, "")));
-            timeOn.setTime(formatter.parse(prefs.getString(AppProperties.TIME_ON, "")));
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private void switcher(boolean state) {
-        this.state = state;
-        if (prefs.getBoolean(AppProperties.ACTIVATE_ON_STARTUP, false) && isCorrectSimCard()) {
-            Log.i(TAG, "Start working...");
-            if (prefs.getBoolean(AppProperties.ACTIVATE_3G, false)) {
-                setMobileDataEnabled(getApplicationContext(), !state);
-                setMobileDataEnabled(getApplicationContext(), state);
-            }
-            if (prefs.getBoolean(AppProperties.ACTIVATE_TETHERING, false)) {
-                setWifiTetheringEnabled(state);
-            }
-        }
-
-    }
-
     @Override
     protected void onHandleIntent(Intent intent) {
         switcher(true);
 
         while (true) {
-            onTick();
+            if (isCorrectSimCard()) {
+                onTick();
+            }
+            try {
+                TimeUnit.SECONDS.sleep(15);
+            } catch (InterruptedException e) {
+                Log.e(TAG, e.getMessage());
+            }
+
         }
     }
 
@@ -117,31 +81,81 @@ public class TetheringService extends IntentService {
         timeOn.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
         timeOff.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
 
-        try {
+        // Scheduler part:
+        if (isSchedulerOn()) {
             if (c.after(timeOff) && c.before(timeOn)) {
-                if (state) {
-                    switcher(false);
-                }
+                onSchedulerInside();
             } else {
-                if (!state) {
-                    switcher(true);
-                }
+                on();
             }
-
-            if (prefs.getBoolean(AppProperties.ACTIVATE_TETHERING, false) && !isSharingWiFi()) {
-                setWifiTetheringEnabled(true);
-            }
-
-            if (prefs.getBoolean(AppProperties.ACTIVATE_3G, false) && !isConnected(getApplicationContext())) {
-                setMobileDataEnabled(getApplicationContext(), false);
-                setMobileDataEnabled(getApplicationContext(), true);
-            }
-
-            TimeUnit.SECONDS.sleep(30);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } else {
+            on();
         }
     }
+
+    private void on() {
+        // Checks if Tethering is working
+        if (isActivatedTethering() && !isSharingWiFi()) {
+            Log.w(TAG, "Tethering turning on...");
+            setWifiTetheringEnabled(true);
+        }
+
+        // Checks if 3G connection is established
+        if (isActivated3G() && !isConnected(getApplicationContext())) {
+            Log.w(TAG, "3G turning on...");
+            setMobileDataEnabled(true);
+        }
+
+        this.state = false;
+    }
+
+    /**
+     * Trigger when current time is inside schedule period
+     */
+    private void onSchedulerInside() {
+        //    if (state) {
+        switcher(false);
+        Log.i(TAG, "Scheduler turned off connection and tethering");
+        //    }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        onChangeProperties();
+    }
+
+    private void onChangeProperties() {
+        DateFormat formatter = new SimpleDateFormat("HH:mm");
+
+        timeOff = Calendar.getInstance();
+        timeOn = Calendar.getInstance();
+        try {
+            timeOff.setTime(formatter.parse(prefs.getString(AppProperties.TIME_OFF, "")));
+            timeOn.setTime(formatter.parse(prefs.getString(AppProperties.TIME_ON, "")));
+        } catch (ParseException e) {
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
+    /**
+     * @param state
+     */
+    private void switcher(boolean state) {
+        this.state = state;
+
+        if (isCorrectSimCard()) {
+            Log.i(TAG, "Switch 3G and tethering to state=" + state);
+            if (isActivated3G()) {
+                setMobileDataEnabled(state);
+            }
+            if (isActivatedTethering()) {
+                setWifiTetheringEnabled(state);
+            }
+        }
+    }
+
 
     private void setWifiTetheringEnabled(boolean enable) {
         WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
@@ -151,18 +165,6 @@ public class TetheringService extends IntentService {
             if (method.getName().equals("setWifiApEnabled")) {
                 try {
                     Log.i(TAG, "switching on tethering...");
-
-//                    WifiConfiguration netConfig = new WifiConfiguration();
-//                    netConfig.SSID = "\"PROVAAP\"";
-//                    netConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
-//                    netConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
-//                    netConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
-//                    netConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-//                    netConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-//                    netConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
-//                    netConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
-//                    netConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
-
                     method.invoke(wifiManager, null, enable);
                 } catch (Exception ex) {
                     Log.e(TAG, "Switch on tethering", ex);
@@ -173,7 +175,8 @@ public class TetheringService extends IntentService {
         }
     }
 
-    private void setMobileDataEnabled(Context context, boolean enabled) {
+    private void setMobileDataEnabled(boolean enabled) {
+        Context context = getApplicationContext();
         final ConnectivityManager conman = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         try {
             final Class conmanClass = Class.forName(conman.getClass().getName());
@@ -198,17 +201,33 @@ public class TetheringService extends IntentService {
             method.setAccessible(true);
             return (Boolean) method.invoke(manager);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         }
 
         return false;
     }
 
-    public boolean isCorrectSimCard() {
+    private boolean isActivatedTethering() {
+        return prefs.getBoolean(AppProperties.ACTIVATE_TETHERING, false);
+    }
+
+    private boolean isSchedulerOn() {
+        return prefs.getBoolean(AppProperties.SCHEDULER, false);
+    }
+
+    private boolean isActivated3G() {
+        return prefs.getBoolean(AppProperties.ACTIVATE_3G, false);
+    }
+
+    private boolean isActivateOnStartup() {
+        return prefs.getBoolean(AppProperties.ACTIVATE_ON_STARTUP, false);
+    }
+
+    private boolean isCorrectSimCard() {
         if (!prefs.getString(AppProperties.SIMCARD, "").isEmpty()) {
             TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
             String simCard = tMgr.getSimSerialNumber();
@@ -216,5 +235,17 @@ public class TetheringService extends IntentService {
         } else {
             return true;
         }
+    }
+
+    /**
+     * Check if there is any 3G connectivity
+     *
+     * @param context
+     * @return
+     */
+    public boolean isConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        return (info != null && info.isConnected());
     }
 }

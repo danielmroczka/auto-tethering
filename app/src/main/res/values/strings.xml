@@ -5,4 +5,6 @@
     <string name="activate.only.summary">Activate only when this simcard is in the phone</string>
     <string name="activate.only.title">Activate on this SIM Card</string>
     <string name="activate.title">Activation</string>
+    <string name="scheduler">Scheduler will switch off tethering and 3G connection for provided times</string>
+    <string name="enter.value">Enter value</string>
 </resources>

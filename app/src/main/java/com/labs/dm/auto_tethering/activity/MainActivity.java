@@ -6,17 +6,22 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.wifi.WifiConfiguration;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.AppProperties;
+import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
-public class MainActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
+import java.util.Map;
+
+public class MainActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private SharedPreferences prefs;
 
@@ -25,6 +30,27 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                preference.setSummary((String) newValue);
+                return true;
+            }
+        };
+
+        PreferenceScreen pref = (PreferenceScreen) findPreference(AppProperties.SSID);
+        pref.setOnPreferenceChangeListener(changeListener);
+        EditTextPreference pref1 = (EditTextPreference) findPreference(AppProperties.TIME_ON);
+        pref1.setOnPreferenceChangeListener(changeListener);
+        EditTextPreference pref2 = (EditTextPreference) findPreference(AppProperties.TIME_OFF);
+        pref2.setOnPreferenceChangeListener(changeListener);
+
+        for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
+            if (AppProperties.TIME_ON.equals(entry.getKey()) || AppProperties.TIME_OFF.equals(entry.getKey())) {
+                Preference p = findPreference(entry.getKey());
+                p.setSummary((CharSequence) entry.getValue());
+            }
+        }
+
     }
 
     @Override
@@ -41,7 +67,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         if (!prefs.getString(AppProperties.LATEST_VERSION, "").isEmpty()) {
             return;
         } else {
-            prefs.edit().putString(AppProperties.LATEST_VERSION, "1").apply();
+            prefs.edit().putString(AppProperties.LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -90,12 +116,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 }
             }
         }
-    }
-
-    @Override
-    public boolean onPreferenceChange(Preference preference, Object newValue) {
-        System.out.println(preference);
-        return true;
     }
 
     @Override
