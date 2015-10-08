@@ -1,6 +1,7 @@
 package com.labs.dm.auto_tethering.activity;
 
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,6 +25,7 @@ import java.util.Map;
 public class MainActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private SharedPreferences prefs;
+    private Notification notification;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,13 +47,41 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         pref2.setOnPreferenceChangeListener(changeListener);
 
         for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
+            Preference p = findPreference(entry.getKey());
+
             if (AppProperties.TIME_ON.equals(entry.getKey()) || AppProperties.TIME_OFF.equals(entry.getKey())) {
-                Preference p = findPreference(entry.getKey());
                 p.setSummary((CharSequence) entry.getValue());
+            }
+
+            if (AppProperties.SSID.equals(entry.getKey())) {
+                WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
+                p.setSummary(cfg.SSID);
             }
         }
 
+        int icon = R.drawable.wifi;
+        CharSequence tickerText = "Wifi";
+        long when = System.currentTimeMillis();
+
+        //  notification(icon, tickerText, when);
+
     }
+
+/*    private void notification(int icon, CharSequence tickerText, long when) {
+        notification = new Notification(icon, tickerText, when);
+
+        Context context = getApplicationContext();
+        contentText = "Hello World!";
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        contentIntent = PendingIntent.getActivity(this,
+                0, notificationIntent, 0);
+
+        notification.setLatestEventInfo(context, contentTitle,
+                contentText, contentIntent);
+
+        notificationManager.notify(NOTIFICATION_EX, notification);
+    }*/
+
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
