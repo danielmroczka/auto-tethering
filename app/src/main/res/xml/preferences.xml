@@ -55,7 +55,7 @@
         <PreferenceScreen
             android:key="ssid"
             android:summary=""
-            android:title="SSID Tethering network">
+            android:title="@string/ssid">
             <intent
                 android:targetClass="com.android.settings.TetherSettings"
                 android:targetPackage="com.android.settings" />

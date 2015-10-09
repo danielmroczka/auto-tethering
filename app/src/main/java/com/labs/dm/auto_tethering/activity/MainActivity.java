@@ -24,6 +24,7 @@ import java.util.Map;
 
 public class MainActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    private static final int ON_CHANGE_SSID = 123;
     private SharedPreferences prefs;
     private Notification notification;
 
@@ -59,6 +60,16 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         }
 
+        Preference p = findPreference(AppProperties.SSID);
+        p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                startActivityForResult(preference.getIntent(), ON_CHANGE_SSID);
+                return true;
+            }
+        });
+
+
         int icon = R.drawable.wifi;
         CharSequence tickerText = "Wifi";
         long when = System.currentTimeMillis();
@@ -67,21 +78,30 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     }
 
-/*    private void notification(int icon, CharSequence tickerText, long when) {
-        notification = new Notification(icon, tickerText, when);
+    /*    private void notification(int icon, CharSequence tickerText, long when) {
+            notification = new Notification(icon, tickerText, when);
 
-        Context context = getApplicationContext();
-        contentText = "Hello World!";
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        contentIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
+            Context context = getApplicationContext();
+            contentText = "Hello World!";
+            Intent notificationIntent = new Intent(this, MainActivity.class);
+            contentIntent = PendingIntent.getActivity(this,
+                    0, notificationIntent, 0);
 
-        notification.setLatestEventInfo(context, contentTitle,
-                contentText, contentIntent);
+            notification.setLatestEventInfo(context, contentTitle,
+                    contentText, contentIntent);
 
-        notificationManager.notify(NOTIFICATION_EX, notification);
-    }*/
+            notificationManager.notify(NOTIFICATION_EX, notification);
+        }*/
+    @Override
+    protected void onActivityResult(int reqCode, int resCode, Intent data) {
+        if (reqCode == ON_CHANGE_SSID) {
+            Preference p = findPreference("ssid");
 
+            WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
+            p.setSummary(cfg.SSID);
+
+        }
+    }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {

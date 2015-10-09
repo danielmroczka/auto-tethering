@@ -7,4 +7,5 @@
     <string name="activate.title">Activation</string>
     <string name="scheduler">Scheduler will switch off tethering and 3G connection for provided times</string>
     <string name="enter.value">Enter value</string>
+    <string name="ssid">SSID Tethering network</string>
 </resources>
