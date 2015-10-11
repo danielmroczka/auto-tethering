@@ -6,6 +6,9 @@ import android.content.Intent;
 
 import com.labs.dm.auto_tethering.service.TetheringService;
 
+/**
+ * Created by Daniel Mroczka
+ */
 public class BootCompletedReceiver extends BroadcastReceiver {
 
     @Override

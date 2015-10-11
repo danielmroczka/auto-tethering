@@ -1,8 +1,6 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="">
-        <!-- Customize your theme here. -->
-    </style>
+    <style name="AppTheme" parent="android:style/Theme"></style>
 
 </resources>

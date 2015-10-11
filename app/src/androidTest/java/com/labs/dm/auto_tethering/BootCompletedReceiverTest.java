@@ -6,6 +6,10 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 /**
  * Created by daniel on 2015-10-08.
  */
@@ -20,10 +24,9 @@ public class BootCompletedReceiverTest extends AndroidTestCase {
 
     @SmallTest
     public void testStartActivity() {
-        receiver = new BootCompletedReceiver();
+        receiver = mock(BootCompletedReceiver.class);
         Intent intent = new Intent(Intent.ACTION_BOOT_COMPLETED);
-        //intent.putExtra(Intent.EXTRA_PHONE_NUMBER, "01234567890");
-
         receiver.onReceive(getContext(), intent);
+        verify(receiver.onReceive(), atLeastOnce());
     }
 }

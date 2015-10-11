@@ -1,7 +1,7 @@
 package com.labs.dm.auto_tethering;
 
 /**
- * Created by daniel on 2015-09-29.
+ * Created by Daniel Mroczka
  */
 public class AppProperties {
 

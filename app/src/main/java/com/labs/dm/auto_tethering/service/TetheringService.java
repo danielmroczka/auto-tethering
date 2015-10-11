@@ -24,10 +24,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Created by Daniel Mroczka
+ */
 public class TetheringService extends IntentService {
 
     private static final String TAG = "MyTetheringService";
-    private boolean state;
     private Calendar timeOff;
     private Calendar timeOn;
     private SharedPreferences prefs;
@@ -105,8 +107,6 @@ public class TetheringService extends IntentService {
             Log.w(TAG, "3G turning on...");
             setMobileDataEnabled(true);
         }
-
-        this.state = false;
     }
 
     /**
@@ -143,8 +143,6 @@ public class TetheringService extends IntentService {
      * @param state
      */
     private void switcher(boolean state) {
-        this.state = state;
-
         if (isCorrectSimCard()) {
             Log.i(TAG, "Switch 3G and tethering to state=" + state);
             if (isActivated3G()) {
@@ -155,7 +153,6 @@ public class TetheringService extends IntentService {
             }
         }
     }
-
 
     private void setWifiTetheringEnabled(boolean enable) {
         WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
