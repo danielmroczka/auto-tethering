@@ -1,6 +1,7 @@
 language: android
 jdk: oraclejdk7
 install: gradle check
+script: gradle check
 android:
   components:
     - build-tools-21.1.1
