@@ -1,5 +1,6 @@
 language: android
 script: gradle -b app/build.gradle build
+install: gradle -b app/build.gradle build
 android:
   components:
     - build-tools-19.0.3
