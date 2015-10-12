@@ -1,7 +1,11 @@
 language: android
 jdk: oraclejdk7
-install: gradle assembleDebug
+install: gradle check
 android:
   components:
     - build-tools-21.1.1
     - android-21
+    - extra-android-m2repository
+    - extra
+    - extra-google-m2repository
+    - add-on
