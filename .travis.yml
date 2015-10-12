@@ -1,5 +1,6 @@
 language: android
 jdk: oraclejdk7
+install: gradle build
 android:
   components:
     - build-tools-19.1.0
