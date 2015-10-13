@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
 import java.util.Map;
@@ -52,13 +53,22 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 return true;
             }
         };
+        Preference.OnPreferenceChangeListener editTimeChangeListener = new Preference.OnPreferenceChangeListener() {
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                boolean res = Utils.validateTime((String) newValue);
+                if (res) {
+                    preference.setSummary((String) newValue);
+                }
+                return res;
+            }
+        };
 
-        PreferenceScreen pref = (PreferenceScreen) findPreference(AppProperties.SSID);
-        pref.setOnPreferenceChangeListener(changeListener);
-        EditTextPreference pref1 = (EditTextPreference) findPreference(AppProperties.TIME_ON);
-        pref1.setOnPreferenceChangeListener(changeListener);
-        EditTextPreference pref2 = (EditTextPreference) findPreference(AppProperties.TIME_OFF);
-        pref2.setOnPreferenceChangeListener(changeListener);
+        PreferenceScreen editSSID = (PreferenceScreen) findPreference(AppProperties.SSID);
+        editSSID.setOnPreferenceChangeListener(changeListener);
+        EditTextPreference editTimeOn = (EditTextPreference) findPreference(AppProperties.TIME_ON);
+        editTimeOn.setOnPreferenceChangeListener(editTimeChangeListener);
+        EditTextPreference editTimeOff = (EditTextPreference) findPreference(AppProperties.TIME_OFF);
+        editTimeOff.setOnPreferenceChangeListener(editTimeChangeListener);
 
         for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
             Preference p = findPreference(entry.getKey());
