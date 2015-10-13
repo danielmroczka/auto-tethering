@@ -25,13 +25,6 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
-/*    productFlavors {
-        full {
-            applicationId "com.buildsystemexample.app.full"
-            versionName "1.0-full"
-        }
-    }*/
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
     }

@@ -112,7 +112,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     protected void onActivityResult(int reqCode, int resCode, Intent data) {
         if (reqCode == ON_CHANGE_SSID) {
-            Preference p = findPreference("ssid");
+            Preference p = findPreference(AppProperties.SSID);
             WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
             p.setSummary(cfg.SSID);
         }
@@ -139,7 +139,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         builder.setTitle("Warning");
         builder.setMessage(getString(R.string.prompt));
 
-        builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 prefs.edit().putBoolean(AppProperties.ACTIVATE_3G, true).apply();
@@ -147,7 +147,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
-        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 prefs.edit().putBoolean(AppProperties.ACTIVATE_3G, false).apply();
