@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -99,13 +100,13 @@ public class TetheringService extends IntentService {
         // Checks if Tethering is working
         if (isActivatedTethering() && !isSharingWiFi()) {
             Log.w(TAG, "Tethering turning on...");
-            setWifiTetheringEnabled(true);
+            new TurnOnTetheringAsyncTask().doInBackground(true);
         }
 
         // Checks if 3G connection is established
         if (isActivated3G() && !isConnected(getApplicationContext())) {
             Log.w(TAG, "3G turning on...");
-            setMobileDataEnabled(true);
+            new TurnOn3GAsyncTask().doInBackground(true);
         }
     }
 
@@ -145,11 +146,12 @@ public class TetheringService extends IntentService {
     private void switcher(boolean state) {
         if (isCorrectSimCard()) {
             Log.i(TAG, "Switch 3G and tethering to state=" + state);
+
             if (isActivated3G()) {
-                setMobileDataEnabled(state);
+                new TurnOn3GAsyncTask().doInBackground(state);
             }
             if (isActivatedTethering()) {
-                setWifiTetheringEnabled(state);
+                new TurnOnTetheringAsyncTask().doInBackground(state);
             }
         }
     }
@@ -244,5 +246,23 @@ public class TetheringService extends IntentService {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = cm.getActiveNetworkInfo();
         return (info != null && info.isConnected());
+    }
+
+    private class TurnOn3GAsyncTask extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... params) {
+            setMobileDataEnabled(params[0]);
+            return null;
+        }
+    }
+
+    private class TurnOnTetheringAsyncTask extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... params) {
+            setWifiTetheringEnabled(params[0]);
+            return null;
+        }
     }
 }
