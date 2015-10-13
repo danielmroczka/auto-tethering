@@ -1,7 +1,6 @@
 language: android
-jdk: oraclejdk7
 install: true
-script: gradle assembleDebug
+script: gradle build
 android:
   components:
     - build-tools-21.1.1
