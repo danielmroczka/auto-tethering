@@ -1,6 +1,6 @@
 language: android
 install: true
-script: gradle clean assemble build jacocTestReport
+script: gradle clean assemble build jacocoTestReport
 android:
   components:
     - build-tools-21.1.1
