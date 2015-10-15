@@ -1,10 +1,10 @@
 language: android
 install: true
-script: gradle clean assemble build jacocoTestReport
+script: gradle clean build
 android:
   components:
     - build-tools-21.1.1
     - android-21
     - extra
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - gradle clean assemble jacocoTestReport coveralls
