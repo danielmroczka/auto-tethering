@@ -1,10 +1,8 @@
 language: android
 install: true
-script: gradle clean build
+script: gradle clean assemble jacocoTestReport coveralls
 android:
   components:
     - build-tools-21.1.1
     - android-21
     - extra
-after_success:
-  - gradle clean assemble jacocoTestReport coveralls
