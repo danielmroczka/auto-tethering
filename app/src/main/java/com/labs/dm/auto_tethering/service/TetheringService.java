@@ -14,7 +14,6 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.Utils;
 
 import java.lang.reflect.Field;
@@ -25,6 +24,18 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
+
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
+import static com.labs.dm.auto_tethering.AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.SCHEDULER;
+import static com.labs.dm.auto_tethering.AppProperties.SIMCARD;
+import static com.labs.dm.auto_tethering.AppProperties.TIME_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.TIME_ON;
 
 /**
  * Created by Daniel Mroczka
@@ -149,7 +160,7 @@ public class TetheringService extends IntentService {
     }
 
     private boolean checkIdle() {
-        if (prefs.getBoolean(AppProperties.IDLE_3G_OFF, false) || prefs.getBoolean(AppProperties.IDLE_TETHERING_OFF, false)) {
+        if (prefs.getBoolean(IDLE_3G_OFF, false) || prefs.getBoolean(IDLE_TETHERING_OFF, false)) {
             if (Utils.connectedClients() > 0) {
                 lastAccess = Calendar.getInstance().getTimeInMillis();
                 return false;
@@ -163,8 +174,8 @@ public class TetheringService extends IntentService {
     }
 
     private boolean check3GIdle() {
-        if (prefs.getBoolean(AppProperties.IDLE_3G_OFF, false)) {
-            if (Calendar.getInstance().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(AppProperties.IDLE_3G_OFF_TIME, "60")) * 1000 * 60) {
+        if (prefs.getBoolean(IDLE_3G_OFF, false)) {
+            if (Calendar.getInstance().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_3G_OFF_TIME, "60")) * 1000 * 60) {
                 return true;
             }
         }
@@ -173,8 +184,8 @@ public class TetheringService extends IntentService {
     }
 
     private boolean checkWifiIdle() {
-        if (prefs.getBoolean(AppProperties.IDLE_TETHERING_OFF, false)) {
-            if (Calendar.getInstance().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(AppProperties.IDLE_TETHERING_OFF_TIME, AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME)) * 1000 * 60) {
+        if (prefs.getBoolean(IDLE_TETHERING_OFF, false)) {
+            if (Calendar.getInstance().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_TETHERING_OFF_TIME, DEFAULT_IDLE_TETHERING_OFF_TIME)) * 1000 * 60) {
                 return true;
             }
         }
@@ -195,8 +206,8 @@ public class TetheringService extends IntentService {
         timeOff = Calendar.getInstance();
         timeOn = Calendar.getInstance();
         try {
-            timeOff.setTime(formatter.parse(prefs.getString(AppProperties.TIME_OFF, "")));
-            timeOn.setTime(formatter.parse(prefs.getString(AppProperties.TIME_ON, "")));
+            timeOff.setTime(formatter.parse(prefs.getString(TIME_OFF, "")));
+            timeOn.setTime(formatter.parse(prefs.getString(TIME_ON, "")));
         } catch (ParseException e) {
             Log.e(TAG, e.getMessage());
         }
@@ -273,22 +284,22 @@ public class TetheringService extends IntentService {
     }
 
     private boolean isActivatedTethering() {
-        return prefs.getBoolean(AppProperties.ACTIVATE_TETHERING, false);
+        return prefs.getBoolean(ACTIVATE_TETHERING, false);
     }
 
     private boolean isSchedulerOn() {
-        return prefs.getBoolean(AppProperties.SCHEDULER, false);
+        return prefs.getBoolean(SCHEDULER, false);
     }
 
     private boolean isActivated3G() {
-        return prefs.getBoolean(AppProperties.ACTIVATE_3G, false);
+        return prefs.getBoolean(ACTIVATE_3G, false);
     }
 
     private boolean isCorrectSimCard() {
-        if (!prefs.getString(AppProperties.SIMCARD, "").isEmpty()) {
+        if (!prefs.getString(SIMCARD, "").isEmpty()) {
             TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
             String simCard = tMgr.getSimSerialNumber();
-            return simCard != null && prefs.getString(AppProperties.SIMCARD, "").equals(simCard);
+            return simCard != null && prefs.getString(SIMCARD, "").equals(simCard);
         } else {
             return true;
         }

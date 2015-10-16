@@ -25,14 +25,8 @@ public class Utils {
             BufferedReader br = new BufferedReader(new FileReader("/proc/net/arp"));
             String line;
             while ((line = br.readLine()) != null) {
-                //line = line.trim();
                 if (!line.startsWith("IP")) {
                     res++;
-                    //line = line.substring(0, line.indexOf(" "));
-                    //InetAddress address = InetAddress.getByName(line);
-                    //if (address.isisReachable(100)) {
-                    //items.add(line.trim());
-                    //}
                 }
             }
         } catch (FileNotFoundException e) {

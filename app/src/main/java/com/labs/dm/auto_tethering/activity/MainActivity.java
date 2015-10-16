@@ -21,13 +21,27 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
 import java.util.Map;
+
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
+import static com.labs.dm.auto_tethering.AppProperties.SCHEDULER;
+import static com.labs.dm.auto_tethering.AppProperties.SIMCARD;
+import static com.labs.dm.auto_tethering.AppProperties.SSID;
+import static com.labs.dm.auto_tethering.AppProperties.TIME_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.TIME_ON;
 
 /**
  * Created by Daniel Mroczka
@@ -63,27 +77,27 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         };
 
-        PreferenceScreen editSSID = (PreferenceScreen) findPreference(AppProperties.SSID);
+        PreferenceScreen editSSID = (PreferenceScreen) findPreference(SSID);
         editSSID.setOnPreferenceChangeListener(changeListener);
-        EditTextPreference editTimeOn = (EditTextPreference) findPreference(AppProperties.TIME_ON);
+        EditTextPreference editTimeOn = (EditTextPreference) findPreference(TIME_ON);
         editTimeOn.setOnPreferenceChangeListener(editTimeChangeListener);
-        EditTextPreference editTimeOff = (EditTextPreference) findPreference(AppProperties.TIME_OFF);
+        EditTextPreference editTimeOff = (EditTextPreference) findPreference(TIME_OFF);
         editTimeOff.setOnPreferenceChangeListener(editTimeChangeListener);
 
         for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
             Preference p = findPreference(entry.getKey());
 
-            if (AppProperties.TIME_ON.equals(entry.getKey()) || AppProperties.TIME_OFF.equals(entry.getKey())) {
+            if (TIME_ON.equals(entry.getKey()) || TIME_OFF.equals(entry.getKey())) {
                 p.setSummary((CharSequence) entry.getValue());
             }
 
-            if (AppProperties.SSID.equals(entry.getKey())) {
+            if (SSID.equals(entry.getKey())) {
                 WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
                 p.setSummary(cfg != null ? cfg.SSID : "<empty>");
             }
         }
 
-        Preference p = findPreference(AppProperties.SSID);
+        Preference p = findPreference(SSID);
         p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -112,7 +126,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     protected void onActivityResult(int reqCode, int resCode, Intent data) {
         if (reqCode == ON_CHANGE_SSID) {
-            Preference p = findPreference(AppProperties.SSID);
+            Preference p = findPreference(SSID);
             WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
             p.setSummary(cfg.SSID);
         }
@@ -124,13 +138,13 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         Intent serviceIntent = new Intent(this, TetheringService.class);
         startService(serviceIntent);
         WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
-        prefs.edit().putString(AppProperties.SSID, cfg.SSID).apply();
+        prefs.edit().putString(SSID, cfg.SSID).apply();
         loadPrefs();
         displayPrompt();
     }
 
     private void displayPrompt() {
-        if (!prefs.getString(AppProperties.LATEST_VERSION, "").isEmpty()) {
+        if (!prefs.getString(LATEST_VERSION, "").isEmpty()) {
             return;
         }
 
@@ -142,23 +156,23 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                prefs.edit().putBoolean(AppProperties.ACTIVATE_3G, true).apply();
-                prefs.edit().putBoolean(AppProperties.ACTIVATE_TETHERING, true).apply();
+                prefs.edit().putBoolean(ACTIVATE_3G, true).apply();
+                prefs.edit().putBoolean(ACTIVATE_TETHERING, true).apply();
             }
         });
 
         builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                prefs.edit().putBoolean(AppProperties.ACTIVATE_3G, false).apply();
-                prefs.edit().putBoolean(AppProperties.ACTIVATE_TETHERING, false).apply();
+                prefs.edit().putBoolean(ACTIVATE_3G, false).apply();
+                prefs.edit().putBoolean(ACTIVATE_TETHERING, false).apply();
             }
         });
 
 
         AlertDialog alert = builder.create();
         alert.show();
-        prefs.edit().putString(AppProperties.LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
+        prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
     }
 
     @Override
@@ -177,29 +191,29 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         Preference p = findPreference(key);
 
         switch (key) {
-            case AppProperties.ACTIVATE_ON_SIMCARD: {
-                if (sharedPreferences.getBoolean(AppProperties.ACTIVATE_ON_SIMCARD, false)) {
+            case ACTIVATE_ON_SIMCARD: {
+                if (sharedPreferences.getBoolean(ACTIVATE_ON_SIMCARD, false)) {
                     TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
                     String simCard = tMgr.getSimSerialNumber();
                     if (simCard == null || simCard.isEmpty()) {
                         Toast.makeText(getApplicationContext(), "Unable to retrieve SIM Card Serial!", Toast.LENGTH_LONG).show();
-                        prefs.edit().putBoolean(AppProperties.ACTIVATE_ON_SIMCARD, false).apply();
-                        prefs.edit().putString(AppProperties.SIMCARD, "").apply();
+                        prefs.edit().putBoolean(ACTIVATE_ON_SIMCARD, false).apply();
+                        prefs.edit().putString(SIMCARD, "").apply();
                     } else {
-                        prefs.edit().putString(AppProperties.SIMCARD, simCard);
+                        prefs.edit().putString(SIMCARD, simCard);
                     }
                 }
             }
 
-            case AppProperties.TIME_OFF:
-            case AppProperties.TIME_ON: {
+            case TIME_OFF:
+            case TIME_ON: {
                 loadPrefs();
                 break;
             }
 
-            case AppProperties.ACTIVATE_3G:
-            case AppProperties.ACTIVATE_TETHERING:
-            case AppProperties.ACTIVATE_ON_STARTUP: {
+            case ACTIVATE_3G:
+            case ACTIVATE_TETHERING:
+            case ACTIVATE_ON_STARTUP: {
                 ((CheckBoxPreference) findPreference(key)).setChecked(sharedPreferences.getBoolean(key, false));
                 break;
             }
@@ -238,10 +252,21 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     void setupSummaryText1() {
         PreferenceScreen ps = (PreferenceScreen) findPreference("scheduler.screen");
         StringBuilder sb = new StringBuilder();
-        if (prefs.getBoolean(AppProperties.SCHEDULER, false)) {
-            sb.append("Scheduler enabled between " + prefs.getString(AppProperties.TIME_OFF, "0:00") + " and " + prefs.getString(AppProperties.TIME_ON, "6:00"));
+        if (prefs.getBoolean(SCHEDULER, false)) {
+            sb.append("Scheduler enabled between " + prefs.getString(TIME_OFF, "0:00") + " and " + prefs.getString(TIME_ON, "6:00"));
+            sb.append("\n");
         } else {
             sb.append("Scheduler disabled");
+            sb.append("\n");
+        }
+
+        if (prefs.getBoolean(IDLE_TETHERING_OFF, false)) {
+            sb.append("Switch off tethering on idle after " + prefs.getString(IDLE_TETHERING_OFF_TIME, "60") + " minutes inactivity");
+            sb.append("\n");
+        }
+        if (prefs.getBoolean(IDLE_3G_OFF, false)) {
+            sb.append("Switch off 3G on idle after " + prefs.getString(IDLE_3G_OFF_TIME, "60") + " minutes inactivity");
+            sb.append("\n");
         }
         ps.setSummary(sb.toString());
 
