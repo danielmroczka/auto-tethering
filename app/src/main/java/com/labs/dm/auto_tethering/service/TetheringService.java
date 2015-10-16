@@ -71,8 +71,47 @@ public class TetheringService extends IntentService {
 
         while (true) {
             try {
-                if (isCorrectSimCard()) {
-                    onTick();
+                if (isServiceActived()) {
+                    if (isCorrectSimCard()) {
+
+                        boolean connected3G = isConnected(getApplicationContext());
+                        boolean tethered = isSharingWiFi();
+
+                        boolean b1 = isScheduledTimeOff();
+                        boolean b2 = shouldReconnect();
+                        boolean b3 = shouldDisconnectOnIdle();
+
+                        if (b1) {
+                            if (connected3G) {
+                                new TurnOn3GAsyncTask().doInBackground(false);
+                                Log.i(TAG, "Scheduled switching off 3G");
+                            }
+                            if (tethered) {
+                                new TurnOnTetheringAsyncTask().doInBackground(false);
+                                Log.i(TAG, "Scheduled switching off Tethering");
+                            }
+                        } else if (b3) {
+                            if (connected3G && check3GIdle()) {
+                                new TurnOn3GAsyncTask().doInBackground(false);
+                                Log.i(TAG, "OnIdle switching off 3G");
+                            }
+                            if (tethered && checkWifiIdle()) {
+                                new TurnOnTetheringAsyncTask().doInBackground(false);
+                                Log.i(TAG, "OnIdle switching off Tethering");
+                            }
+                        } else if (b2) {
+                            if (isActivated3G() && !connected3G) {
+                                new TurnOn3GAsyncTask().doInBackground(true);
+                                Log.i(TAG, "Switching on 3G");
+
+                            }
+                            if (isActivatedTethering() && !tethered) {
+                                new TurnOnTetheringAsyncTask().doInBackground(true);
+                                Log.i(TAG, "Switching on Tethering");
+                            }
+
+                        }
+                    }
                 }
 
                 TimeUnit.SECONDS.sleep(CHECK_DELAY);
@@ -83,30 +122,30 @@ public class TetheringService extends IntentService {
         }
     }
 
-    private void onTick() {
+    private boolean shouldDisconnectOnIdle() {
+        return checkIdle();
+    }
+
+    private boolean shouldReconnect() {
+        return true;
+    }
+
+    private boolean isServiceActived() {
+        return true;
+    }
+
+    private boolean isScheduledTimeOff() {
         Calendar c = Calendar.getInstance();
         timeOn.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
         timeOff.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
 
-        // Scheduler part:
         if (isSchedulerOn()) {
             if (c.after(timeOff) && c.before(timeOn)) {
-                onSchedulerInside();
-            } else {
-                reconnect();
-            }
-        } else {
-            reconnect();
-        }
-        if (checkIdle()) {
-            if (check3GIdle()) {
-                setMobileDataEnabled(false);
-                new TurnOn3GAsyncTask().doInBackground(false);
-            }
-            if (checkWifiIdle()) {
-                new TurnOnTetheringAsyncTask().doInBackground(false);
+                return true;
             }
         }
+
+        return false;
     }
 
     private boolean checkIdle() {
@@ -141,28 +180,6 @@ public class TetheringService extends IntentService {
         }
 
         return false;
-    }
-
-    private void reconnect() {
-        // Checks if Tethering is working
-        if (isActivatedTethering() && !isSharingWiFi()) {
-            Log.w(TAG, "Tethering turning on...");
-            new TurnOnTetheringAsyncTask().doInBackground(true);
-        }
-
-        // Checks if 3G connection is established
-        if (isActivated3G() && !isConnected(getApplicationContext())) {
-            Log.w(TAG, "3G turning on...");
-            new TurnOn3GAsyncTask().doInBackground(true);
-        }
-    }
-
-    /**
-     * Trigger when current time is inside schedule period
-     */
-    private void onSchedulerInside() {
-        switcher(false);
-        Log.i(TAG, "Scheduler turned off connection and tethering");
     }
 
     @Override
@@ -208,7 +225,7 @@ public class TetheringService extends IntentService {
         for (Method method : methods) {
             if (method.getName().equals("setWifiApEnabled")) {
                 try {
-                    Log.i(TAG, "switching on tethering...");
+                    Log.i(TAG, "setWifiTetheringEnabled to " + enable);
                     method.invoke(wifiManager, null, enable);
                 } catch (Exception ex) {
                     Log.e(TAG, "Switch on tethering", ex);

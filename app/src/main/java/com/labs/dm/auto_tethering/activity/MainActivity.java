@@ -191,6 +191,12 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 }
             }
 
+            case AppProperties.TIME_OFF:
+            case AppProperties.TIME_ON: {
+                loadPrefs();
+                break;
+            }
+
             case AppProperties.ACTIVATE_3G:
             case AppProperties.ACTIVATE_TETHERING:
             case AppProperties.ACTIVATE_ON_STARTUP: {
