@@ -1,4 +1,4 @@
-# auto-tethering
+# auto-wifi-tethering
 
 [![Travis Build Status](https://travis-ci.org/danielmroczka/auto-tethering.png?branch=master)](https://travis-ci.org/danielmroczka/auto-tethering)
 
@@ -7,12 +7,14 @@ Phone is connected through 3G/4G/LTE connection to internet and shares connectio
 Application triggers just after boot has been completed and switching on 3G connection and switch on tethering.
 In this way phone is working as router just after switched it on without any additional support from user side.
 
-Min. required Android version: 2.3
+Min. required Android version: 2.3 (less features but more devices supported)
 
 Functionalities should be completed in a future:
 - switching on/off opening service just after boot
 - switching on for provided telephone number (to avoid additional charges if user replace simcard and forget to switching service off)
-- delay after boot
+- scheduled switching off phone for provided timeframe (i.e. to save energy during the night)
+- switching off once no one is connected to router (with some idle time)
+- continuous monitoring connection state and reconnect if it is required
 
 ## Usage
 Signing apk needs to set credentials in local file gradle.properties and add following settings:
@@ -26,4 +28,4 @@ RELEASE_KEY_PASSWORD=*****
 More about signing apk files you may find here: http://developer.android.com/tools/publishing/app-signing.html
 
 ## Google Play app
-Built app you may install here: https://play.google.com/store/apps/details?id=com.labs.dm.auto_tethering
+Built application you may install here: https://play.google.com/store/apps/details?id=com.labs.dm.auto_tethering
