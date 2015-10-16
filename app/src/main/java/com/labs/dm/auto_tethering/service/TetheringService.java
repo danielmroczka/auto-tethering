@@ -15,6 +15,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.AppProperties;
+import com.labs.dm.auto_tethering.Utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -31,9 +32,11 @@ import java.util.concurrent.TimeUnit;
 public class TetheringService extends IntentService {
 
     private static final String TAG = "MyTetheringService";
+    private final static int CHECK_DELAY = 15;
     private Calendar timeOff;
     private Calendar timeOn;
     private SharedPreferences prefs;
+    private long lastAccess = Calendar.getInstance().getTimeInMillis();
 
     public TetheringService() {
         super("TetheringService");
@@ -68,11 +71,11 @@ public class TetheringService extends IntentService {
 
         while (true) {
             try {
-            if (isCorrectSimCard()) {
-                onTick();
-            }
+                if (isCorrectSimCard()) {
+                    onTick();
+                }
 
-                TimeUnit.SECONDS.sleep(15);
+                TimeUnit.SECONDS.sleep(CHECK_DELAY);
             } catch (InterruptedException e) {
                 Log.e(TAG, e.getMessage());
             }
@@ -95,6 +98,49 @@ public class TetheringService extends IntentService {
         } else {
             reconnect();
         }
+        if (checkIdle()) {
+            if (check3GIdle()) {
+                setMobileDataEnabled(false);
+                new TurnOn3GAsyncTask().doInBackground(false);
+            }
+            if (checkWifiIdle()) {
+                new TurnOnTetheringAsyncTask().doInBackground(false);
+            }
+        }
+    }
+
+    private boolean checkIdle() {
+        if (prefs.getBoolean(AppProperties.IDLE_3G_OFF, false) || prefs.getBoolean(AppProperties.IDLE_TETHERING_OFF, false)) {
+            if (Utils.connectedClients() > 0) {
+                lastAccess = Calendar.getInstance().getTimeInMillis();
+                return false;
+            }
+
+            return true;
+        } else {
+            lastAccess = Calendar.getInstance().getTimeInMillis();
+        }
+        return false;
+    }
+
+    private boolean check3GIdle() {
+        if (prefs.getBoolean(AppProperties.IDLE_3G_OFF, false)) {
+            if (Calendar.getInstance().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(AppProperties.IDLE_3G_OFF_TIME, "60")) * 1000 * 60) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean checkWifiIdle() {
+        if (prefs.getBoolean(AppProperties.IDLE_TETHERING_OFF, false)) {
+            if (Calendar.getInstance().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(AppProperties.IDLE_TETHERING_OFF_TIME, AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME)) * 1000 * 60) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void reconnect() {
@@ -243,7 +289,7 @@ public class TetheringService extends IntentService {
         return (info != null && info.isConnected());
     }
 
-    private class TurnOn3GAsyncTask extends AsyncTask<Boolean, Void, Void> {
+    protected class TurnOn3GAsyncTask extends AsyncTask<Boolean, Void, Void> {
         @Override
         protected Void doInBackground(Boolean... params) {
             setMobileDataEnabled(params[0]);
@@ -251,7 +297,7 @@ public class TetheringService extends IntentService {
         }
     }
 
-    private class TurnOnTetheringAsyncTask extends AsyncTask<Boolean, Void, Void> {
+    protected class TurnOnTetheringAsyncTask extends AsyncTask<Boolean, Void, Void> {
         @Override
         protected Void doInBackground(Boolean... params) {
             setWifiTetheringEnabled(params[0]);

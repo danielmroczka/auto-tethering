@@ -3,7 +3,9 @@
     android:key="prefs"
     android:title="@string/app_name">
 
-    <PreferenceCategory android:title="Startup activation">
+    <PreferenceScreen
+        android:key="startup.screen"
+        android:title="Startup activation">
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="activate.on.startup"
@@ -19,41 +21,78 @@
             android:key="activate.tethering"
             android:summary="@string/activateTethering.summary"
             android:title="@string/activateTethering.title" />
-    </PreferenceCategory>
+    </PreferenceScreen>
 
-    <PreferenceCategory android:title="Scheduler">
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="scheduler.on"
-            android:summary="@string/scheduler"
-            android:title="Activate Scheduler" />
-        <EditTextPreference
-            android:defaultValue="0:00"
-            android:dependency="scheduler.on"
-            android:dialogTitle="@string/enter.value"
-            android:inputType="time"
-            android:key="scheduler.time.off"
-            android:summary="..."
-            android:title="Switch OFF time" />
-        <EditTextPreference
-            android:defaultValue="6:00"
-            android:dependency="scheduler.on"
-            android:dialogTitle="@string/enter.value"
-            android:inputType="time"
-            android:key="scheduler.time.on"
-            android:summary="..."
-            android:title="Switch ON time" />
-    </PreferenceCategory>
+    <PreferenceScreen
+        android:key="scheduler.screen"
+        android:title="Scheduler">
+        <PreferenceCategory>
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="scheduler.on"
+                android:summary="@string/scheduler"
+                android:title="Activate Scheduler" />
+            <EditTextPreference
+                android:defaultValue="0:00"
+                android:dependency="scheduler.on"
+                android:dialogTitle="@string/enter.value"
+                android:inputType="time"
+                android:key="scheduler.time.off"
+                android:summary="..."
+                android:title="Switch OFF time" />
+            <EditTextPreference
+                android:defaultValue="6:00"
+                android:dependency="scheduler.on"
+                android:dialogTitle="@string/enter.value"
+                android:inputType="time"
+                android:key="scheduler.time.on"
+                android:summary="..."
+                android:title="Switch ON time" />
+        </PreferenceCategory>
+        <PreferenceCategory>
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="idle.wifi.off"
+                android:summary="Switch off Tethering if no clients connected"
+                android:title="Switch off Tethering if no clients connected" />
+            <EditTextPreference
+                android:defaultValue="60"
+                android:dependency="idle.wifi.off"
+                android:dialogTitle="Enter value in minutes"
+                android:inputType="number"
+                android:key="idle.wifi.off.time"
+                android:summary=""
+                android:title="Idle time:" />
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="idle.3g.off"
+                android:summary="Switch off 3G Connection if no clients connected"
+                android:title="Switch off 3G Connection if no clients connected" />
+            <EditTextPreference
+                android:defaultValue="60"
+                android:dependency="idle.3g.off"
+                android:dialogTitle="Enter value in minutes"
+                android:inputType="number"
+                android:key="idle.3g.off.time"
+                android:summary=""
+                android:title="Idle time:" />
 
-    <PreferenceCategory android:title="@string/activate.title">
+        </PreferenceCategory>
+    </PreferenceScreen>
+
+    <PreferenceScreen
+        android:key="adv.act.screen"
+        android:title="Advanced Activation">
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="activate.simcard"
             android:summary="@string/activate.only.summary"
             android:title="@string/activate.only.title" />
-    </PreferenceCategory>
+    </PreferenceScreen>
 
-    <PreferenceCategory android:title="SSID Configuration">
+    <PreferenceCategory
+        android:key="ssid.screen"
+        android:title="SSID Configuration">
         <PreferenceScreen
             android:key="ssid"
             android:summary=""

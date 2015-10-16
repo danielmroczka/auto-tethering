@@ -92,11 +92,11 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
-
         //int icon = R.drawable.wifi;
         //CharSequence tickerText = "Wifi";
         //long when = System.currentTimeMillis();
         //notification(icon, tickerText, when);
+        setupSummaryText1();
     }
 
     @Override
@@ -174,6 +174,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Preference p = findPreference(key);
 
         switch (key) {
             case AppProperties.ACTIVATE_ON_SIMCARD: {
@@ -228,5 +229,23 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         notificationManager.notify(1, notification);
     }
 
+    void setupSummaryText1() {
+        PreferenceScreen ps = (PreferenceScreen) findPreference("scheduler.screen");
+        StringBuilder sb = new StringBuilder();
+        if (prefs.getBoolean(AppProperties.SCHEDULER, false)) {
+            sb.append("Scheduler enabled between " + prefs.getString(AppProperties.TIME_OFF, "0:00") + " and " + prefs.getString(AppProperties.TIME_ON, "6:00"));
+        } else {
+            sb.append("Scheduler disabled");
+        }
+        ps.setSummary(sb.toString());
+
+        ps = (PreferenceScreen) findPreference("startup.screen");
+        ps.setSummary("Startup activity settings");
+
+        ps = (PreferenceScreen) findPreference("adv.act.screen");
+        ps.setSummary("Advanced activity settings");
+
+
+    }
 
 }
