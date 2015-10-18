@@ -25,6 +25,8 @@ RELEASE_KEY_ALIAS=*****
 RELEASE_KEY_PASSWORD=*****
 ```
 
+Example of gradle.properties template: https://gist.github.com/danielmroczka/b93eb61e4583c21da2a3
+
 More about signing apk files you may find here: http://developer.android.com/tools/publishing/app-signing.html
 
 ## Google Play app
