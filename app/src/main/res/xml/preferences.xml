@@ -38,6 +38,7 @@
                 android:dialogTitle="@string/enter.value"
                 android:inputType="time"
                 android:key="scheduler.time.off"
+                android:maxLength="5"
                 android:summary="..."
                 android:title="Switch OFF time" />
             <EditTextPreference
@@ -46,6 +47,7 @@
                 android:dialogTitle="@string/enter.value"
                 android:inputType="time"
                 android:key="scheduler.time.on"
+                android:maxLength="5"
                 android:summary="..."
                 android:title="Switch ON time" />
         </PreferenceCategory>
@@ -61,6 +63,7 @@
                 android:dialogTitle="Enter value in minutes"
                 android:inputType="number"
                 android:key="idle.wifi.off.time"
+                android:maxLength="5"
                 android:summary=""
                 android:title="Idle time:" />
             <CheckBoxPreference
@@ -74,9 +77,9 @@
                 android:dialogTitle="Enter value in minutes"
                 android:inputType="number"
                 android:key="idle.3g.off.time"
+                android:maxLength="5"
                 android:summary=""
                 android:title="Idle time:" />
-
         </PreferenceCategory>
     </PreferenceScreen>
 
@@ -102,5 +105,12 @@
                 android:targetPackage="com.android.settings" />
         </PreferenceScreen>
     </PreferenceCategory>
+    <PreferenceCategory android:title="Setings reset">
+        <PreferenceScreen
+            android:key="reset"
+            android:summary=""
+            android:title="Settings reset"></PreferenceScreen>
+    </PreferenceCategory>
+
 
 </PreferenceScreen>

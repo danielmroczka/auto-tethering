@@ -15,5 +15,6 @@
     <string name="prompt">By default connection to internet and WIFI tethering are turned off. You need to set it manually. \nConnecting via packet data may incur additional charges. \nWIFI tethering will increase battery consumption. \n\nDo you want to turn on 3G connection and WIFI tethering?</string>
     <string name="yes">YES</string>
     <string name="no">NO</string>
+    <string name="promptReset">Do you want to erase settings?</string>
 </resources>
 

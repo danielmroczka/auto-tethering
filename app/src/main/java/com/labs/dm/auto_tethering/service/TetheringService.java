@@ -88,11 +88,7 @@ public class TetheringService extends IntentService {
                         boolean connected3G = isConnected(getApplicationContext());
                         boolean tethered = isSharingWiFi();
 
-                        boolean b1 = isScheduledTimeOff();
-                        boolean b2 = shouldReconnect();
-                        boolean b3 = shouldDisconnectOnIdle();
-
-                        if (b1) {
+                        if (isScheduledTimeOff()) {
                             if (connected3G) {
                                 new TurnOn3GAsyncTask().doInBackground(false);
                                 Log.i(TAG, "Scheduled switching off 3G");
@@ -101,7 +97,7 @@ public class TetheringService extends IntentService {
                                 new TurnOnTetheringAsyncTask().doInBackground(false);
                                 Log.i(TAG, "Scheduled switching off Tethering");
                             }
-                        } else if (b3) {
+                        } else if (checkIdle()) {
                             if (connected3G && check3GIdle()) {
                                 new TurnOn3GAsyncTask().doInBackground(false);
                                 Log.i(TAG, "OnIdle switching off 3G");
@@ -110,7 +106,7 @@ public class TetheringService extends IntentService {
                                 new TurnOnTetheringAsyncTask().doInBackground(false);
                                 Log.i(TAG, "OnIdle switching off Tethering");
                             }
-                        } else if (b2) {
+                        } else if (shouldReconnect()) {
                             if (isActivated3G() && !connected3G) {
                                 new TurnOn3GAsyncTask().doInBackground(true);
                                 Log.i(TAG, "Switching on 3G");
@@ -133,10 +129,6 @@ public class TetheringService extends IntentService {
         }
     }
 
-    private boolean shouldDisconnectOnIdle() {
-        return checkIdle();
-    }
-
     private boolean shouldReconnect() {
         return true;
     }
@@ -147,6 +139,7 @@ public class TetheringService extends IntentService {
 
     private boolean isScheduledTimeOff() {
         Calendar c = Calendar.getInstance();
+        onChangeProperties();
         timeOn.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
         timeOff.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
 

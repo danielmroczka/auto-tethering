@@ -106,6 +106,37 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
+        Preference button = findPreference("reset");
+        button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+                builder.setTitle("Warning");
+                builder.setMessage(getString(R.string.promptReset));
+
+                builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        prefs.edit().clear().commit();
+                        //loadPrefs();
+                    }
+                });
+
+                builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+
+
+                AlertDialog alert = builder.create();
+                alert.show();
+                return true;
+            }
+        });
         //int icon = R.drawable.wifi;
         //CharSequence tickerText = "Wifi";
         //long when = System.currentTimeMillis();

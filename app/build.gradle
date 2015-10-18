@@ -9,6 +9,7 @@ jacoco {
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
     }
 
     dependencies {
@@ -20,7 +21,7 @@ def coverageSourceDirs = [
         '../app/src/main/java'
 ]
 
-task jacocoTestReport(type:JacocoReport, dependsOn: "test") {
+task jacocoTestReport(type: JacocoReport, dependsOn: "test") {
     group = "Reporting"
 
     description = "Generate Jacoco coverage reports"
@@ -61,7 +62,6 @@ android {
         debug {
             debuggable true
             testCoverageEnabled = true
-
         }
     }
 
