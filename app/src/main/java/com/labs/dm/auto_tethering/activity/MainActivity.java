@@ -159,7 +159,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         if (reqCode == ON_CHANGE_SSID) {
             Preference p = findPreference(SSID);
             WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
-            p.setSummary(cfg.SSID);
+            p.setSummary(cfg != null ? cfg.SSID : null);
         }
     }
 
@@ -169,7 +169,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         Intent serviceIntent = new Intent(this, TetheringService.class);
         startService(serviceIntent);
         WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
-        prefs.edit().putString(SSID, cfg.SSID).apply();
+        prefs.edit().putString(SSID, cfg != null ? cfg.SSID : null).apply();
         loadPrefs();
         displayPrompt();
     }
@@ -280,11 +280,11 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         notificationManager.notify(1, notification);
     }
 
-    void setupSummaryText1() {
+    private void setupSummaryText1() {
         PreferenceScreen ps = (PreferenceScreen) findPreference("scheduler.screen");
         StringBuilder sb = new StringBuilder();
         if (prefs.getBoolean(SCHEDULER, false)) {
-            sb.append("Scheduler enabled between " + prefs.getString(TIME_OFF, "0:00") + " and " + prefs.getString(TIME_ON, "6:00"));
+            sb.append("Scheduler enabled between ").append(prefs.getString(TIME_OFF, "0:00")).append(" and ").append(prefs.getString(TIME_ON, "6:00"));
             sb.append("\n");
         } else {
             sb.append("Scheduler disabled");
@@ -292,11 +292,11 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         }
 
         if (prefs.getBoolean(IDLE_TETHERING_OFF, false)) {
-            sb.append("Switch off tethering on idle after " + prefs.getString(IDLE_TETHERING_OFF_TIME, "60") + " minutes inactivity");
+            sb.append("Switch off tethering on idle after ").append(prefs.getString(IDLE_TETHERING_OFF_TIME, "60")).append(" minutes inactivity");
             sb.append("\n");
         }
         if (prefs.getBoolean(IDLE_3G_OFF, false)) {
-            sb.append("Switch off 3G on idle after " + prefs.getString(IDLE_3G_OFF_TIME, "60") + " minutes inactivity");
+            sb.append("Switch off 3G on idle after ").append(prefs.getString(IDLE_3G_OFF_TIME, "60")).append(" minutes inactivity");
             sb.append("\n");
         }
         ps.setSummary(sb.toString());
