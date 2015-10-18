@@ -71,8 +71,8 @@ android {
         applicationId "com.labs.dm.auto_tethering"
         minSdkVersion 10
         targetSdkVersion 21
-        versionCode 5
-        versionName "0.0.5"
+        versionCode 7
+        versionName "0.0.7"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -98,14 +98,15 @@ dependencies {
 }
 
 def Properties props = new Properties()
-def propFile = new File('gradle.properties')
+def propFile = new File(System.properties['user.home'] + '/.gradle/gradle.properties')
 
 if (propFile.canRead()) {
     props.load(new FileInputStream(propFile))
 
     if (props != null && props.containsKey('RELEASE_STORE_FILE') && props.containsKey('RELEASE_STORE_PASSWORD') &&
             props.containsKey('RELEASE_KEY_ALIAS') && props.containsKey('RELEASE_KEY_PASSWORD')) {
-        android.signingConfigs.release.storeFile = file(props['RELEASE_STORE_FILE'])
+        println 'gradle.properties found at:  ' + propFile
+        android.signingConfigs.release.storeFile = file(System.properties['user.home'] + '/.gradle/' + props['RELEASE_STORE_FILE'])
         android.signingConfigs.release.storePassword = props['RELEASE_STORE_PASSWORD']
         android.signingConfigs.release.keyAlias = props['RELEASE_KEY_ALIAS']
         android.signingConfigs.release.keyPassword = props['RELEASE_KEY_PASSWORD']

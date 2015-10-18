@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by daniel on 2015-10-13.
+ * Created by Daniel Mroczka
  */
 public class Utils {
 
@@ -36,5 +36,40 @@ public class Utils {
         }
 
         return res;
+    }
+
+    public static boolean exists(String commaSeparatedString, String item) {
+        String[] sets = commaSeparatedString.split(",");
+        for (String set : sets) {
+            if (item.equals(set)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static String add(String commaSeparatedString, String item) {
+        if (!exists(commaSeparatedString, item)) {
+            if (!commaSeparatedString.isEmpty()) {
+                commaSeparatedString += ",";
+            }
+            commaSeparatedString += item;
+        }
+
+        return commaSeparatedString;
+    }
+
+    public static String remove(String commaSeparatedString, String item) {
+        StringBuilder sb = new StringBuilder();
+        for (String s : commaSeparatedString.split(",")) {
+            if (!item.equalsIgnoreCase(s)) {
+                if (sb.length() > 0) {
+                    sb.append(",");
+                }
+                sb.append(s);
+            }
+        }
+        return sb.toString();
     }
 }

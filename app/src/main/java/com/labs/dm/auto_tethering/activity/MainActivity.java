@@ -1,10 +1,6 @@
 package com.labs.dm.auto_tethering.activity;
 
 import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
@@ -50,11 +47,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     private static final int ON_CHANGE_SSID = 123;
     private SharedPreferences prefs;
-    private Notification notification;
-    private CharSequence contentText;
-    private PendingIntent contentIntent;
-    private NotificationManager notificationManager;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,10 +76,15 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         EditTextPreference editTimeOff = (EditTextPreference) findPreference(TIME_OFF);
         editTimeOff.setOnPreferenceChangeListener(editTimeChangeListener);
 
+        EditTextPreference tetheringIdleTime = (EditTextPreference) findPreference(IDLE_TETHERING_OFF_TIME);
+        tetheringIdleTime.setOnPreferenceChangeListener(changeListener);
+        EditTextPreference internetIdleTime = (EditTextPreference) findPreference(IDLE_3G_OFF_TIME);
+        internetIdleTime.setOnPreferenceChangeListener(changeListener);
+
         for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
             Preference p = findPreference(entry.getKey());
 
-            if (TIME_ON.equals(entry.getKey()) || TIME_OFF.equals(entry.getKey())) {
+            if (TIME_ON.equals(entry.getKey()) || TIME_OFF.equals(entry.getKey()) || IDLE_TETHERING_OFF_TIME.equals(entry.getKey()) || IDLE_3G_OFF_TIME.equals(entry.getKey())) {
                 p.setSummary((CharSequence) entry.getValue());
             }
 
@@ -119,7 +116,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        prefs.edit().clear().commit();
+                        prefs.edit().clear().apply();
                         //loadPrefs();
                     }
                 });
@@ -137,11 +134,46 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 return true;
             }
         });
-        //int icon = R.drawable.wifi;
-        //CharSequence tickerText = "Wifi";
-        //long when = System.currentTimeMillis();
-        //notification(icon, tickerText, when);
-        setupSummaryText1();
+
+        final Preference simedit = findPreference("editsimcard");
+        final String serials = prefs.getString(AppProperties.SIMCARD, "");
+        TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        final String simCard = tMgr.getSimSerialNumber();
+        if (Utils.exists(serials, simCard)) {
+            simedit.setTitle(R.string.remove_simcard_title);
+            simedit.setSummary(R.string.remove_simcard_summary);
+            //simedit.setIcon(R.drawable.ic_remove);
+        } else {
+            simedit.setTitle(R.string.add_simcard_title);
+            simedit.setSummary(R.string.add_simcard_summary);
+            // simedit.setIcon(R.drawable.ic_add);
+        }
+
+        simedit.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                String res = prefs.getString(AppProperties.SIMCARD, "");
+                if (Utils.exists(res, simCard)) {
+                    res = Utils.remove(res, simCard);
+                    simedit.setTitle(R.string.add_simcard_title);
+                    simedit.setSummary(R.string.add_simcard_summary);
+                    //simedit.setIcon(R.drawable.ic_add);
+                    if (prefs.getBoolean(AppProperties.ACTIVATE_ON_SIMCARD, false)) {
+                        Toast.makeText(getApplicationContext(), R.string.simcard_warn, Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    res = Utils.add(res, simCard);
+                    simedit.setTitle(R.string.remove_simcard_title);
+                    simedit.setSummary(R.string.remove_simcard_summary);
+                    //simedit.setIcon(R.drawable.ic_remove);
+                }
+
+                prefs.edit().putString(SIMCARD, res).apply();
+
+                return false;
+            }
+        });
+        //setupSummaryText1();
     }
 
     @Override
@@ -200,7 +232,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
-
         AlertDialog alert = builder.create();
         alert.show();
         prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
@@ -219,25 +250,26 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        Preference p = findPreference(key);
-
         switch (key) {
             case ACTIVATE_ON_SIMCARD: {
                 if (sharedPreferences.getBoolean(ACTIVATE_ON_SIMCARD, false)) {
                     TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
                     String simCard = tMgr.getSimSerialNumber();
                     if (simCard == null || simCard.isEmpty()) {
-                        Toast.makeText(getApplicationContext(), "Unable to retrieve SIM Card Serial!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), R.string.cannot_read_simcard, Toast.LENGTH_LONG).show();
                         prefs.edit().putBoolean(ACTIVATE_ON_SIMCARD, false).apply();
-                        prefs.edit().putString(SIMCARD, "").apply();
                     } else {
-                        prefs.edit().putString(SIMCARD, simCard);
+                        String simCardWhiteList = prefs.getString(SIMCARD, "");
+                        simCardWhiteList = Utils.add(simCardWhiteList, simCard);
+                        prefs.edit().putString(SIMCARD, simCardWhiteList).apply();
                     }
                 }
             }
 
             case TIME_OFF:
-            case TIME_ON: {
+            case TIME_ON:
+            case IDLE_3G_OFF_TIME:
+            case IDLE_TETHERING_OFF_TIME: {
                 loadPrefs();
                 break;
             }
@@ -248,7 +280,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 ((CheckBoxPreference) findPreference(key)).setChecked(sharedPreferences.getBoolean(key, false));
                 break;
             }
-
         }
     }
 
@@ -262,22 +293,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     protected void onPause() {
         super.onPause();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-    private void notification(int icon, CharSequence tickerText, long when) {
-        notification = new Notification(icon, tickerText, when);
-
-        Context context = getApplicationContext();
-        contentText = "Auto WIFI Tethering";
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        contentIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
-
-        notification.setLatestEventInfo(context, "",
-                contentText, contentIntent);
-        notificationManager = (NotificationManager)
-                getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(1, notification);
     }
 
     private void setupSummaryText1() {
@@ -302,12 +317,10 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         ps.setSummary(sb.toString());
 
         ps = (PreferenceScreen) findPreference("startup.screen");
-        ps.setSummary("Startup activity settings");
+        ps.setSummary(R.string.startup_activity_screen_summary);
 
         ps = (PreferenceScreen) findPreference("adv.act.screen");
-        ps.setSummary("Advanced activity settings");
-
-
+        ps.setSummary(R.string.adv_activity_setting_summary);
     }
 
 }

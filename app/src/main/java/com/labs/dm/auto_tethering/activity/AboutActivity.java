@@ -9,7 +9,7 @@ import android.widget.TextView;
 import com.labs.dm.auto_tethering.R;
 
 /**
- * Created by daniel on 2015-10-12.
+ * Created by Daniel Mroczka
  */
 public class AboutActivity extends Activity {
     @Override

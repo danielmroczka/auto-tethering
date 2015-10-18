@@ -4,31 +4,37 @@
     android:title="@string/app_name">
 
     <PreferenceScreen
+        android:icon="@drawable/ic_startup"
         android:key="startup.screen"
-        android:title="Startup activation">
+        android:title="@string/startup.title">
         <CheckBoxPreference
             android:defaultValue="true"
+            android:icon="@drawable/ic_startup"
             android:key="activate.on.startup"
-            android:summary="@string/activate.on.startup"
-            android:title="Activate on startup" />
+            android:summary="@string/activate.on.startup.summary"
+            android:title="@string/activate.on.startup.title" />
         <CheckBoxPreference
             android:defaultValue="false"
+            android:icon="@drawable/ic_signal"
             android:key="activate.3g"
             android:summary="@string/activate3g.summary"
             android:title="@string/activate3g.title" />
         <CheckBoxPreference
             android:defaultValue="true"
+            android:icon="@drawable/ic_wifi"
             android:key="activate.tethering"
             android:summary="@string/activateTethering.summary"
             android:title="@string/activateTethering.title" />
     </PreferenceScreen>
 
     <PreferenceScreen
+        android:icon="@drawable/ic_clock"
         android:key="scheduler.screen"
-        android:title="Scheduler">
-        <PreferenceCategory>
+        android:title="@string/scheduler.title">
+        <PreferenceCategory android:title="Scheduler">
             <CheckBoxPreference
                 android:defaultValue="false"
+                android:icon="@drawable/ic_scheduler"
                 android:key="scheduler.on"
                 android:summary="@string/scheduler"
                 android:title="Activate Scheduler" />
@@ -36,6 +42,7 @@
                 android:defaultValue="0:00"
                 android:dependency="scheduler.on"
                 android:dialogTitle="@string/enter.value"
+                android:icon="@drawable/ic_clock"
                 android:inputType="time"
                 android:key="scheduler.time.off"
                 android:maxLength="5"
@@ -45,58 +52,71 @@
                 android:defaultValue="6:00"
                 android:dependency="scheduler.on"
                 android:dialogTitle="@string/enter.value"
+                android:icon="@drawable/ic_clock"
                 android:inputType="time"
                 android:key="scheduler.time.on"
                 android:maxLength="5"
                 android:summary="..."
                 android:title="Switch ON time" />
         </PreferenceCategory>
-        <PreferenceCategory>
+        <PreferenceCategory android:title="Deactivate on idle">
             <CheckBoxPreference
                 android:defaultValue="false"
+                android:icon="@drawable/ic_wifi"
                 android:key="idle.wifi.off"
-                android:summary="Switch off Tethering if no clients connected"
-                android:title="Switch off Tethering if no clients connected" />
+                android:summary="@string/switch.off.tethering.idle.summary"
+                android:title="@string/switch.off.tethering.idle.title" />
             <EditTextPreference
                 android:defaultValue="60"
                 android:dependency="idle.wifi.off"
-                android:dialogTitle="Enter value in minutes"
+                android:dialogTitle="@string/enter.value.minutes"
+                android:icon="@drawable/ic_clock"
                 android:inputType="number"
                 android:key="idle.wifi.off.time"
                 android:maxLength="5"
                 android:summary=""
-                android:title="Idle time:" />
+                android:title="@string/idle.time.minutes" />
             <CheckBoxPreference
                 android:defaultValue="false"
+                android:icon="@drawable/ic_signal"
                 android:key="idle.3g.off"
-                android:summary="Switch off 3G Connection if no clients connected"
-                android:title="Switch off 3G Connection if no clients connected" />
+                android:summary="@string/switch.off.internet.idle.summary"
+                android:title="@string/switch.off.internet.idle.title" />
             <EditTextPreference
                 android:defaultValue="60"
                 android:dependency="idle.3g.off"
-                android:dialogTitle="Enter value in minutes"
+                android:dialogTitle="@string/enter.value.minutes"
+                android:icon="@drawable/ic_clock"
                 android:inputType="number"
                 android:key="idle.3g.off.time"
                 android:maxLength="5"
                 android:summary=""
-                android:title="Idle time:" />
+                android:title="@string/idle.time.minutes" />
         </PreferenceCategory>
     </PreferenceScreen>
 
     <PreferenceScreen
+        android:icon="@drawable/ic_settings"
         android:key="adv.act.screen"
         android:title="Advanced Activation">
         <CheckBoxPreference
             android:defaultValue="true"
+            android:icon="@drawable/ic_simcard"
             android:key="activate.simcard"
             android:summary="@string/activate.only.summary"
             android:title="@string/activate.only.title" />
+        <PreferenceScreen
+            android:dependency="activate.simcard"
+            android:key="editsimcard"></PreferenceScreen>
+
     </PreferenceScreen>
 
     <PreferenceCategory
+        android:icon="@drawable/ic_wifi"
         android:key="ssid.screen"
-        android:title="SSID Configuration">
+        android:title="@string/ssid.conf">
         <PreferenceScreen
+            android:icon="@drawable/ic_wifi"
             android:key="ssid"
             android:summary=""
             android:title="@string/ssid">
@@ -105,11 +125,12 @@
                 android:targetPackage="com.android.settings" />
         </PreferenceScreen>
     </PreferenceCategory>
-    <PreferenceCategory android:title="Setings reset">
+    <PreferenceCategory android:title="@string/other.settings">
         <PreferenceScreen
+            android:icon="@drawable/ic_cancel"
             android:key="reset"
             android:summary=""
-            android:title="Settings reset"></PreferenceScreen>
+            android:title="@string/revert.to.default"></PreferenceScreen>
     </PreferenceCategory>
 
 
