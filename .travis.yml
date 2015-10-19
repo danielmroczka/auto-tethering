@@ -1,6 +1,6 @@
 language: android
 install: true
-script: gradle clean assemble jacocoTestReport coveralls -DCI_NAME=travis-ci
+script: gradle clean assemble jacocoTestReport
 android:
   components:
     - build-tools-21.1.1
