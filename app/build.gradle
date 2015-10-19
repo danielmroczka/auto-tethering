@@ -47,6 +47,18 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "test") {
 
 }
 
+coveralls {
+  jacocoReportPath = "${buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"
+}
+
+tasks.coveralls {
+  group = 'Coverage reports'
+  description = 'Uploads the aggregated coverage report to Coveralls'
+
+  dependsOn jacocoRootReport
+  onlyIf { System.env.'CI' }
+}
+
 android {
     signingConfigs {
         release
