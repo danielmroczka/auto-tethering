@@ -1,5 +1,5 @@
-#Auto WIFI Tethering 
-![App Logo](https://lh3.googleusercontent.com/GwGTGX5OuwMvOlg10Vemwk6x_Pd8EKsbpy-x9pV-t-EI29FCdFXzUH5PV64b2HRVtNCh=h80) [![Travis Build Status](https://travis-ci.org/danielmroczka/auto-tethering.png?branch=master)](https://travis-ci.org/danielmroczka/auto-tethering)
+#Auto WIFI Tethering [![Travis Build Status](https://travis-ci.org/danielmroczka/auto-tethering.png?branch=master)](https://travis-ci.org/danielmroczka/auto-tethering)
+![App Logo](https://lh3.googleusercontent.com/GwGTGX5OuwMvOlg10Vemwk6x_Pd8EKsbpy-x9pV-t-EI29FCdFXzUH5PV64b2HRVtNCh=h80) 
 
 The intention to create this project is a need to use android phone as a 3G Router. 
 Phone is connected through 3G/4G/LTE connection to internet and shares connection using tethering functionality. 
@@ -23,6 +23,8 @@ RELEASE_STORE_PASSWORD=*****
 RELEASE_KEY_ALIAS=*****
 RELEASE_KEY_PASSWORD=*****
 ```
+Build app: gradle build
+
 [Example of gradle.properties template] (https://gist.github.com/danielmroczka/b93eb61e4583c21da2a3)
 
 [More about signing apk files you may find] (http://developer.android.com/tools/publishing/app-signing.html)
