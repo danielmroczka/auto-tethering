@@ -24,10 +24,8 @@ RELEASE_STORE_PASSWORD=*****
 RELEASE_KEY_ALIAS=*****
 RELEASE_KEY_PASSWORD=*****
 ```
-
-Example of gradle.properties template: https://gist.github.com/danielmroczka/b93eb61e4583c21da2a3
-
-More about signing apk files you may find here: http://developer.android.com/tools/publishing/app-signing.html
+[Example of gradle.properties template] https://gist.github.com/danielmroczka/b93eb61e4583c21da2a3
+[More about signing apk files you may find] http://developer.android.com/tools/publishing/app-signing.html
 
 ## Google Play app
-Built application you may install here: https://play.google.com/store/apps/details?id=com.labs.dm.auto_tethering
+Built application you may install here: [Auto Wifi Tethering] https://play.google.com/store/apps/details?id=com.labs.dm.auto_tethering
