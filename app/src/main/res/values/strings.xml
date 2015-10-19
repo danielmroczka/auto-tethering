@@ -35,5 +35,6 @@
     <string name="startup.title">Services activation</string>
     <string name="scheduler.title">Scheduler</string>
     <string name="idle.time.minutes">Idle time in minutes</string>
+    <string name="warning">Warning</string>
 </resources>
 

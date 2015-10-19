@@ -12,7 +12,7 @@ public class AppProperties {
     public static final String TIME_OFF = "scheduler.time.off";
     public static final String TIME_ON = "scheduler.time.on";
     public static final String ACTIVATE_ON_SIMCARD = "activate.simcard";
-    public static final String SIMCARD = "sim.card";
+    public static final String SIMCARD_LIST = "simcard.list";
     public static final String LATEST_VERSION = "latest.version";
     public static final String SSID = "ssid";
     public static final String IDLE_3G_OFF = "idle.3g.off";

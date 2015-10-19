@@ -3,6 +3,10 @@
     tools:context=".MainActivity">
 
     <item
+        android:id="@+id/action_exit"
+        android:orderInCategory="100"
+        android:title="Exit" />
+    <item
         android:id="@+id/action_info"
         android:orderInCategory="100"
         android:title="About" />

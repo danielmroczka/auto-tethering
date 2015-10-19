@@ -107,7 +107,7 @@
             android:title="@string/activate.only.title" />
         <PreferenceScreen
             android:dependency="activate.simcard"
-            android:key="editsimcard"></PreferenceScreen>
+            android:key="edit.simcard"></PreferenceScreen>
 
     </PreferenceScreen>
 

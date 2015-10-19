@@ -4,19 +4,15 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.Utils;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
@@ -34,7 +30,7 @@ import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.SCHEDULER;
-import static com.labs.dm.auto_tethering.AppProperties.SIMCARD;
+import static com.labs.dm.auto_tethering.AppProperties.SIMCARD_LIST;
 import static com.labs.dm.auto_tethering.AppProperties.TIME_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.TIME_ON;
 
@@ -49,6 +45,7 @@ public class TetheringService extends IntentService {
     private SharedPreferences prefs;
     private long lastAccess = Calendar.getInstance().getTimeInMillis();
     private boolean initial3GStatus, initialTetheredStatus;
+    private WifiManager wifiManager;
 
     public TetheringService() {
         super("AutoTetheringService");
@@ -86,7 +83,7 @@ public class TetheringService extends IntentService {
                 if (isServiceActived()) {
                     if (isCorrectSimCard()) {
 
-                        boolean connected3G = isConnected(getApplicationContext());
+                        boolean connected3G = Utils.isConnected(getApplicationContext());
                         boolean tethered = isSharingWiFi();
 
                         if (isScheduledTimeOff()) {
@@ -199,12 +196,13 @@ public class TetheringService extends IntentService {
     public void onCreate() {
         super.onCreate();
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
         onChangeProperties();
         init();
     }
 
     private void init() {
-        initial3GStatus = isConnected(getApplicationContext());
+        initial3GStatus = Utils.isConnected(getApplicationContext());
         initialTetheredStatus = isSharingWiFi();
     }
 
@@ -241,42 +239,9 @@ public class TetheringService extends IntentService {
         new TurnOn3GAsyncTask().doInBackground(state);
     }
 
-    private void setWifiTetheringEnabled(boolean enable) {
-        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-        wifiManager.setWifiEnabled(false);
-        Method[] methods = wifiManager.getClass().getDeclaredMethods();
-        for (Method method : methods) {
-            if (method.getName().equals("setWifiApEnabled")) {
-                try {
-                    Log.i(TAG, "setWifiTetheringEnabled to " + enable);
-                    method.invoke(wifiManager, null, enable);
-                } catch (Exception ex) {
-                    Log.e(TAG, "Switch on tethering", ex);
-                    Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
-                }
-                break;
-            }
-        }
-    }
 
-    private void setMobileDataEnabled(boolean enabled) {
-        Context context = getApplicationContext();
-        final ConnectivityManager conman = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        try {
-            final Class conmanClass = Class.forName(conman.getClass().getName());
-            final Field iConnectivityManagerField = conmanClass.getDeclaredField("mService");
-            iConnectivityManagerField.setAccessible(true);
-            final Object iConnectivityManager = iConnectivityManagerField.get(conman);
-            final Class iConnectivityManagerClass = Class.forName(iConnectivityManager.getClass().getName());
-            final Method setMobileDataEnabledMethod = iConnectivityManagerClass.getDeclaredMethod("setMobileDataEnabled", Boolean.TYPE);
-            setMobileDataEnabledMethod.setAccessible(true);
 
-            setMobileDataEnabledMethod.invoke(iConnectivityManager, enabled);
-        } catch (Exception e) {
-            Log.e(TAG, "Switch on 3G", e);
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
+
 
     private boolean isSharingWiFi() {
         try {
@@ -311,28 +276,16 @@ public class TetheringService extends IntentService {
         if (prefs.getBoolean(ACTIVATE_ON_SIMCARD, false)) {
             TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
             String simCard = tMgr.getSimSerialNumber();
-            return simCard != null && Utils.exists(prefs.getString(SIMCARD, ""), "");
+            return simCard != null && Utils.exists(prefs.getString(SIMCARD_LIST, ""), "");
         } else {
             return true;
         }
     }
 
-    /**
-     * Check if there is any 3G connectivity
-     *
-     * @param context
-     * @return
-     */
-    private boolean isConnected(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = cm.getActiveNetworkInfo();
-        return (info != null && info.isConnected());
-    }
-
     protected class TurnOn3GAsyncTask extends AsyncTask<Boolean, Void, Void> {
         @Override
         protected Void doInBackground(Boolean... params) {
-            setMobileDataEnabled(params[0]);
+            Utils.setMobileDataEnabled(getApplicationContext(), params[0]);
             return null;
         }
     }
@@ -340,7 +293,7 @@ public class TetheringService extends IntentService {
     protected class TurnOnTetheringAsyncTask extends AsyncTask<Boolean, Void, Void> {
         @Override
         protected Void doInBackground(Boolean... params) {
-            setWifiTetheringEnabled(params[0]);
+            Utils.setWifiTetheringEnabled(getApplicationContext(), wifiManager, params[0]);
             return null;
         }
     }

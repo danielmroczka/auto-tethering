@@ -29,13 +29,10 @@ import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
-import static com.labs.dm.auto_tethering.AppProperties.SCHEDULER;
-import static com.labs.dm.auto_tethering.AppProperties.SIMCARD;
+import static com.labs.dm.auto_tethering.AppProperties.SIMCARD_LIST;
 import static com.labs.dm.auto_tethering.AppProperties.SSID;
 import static com.labs.dm.auto_tethering.AppProperties.TIME_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.TIME_ON;
@@ -45,7 +42,7 @@ import static com.labs.dm.auto_tethering.AppProperties.TIME_ON;
  */
 public class MainActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final int ON_CHANGE_SSID = 123;
+    private static final int ON_CHANGE_SSID = 1;
     private SharedPreferences prefs;
 
     @Override
@@ -135,29 +132,26 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
-        final Preference simedit = findPreference("editsimcard");
-        final String serials = prefs.getString(AppProperties.SIMCARD, "");
+        final Preference simedit = findPreference("edit.simcard");
+        final String serials = prefs.getString(AppProperties.SIMCARD_LIST, "");
         TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         final String simCard = tMgr.getSimSerialNumber();
         if (Utils.exists(serials, simCard)) {
             simedit.setTitle(R.string.remove_simcard_title);
             simedit.setSummary(R.string.remove_simcard_summary);
-            //simedit.setIcon(R.drawable.ic_remove);
         } else {
             simedit.setTitle(R.string.add_simcard_title);
             simedit.setSummary(R.string.add_simcard_summary);
-            // simedit.setIcon(R.drawable.ic_add);
         }
 
         simedit.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                String res = prefs.getString(AppProperties.SIMCARD, "");
+                String res = prefs.getString(AppProperties.SIMCARD_LIST, "");
                 if (Utils.exists(res, simCard)) {
                     res = Utils.remove(res, simCard);
                     simedit.setTitle(R.string.add_simcard_title);
                     simedit.setSummary(R.string.add_simcard_summary);
-                    //simedit.setIcon(R.drawable.ic_add);
                     if (prefs.getBoolean(AppProperties.ACTIVATE_ON_SIMCARD, false)) {
                         Toast.makeText(getApplicationContext(), R.string.simcard_warn, Toast.LENGTH_LONG).show();
                     }
@@ -165,15 +159,13 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     res = Utils.add(res, simCard);
                     simedit.setTitle(R.string.remove_simcard_title);
                     simedit.setSummary(R.string.remove_simcard_summary);
-                    //simedit.setIcon(R.drawable.ic_remove);
                 }
 
-                prefs.edit().putString(SIMCARD, res).apply();
+                prefs.edit().putString(SIMCARD_LIST, res).apply();
 
                 return false;
             }
         });
-        //setupSummaryText1();
     }
 
     @Override
@@ -213,7 +205,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle("Warning");
+        builder.setTitle(R.string.warning);
         builder.setMessage(getString(R.string.prompt));
 
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
@@ -243,6 +235,11 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             case R.id.action_info:
                 startActivity(new Intent(this, AboutActivity.class));
                 return true;
+            case R.id.action_exit:
+                Intent serviceIntent = new Intent(this, TetheringService.class);
+                stopService(serviceIntent);
+                finish();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -259,9 +256,9 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                         Toast.makeText(getApplicationContext(), R.string.cannot_read_simcard, Toast.LENGTH_LONG).show();
                         prefs.edit().putBoolean(ACTIVATE_ON_SIMCARD, false).apply();
                     } else {
-                        String simCardWhiteList = prefs.getString(SIMCARD, "");
+                        String simCardWhiteList = prefs.getString(SIMCARD_LIST, "");
                         simCardWhiteList = Utils.add(simCardWhiteList, simCard);
-                        prefs.edit().putString(SIMCARD, simCardWhiteList).apply();
+                        prefs.edit().putString(SIMCARD_LIST, simCardWhiteList).apply();
                     }
                 }
             }
@@ -294,33 +291,4 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         super.onPause();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
     }
-
-    private void setupSummaryText1() {
-        PreferenceScreen ps = (PreferenceScreen) findPreference("scheduler.screen");
-        StringBuilder sb = new StringBuilder();
-        if (prefs.getBoolean(SCHEDULER, false)) {
-            sb.append("Scheduler enabled between ").append(prefs.getString(TIME_OFF, "0:00")).append(" and ").append(prefs.getString(TIME_ON, "6:00"));
-            sb.append("\n");
-        } else {
-            sb.append("Scheduler disabled");
-            sb.append("\n");
-        }
-
-        if (prefs.getBoolean(IDLE_TETHERING_OFF, false)) {
-            sb.append("Switch off tethering on idle after ").append(prefs.getString(IDLE_TETHERING_OFF_TIME, "60")).append(" minutes inactivity");
-            sb.append("\n");
-        }
-        if (prefs.getBoolean(IDLE_3G_OFF, false)) {
-            sb.append("Switch off 3G on idle after ").append(prefs.getString(IDLE_3G_OFF_TIME, "60")).append(" minutes inactivity");
-            sb.append("\n");
-        }
-        ps.setSummary(sb.toString());
-
-        ps = (PreferenceScreen) findPreference("startup.screen");
-        ps.setSummary(R.string.startup_activity_screen_summary);
-
-        ps = (PreferenceScreen) findPreference("adv.act.screen");
-        ps.setSummary(R.string.adv_activity_setting_summary);
-    }
-
 }
