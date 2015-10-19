@@ -55,7 +55,7 @@ tasks.coveralls {
   group = 'Coverage reports'
   description = 'Uploads the aggregated coverage report to Coveralls'
 
-  dependsOn jacocoRootReport
+  dependsOn jacocoTestReport
   onlyIf { System.env.'CI' }
 }
 
