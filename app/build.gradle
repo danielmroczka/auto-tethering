@@ -51,13 +51,13 @@ coveralls {
   jacocoReportPath = "${buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"
 }
 
-tasks.coveralls {
+/*tasks.coveralls {
   group = 'Coverage reports'
   description = 'Uploads the aggregated coverage report to Coveralls'
 
   dependsOn jacocoTestReport
   onlyIf { System.env.'CI' }
-}
+}*/
 
 android {
     signingConfigs {
