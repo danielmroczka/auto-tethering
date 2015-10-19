@@ -1,8 +1,11 @@
 language: android
 install: true
-script: gradle clean assemble jacocoTestReport coveralls -DCI_NAME=travis-ci
+script: gradle clean assemble jacocoTestReport coveralls -DCI_NAME=travis-ci --stacktrace --info
 android:
   components:
     - build-tools-21.1.1
     - android-21
     - extra
+env:
+  global:
+    - COVERALLS_REPO_TOKEN=mySecRetRepoToken    
