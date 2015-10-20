@@ -76,8 +76,6 @@ public class TetheringService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        switcher(true);
-
         while (true) {
             try {
                 if (isServiceActived()) {
@@ -219,36 +217,16 @@ public class TetheringService extends IntentService {
         }
     }
 
-    /**
-     * @param state
-     */
-    private void switcher(boolean state) {
-        if (isCorrectSimCard()) {
-            Log.i(TAG, "Switch 3G and tethering to state=" + state);
-
-            if (isActivated3G() || !state) {
-                internetAsyncTask(state);
-            }
-            if (isActivatedTethering() || !state) {
-                new TurnOnTetheringAsyncTask().doInBackground(state);
-            }
-        }
-    }
-
     private void internetAsyncTask(boolean state) {
         new TurnOn3GAsyncTask().doInBackground(state);
     }
 
-
-
-
-
     private boolean isSharingWiFi() {
         try {
-            WifiManager manager = (WifiManager) getSystemService(WIFI_SERVICE);
-            final Method method = manager.getClass().getDeclaredMethod("isWifiApEnabled");
+            //WifiManager manager = (WifiManager) getSystemService(WIFI_SERVICE);
+            final Method method = wifiManager.getClass().getDeclaredMethod("isWifiApEnabled");
             method.setAccessible(true);
-            return (Boolean) method.invoke(manager);
+            return (Boolean) method.invoke(wifiManager);
         } catch (IllegalAccessException ex) {
             Log.e(TAG, ex.getMessage());
         } catch (InvocationTargetException ex) {

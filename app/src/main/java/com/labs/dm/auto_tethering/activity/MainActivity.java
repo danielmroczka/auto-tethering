@@ -81,13 +81,18 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
             Preference p = findPreference(entry.getKey());
 
-            if (TIME_ON.equals(entry.getKey()) || TIME_OFF.equals(entry.getKey()) || IDLE_TETHERING_OFF_TIME.equals(entry.getKey()) || IDLE_3G_OFF_TIME.equals(entry.getKey())) {
-                p.setSummary((CharSequence) entry.getValue());
-            }
+            switch (entry.getKey()) {
+                case TIME_ON:
+                case TIME_OFF:
+                case IDLE_3G_OFF_TIME:
+                case IDLE_TETHERING_OFF_TIME:
+                    p.setSummary((CharSequence) entry.getValue());
+                    break;
 
-            if (SSID.equals(entry.getKey())) {
-                WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
-                p.setSummary(cfg != null ? cfg.SSID : "<empty>");
+                case SSID:
+                    WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
+                    p.setSummary(cfg != null ? cfg.SSID : "<empty>");
+                    break;
             }
         }
 
@@ -107,7 +112,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
-                builder.setTitle("Warning");
+                builder.setTitle(R.string.warning);
                 builder.setMessage(getString(R.string.promptReset));
 
                 builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
@@ -261,14 +266,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                         prefs.edit().putString(SIMCARD_LIST, simCardWhiteList).apply();
                     }
                 }
-            }
-
-            case TIME_OFF:
-            case TIME_ON:
-            case IDLE_3G_OFF_TIME:
-            case IDLE_TETHERING_OFF_TIME: {
-                loadPrefs();
-                break;
             }
 
             case ACTIVATE_3G:
