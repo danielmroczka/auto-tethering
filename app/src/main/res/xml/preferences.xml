@@ -100,15 +100,14 @@
         android:key="adv.act.screen"
         android:title="Advanced Activation">
         <CheckBoxPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:icon="@drawable/ic_simcard"
             android:key="activate.simcard"
             android:summary="@string/activate.only.summary"
             android:title="@string/activate.only.title" />
         <PreferenceScreen
             android:dependency="activate.simcard"
-            android:key="edit.simcard"></PreferenceScreen>
-
+            android:key="edit.simcard" />
     </PreferenceScreen>
 
     <PreferenceCategory
@@ -132,6 +131,4 @@
             android:summary=""
             android:title="@string/revert.to.default"></PreferenceScreen>
     </PreferenceCategory>
-
-
 </PreferenceScreen>
