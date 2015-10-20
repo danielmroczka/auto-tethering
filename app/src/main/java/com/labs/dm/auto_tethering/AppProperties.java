@@ -19,6 +19,7 @@ public class AppProperties {
     public static final String IDLE_3G_OFF_TIME = "idle.3g.off.time";
     public static final String IDLE_TETHERING_OFF = "idle.wifi.off";
     public static final String IDLE_TETHERING_OFF_TIME = "idle.wifi.off.time";
+    public static final String ACTIVATE_ON_ROAMING = "activate.on.roaming";
 
     //DEFAULT
     public static final String DEFAULT_IDLE_TETHERING_OFF_TIME = "60";

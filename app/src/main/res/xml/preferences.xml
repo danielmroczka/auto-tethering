@@ -108,6 +108,13 @@
         <PreferenceScreen
             android:dependency="activate.simcard"
             android:key="edit.simcard" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_roaming"
+            android:key="activate.on.roaming"
+            android:summary=""
+            android:title="Activate on roaming" />
+
     </PreferenceScreen>
 
     <PreferenceCategory
@@ -124,6 +131,7 @@
                 android:targetPackage="com.android.settings" />
         </PreferenceScreen>
     </PreferenceCategory>
+
     <PreferenceCategory android:title="@string/other.settings">
         <PreferenceScreen
             android:icon="@drawable/ic_cancel"

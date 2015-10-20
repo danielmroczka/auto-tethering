@@ -50,7 +50,7 @@ public class Utils {
     public static boolean exists(String commaSeparatedString, String item) {
         String[] sets = commaSeparatedString.split(",");
         for (String set : sets) {
-            if (item.equals(set)) {
+            if (item != null && item.equals(set)) {
                 return true;
             }
         }

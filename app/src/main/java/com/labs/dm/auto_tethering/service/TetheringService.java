@@ -22,6 +22,7 @@ import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
 import static com.labs.dm.auto_tethering.AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME;
@@ -80,42 +81,44 @@ public class TetheringService extends IntentService {
             try {
                 if (isServiceActived()) {
                     if (isCorrectSimCard()) {
+                        if (checkForRoaming()) {
 
-                        boolean connected3G = Utils.isConnected(getApplicationContext());
-                        boolean tethered = isSharingWiFi();
+                            boolean connected3G = Utils.isConnected(getApplicationContext());
+                            boolean tethered = isSharingWiFi();
 
-                        if (isScheduledTimeOff()) {
-                            if (connected3G) {
-                                internetAsyncTask(false);
-                                Log.i(TAG, "Scheduled switching off 3G");
-                            }
-                            if (tethered) {
-                                tetheringAsyncTask(false);
-                                Log.i(TAG, "Scheduled switching off Tethering");
-                            }
-                        } else if (checkIdle()) {
-                            if (connected3G && check3GIdle()) {
-                                internetAsyncTask(false);
-                                Log.i(TAG, "OnIdle switching off 3G");
-                            }
-                            if (tethered && checkWifiIdle()) {
-                                tetheringAsyncTask(false);
-                                Log.i(TAG, "OnIdle switching off Tethering");
-                            }
-                        } else if (updateStatus()) {
-                            if (isActivated3G() && !connected3G) {
-                                internetAsyncTask(true);
-                                Log.i(TAG, "Switching on 3G");
-                            } else if (!isActivated3G() && connected3G) {
-                                internetAsyncTask(false);
-                                Log.i(TAG, "Switching off 3G");
-                            }
-                            if (isActivatedTethering() && !tethered) {
-                                tetheringAsyncTask(true);
-                                Log.i(TAG, "Switching on Tethering");
-                            } else if (!isActivatedTethering() && tethered) {
-                                tetheringAsyncTask(false);
-                                Log.i(TAG, "Switching off Tethering");
+                            if (isScheduledTimeOff()) {
+                                if (connected3G) {
+                                    internetAsyncTask(false);
+                                    Log.i(TAG, "Scheduled switching off 3G");
+                                }
+                                if (tethered) {
+                                    tetheringAsyncTask(false);
+                                    Log.i(TAG, "Scheduled switching off Tethering");
+                                }
+                            } else if (checkIdle()) {
+                                if (connected3G && check3GIdle()) {
+                                    internetAsyncTask(false);
+                                    Log.i(TAG, "OnIdle switching off 3G");
+                                }
+                                if (tethered && checkWifiIdle()) {
+                                    tetheringAsyncTask(false);
+                                    Log.i(TAG, "OnIdle switching off Tethering");
+                                }
+                            } else if (updateStatus()) {
+                                if (isActivated3G() && !connected3G) {
+                                    internetAsyncTask(true);
+                                    Log.i(TAG, "Switching on 3G");
+                                } else if (!isActivated3G() && connected3G) {
+                                    internetAsyncTask(false);
+                                    Log.i(TAG, "Switching off 3G");
+                                }
+                                if (isActivatedTethering() && !tethered) {
+                                    tetheringAsyncTask(true);
+                                    Log.i(TAG, "Switching on Tethering");
+                                } else if (!isActivatedTethering() && tethered) {
+                                    tetheringAsyncTask(false);
+                                    Log.i(TAG, "Switching off Tethering");
+                                }
                             }
                         }
                     }
@@ -248,6 +251,10 @@ public class TetheringService extends IntentService {
 
     private boolean isActivated3G() {
         return prefs.getBoolean(ACTIVATE_3G, false);
+    }
+
+    private boolean checkForRoaming() {
+        return !(!prefs.getBoolean(ACTIVATE_ON_ROAMING, false) && ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).isNetworkRoaming());
     }
 
     private boolean isCorrectSimCard() {
