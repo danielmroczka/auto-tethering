@@ -21,6 +21,8 @@ def coverageSourceDirs = [
         '../app/src/main/java'
 ]
 
+def buildTime = buildTime()
+
 task jacocoTestReport(type: JacocoReport, dependsOn: "test") {
     group = "Reporting"
 
@@ -129,4 +131,10 @@ if (propFile.canRead()) {
 } else {
     println 'gradle.properties not found'
     android.buildTypes.release.signingConfig = null
+}
+
+def buildTime() {
+    def df = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'")
+    df.setTimeZone(TimeZone.getTimeZone("UTC"))
+    return df.format(new Date())
 }

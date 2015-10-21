@@ -25,6 +25,7 @@ public class AboutActivity extends Activity {
 
         TextView textView = (TextView) findViewById(R.id.textView);
         textView.setText("Auto WIFI Tethering ver. " + (pInfo != null ? pInfo.versionName : null));
+        System.getProperty("build.time");
     }
 
 }
