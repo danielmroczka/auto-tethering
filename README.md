@@ -14,6 +14,7 @@ Functionalities should be completed in a future:
 - [x] if no one is using router for configured time internet connection and tethering could be switched off
 - [x] simcard's whitelist - you may define for which simcard you want to enable this features (for others simcard's service will be disabled to protect you from the additional costs)
 - [x] checks permanently if your internet connection is active and reconnect if it has been lost
+- [x] option to disable when roaming 
 
 ## Usage
 Signing apk needs to set credentials in local file gradle.properties (expected location in folder ~/.gradle) and add following settings:
