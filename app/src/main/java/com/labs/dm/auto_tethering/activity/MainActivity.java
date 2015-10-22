@@ -246,9 +246,22 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 startActivity(new Intent(this, AboutActivity.class));
                 return true;
             case R.id.action_exit:
-                Intent serviceIntent = new Intent(this, TetheringService.class);
-                stopService(serviceIntent);
-                finish();
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.warning)
+                        .setMessage(R.string.on_exit)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent serviceIntent = new Intent(MainActivity.this, TetheringService.class);
+                                stopService(serviceIntent);
+                                finish();
+                            }
+                        })
+                        .setNegativeButton(R.string.no, null).show();
+
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
