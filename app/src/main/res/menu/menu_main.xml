@@ -6,8 +6,9 @@
 
     <item
         android:id="@+id/action_dummy"
+        android:icon="@drawable/ic_menu"
         android:showAsAction="ifRoom|withText"
-        android:title="...">
+        android:title="">
 
         <menu>
             <item
