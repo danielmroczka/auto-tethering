@@ -227,7 +227,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             case R.id.action_exit:
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.warning)
-                        .setMessage(R.string.prmpt_onexit)
+                        .setMessage(R.string.prompt_onexit)
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 

@@ -79,30 +79,26 @@ public class TetheringService extends IntentService {
         return null;
     }
 
-    private void showNotification() {
-        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        // In this sample, we'll use the same text for the ticker and the
-        // expanded notification
+    private void showNotification(String body, int id) {
+        cancelNotification(1);
+        String subject = (String) getText(R.string.app_name);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        Notification notify = new Notification(R.drawable.app, body, System.currentTimeMillis());
+        PendingIntent pending = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), 0);
+        notify.setLatestEventInfo(getApplicationContext(), subject, body, pending);
+        notificationManager.notify(id, notify);
+        Log.i(TAG, body);
+    }
 
-        // Set the icon, scrolling text and timestamp
-        Notification notification = new Notification(R.drawable.app,
-                "Service Started", System.currentTimeMillis());
-        // The PendingIntent to launch our activity if the user selects this
-        // notification
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                null, 0);
-        // Set the info for the views that show in the notification panel.
-        notification.setLatestEventInfo(this, "abc",
-                "Service Started", contentIntent);
-        // Send the notification.
-        // We use a layout id because it is a unique number. We use it later to
-        // cancel.
-        nm.notify(1, notification);
-
+    private void cancelNotification(int id) {
+        NotificationManager notif = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notif.cancel(id);
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        showNotification("Service started", 0);
+
         while (true) {
             try {
                 if (isServiceActived()) {
@@ -115,35 +111,35 @@ public class TetheringService extends IntentService {
                             if (isScheduledTimeOff()) {
                                 if (connected3G) {
                                     internetAsyncTask(false);
-                                    Log.i(TAG, "Scheduled switching off 3G");
+                                    showNotification("Turned off internet connection at scheduled time", 1);
                                 }
                                 if (tethered) {
                                     tetheringAsyncTask(false);
-                                    Log.i(TAG, "Scheduled switching off Tethering");
+                                    showNotification("Turned off WIFI Tethering at scheduled time", 1);
                                 }
                             } else if (checkIdle()) {
                                 if (connected3G && check3GIdle()) {
                                     internetAsyncTask(false);
-                                    Log.i(TAG, "OnIdle switching off 3G");
+                                    showNotification("Turned off internet connection because of missing active clients", 1);
                                 }
                                 if (tethered && checkWifiIdle()) {
                                     tetheringAsyncTask(false);
-                                    Log.i(TAG, "OnIdle switching off Tethering");
+                                    showNotification("Turned off WIFI Tethering because of missing active clients", 1);
                                 }
                             } else if (updateStatus()) {
                                 if (isActivated3G() && !connected3G) {
                                     internetAsyncTask(true);
-                                    Log.i(TAG, "Switching on 3G");
+                                    showNotification("Restored internet connection", 0);
                                 } else if (!isActivated3G() && connected3G) {
                                     internetAsyncTask(false);
-                                    Log.i(TAG, "Switching off 3G");
+                                    showNotification("Turned off internet connection", 0);
                                 }
                                 if (isActivatedTethering() && !tethered) {
                                     tetheringAsyncTask(true);
-                                    Log.i(TAG, "Switching on Tethering");
+                                    showNotification("Restored WIFI Tethering", 0);
                                 } else if (!isActivatedTethering() && tethered) {
                                     tetheringAsyncTask(false);
-                                    Log.i(TAG, "Switching off Tethering");
+                                    showNotification("Turned off WIFI Tethering", 0);
                                 }
                             }
                         }
@@ -151,6 +147,7 @@ public class TetheringService extends IntentService {
                 }
 
                 TimeUnit.SECONDS.sleep(CHECK_DELAY);
+                cancelNotification(0);
             } catch (InterruptedException e) {
                 Log.e(TAG, e.getMessage());
             }
@@ -252,7 +249,6 @@ public class TetheringService extends IntentService {
 
     private boolean isSharingWiFi() {
         try {
-            //WifiManager manager = (WifiManager) getSystemService(WIFI_SERVICE);
             final Method method = wifiManager.getClass().getDeclaredMethod("isWifiApEnabled");
             method.setAccessible(true);
             return (Boolean) method.invoke(wifiManager);
