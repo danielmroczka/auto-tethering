@@ -181,29 +181,26 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             return;
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        new AlertDialog.Builder(this)
 
-        builder.setTitle(R.string.warning);
-        builder.setMessage(getString(R.string.prompt));
+                .setTitle(R.string.warning)
+                .setMessage(getString(R.string.initial_prompt))
 
-        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                prefs.edit().putBoolean(ACTIVATE_3G, true).apply();
-                prefs.edit().putBoolean(ACTIVATE_TETHERING, true).apply();
-            }
-        });
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        prefs.edit().putBoolean(ACTIVATE_3G, true).apply();
+                        prefs.edit().putBoolean(ACTIVATE_TETHERING, true).apply();
+                    }
+                })
 
-        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                prefs.edit().putBoolean(ACTIVATE_3G, false).apply();
-                prefs.edit().putBoolean(ACTIVATE_TETHERING, false).apply();
-            }
-        });
-
-        AlertDialog alert = builder.create();
-        alert.show();
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        prefs.edit().putBoolean(ACTIVATE_3G, false).apply();
+                        prefs.edit().putBoolean(ACTIVATE_TETHERING, false).apply();
+                    }
+                }).show();
         prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
     }
 
@@ -216,7 +213,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             case R.id.action_reset:
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle(R.string.warning)
-                        .setMessage(getString(R.string.promptReset))
+                        .setMessage(getString(R.string.reset_prompt))
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
@@ -230,7 +227,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             case R.id.action_exit:
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.warning)
-                        .setMessage(R.string.on_exit)
+                        .setMessage(R.string.prmpt_onexit)
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 

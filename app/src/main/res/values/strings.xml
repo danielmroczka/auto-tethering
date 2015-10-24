@@ -11,10 +11,10 @@
     <string name="activate3g.title">Mobile connection</string>
     <string name="activateTethering.summary">Activate Wifi Tethering on startup</string>
     <string name="activateTethering.title">Wifi Tethering</string>
-    <string name="prompt">By default connection to internet and WIFI tethering are turned off. You need to set it manually. \nConnecting via packet data may incur additional charges. \nWIFI tethering will increase battery consumption. \n\nDo you want to turn on 3G connection and WIFI tethering?</string>
+    <string name="initial.prompt">By default connection to internet and WIFI tethering are turned off. You need to set it manually. \nConnecting via packet data may incur additional charges. \nWIFI tethering will increase battery consumption. \n\nDo you want to turn on 3G connection and WIFI tethering?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="promptReset">Do you want to reset current settings?</string>
+    <string name="reset.prompt">Do you want to reset current settings?</string>
     <string name="add.simcard.title">Add current simcard</string>
     <string name="remove.simcard.title">Remove current simcard</string>
     <string name="add.simcard.summary">Add current simcard to the white list (all simcards on the list will be acceptable)</string>
@@ -36,6 +36,6 @@
     <string name="scheduler.title">Scheduler</string>
     <string name="idle.time.minutes">Idle time in minutes</string>
     <string name="warning">Warning</string>
-    <string name="on.exit">Do you really want to exit?</string>
+    <string name="prmpt.onexit">Do you really want to exit?</string>
 </resources>
 
