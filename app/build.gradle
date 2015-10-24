@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 apply plugin: 'com.android.application'
 apply plugin: 'jacoco'
 apply plugin: 'com.github.kt3k.coveralls'
@@ -134,7 +136,7 @@ if (propFile.canRead()) {
 }
 
 def buildTime() {
-    def df = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'")
+    def df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'")
     df.setTimeZone(TimeZone.getTimeZone("UTC"))
     return df.format(new Date())
 }

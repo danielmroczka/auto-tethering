@@ -21,7 +21,7 @@ public class UtilsTest {
 
     @Test
     public void testCommaSeparatedUtils() throws Exception {
-        String text = new String("");
+        String text = "";
 
         text = Utils.add(text, "123");
         text = Utils.add(text, "1234");
