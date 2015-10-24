@@ -214,28 +214,18 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 startActivity(new Intent(this, AboutActivity.class));
                 return true;
             case R.id.action_reset:
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(R.string.warning)
+                        .setMessage(getString(R.string.promptReset))
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                prefs.edit().clear().apply();
+                            }
+                        })
 
-                builder.setTitle(R.string.warning);
-                builder.setMessage(getString(R.string.promptReset));
-
-                builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        prefs.edit().clear().apply();
-                    }
-                });
-
-                builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-
-
-                AlertDialog alert = builder.create();
-                alert.show();
+                        .setNegativeButton(R.string.no, null).show();
                 return true;
             case R.id.action_exit:
                 new AlertDialog.Builder(this)
