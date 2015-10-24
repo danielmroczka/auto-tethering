@@ -221,7 +221,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                                 prefs.edit().clear().apply();
                             }
                         })
-
                         .setNegativeButton(R.string.no, null).show();
                 return true;
             case R.id.action_exit:
@@ -239,8 +238,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                             }
                         })
                         .setNegativeButton(R.string.no, null).show();
-
-
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
