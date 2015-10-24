@@ -17,6 +17,40 @@ buildscript {
     }
 }
 
+android {
+    signingConfigs {
+        release
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            debuggable true
+            testCoverageEnabled = true
+        }
+    }
+
+    compileSdkVersion 21
+    buildToolsVersion "21.1.1"
+    defaultConfig {
+        applicationId "com.labs.dm.auto_tethering"
+        minSdkVersion 10
+        targetSdkVersion 21
+        versionCode 9
+        versionName "0.0.9"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
 def coverageSourceDirs = [
         '../app/src/main/java'
 ]
@@ -60,40 +94,6 @@ coveralls {
   dependsOn jacocoTestReport
   onlyIf { System.env.'CI' }
 }*/
-
-android {
-    signingConfigs {
-        release
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled true
-            zipAlignEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
-        }
-        debug {
-            debuggable true
-            testCoverageEnabled = true
-        }
-    }
-
-    compileSdkVersion 21
-    buildToolsVersion "21.1.1"
-    defaultConfig {
-        applicationId "com.labs.dm.auto_tethering"
-        minSdkVersion 10
-        targetSdkVersion 21
-        versionCode 8
-        versionName "0.0.8"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-    }
-}
 
 dependencies {
     //compile -->

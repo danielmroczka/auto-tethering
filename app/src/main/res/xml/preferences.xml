@@ -31,68 +31,71 @@
         android:icon="@drawable/ic_clock"
         android:key="scheduler.screen"
         android:title="@string/scheduler.title">
-        <PreferenceCategory android:title="Scheduler">
-            <CheckBoxPreference
-                android:defaultValue="false"
-                android:icon="@drawable/ic_scheduler"
-                android:key="scheduler.on"
-                android:summary="@string/scheduler"
-                android:title="Activate Scheduler" />
-            <EditTextPreference
-                android:defaultValue="0:00"
-                android:dependency="scheduler.on"
-                android:dialogTitle="@string/enter.value"
-                android:icon="@drawable/ic_clock"
-                android:inputType="time"
-                android:key="scheduler.time.off"
-                android:maxLength="5"
-                android:summary="..."
-                android:title="Switch OFF time" />
-            <EditTextPreference
-                android:defaultValue="6:00"
-                android:dependency="scheduler.on"
-                android:dialogTitle="@string/enter.value"
-                android:icon="@drawable/ic_clock"
-                android:inputType="time"
-                android:key="scheduler.time.on"
-                android:maxLength="5"
-                android:summary="..."
-                android:title="Switch ON time" />
-        </PreferenceCategory>
-        <PreferenceCategory android:title="Deactivate on idle">
-            <CheckBoxPreference
-                android:defaultValue="false"
-                android:icon="@drawable/ic_wifi"
-                android:key="idle.wifi.off"
-                android:summary="@string/switch.off.tethering.idle.summary"
-                android:title="@string/switch.off.tethering.idle.title" />
-            <EditTextPreference
-                android:defaultValue="60"
-                android:dependency="idle.wifi.off"
-                android:dialogTitle="@string/enter.value.minutes"
-                android:icon="@drawable/ic_clock"
-                android:inputType="number"
-                android:key="idle.wifi.off.time"
-                android:maxLength="5"
-                android:summary=""
-                android:title="@string/idle.time.minutes" />
-            <CheckBoxPreference
-                android:defaultValue="false"
-                android:icon="@drawable/ic_signal"
-                android:key="idle.3g.off"
-                android:summary="@string/switch.off.internet.idle.summary"
-                android:title="@string/switch.off.internet.idle.title" />
-            <EditTextPreference
-                android:defaultValue="60"
-                android:dependency="idle.3g.off"
-                android:dialogTitle="@string/enter.value.minutes"
-                android:icon="@drawable/ic_clock"
-                android:inputType="number"
-                android:key="idle.3g.off.time"
-                android:maxLength="5"
-                android:summary=""
-                android:title="@string/idle.time.minutes" />
-        </PreferenceCategory>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_scheduler"
+            android:key="scheduler.on"
+            android:summary="@string/scheduler"
+            android:title="Activate Scheduler" />
+        <EditTextPreference
+            android:defaultValue="0:00"
+            android:dependency="scheduler.on"
+            android:dialogTitle="@string/enter.value"
+            android:icon="@drawable/ic_clock"
+            android:inputType="time"
+            android:key="scheduler.time.off"
+            android:maxLength="5"
+            android:summary="..."
+            android:title="Switch OFF time" />
+        <EditTextPreference
+            android:defaultValue="6:00"
+            android:dependency="scheduler.on"
+            android:dialogTitle="@string/enter.value"
+            android:icon="@drawable/ic_clock"
+            android:inputType="time"
+            android:key="scheduler.time.on"
+            android:maxLength="5"
+            android:summary="..."
+            android:title="Switch ON time" />
+    </PreferenceScreen>
+
+    <PreferenceScreen
+        android:icon="@drawable/ic_idle"
+        android:key="idle.screen"
+        android:title="Deactivate on idle">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_wifi"
+            android:key="idle.wifi.off"
+            android:summary="@string/switch.off.tethering.idle.summary"
+            android:title="@string/switch.off.tethering.idle.title" />
+        <EditTextPreference
+            android:defaultValue="60"
+            android:dependency="idle.wifi.off"
+            android:dialogTitle="@string/enter.value.minutes"
+            android:icon="@drawable/ic_clock"
+            android:inputType="number"
+            android:key="idle.wifi.off.time"
+            android:maxLength="5"
+            android:summary=""
+            android:title="@string/idle.time.minutes" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_signal"
+            android:key="idle.3g.off"
+            android:summary="@string/switch.off.internet.idle.summary"
+            android:title="@string/switch.off.internet.idle.title" />
+        <EditTextPreference
+            android:defaultValue="60"
+            android:dependency="idle.3g.off"
+            android:dialogTitle="@string/enter.value.minutes"
+            android:icon="@drawable/ic_clock"
+            android:inputType="number"
+            android:key="idle.3g.off.time"
+            android:maxLength="5"
+            android:summary=""
+            android:title="@string/idle.time.minutes" />
+
     </PreferenceScreen>
 
     <PreferenceScreen
@@ -132,11 +135,4 @@
         </PreferenceScreen>
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/other.settings">
-        <PreferenceScreen
-            android:icon="@drawable/ic_cancel"
-            android:key="reset"
-            android:summary=""
-            android:title="@string/revert.to.default"></PreferenceScreen>
-    </PreferenceCategory>
 </PreferenceScreen>

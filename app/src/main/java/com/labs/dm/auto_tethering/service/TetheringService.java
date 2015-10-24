@@ -1,6 +1,9 @@
 package com.labs.dm.auto_tethering.service;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +14,7 @@ import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -73,6 +77,28 @@ public class TetheringService extends IntentService {
             }
         }
         return null;
+    }
+
+    private void showNotification() {
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // In this sample, we'll use the same text for the ticker and the
+        // expanded notification
+
+        // Set the icon, scrolling text and timestamp
+        Notification notification = new Notification(R.drawable.app,
+                "Service Started", System.currentTimeMillis());
+        // The PendingIntent to launch our activity if the user selects this
+        // notification
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                null, 0);
+        // Set the info for the views that show in the notification panel.
+        notification.setLatestEventInfo(this, "abc",
+                "Service Started", contentIntent);
+        // Send the notification.
+        // We use a layout id because it is a unique number. We use it later to
+        // cancel.
+        nm.notify(1, notification);
+
     }
 
     @Override

@@ -9,6 +9,10 @@
         android:showAsAction="never"
         android:title="About" />
     <item
+        android:id="@+id/action_reset"
+        android:showAsAction="never"
+        android:title="Reset settings" />
+    <item
         android:id="@+id/action_exit"
         android:showAsAction="never"
         android:title="Exit" />
