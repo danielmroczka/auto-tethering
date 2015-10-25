@@ -102,6 +102,11 @@ public class TetheringService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         showNotification("Service started", NOTIFICATION_SHORT);
 
+        if (!isCorrectSimCard()) {
+            cancelNotification(NOTIFICATION_SHORT);
+            showNotification("Inserted blocked simcard or network is unavailable!", NOTIFICATION_LONG);
+        }
+
         while (true) {
             try {
                 if (isServiceActived()) {
@@ -110,6 +115,7 @@ public class TetheringService extends IntentService {
 
                             boolean connected3G = Utils.isConnected(getApplicationContext());
                             boolean tethered = isSharingWiFi();
+                            boolean idle = checkIdle();
 
                             if (isScheduledTimeOff()) {
                                 if (connected3G) {
@@ -120,15 +126,12 @@ public class TetheringService extends IntentService {
                                     tetheringAsyncTask(false);
                                     showNotification(getString(R.string.notification_scheduled_tethering_off), NOTIFICATION_LONG);
                                 }
-                            } else if (checkIdle()) {
-                                if (connected3G && check3GIdle()) {
-                                    internetAsyncTask(false);
-                                    showNotification(getString(R.string.notification_idle_internet_off), NOTIFICATION_LONG);
-                                }
-                                if (tethered && checkWifiIdle()) {
-                                    tetheringAsyncTask(false);
-                                    showNotification(getString(R.string.notification_idle_tethering_off), NOTIFICATION_LONG);
-                                }
+                            } else if (idle && connected3G && check3GIdle()) {
+                                internetAsyncTask(false);
+                                showNotification(getString(R.string.notification_idle_internet_off), NOTIFICATION_LONG);
+                            } else if (idle && tethered && checkWifiIdle()) {
+                                tetheringAsyncTask(false);
+                                showNotification(getString(R.string.notification_idle_tethering_off), NOTIFICATION_LONG);
                             } else if (updateStatus()) {
                                 if (isActivated3G() && !connected3G) {
                                     internetAsyncTask(true);
