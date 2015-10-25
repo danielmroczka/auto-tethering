@@ -8,13 +8,14 @@ In this way phone is working as router just after switched it on without any add
 
 Min. required Android version: 2.3 (less features but more devices supported). Rooting phone is not required.
 
-Functionalities should be completed in a future:
+Some of implemented features:
 - [x] starts immediately after operation system boot (you don't have to switch on manually tethering and internet connection on your mobile phone)
 - [x] scheduler - you can define when your router will be switched off (i.e. during the night to safe the energy)
 - [x] if no one is using router for configured time internet connection and tethering could be switched off
 - [x] simcard's whitelist - you may define for which simcard you want to enable this features (for others simcard's service will be disabled to protect you from the additional costs)
 - [x] checks permanently if your internet connection is active and reconnect if it has been lost
 - [x] option to disable when roaming 
+- [x] change notifications
 
 ## Usage
 Signing apk needs to set credentials in local file gradle.properties (expected location in folder ~/.gradle) and add following settings:
