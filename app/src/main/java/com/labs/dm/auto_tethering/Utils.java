@@ -2,7 +2,6 @@ package com.labs.dm.auto_tethering;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -102,8 +101,8 @@ public class Utils {
 
     public static boolean isConnected(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = cm.getActiveNetworkInfo();
-        return (info != null && info.isConnected());
+        cm.getNetworkInfo(0).isConnected();
+        return (cm.getNetworkInfo(0).isConnected());
     }
 
     public static void setWifiTetheringEnabled(Context context, WifiManager wifiManager, boolean enable) {
