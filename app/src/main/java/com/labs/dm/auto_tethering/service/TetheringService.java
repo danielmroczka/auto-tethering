@@ -7,8 +7,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
@@ -18,8 +16,6 @@ import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -52,59 +48,19 @@ public class TetheringService extends IntentService {
     private SharedPreferences prefs;
     private long lastAccess = Calendar.getInstance().getTimeInMillis();
     private boolean initial3GStatus, initialTetheredStatus;
-    private WifiManager wifiManager;
+    private ServiceHelper serviceHelper;
 
     public TetheringService() {
-        super("AutoTetheringService");
-    }
-
-    public static WifiConfiguration getWifiApConfiguration(final Context ctx) {
-        final WifiManager wifiManager = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
-        final Method m = getWifiManagerMethod("getWifiApConfiguration", wifiManager);
-        if (m != null) {
-            try {
-                return (WifiConfiguration) m.invoke(wifiManager);
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
-            }
-        }
-        return null;
-    }
-
-    private static Method getWifiManagerMethod(final String methodName, final WifiManager wifiManager) {
-        final Method[] methods = wifiManager.getClass().getDeclaredMethods();
-        for (Method method : methods) {
-            if (method.getName().equals(methodName)) {
-                return method;
-            }
-        }
-        return null;
-    }
-
-    private void showNotification(String body, int id) {
-        cancelNotification(NOTIFICATION_LONG);
-        String subject = (String) getText(R.string.app_name);
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification notify = new Notification(R.drawable.app, body, System.currentTimeMillis());
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        PendingIntent pending = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        notify.setLatestEventInfo(getApplicationContext(), subject, body, pending);
-        notificationManager.notify(id, notify);
-        Log.i(TAG, body);
-    }
-
-    private void cancelNotification(int id) {
-        NotificationManager notif = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notif.cancel(id);
+        super(TAG);
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        showNotification("Service started", NOTIFICATION_SHORT);
+        showNotification(getString(R.string.service_started), NOTIFICATION_SHORT);
 
         if (!isCorrectSimCard()) {
             cancelNotification(NOTIFICATION_SHORT);
-            showNotification("Inserted blocked simcard or network is unavailable!", NOTIFICATION_LONG);
+            showNotification(getString(R.string.inserted_blocked_simcard), NOTIFICATION_LONG);
         }
 
         while (true) {
@@ -113,8 +69,8 @@ public class TetheringService extends IntentService {
                     if (isCorrectSimCard()) {
                         if (checkForRoaming()) {
 
-                            boolean connected3G = Utils.isConnected(getApplicationContext());
-                            boolean tethered = isSharingWiFi();
+                            boolean connected3G = serviceHelper.checkMobileConnection();
+                            boolean tethered = serviceHelper.isSharingWiFi();
                             boolean idle = checkIdle();
 
                             if (isScheduledTimeOff()) {
@@ -174,18 +130,13 @@ public class TetheringService extends IntentService {
     }
 
     private boolean isScheduledTimeOff() {
-        Calendar c = Calendar.getInstance();
+        Calendar now = Calendar.getInstance();
         onChangeProperties();
-        timeOn.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
-        timeOff.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+        timeOn.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
+        timeOff.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
 
-        if (isSchedulerOn()) {
-            if (c.after(timeOff) && c.before(timeOn)) {
-                return true;
-            }
-        }
+        return isSchedulerOn() && now.after(timeOff) && now.before(timeOn);
 
-        return false;
     }
 
     private boolean checkIdle() {
@@ -226,14 +177,14 @@ public class TetheringService extends IntentService {
     public void onCreate() {
         super.onCreate();
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+        serviceHelper = new ServiceHelper(TAG, getApplicationContext());
         onChangeProperties();
         init();
     }
 
     private void init() {
-        initial3GStatus = Utils.isConnected(getApplicationContext());
-        initialTetheredStatus = isSharingWiFi();
+        initial3GStatus = serviceHelper.checkMobileConnection();
+        initialTetheredStatus = serviceHelper.isSharingWiFi();
     }
 
     private void onChangeProperties() {
@@ -251,22 +202,6 @@ public class TetheringService extends IntentService {
 
     private void internetAsyncTask(boolean state) {
         new TurnOn3GAsyncTask().doInBackground(state);
-    }
-
-    private boolean isSharingWiFi() {
-        try {
-            final Method method = wifiManager.getClass().getDeclaredMethod("isWifiApEnabled");
-            method.setAccessible(true);
-            return (Boolean) method.invoke(wifiManager);
-        } catch (IllegalAccessException ex) {
-            Log.e(TAG, ex.getMessage());
-        } catch (InvocationTargetException ex) {
-            Log.e(TAG, ex.getMessage());
-        } catch (NoSuchMethodException ex) {
-            Log.e(TAG, ex.getMessage());
-        }
-
-        return false;
     }
 
     private boolean isActivatedTethering() {
@@ -295,19 +230,36 @@ public class TetheringService extends IntentService {
         }
     }
 
-    protected class TurnOn3GAsyncTask extends AsyncTask<Boolean, Void, Void> {
+    private class TurnOn3GAsyncTask extends AsyncTask<Boolean, Void, Void> {
         @Override
         protected Void doInBackground(Boolean... params) {
-            Utils.setMobileDataEnabled(getApplicationContext(), params[0]);
+            serviceHelper.setMobileDataEnabled(params[0]);
             return null;
         }
     }
 
-    protected class TurnOnTetheringAsyncTask extends AsyncTask<Boolean, Void, Void> {
+    private class TurnOnTetheringAsyncTask extends AsyncTask<Boolean, Void, Void> {
         @Override
         protected Void doInBackground(Boolean... params) {
-            Utils.setWifiTetheringEnabled(getApplicationContext(), wifiManager, params[0]);
+            serviceHelper.setWifiTethering(params[0]);
             return null;
         }
+    }
+
+    private void showNotification(String body, int id) {
+        cancelNotification(NOTIFICATION_LONG);
+        String subject = (String) getText(R.string.app_name);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        Notification notify = new Notification(R.drawable.app, body, System.currentTimeMillis());
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        PendingIntent pending = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        notify.setLatestEventInfo(getApplicationContext(), subject, body, pending);
+        notificationManager.notify(id, notify);
+        Log.i(TAG, body);
+    }
+
+    private void cancelNotification(int id) {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(id);
     }
 }

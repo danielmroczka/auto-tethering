@@ -1,17 +1,9 @@
 package com.labs.dm.auto_tethering;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.wifi.WifiManager;
-import android.util.Log;
-import android.widget.Toast;
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,44 +73,7 @@ public class Utils {
         return sb.toString();
     }
 
-    public static void setMobileDataEnabled(Context context, boolean enabled) {
-        final ConnectivityManager conman = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        try {
-            final Class conmanClass = Class.forName(conman.getClass().getName());
-            final Field iConnectivityManagerField = conmanClass.getDeclaredField("mService");
-            iConnectivityManagerField.setAccessible(true);
-            final Object iConnectivityManager = iConnectivityManagerField.get(conman);
-            final Class iConnectivityManagerClass = Class.forName(iConnectivityManager.getClass().getName());
-            final Method setMobileDataEnabledMethod = iConnectivityManagerClass.getDeclaredMethod("setMobileDataEnabled", Boolean.TYPE);
-            setMobileDataEnabledMethod.setAccessible(true);
 
-            setMobileDataEnabledMethod.invoke(iConnectivityManager, enabled);
-        } catch (Exception e) {
-            Log.e("", "Switch on 3G", e);
-            Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
 
-    public static boolean isConnected(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        cm.getNetworkInfo(0).isConnected();
-        return (cm.getNetworkInfo(0).isConnected());
-    }
 
-    public static void setWifiTetheringEnabled(Context context, WifiManager wifiManager, boolean enable) {
-        wifiManager.setWifiEnabled(false);
-        Method[] methods = wifiManager.getClass().getDeclaredMethods();
-        for (Method method : methods) {
-            if (method.getName().equals("setWifiApEnabled")) {
-                try {
-                    Log.i("", "setWifiTetheringEnabled to " + enable);
-                    method.invoke(wifiManager, null, enable);
-                } catch (Exception ex) {
-                    Log.e("", "Switch on tethering", ex);
-                    Toast.makeText(context, ex.getMessage(), Toast.LENGTH_LONG).show();
-                }
-                break;
-            }
-        }
-    }
 }

@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.wifi.WifiConfiguration;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -22,6 +21,7 @@ import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
+import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
 import java.util.Map;
@@ -45,11 +45,13 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     private static final int ON_CHANGE_SSID = 1;
     private SharedPreferences prefs;
+    private ServiceHelper serviceHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
+        serviceHelper = new ServiceHelper("ServiceHelper", getApplicationContext());
         loadPrefs();
         Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -91,8 +93,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     break;
 
                 case SSID:
-                    WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
-                    p.setSummary(cfg != null ? cfg.SSID : "<empty>");
+                    p.setSummary(serviceHelper.getTetheringSSID());
                     break;
             }
         }
@@ -106,33 +107,33 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
-        final Preference simedit = findPreference("edit.simcard");
+        final Preference simEdit = findPreference("edit.simcard");
         final String serials = prefs.getString(AppProperties.SIMCARD_LIST, "");
         TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         final String simCard = tMgr.getSimSerialNumber();
         if (Utils.exists(serials, simCard)) {
-            simedit.setTitle(R.string.remove_simcard_title);
-            simedit.setSummary(R.string.remove_simcard_summary);
+            simEdit.setTitle(R.string.remove_simcard_title);
+            simEdit.setSummary(R.string.remove_simcard_summary);
         } else {
-            simedit.setTitle(R.string.add_simcard_title);
-            simedit.setSummary(R.string.add_simcard_summary);
+            simEdit.setTitle(R.string.add_simcard_title);
+            simEdit.setSummary(R.string.add_simcard_summary);
         }
 
-        simedit.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        simEdit.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 String res = prefs.getString(AppProperties.SIMCARD_LIST, "");
                 if (Utils.exists(res, simCard)) {
                     res = Utils.remove(res, simCard);
-                    simedit.setTitle(R.string.add_simcard_title);
-                    simedit.setSummary(R.string.add_simcard_summary);
+                    simEdit.setTitle(R.string.add_simcard_title);
+                    simEdit.setSummary(R.string.add_simcard_summary);
                     if (prefs.getBoolean(AppProperties.ACTIVATE_ON_SIMCARD, false)) {
                         Toast.makeText(getApplicationContext(), R.string.simcard_warn, Toast.LENGTH_LONG).show();
                     }
                 } else {
                     res = Utils.add(res, simCard);
-                    simedit.setTitle(R.string.remove_simcard_title);
-                    simedit.setSummary(R.string.remove_simcard_summary);
+                    simEdit.setTitle(R.string.remove_simcard_title);
+                    simEdit.setSummary(R.string.remove_simcard_summary);
                 }
 
                 prefs.edit().putString(SIMCARD_LIST, res).apply();
@@ -160,8 +161,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     protected void onActivityResult(int reqCode, int resCode, Intent data) {
         if (reqCode == ON_CHANGE_SSID) {
             Preference p = findPreference(SSID);
-            WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
-            p.setSummary(cfg != null ? cfg.SSID : null);
+            p.setSummary(serviceHelper.getTetheringSSID());
         }
     }
 
@@ -170,8 +170,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         super.onPostCreate(savedInstanceState);
         Intent serviceIntent = new Intent(this, TetheringService.class);
         startService(serviceIntent);
-        WifiConfiguration cfg = TetheringService.getWifiApConfiguration(getApplicationContext());
-        prefs.edit().putString(SSID, cfg != null ? cfg.SSID : null).apply();
+        prefs.edit().putString(SSID, serviceHelper.getTetheringSSID()).apply();
         loadPrefs();
         displayPrompt();
     }
