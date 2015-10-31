@@ -262,4 +262,11 @@ public class TetheringService extends IntentService {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(id);
     }
+
+    @Override
+    public void onDestroy() {
+        cancelNotification(NOTIFICATION_LONG);
+        cancelNotification(NOTIFICATION_SHORT);
+        super.onDestroy();
+    }
 }
