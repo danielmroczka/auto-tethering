@@ -2,23 +2,23 @@
     <string name="app_name">Auto WIFI Tethering</string>
     <string name="activate.on.startup.summary">Activate service on startup</string>
     <string name="activate.only.title">SIM card white list activation</string>
-    <string name="activate.only.summary">Activate only if SIM Card is on the white list</string>
+    <string name="activate.only.summary">Activate only if SIM card is on the white list</string>
     <string name="activate.title">Activation</string>
-    <string name="scheduler">Switch off tethering and internet connection for provided below timeline</string>
+    <string name="scheduler">Turn off tethering and internet connection for specified hours</string>
     <string name="enter.value">Enter value</string>
     <string name="ssid">SSID Tethering network</string>
-    <string name="activate3g.summary">Activate mobile connection on startup</string>
+    <string name="activate3g.summary">Activate mobile connection after startup</string>
     <string name="activate3g.title">Mobile connection</string>
-    <string name="activateTethering.summary">Activate Wifi Tethering on startup</string>
+    <string name="activateTethering.summary">Activate Wifi Tethering after startup</string>
     <string name="activateTethering.title">Wifi Tethering</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="add.simcard.title">Add current simcard</string>
-    <string name="remove.simcard.title">Remove current simcard</string>
-    <string name="add.simcard.summary">Add current simcard to the white list (all simcards on the list will be acceptable)</string>
-    <string name="remove.simcard.summary">Remove current simcard from the white list (connection will be denied if phone uses this simcard)</string>
-    <string name="simcard.warn">Removed simcard from list and checked option \'Activate on simcard from the white lists results that app will not be activated</string>
-    <string name="cannot.read.simcard">Unable to retrieve simcard Serial!</string>
+    <string name="add.simcard.title">Add current SIM card</string>
+    <string name="remove.simcard.title">Remove current SIM card</string>
+    <string name="add.simcard.summary">Add current SIM card to the white list (all simcards on the list will be acceptable)</string>
+    <string name="remove.simcard.summary">Remove current SIM card from the white list (connection will be denied if phone uses this simcard)</string>
+    <string name="simcard.warn">Removed SIM card from list and checked option \'Activate on SIM card from the white lists results that app will not be activated</string>
+    <string name="cannot.read.simcard">Unable to retrieve SIM card serial!</string>
     <string name="adv.activity.setting.summary">Advanced activity settings</string>
     <string name="startup.activity.screen.summary">Startup activity settings</string>
     <string name="revert.to.default">Revert to default settings</string>
@@ -34,6 +34,7 @@
     <string name="scheduler.title">Scheduler</string>
     <string name="idle.time.minutes">Idle time in minutes</string>
     <string name="warning">Warning</string>
+    <string name="advanced.settings">Advanced Settings</string>
     <!-- PROMPTS -->
     <string name="prompt.onexit">Do you want to exit and stop service?</string>
     <string name="reset.prompt">Do you want to reset current settings?</string>
@@ -47,6 +48,7 @@
     <string name="notification.tethering.restored">Restored WIFI Tethering</string>
     <string name="notification.tethering.off">Turned off WIFI Tethering</string>
     <string name="service.started">Service started</string>
-    <string name="inserted.blocked.simcard">Inserted simcard is blocked by the settings or network is unavailable!</string>
+    <string name="inserted.blocked.simcard">Inserted SIM card is blocked by the settings or network is unavailable!</string>
+    <string name="revert.state.summary">Revert to the state before run the service</string>
 </resources>
 

@@ -101,7 +101,7 @@
     <PreferenceScreen
         android:icon="@drawable/ic_settings"
         android:key="adv.act.screen"
-        android:title="Advanced Activation">
+        android:title="@string/advanced.settings">
         <CheckBoxPreference
             android:defaultValue="false"
             android:icon="@drawable/ic_simcard"
@@ -117,7 +117,12 @@
             android:key="activate.on.roaming"
             android:summary=""
             android:title="Activate on roaming" />
-
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_cancel"
+            android:key="return.state"
+            android:summary="@string/revert.state.summary"
+            android:title="Initial state" />
     </PreferenceScreen>
 
     <PreferenceCategory

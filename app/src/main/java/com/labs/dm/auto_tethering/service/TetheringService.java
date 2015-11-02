@@ -31,6 +31,7 @@ import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
 import static com.labs.dm.auto_tethering.AppProperties.SCHEDULER;
 import static com.labs.dm.auto_tethering.AppProperties.SIMCARD_LIST;
 import static com.labs.dm.auto_tethering.AppProperties.TIME_OFF;
@@ -265,8 +266,11 @@ public class TetheringService extends IntentService {
 
     @Override
     public void onDestroy() {
-        cancelNotification(NOTIFICATION_LONG);
-        cancelNotification(NOTIFICATION_SHORT);
+        if (prefs.getBoolean(RETURN_TO_PREV_STATE, false)) {
+            serviceHelper.setMobileDataEnabled(initial3GStatus);
+            serviceHelper.setWifiTethering(initialTetheredStatus);
+        }
+        ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancelAll();
         super.onDestroy();
     }
 }
