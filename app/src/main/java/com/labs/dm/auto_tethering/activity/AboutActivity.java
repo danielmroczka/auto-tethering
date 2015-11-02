@@ -23,8 +23,8 @@ public class AboutActivity extends Activity {
             e.printStackTrace();
         }
 
-        TextView textView = (TextView) findViewById(R.id.textView);
-        textView.setText("Version: " + (pInfo != null ? pInfo.versionName : null));
+        TextView textView = (TextView) findViewById(R.id.versionTextView);
+        textView.setText("version: " + (pInfo != null ? pInfo.versionName : null));
         System.getProperty("build.time");
     }
 
