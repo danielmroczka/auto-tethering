@@ -15,6 +15,7 @@ import android.util.Log;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
+import com.labs.dm.auto_tethering.db.DBManager;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -33,7 +34,6 @@ import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
 import static com.labs.dm.auto_tethering.AppProperties.SCHEDULER;
-import static com.labs.dm.auto_tethering.AppProperties.SIMCARD_LIST;
 import static com.labs.dm.auto_tethering.AppProperties.TIME_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.TIME_ON;
 
@@ -54,6 +54,7 @@ public class TetheringService extends IntentService {
     public TetheringService() {
         super(TAG);
     }
+
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -181,6 +182,12 @@ public class TetheringService extends IntentService {
         serviceHelper = new ServiceHelper(TAG, getApplicationContext());
         onChangeProperties();
         init();
+
+    }
+
+    @Override
+    public void onStart(Intent intent, int startId) {
+        super.onStart(intent, startId);
     }
 
     private void init() {
@@ -224,8 +231,8 @@ public class TetheringService extends IntentService {
     private boolean isCorrectSimCard() {
         if (prefs.getBoolean(ACTIVATE_ON_SIMCARD, false)) {
             TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-            String simCard = tMgr.getSimSerialNumber();
-            return simCard != null && Utils.exists(prefs.getString(SIMCARD_LIST, ""), "");
+            String simSerialNumber = tMgr.getSimSerialNumber();
+            return simSerialNumber != null && DBManager.getInstance(getApplicationContext()).isOnWhiteList(simSerialNumber);//  Utils.exists(prefs.getString(SIMCARD_LIST, ""), "");
         } else {
             return true;
         }
