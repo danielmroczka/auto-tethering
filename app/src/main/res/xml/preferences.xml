@@ -102,15 +102,32 @@
         android:icon="@drawable/ic_settings"
         android:key="adv.act.screen"
         android:title="@string/advanced.settings">
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:icon="@drawable/ic_simcard"
-            android:key="activate.simcard"
-            android:summary="@string/activate.only.summary"
-            android:title="@string/activate.only.title" />
+
         <PreferenceScreen
-            android:dependency="activate.simcard"
-            android:key="edit.simcard" />
+            android:icon="@drawable/ic_simcard"
+            android:title="SIM Card settings"
+            android:summary="Activation only on configured SIM card">
+            <PreferenceCategory android:title="SIM Card activation">
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:icon="@drawable/ic_simcard"
+                    android:key="activate.simcard"
+                    android:summary="@string/activate.only.summary"
+                    android:title="@string/activate.only.title" />
+            </PreferenceCategory>
+            <PreferenceCategory
+                android:key="simcard.list"
+                android:title="Edit SIM card whitelist">
+                <PreferenceScreen
+                    android:icon="@drawable/ic_add"
+                    android:key="add.current.simcard"
+                    android:title="Add current SIM card"></PreferenceScreen>
+                <PreferenceScreen
+                    android:icon="@drawable/ic_remove"
+                    android:key="remove.simcard"
+                    android:title="Remove selected"></PreferenceScreen>
+            </PreferenceCategory>
+        </PreferenceScreen>
         <CheckBoxPreference
             android:defaultValue="false"
             android:icon="@drawable/ic_roaming"

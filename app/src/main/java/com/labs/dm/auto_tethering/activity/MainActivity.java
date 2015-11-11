@@ -10,30 +10,34 @@ import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.telephony.TelephonyManager;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
-import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
+import com.labs.dm.auto_tethering.db.DBManager;
+import com.labs.dm.auto_tethering.db.SimCard;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
-import static com.labs.dm.auto_tethering.AppProperties.SIMCARD_LIST;
 import static com.labs.dm.auto_tethering.AppProperties.SSID;
 import static com.labs.dm.auto_tethering.AppProperties.TIME_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.TIME_ON;
@@ -46,10 +50,12 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     private static final int ON_CHANGE_SSID = 1;
     private SharedPreferences prefs;
     private ServiceHelper serviceHelper;
+    private DBManager db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        db = DBManager.getInstance(getApplicationContext());
         addPreferencesFromResource(R.xml.preferences);
         serviceHelper = new ServiceHelper("ServiceHelper", getApplicationContext());
         loadPrefs();
@@ -107,38 +113,107 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
-        final Preference simEdit = findPreference("edit.simcard");
-        final String serials = prefs.getString(AppProperties.SIMCARD_LIST, "");
-        TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-        final String simCard = tMgr.getSimSerialNumber();
-        if (Utils.exists(serials, simCard)) {
-            simEdit.setTitle(R.string.remove_simcard_title);
-            simEdit.setSummary(R.string.remove_simcard_summary);
-        } else {
-            simEdit.setTitle(R.string.add_simcard_title);
-            simEdit.setSummary(R.string.add_simcard_summary);
-        }
+        prepareSimCardWhiteList();
+    }
 
-        simEdit.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+    private void prepareSimCardWhiteList() {
+        PreferenceCategory p = (PreferenceCategory) findPreference("simcard.list");
+        List<SimCard> list = db.readSimCard();
+        for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
+            Object object = p.getPreference(idx);
+            if (object instanceof CheckBoxPreference) {
+                p.removePreference((CheckBoxPreference) object);
+            }
+        }
+        for (SimCard item : list) {
+            Preference ps = new CheckBoxPreference(getApplicationContext());
+            ps.setTitle(item.getNumber());
+            ps.setSummary(item.getSerial());
+            p.addPreference(ps);
+        }
+    }
+
+    private void addSimCard(String number) {
+        final TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        final String ssn = tMgr.getSimSerialNumber();
+        SimCard simcard = new SimCard(tMgr.getSimSerialNumber(), number, "", 0);
+        db.addSimCard(simcard);
+        boolean status = db.isOnWhiteList(ssn);
+        PreferenceScreen p = (PreferenceScreen) findPreference("add.current.simcard");
+        p.setEnabled(!status);
+        prepareSimCardWhiteList();
+    }
+
+    private void registerAddSimCardListener() {
+        final TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        final String ssn = tMgr.getSimSerialNumber();
+        boolean status = db.isOnWhiteList(ssn);
+
+        PreferenceScreen p = (PreferenceScreen) findPreference("add.current.simcard");
+        p.setEnabled(!status);
+        final String[] number = {""};
+        p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                String res = prefs.getString(AppProperties.SIMCARD_LIST, "");
-                if (Utils.exists(res, simCard)) {
-                    res = Utils.remove(res, simCard);
-                    simEdit.setTitle(R.string.add_simcard_title);
-                    simEdit.setSummary(R.string.add_simcard_summary);
-                    if (prefs.getBoolean(AppProperties.ACTIVATE_ON_SIMCARD, false)) {
-                        Toast.makeText(getApplicationContext(), R.string.simcard_warn, Toast.LENGTH_LONG).show();
-                    }
+
+                number[0] = tMgr.getLine1Number();
+                // TODO:
+                if (number[0] == null || number[0].isEmpty()) {
+                    LayoutInflater li = LayoutInflater.from(MainActivity.this);
+                    final View promptsView = li.inflate(R.layout.add_simcard_prompt, null);
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Add phone number")
+                            .setMessage("Cannot retrieve telephone number. Please provide it manually")
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setView(promptsView)
+                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    final EditText userInput = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput);
+                                    number[0] = userInput.getText().toString();
+                                    addSimCard(number[0]);
+                                }
+                            })
+                            .setNegativeButton(R.string.no, null).show();
+                    return true;
                 } else {
-                    res = Utils.add(res, simCard);
-                    simEdit.setTitle(R.string.remove_simcard_title);
-                    simEdit.setSummary(R.string.remove_simcard_summary);
+
+                    addSimCard(number[0]);
+                }
+                return true;
+            }
+        });
+
+        PreferenceScreen p2 = (PreferenceScreen) findPreference("remove.simcard");
+        p2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                PreferenceCategory p = (PreferenceCategory) findPreference("simcard.list");
+                boolean changed = false;
+                for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
+                    Object object = p.getPreference(idx);
+                    if (object instanceof CheckBoxPreference) {
+                        boolean status = ((CheckBoxPreference) object).isChecked();
+                        if (status) {
+                            db.removeSimCard(((CheckBoxPreference) object).getSummary().toString());
+                            p.removePreference((Preference) object);
+                            changed = true;
+                        }
+                    }
                 }
 
-                prefs.edit().putString(SIMCARD_LIST, res).apply();
+                if (!changed) {
+                    Toast.makeText(getApplicationContext(), "Please select any item", Toast.LENGTH_LONG).show();
+                }
 
-                return false;
+                boolean status = db.isOnWhiteList(ssn);
+
+                PreferenceScreen p2 = (PreferenceScreen) findPreference("add.current.simcard");
+                p2.setEnabled(!status);
+
+                return true;
             }
         });
     }
@@ -174,6 +249,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         prefs.edit().putString(SSID, serviceHelper.getTetheringSSID()).apply();
         loadPrefs();
         displayPrompt();
+        registerAddSimCardListener();
     }
 
     private void displayPrompt() {
@@ -247,21 +323,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
-            case ACTIVATE_ON_SIMCARD: {
-                if (sharedPreferences.getBoolean(ACTIVATE_ON_SIMCARD, false)) {
-                    TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-                    String simCard = tMgr.getSimSerialNumber();
-                    if (simCard == null || simCard.isEmpty()) {
-                        Toast.makeText(getApplicationContext(), R.string.cannot_read_simcard, Toast.LENGTH_LONG).show();
-                        prefs.edit().putBoolean(ACTIVATE_ON_SIMCARD, false).apply();
-                    } else {
-                        String simCardWhiteList = prefs.getString(SIMCARD_LIST, "");
-                        simCardWhiteList = Utils.add(simCardWhiteList, simCard);
-                        prefs.edit().putString(SIMCARD_LIST, simCardWhiteList).apply();
-                    }
-                }
-            }
-
             case ACTIVATE_3G:
             case ACTIVATE_TETHERING:
             case ACTIVATE_ON_STARTUP: {

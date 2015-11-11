@@ -63,6 +63,15 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
+
+        <activity
+            android:name=".activity.SimCardListActivity"
+            android:label="@string/title_activity_sim_card_list"
+            android:parentActivityName=".activity.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.labs.dm.auto_tethering.activity.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
