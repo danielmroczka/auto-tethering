@@ -163,7 +163,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     final View promptsView = li.inflate(R.layout.add_simcard_prompt, null);
                     new AlertDialog.Builder(MainActivity.this)
                             .setTitle("Add phone number")
-                            .setMessage("")
+                            .setMessage("Cannot retrieve telephone number. Please provide it manually")
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .setView(promptsView)
                             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
