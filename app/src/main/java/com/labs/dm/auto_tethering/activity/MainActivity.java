@@ -133,6 +133,17 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         }
     }
 
+    private void addSimCard(String number) {
+        final TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        final String ssn = tMgr.getSimSerialNumber();
+        SimCard simcard = new SimCard(tMgr.getSimSerialNumber(), number, "", 0);
+        db.addSimCard(simcard);
+        boolean status = db.isOnWhiteList(ssn);
+        PreferenceScreen p = (PreferenceScreen) findPreference("add.current.simcard");
+        p.setEnabled(!status);
+        prepareSimCardWhiteList();
+    }
+
     private void registerAddSimCardListener() {
         final TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         final String ssn = tMgr.getSimSerialNumber();
@@ -140,13 +151,14 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
         PreferenceScreen p = (PreferenceScreen) findPreference("add.current.simcard");
         p.setEnabled(!status);
+        final String[] number = {""};
         p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
 
-                String number = tMgr.getLine1Number();
+                number[0] = tMgr.getLine1Number();
                 // TODO:
-                if (number == null || number.isEmpty()) {
+                if (number[0] == null || number[0].isEmpty()) {
                     LayoutInflater li = LayoutInflater.from(MainActivity.this);
                     final View promptsView = li.inflate(R.layout.add_simcard_prompt, null);
                     new AlertDialog.Builder(MainActivity.this)
@@ -159,18 +171,16 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     final EditText userInput = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput);
-                                    System.out.println(userInput.getText().toString());
+                                    number[0] = userInput.getText().toString();
+                                    addSimCard(number[0]);
                                 }
                             })
                             .setNegativeButton(R.string.no, null).show();
                     return true;
+                } else {
+
+                    addSimCard(number[0]);
                 }
-                SimCard simcard = new SimCard(tMgr.getSimSerialNumber(), number, "", 0);
-                db.addSimCard(simcard);
-                boolean status = db.isOnWhiteList(ssn);
-                PreferenceScreen p = (PreferenceScreen) findPreference("add.current.simcard");
-                p.setEnabled(!status);
-                prepareSimCardWhiteList();
                 return true;
             }
         });
@@ -312,21 +322,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
-            /*case ACTIVATE_ON_SIMCARD: {
-                if (sharedPreferences.getBoolean(ACTIVATE_ON_SIMCARD, false)) {
-                    TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-                    String simCard = tMgr.getSimSerialNumber();
-                    if (simCard == null || simCard.isEmpty()) {
-                        Toast.makeText(getApplicationContext(), R.string.cannot_read_simcard, Toast.LENGTH_LONG).show();
-                        prefs.edit().putBoolean(ACTIVATE_ON_SIMCARD, false).apply();
-                    } else {
-                        String simCardWhiteList = prefs.getString(SIMCARD_LIST, "");
-                        simCardWhiteList = Utils.add(simCardWhiteList, simCard);
-                        prefs.edit().putString(SIMCARD_LIST, simCardWhiteList).apply();
-                    }
-                }
-            }*/
-
             case ACTIVATE_3G:
             case ACTIVATE_TETHERING:
             case ACTIVATE_ON_STARTUP: {

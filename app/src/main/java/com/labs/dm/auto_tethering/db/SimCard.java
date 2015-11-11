@@ -7,10 +7,6 @@ public class SimCard {
 
     public final static String NAME = "SIMCARD";
 
-    enum STATUS {
-        ACTIVE, DISABLED
-    }
-
     private int id;
     private String serial;
     private String number;
