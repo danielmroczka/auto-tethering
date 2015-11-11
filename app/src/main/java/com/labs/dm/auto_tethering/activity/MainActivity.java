@@ -169,6 +169,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         Intent serviceIntent = new Intent(this, TetheringService.class);
+        serviceIntent.putExtra("runFromActivity", true);
         startService(serviceIntent);
         prefs.edit().putString(SSID, serviceHelper.getTetheringSSID()).apply();
         loadPrefs();

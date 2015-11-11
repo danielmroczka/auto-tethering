@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
@@ -50,23 +51,38 @@ public class TetheringService extends IntentService {
     private long lastAccess = Calendar.getInstance().getTimeInMillis();
     private boolean initial3GStatus, initialTetheredStatus;
     private ServiceHelper serviceHelper;
+    private boolean runFromActivity;
 
     public TetheringService() {
         super(TAG);
+
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-        showNotification(getString(R.string.service_started), NOTIFICATION_SHORT);
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
+        runFromActivity = intent.getBooleanExtra(("runFromActivity"), false);
+        return super.onStartCommand(intent, flags, startId);
+    }
 
-        if (!isCorrectSimCard()) {
-            cancelNotification(NOTIFICATION_SHORT);
-            showNotification(getString(R.string.inserted_blocked_simcard), NOTIFICATION_LONG);
+
+    @Override
+    protected void onHandleIntent(Intent intent) {
+
+        if (isServiceActivated())
+        {
+            showNotification(getString(R.string.service_started), NOTIFICATION_SHORT);
+
+            if (!isCorrectSimCard())
+            {
+                cancelNotification(NOTIFICATION_SHORT);
+                showNotification(getString(R.string.inserted_blocked_simcard), NOTIFICATION_LONG);
+            }
         }
 
         while (true) {
             try {
-                if (isServiceActived()) {
+                if (isServiceActivated()) {
                     if (isCorrectSimCard()) {
                         if (checkForRoaming()) {
 
@@ -126,8 +142,8 @@ public class TetheringService extends IntentService {
         return true;
     }
 
-    private boolean isServiceActived() {
-        return true;
+    private boolean isServiceActivated() {
+        return runFromActivity || prefs.getBoolean(AppProperties.ACTIVATE_ON_STARTUP, false);
     }
 
     private boolean isScheduledTimeOff() {
