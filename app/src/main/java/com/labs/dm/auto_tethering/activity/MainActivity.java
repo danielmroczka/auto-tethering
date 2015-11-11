@@ -128,7 +128,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         for (SimCard item : list) {
             Preference ps = new CheckBoxPreference(getApplicationContext());
             ps.setTitle(item.getNumber());
-            ps.setSummary(item.getSerial());
+            ps.setSummary(item.getSsn());
             p.addPreference(ps);
         }
     }
@@ -136,7 +136,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     private void addSimCard(String number) {
         final TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         final String ssn = tMgr.getSimSerialNumber();
-        SimCard simcard = new SimCard(tMgr.getSimSerialNumber(), number, "", 0);
+        SimCard simcard = new SimCard(tMgr.getSimSerialNumber(), number, 0);
         db.addSimCard(simcard);
         boolean status = db.isOnWhiteList(ssn);
         PreferenceScreen p = (PreferenceScreen) findPreference("add.current.simcard");

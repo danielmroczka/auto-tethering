@@ -47,9 +47,9 @@ public class DBManager extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // CREATE TABLE
-        db.execSQL("create table SIMCARD(id INTEGER PRIMARY KEY, serial VARCHAR(20), number VARCHAR(20), imei VARCHAR(20), status INTEGER)");
+        db.execSQL("create table SIMCARD(id INTEGER PRIMARY KEY, ssn VARCHAR(20), number VARCHAR(20), status INTEGER)");
         // CREATE INDEX
-        db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(serial, number, imei)");
+        db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
     }
 
     @Override
@@ -60,12 +60,12 @@ public class DBManager extends SQLiteOpenHelper {
         List<SimCard> list;
         Cursor cursor = null;
         try {
-            cursor = writableDatabase.rawQuery("SELECT id, serial, number, imei, status FROM SIMCARD", null);
+            cursor = writableDatabase.rawQuery("SELECT id, ssn, number, status FROM SIMCARD", null);
             list = new ArrayList<>(cursor.getCount());
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {
-                    SimCard p = new SimCard(cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getInt(4));
+                    SimCard p = new SimCard(cursor.getString(1), cursor.getString(2), cursor.getInt(3));
                     list.add(p);
                 }
                 while (cursor.moveToNext());
@@ -80,9 +80,8 @@ public class DBManager extends SQLiteOpenHelper {
 
     public long addSimCard(SimCard simCard) {
         ContentValues content = new ContentValues();
-        content.put("serial", simCard.getSerial());
+        content.put("ssn", simCard.getSsn());
         content.put("number", simCard.getNumber());
-        content.put("imei", simCard.getImei());
         content.put("status", simCard.getStatus());
         return writableDatabase.insert(SimCard.NAME, null, content);
     }
@@ -91,7 +90,7 @@ public class DBManager extends SQLiteOpenHelper {
         boolean res;
         Cursor cursor = null;
         try {
-            cursor = writableDatabase.rawQuery("SELECT 1 FROM SIMCARD where serial = '" + ssn + "'", null);
+            cursor = writableDatabase.rawQuery("SELECT 1 FROM SIMCARD where ssn = '" + ssn + "'", null);
             res = cursor.getCount() > 0;
         } finally {
             if (cursor != null) {
@@ -101,10 +100,7 @@ public class DBManager extends SQLiteOpenHelper {
         return res;
     }
 
-
     public int removeSimCard(final String ssn) {
-        //writableDatabase.execSQL("delete from SIMCARD where serial='" + ssn + "'" );
-
-        return writableDatabase.delete(SimCard.NAME, "serial='" + ssn + "'", null);
+        return writableDatabase.delete(SimCard.NAME, "ssn='" + ssn + "'", null);
     }
 }

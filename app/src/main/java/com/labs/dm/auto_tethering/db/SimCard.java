@@ -8,15 +8,13 @@ public class SimCard {
     public final static String NAME = "SIMCARD";
 
     private int id;
-    private String serial;
+    private String ssn;
     private String number;
-    private String imei;
     private int status;
 
-    public SimCard(String serial, String number, String imei, int status) {
-        this.serial = serial;
+    public SimCard(String ssn, String number, int status) {
+        this.ssn = ssn;
         this.number = number;
-        this.imei = imei;
         this.status = status;
     }
 
@@ -24,16 +22,12 @@ public class SimCard {
         return id;
     }
 
-    public String getSerial() {
-        return serial;
+    public String getSsn() {
+        return ssn;
     }
 
     public String getNumber() {
         return number;
-    }
-
-    public String getImei() {
-        return imei;
     }
 
     public int getStatus() {
