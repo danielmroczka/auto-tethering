@@ -27,7 +27,7 @@ RELEASE_KEY_PASSWORD=*****
 ```
 Build app: gradle build
 
-[Example of gradle.properties template] (https://gist.github.com/danielmroczka/b93eb61e4583c21da2a3)
+Example of [gradle.properties] (https://gist.github.com/danielmroczka/b93eb61e4583c21da2a3) and [local.properties] (https://gist.github.com/danielmroczka/246afe588f1841f6ffef) templates.
 
 [More about signing apk files you may find] (http://developer.android.com/tools/publishing/app-signing.html)
 
