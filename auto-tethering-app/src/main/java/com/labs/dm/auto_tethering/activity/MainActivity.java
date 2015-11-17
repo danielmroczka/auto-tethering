@@ -128,7 +128,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         for (SimCard item : list) {
             Preference ps = new CheckBoxPreference(getApplicationContext());
             ps.setTitle(item.getNumber());
-            ps.setSummary(item.getSsn());
+            ps.setSummary("SSN: " + item.getSsn());
             p.addPreference(ps);
         }
     }
@@ -197,9 +197,13 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     if (object instanceof CheckBoxPreference) {
                         boolean status = ((CheckBoxPreference) object).isChecked();
                         if (status) {
-                            db.removeSimCard(((CheckBoxPreference) object).getSummary().toString());
-                            p.removePreference((Preference) object);
-                            changed = true;
+                            String ssn = ((CheckBoxPreference) object).getSummary().toString();
+                            if (ssn != null) {
+                                ssn = ssn.substring("SSN: ".length()).trim();
+                                db.removeSimCard(ssn);
+                                p.removePreference((Preference) object);
+                                changed = true;
+                            }
                         }
                     }
                 }
