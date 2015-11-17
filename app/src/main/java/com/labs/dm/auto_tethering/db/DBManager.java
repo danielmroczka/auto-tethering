@@ -16,7 +16,7 @@ public class DBManager extends SQLiteOpenHelper {
 
     private final SQLiteDatabase writableDatabase;
     private final SQLiteDatabase readableDatabase;
-    public final static String DB_NAME = "autowifi.db";
+    public final static String DB_NAME = "autowifi2.db";
 
     private static DBManager instance;
 
@@ -48,8 +48,10 @@ public class DBManager extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         // CREATE TABLE
         db.execSQL("create table SIMCARD(id INTEGER PRIMARY KEY, ssn VARCHAR(20), number VARCHAR(20), status INTEGER)");
+        db.execSQL("create table CRON(id INTEGER PRIMARY KEY, timeoff VARCHAR(5), timeon VARCHAR(5), mask INTEGER, status INTEGER)");
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
+        db.execSQL("create unique index CRON_UNIQUE_IDX on cron(timeoff, timeon, mask)");
     }
 
     @Override
@@ -102,5 +104,9 @@ public class DBManager extends SQLiteOpenHelper {
 
     public int removeSimCard(final String ssn) {
         return writableDatabase.delete(SimCard.NAME, "ssn='" + ssn + "'", null);
+    }
+
+    public void reset() {
+        getWritableDatabase().delete(SimCard.NAME, null, null);
     }
 }

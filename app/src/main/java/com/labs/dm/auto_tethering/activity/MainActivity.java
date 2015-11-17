@@ -295,6 +295,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 prefs.edit().clear().apply();
+                                db.reset();
                             }
                         })
                         .setNegativeButton(R.string.no, null).show();
