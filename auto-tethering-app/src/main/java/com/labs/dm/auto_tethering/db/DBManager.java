@@ -16,7 +16,7 @@ public class DBManager extends SQLiteOpenHelper {
 
     private final SQLiteDatabase writableDatabase;
     private final SQLiteDatabase readableDatabase;
-    public final static String DB_NAME = "autowifi2.db";
+    public final static String DB_NAME = "autowifi.db";
 
     private static DBManager instance;
 
