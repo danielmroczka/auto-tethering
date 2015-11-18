@@ -16,6 +16,7 @@ import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
+import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
 
 import java.text.DateFormat;
@@ -35,8 +36,6 @@ import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
 import static com.labs.dm.auto_tethering.AppProperties.SCHEDULER;
-import static com.labs.dm.auto_tethering.AppProperties.TIME_OFF;
-import static com.labs.dm.auto_tethering.AppProperties.TIME_ON;
 
 /**
  * Created by Daniel Mroczka
@@ -60,8 +59,7 @@ public class TetheringService extends IntentService {
 
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId)
-    {
+    public int onStartCommand(Intent intent, int flags, int startId) {
         runFromActivity = intent.getBooleanExtra(("runFromActivity"), false);
         return super.onStartCommand(intent, flags, startId);
     }
@@ -70,12 +68,10 @@ public class TetheringService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        if (isServiceActivated())
-        {
+        if (isServiceActivated()) {
             showNotification(getString(R.string.service_started), NOTIFICATION_SHORT);
 
-            if (!isCorrectSimCard())
-            {
+            if (!isCorrectSimCard()) {
                 cancelNotification(NOTIFICATION_SHORT);
                 showNotification(getString(R.string.inserted_blocked_simcard), NOTIFICATION_LONG);
             }
@@ -217,8 +213,15 @@ public class TetheringService extends IntentService {
         timeOff = Calendar.getInstance();
         timeOn = Calendar.getInstance();
         try {
-            timeOff.setTime(formatter.parse(prefs.getString(TIME_OFF, "")));
-            timeOn.setTime(formatter.parse(prefs.getString(TIME_ON, "")));
+            Cron cron = DBManager.getInstance(getApplicationContext()).getCron();
+            if (cron != null) {
+                if (cron.getTimeOff() != null) {
+                    timeOff.setTime(formatter.parse(cron.getTimeOff()));
+                }
+                if (cron.getTimeOn() != null) {
+                    timeOn.setTime(formatter.parse(cron.getTimeOn()));
+                }
+            }
         } catch (ParseException e) {
             Log.e(TAG, e.getMessage());
         }
