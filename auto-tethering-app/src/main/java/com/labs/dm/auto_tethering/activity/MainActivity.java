@@ -21,9 +21,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
+import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
 import com.labs.dm.auto_tethering.db.SimCard;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
@@ -70,6 +72,15 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 boolean res = Utils.validateTime((String) newValue);
                 if (res) {
                     preference.setSummary((String) newValue);
+
+                    if (preference.getKey().equals(AppProperties.TIME_OFF)) {
+                        Cron cron = new Cron(-1, newValue.toString(), null, 0, 0);
+                        db.addOrUpdateCron(cron);
+                    }
+                    if (preference.getKey().equals(AppProperties.TIME_ON)) {
+                        Cron cron = new Cron(-1, null, newValue.toString(), 0, 0);
+                        db.addOrUpdateCron(cron);
+                    }
                 }
                 return res;
             }
@@ -91,8 +102,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             Preference p = findPreference(entry.getKey());
 
             switch (entry.getKey()) {
-                case TIME_ON:
-                case TIME_OFF:
                 case IDLE_3G_OFF_TIME:
                 case IDLE_TETHERING_OFF_TIME:
                     p.setSummary((CharSequence) entry.getValue());
@@ -102,6 +111,12 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     p.setSummary(serviceHelper.getTetheringSSID());
                     break;
             }
+        }
+
+        Cron cron = db.getCron();
+        if (cron != null) {
+            editTimeOn.setSummary(cron.getTimeOn());
+            editTimeOff.setSummary(cron.getTimeOff());
         }
 
         Preference p = findPreference(SSID);
