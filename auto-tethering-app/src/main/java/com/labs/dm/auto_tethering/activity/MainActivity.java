@@ -276,6 +276,9 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             return;
         }
 
+        prefs.edit().putBoolean(ACTIVATE_3G, false).apply();
+        prefs.edit().putBoolean(ACTIVATE_TETHERING, false).apply();
+
         new AlertDialog.Builder(this)
 
                 .setTitle(R.string.warning)
@@ -292,8 +295,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        prefs.edit().putBoolean(ACTIVATE_3G, false).apply();
-                        prefs.edit().putBoolean(ACTIVATE_TETHERING, false).apply();
+
                     }
                 }).show();
         prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
