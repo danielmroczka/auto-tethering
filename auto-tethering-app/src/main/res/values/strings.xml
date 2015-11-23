@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Auto WIFI Tethering</string>
+    <string name="app_name">Auto WiFi Tethering</string>
     <string name="activate.on.startup.summary">Activate service on startup</string>
     <string name="activate.only.title">SIM card white list activation</string>
     <string name="activate.only.summary">Activate only if SIM card is on the white list</string>
@@ -9,8 +9,8 @@
     <string name="ssid">SSID Tethering network</string>
     <string name="activate3g.summary">Activate mobile connection after startup</string>
     <string name="activate3g.title">Mobile connection</string>
-    <string name="activateTethering.summary">Activate Wifi Tethering after startup</string>
-    <string name="activateTethering.title">Wifi Tethering</string>
+    <string name="activateTethering.summary">Activate WiFi Tethering after startup</string>
+    <string name="activateTethering.title">WiFi Tethering</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="add.simcard.title">Add current SIM card</string>
@@ -27,8 +27,8 @@
     <string name="enter.value.minutes">Enter value in minutes</string>
     <string name="switch.off.internet.idle.title">Internet connection</string>
     <string name="switch.off.internet.idle.summary">Switch off Internet Connection on idle</string>
-    <string name="switch.off.tethering.idle.title">Wifi Tethering</string>
-    <string name="switch.off.tethering.idle.summary">Switch off Wifi Tethering on idle</string>
+    <string name="switch.off.tethering.idle.title">WiFi Tethering</string>
+    <string name="switch.off.tethering.idle.summary">Switch off WiFi Tethering on idle</string>
     <string name="activate.on.startup.title">Startup</string>
     <string name="startup.title">Services activation</string>
     <string name="scheduler.title">Scheduler</string>
@@ -38,15 +38,15 @@
     <!-- PROMPTS -->
     <string name="prompt.onexit">Do you want to exit and stop service?</string>
     <string name="reset.prompt">Do you want to reset current settings?</string>
-    <string name="initial.prompt">By default connection to internet and WIFI tethering are turned off. You need to set it manually. \nConnecting via packet data may incur additional charges. \nWIFI tethering will increase battery consumption. \n\nDo you want to turn on 3G connection and WIFI tethering?</string>
+    <string name="initial.prompt">By default connection to internet and WiFi tethering are turned off. You need to set it manually. \nConnecting via packet data may incur additional charges. \nWIFI tethering will increase battery consumption. \n\nDo you want to turn on 3G connection and WIFI tethering?</string>
     <string name="notification.scheduled.internet.off">Turned off internet connection at scheduled time</string>
-    <string name="notification.scheduled.tethering.off">Turned off WIFI Tethering at scheduled time</string>
+    <string name="notification.scheduled.tethering.off">Turned off WiFi Tethering at scheduled time</string>
     <string name="notification.idle.internet.off">Turned off internet connection because of missing active clients</string>
-    <string name="notification.idle.tethering.off">Turned off WIFI Tethering because of missing active clients</string>
+    <string name="notification.idle.tethering.off">Turned off WiFi Tethering because of missing active clients</string>
     <string name="notification.internet.restored">Restored internet connection</string>
     <string name="notification.internet.off">Turned off internet connection</string>
-    <string name="notification.tethering.restored">Restored WIFI Tethering</string>
-    <string name="notification.tethering.off">Turned off WIFI Tethering</string>
+    <string name="notification.tethering.restored">Restored WiFi Tethering</string>
+    <string name="notification.tethering.off">Turned off WiFi Tethering</string>
     <string name="service.started">Service started</string>
     <string name="inserted.blocked.simcard">Inserted SIM card is blocked by the settings or network is unavailable!</string>
     <string name="revert.state.summary">Revert to the state before run the service</string>

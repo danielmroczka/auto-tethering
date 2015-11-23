@@ -251,7 +251,7 @@ public class TetheringService extends IntentService {
         if (prefs.getBoolean(ACTIVATE_ON_SIMCARD, false)) {
             TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
             String simSerialNumber = tMgr.getSimSerialNumber();
-            return simSerialNumber != null && DBManager.getInstance(getApplicationContext()).isOnWhiteList(simSerialNumber);//  Utils.exists(prefs.getString(SIMCARD_LIST, ""), "");
+            return simSerialNumber != null && DBManager.getInstance(getApplicationContext()).isOnWhiteList(simSerialNumber);
         } else {
             return true;
         }
