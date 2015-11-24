@@ -51,6 +51,7 @@ public class TetheringService extends IntentService {
     private boolean initial3GStatus, initialTetheredStatus;
     private ServiceHelper serviceHelper;
     private boolean runFromActivity;
+    private boolean flag = true;
 
     public TetheringService() {
         super(TAG);
@@ -77,7 +78,7 @@ public class TetheringService extends IntentService {
             }
         }
 
-        while (true) {
+        while (flag) {
             try {
                 if (isServiceActivated()) {
                     if (isCorrectSimCard()) {
@@ -292,11 +293,13 @@ public class TetheringService extends IntentService {
 
     @Override
     public void onDestroy() {
+        flag = false;
         if (prefs.getBoolean(RETURN_TO_PREV_STATE, false)) {
             serviceHelper.setMobileDataEnabled(initial3GStatus);
             serviceHelper.setWifiTethering(initialTetheredStatus);
         }
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancelAll();
+        stopSelf();
         super.onDestroy();
     }
 }
