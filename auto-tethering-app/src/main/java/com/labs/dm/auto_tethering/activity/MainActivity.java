@@ -1,6 +1,8 @@
 package com.labs.dm.auto_tethering.activity;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -262,13 +264,25 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        Intent serviceIntent = new Intent(this, TetheringService.class);
-        serviceIntent.putExtra("runFromActivity", true);
-        startService(serviceIntent);
+        if (!isServiceRunning(TetheringService.class)) {
+            Intent serviceIntent = new Intent(this, TetheringService.class);
+            serviceIntent.putExtra("runFromActivity", true);
+            startService(serviceIntent);
+        }
         prefs.edit().putString(SSID, serviceHelper.getTetheringSSID()).apply();
         loadPrefs();
         displayPrompt();
         registerAddSimCardListener();
+    }
+
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void displayPrompt() {
