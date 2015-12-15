@@ -116,6 +116,8 @@ public class TetheringService extends IntentService {
                                     showNotification(getString(R.string.notification_tethering_off));
                                 }
                             }
+                        } else {
+                            showNotification("Service disabled due to roaming network");
                         }
                     }
                 }
@@ -127,8 +129,8 @@ public class TetheringService extends IntentService {
         }
     }
 
-    private Void tetheringAsyncTask(boolean state) {
-        return new TurnOnTetheringAsyncTask().doInBackground(state);
+    private void tetheringAsyncTask(boolean state) {
+        new TurnOnTetheringAsyncTask().doInBackground(state);
     }
 
     private boolean updateStatus() {
@@ -281,6 +283,7 @@ public class TetheringService extends IntentService {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         PendingIntent pending = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         notification.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), body, pending);
+        notification.when = System.currentTimeMillis();
         notification.tickerText = body;
         notificationManager.notify(NOTIFICATION_ID, notification);
         Log.i(TAG, body);
