@@ -75,6 +75,10 @@ public class TetheringService extends IntentService {
             }
         }
 
+        if (!checkForRoaming()) {
+            showNotification(getString(R.string.roaming_service_disabled));
+        }
+
         while (flag) {
             try {
                 if (isServiceActivated()) {
@@ -116,8 +120,6 @@ public class TetheringService extends IntentService {
                                     showNotification(getString(R.string.notification_tethering_off));
                                 }
                             }
-                        } else {
-                            showNotification("Service disabled due to roaming network");
                         }
                     }
                 }

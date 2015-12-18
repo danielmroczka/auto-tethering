@@ -51,5 +51,6 @@
     <string name="inserted.blocked.simcard">Inserted SIM card is blocked by the settings or network is unavailable!</string>
     <string name="revert.state.summary">Revert to the state before run the service</string>
     <string name="title_activity_sim_card_list">SimCardListActivity</string>
+    <string name="roaming.service.disabled">Service disabled due to roaming network</string>
 </resources>
 

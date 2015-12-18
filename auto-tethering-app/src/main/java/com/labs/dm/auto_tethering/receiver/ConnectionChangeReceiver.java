@@ -15,11 +15,9 @@ public class ConnectionChangeReceiver extends BroadcastReceiver {
         NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
         NetworkInfo mobNetInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         if (activeNetInfo != null) {
-            //Toast.makeText(context, "Active Network Type : " + activeNetInfo.getTypeName(), Toast.LENGTH_SHORT).show();
             Log.i("CCR", activeNetInfo.getTypeName());
         }
         if (mobNetInfo != null) {
-            //Toast.makeText(context, "Mobile Network Type : " + mobNetInfo.getTypeName(), Toast.LENGTH_SHORT).show();
             Log.i("CCR", mobNetInfo.getTypeName() + ":" + mobNetInfo.isConnected());
         }
     }
