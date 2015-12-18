@@ -71,6 +71,8 @@ public class TetheringService extends IntentService {
             showNotification(getString(R.string.service_started));
 
             if (!isCorrectSimCard()) {
+                internetAsyncTask(false);
+                tetheringAsyncTask(false);
                 showNotification(getString(R.string.inserted_blocked_simcard));
             }
         }
@@ -84,7 +86,6 @@ public class TetheringService extends IntentService {
                 if (isServiceActivated()) {
                     if (isCorrectSimCard()) {
                         if (checkForRoaming()) {
-
                             boolean connected3G = serviceHelper.checkMobileConnection();
                             boolean tethered = serviceHelper.isSharingWiFi();
                             boolean idle = checkIdle();
@@ -274,7 +275,7 @@ public class TetheringService extends IntentService {
     }
 
     private void runAsForeground() {
-        Notification notify = new Notification(R.drawable.app, "Service started", System.currentTimeMillis());
+        Notification notify = new Notification(R.drawable.app, getText(R.string.service_started), System.currentTimeMillis());
         this.notification = notify;
         showNotification("Service started");
         startForeground(NOTIFICATION_ID, notify);
