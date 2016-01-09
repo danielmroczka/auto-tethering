@@ -73,6 +73,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.labs.dm.auto_tethering.activity.MainActivity" />
         </activity>
+
+        <receiver
+            android:name=".receiver.TetheringWidgetProvider"
+            android:label="Auto tethering">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget" />
+        </receiver>
     </application>
 
 </manifest>
