@@ -2,7 +2,6 @@ package com.labs.dm.auto_tethering.activity;
 
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
-import android.appwidget.AppWidgetProviderInfo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,16 +33,13 @@ public class ConfigurationActivity extends Activity {
 
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
                 handleOkButton();
             }
         });
-
     }
 
     private void handleOkButton() {
         showAppWidget();
-
     }
 
     int mAppWidgetId;
@@ -54,24 +50,18 @@ public class ConfigurationActivity extends Activity {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         if (extras != null) {
-            mAppWidgetId = extras.getInt(EXTRA_APPWIDGET_ID,
-                    INVALID_APPWIDGET_ID);
+            mAppWidgetId = extras.getInt(EXTRA_APPWIDGET_ID, INVALID_APPWIDGET_ID);
 
-            AppWidgetProviderInfo providerInfo = AppWidgetManager.getInstance(
-                    getBaseContext()).getAppWidgetInfo(mAppWidgetId);
-            String appWidgetLabel = providerInfo.label;
-
-            Intent startService = new Intent(ConfigurationActivity.this,
-                    TetheringWidgetProvider.class);
+            Intent startService = new Intent(ConfigurationActivity.this, TetheringWidgetProvider.class);
             startService.putExtra(EXTRA_APPWIDGET_ID, mAppWidgetId);
             startService.setAction("FROM CONFIGURATION ACTIVITY");
             setResult(RESULT_OK, startService);
             startService(startService);
-
             finish();
         }
+
         if (mAppWidgetId == INVALID_APPWIDGET_ID) {
-            Log.i("I am invalid", "I am invalid");
+            Log.e("Invalid app widget id", "Invalid app widget id");
             finish();
         }
 

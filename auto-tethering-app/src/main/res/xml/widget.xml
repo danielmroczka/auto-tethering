@@ -3,6 +3,6 @@
     android:minHeight="40dp"
     android:minWidth="40dp"
     android:configure="com.labs.dm.auto_tethering.activity.ConfigurationActivity"
-    android:updatePeriodMillis="1800000">
+    android:updatePeriodMillis="0">
 
 </appwidget-provider>

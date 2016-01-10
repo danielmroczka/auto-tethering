@@ -4,8 +4,6 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,7 +11,6 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.RemoteViews;
 
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
@@ -21,7 +18,6 @@ import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
-import com.labs.dm.auto_tethering.receiver.TetheringWidgetProvider;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -59,6 +55,8 @@ public class TetheringService extends IntentService {
     private final int NOTIFICATION_ID = 1234;
     private Intent intent;
 
+    private boolean triggeredFromWidget;
+
     public TetheringService() {
         super(TAG);
     }
@@ -72,10 +70,12 @@ public class TetheringService extends IntentService {
             Log.i(TAG, "shouldOff");
             tetheringAsyncTask(false);
             showNotification(getString(R.string.notification_tethering_off));
+            triggeredFromWidget = true;
         } else if (state == 0) {
             Log.i(TAG, "shouldOn");
             tetheringAsyncTask(true);
             showNotification(getString(R.string.notification_tethering_restored));
+            triggeredFromWidget = true;
         }
 
         this.intent = intent;
@@ -101,13 +101,14 @@ public class TetheringService extends IntentService {
 
         while (flag) {
             try {
+
+
                 if (isServiceActivated()) {
                     if (isCorrectSimCard()) {
                         if (checkForRoaming()) {
                             boolean connected3G = serviceHelper.checkMobileConnection();
                             boolean tethered = serviceHelper.isSharingWiFi();
                             boolean idle = checkIdle();
-                            checkWidget();
 
                             if (isScheduledTimeOff()) {
                                 if (connected3G) {
@@ -149,30 +150,6 @@ public class TetheringService extends IntentService {
                 Log.e(TAG, e.getMessage());
             }
         }
-    }
-
-    private boolean checkWidget() {
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this.getApplicationContext());
-        boolean state = serviceHelper.isSharingWiFi();
-        ComponentName thisWidget = new ComponentName(getApplicationContext(), TetheringWidgetProvider.class);
-        int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
-
-        for (int widgetId : allWidgetIds) {
-            RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(), state ? R.layout.widget_layout_off : R.layout.widget_layout_on);
-
-            Intent intent = new Intent(getApplicationContext(), TetheringWidgetProvider.class);
-
-            intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, allWidgetIds);
-
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-            remoteViews.setOnClickPendingIntent(R.id.widget_button, pendingIntent);
-
-            appWidgetManager.updateAppWidget(widgetId, remoteViews);
-        }
-
-        return false;
     }
 
     private void tetheringAsyncTask(boolean state) {
@@ -315,6 +292,7 @@ public class TetheringService extends IntentService {
             serviceHelper.setWifiTethering(params[0]);
             return null;
         }
+
     }
 
     private void runAsForeground() {
