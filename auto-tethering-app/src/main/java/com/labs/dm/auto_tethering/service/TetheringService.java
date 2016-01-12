@@ -93,10 +93,10 @@ public class TetheringService extends IntentService {
                 tetheringAsyncTask(false);
                 showNotification(getString(R.string.inserted_blocked_simcard));
             }
-        }
 
-        if (!checkForRoaming()) {
-            showNotification(getString(R.string.roaming_service_disabled));
+            if (!checkForRoaming()) {
+                showNotification(getString(R.string.roaming_service_disabled));
+            }
         }
 
         while (flag) {
@@ -216,11 +216,6 @@ public class TetheringService extends IntentService {
         onChangeProperties();
         init();
         runAsForeground();
-    }
-
-    @Override
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
     }
 
     private void init() {
