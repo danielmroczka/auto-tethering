@@ -6,22 +6,24 @@
     android:orientation="vertical">
 
 
-
     <CheckBox
         android:id="@+id/chkWidgetWifi"
         android:text="Auto switch WiFi Tethering"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
+
     <CheckBox
         android:id="@+id/chkWidget3G"
         android:text="Auto switch internet connection"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
+
     <CheckBox
         android:id="@+id/chkWidgetPrompt"
         android:text="Prompt before switching on"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/okButton"
         android:layout_width="fill_parent"

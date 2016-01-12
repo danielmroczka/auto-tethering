@@ -20,32 +20,18 @@ public class ConnectionChangeReceiver extends BroadcastReceiver {
         ServiceHelper helper = new ServiceHelper("", context);
         Log.i("CCR", String.valueOf(helper.isSharingWiFi()));
 
-
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         ComponentName thisWidget = new ComponentName(context, TetheringWidgetProvider.class);
         int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
         for (int widgetId : allWidgetIds) {
-            RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout_on);
+            RemoteViews remoteViews = new RemoteViews(context.getPackageName(), helper.isSharingWiFi() ? R.layout.widget_layout_on : R.layout.widget_layout_off);
             Intent intent2 = new Intent(context, TetheringWidgetProvider.class);
-            intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, allWidgetIds);
+            intent2.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+            intent2.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, allWidgetIds);
 
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
-                    0, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
             remoteViews.setOnClickPendingIntent(R.id.widget_button, pendingIntent);
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }
-
-
-//        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-//        ComponentName thisWidget = new ComponentName(context, TetheringWidgetProvider.class);
-//        int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
-//        for (int widgetId : allWidgetIds) {
-//            RemoteViews remoteViews = new RemoteViews(context.getPackageName(), helper.isSharingWiFi() ? R.layout.widget_layout_on : R.layout.widget_layout_off);
-//            Intent intent2 = new Intent(context, WidgetService.class);
-//            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
-//            remoteViews.setOnClickPendingIntent(R.id.widget_button, pendingIntent);
-//            appWidgetManager.updateAppWidget(widgetId, remoteViews);
-//        }
     }
 }

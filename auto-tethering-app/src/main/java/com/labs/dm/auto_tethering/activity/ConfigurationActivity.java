@@ -18,6 +18,9 @@ import static android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID;
  * Created by daniel on 2016-01-09.
  */
 public class ConfigurationActivity extends Activity {
+
+    private int mAppWidgetId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,8 +44,6 @@ public class ConfigurationActivity extends Activity {
     private void handleOkButton() {
         showAppWidget();
     }
-
-    int mAppWidgetId;
 
     private void showAppWidget() {
 
