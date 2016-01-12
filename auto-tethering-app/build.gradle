@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 //apply plugin: 'jacoco'
-apply plugin: 'com.github.kt3k.coveralls'
+//apply plugin: 'com.github.kt3k.coveralls'
 
 /*jacoco {
     toolVersion = "0.7.5.201505241946"

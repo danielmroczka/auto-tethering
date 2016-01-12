@@ -20,11 +20,12 @@
         android:background="@drawable/ic_wifi_off" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:hint="Tap to switch on tethering"
         android:text="OFF"
-        android:textSize="12dp" />
+        android:textSize="14dp"
+        android:textColor="#fb0e0e"
+        android:gravity="center" />
 
 </LinearLayout>

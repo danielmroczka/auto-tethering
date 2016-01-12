@@ -6,7 +6,6 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.labs.dm.auto_tethering.R;
@@ -19,8 +18,6 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        Log.i("tetheringwidget", "onUpdate");
-
         ComponentName thisWidget = new ComponentName(context, TetheringWidgetProvider.class);
         int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
         for (int widgetId : allWidgetIds) {

@@ -30,7 +30,6 @@ public class ConfigurationActivity extends Activity {
     }
 
     public void initListViews() {
-
         Button okButton = (Button) findViewById(R.id.okButton);
         okButton.setOnClickListener(new View.OnClickListener() {
 

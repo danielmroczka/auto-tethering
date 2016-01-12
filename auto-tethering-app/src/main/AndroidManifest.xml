@@ -64,7 +64,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".receiver.ConnectionChangeReceiver"
+            android:name=".receiver.TetheringStateReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

@@ -12,7 +12,7 @@ import android.widget.RemoteViews;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
-public class ConnectionChangeReceiver extends BroadcastReceiver {
+public class TetheringStateReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
