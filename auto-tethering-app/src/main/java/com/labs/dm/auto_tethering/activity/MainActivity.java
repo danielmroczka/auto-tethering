@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
 import com.labs.dm.auto_tethering.db.SimCard;
+import com.labs.dm.auto_tethering.receiver.ConnectionChangeReceiver;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
@@ -132,6 +134,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
         prepareSimCardWhiteList();
     }
+
+    ConnectionChangeReceiver mReceiver;
 
     private void prepareSimCardWhiteList() {
         PreferenceCategory p = (PreferenceCategory) findPreference("simcard.list");
@@ -372,11 +376,16 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     protected void onResume() {
         super.onResume();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.net.wifi.WIFI_AP_STATE_CHANGED");
+        mReceiver = new ConnectionChangeReceiver();
+        // registerReceiver(mReceiver, filter);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
+        //  unregisterReceiver(mReceiver);
     }
 }
