@@ -36,7 +36,7 @@ android {
     }
 
     compileSdkVersion 22
-    buildToolsVersion '23.0.2'
+    buildToolsVersion '22.0.1'
     defaultConfig {
         applicationId "com.labs.dm.auto_tethering"
         minSdkVersion 10
