@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.widget.RemoteViews;
 
 import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.WidgetService;
 
 /**
@@ -19,9 +20,10 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         ComponentName thisWidget = new ComponentName(context, TetheringWidgetProvider.class);
+        ServiceHelper helper = new ServiceHelper("", context);
         int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
         for (int widgetId : allWidgetIds) {
-            RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout_off);
+            RemoteViews remoteViews = new RemoteViews(context.getPackageName(), helper.isSharingWiFi() ? R.layout.widget_layout_on : R.layout.widget_layout_off);
 
             Intent intent = new Intent(context, WidgetService.class);
             PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, 0);

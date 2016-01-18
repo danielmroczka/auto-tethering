@@ -101,8 +101,6 @@ public class TetheringService extends IntentService {
 
         while (flag) {
             try {
-
-
                 if (isServiceActivated()) {
                     if (isCorrectSimCard()) {
                         if (checkForRoaming()) {
@@ -287,7 +285,6 @@ public class TetheringService extends IntentService {
             serviceHelper.setWifiTethering(params[0]);
             return null;
         }
-
     }
 
     private void runAsForeground() {
@@ -305,7 +302,7 @@ public class TetheringService extends IntentService {
         notification.when = System.currentTimeMillis();
         notification.tickerText = body;
         notificationManager.notify(NOTIFICATION_ID, notification);
-        Log.i(TAG, body);
+        Log.i(TAG, "Notification: " + body);
     }
 
     @Override
