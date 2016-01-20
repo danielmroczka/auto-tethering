@@ -11,25 +11,25 @@ import android.widget.RemoteViews;
 
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
+import com.labs.dm.auto_tethering.service.WidgetService;
 
 public class TetheringStateReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i("CCR", intent.getAction());
-        ServiceHelper helper = new ServiceHelper("", context);
-        Log.i("CCR", String.valueOf(helper.isSharingWiFi()));
+        ServiceHelper helper = new ServiceHelper(context);
+        Log.i("CCR", intent.getAction() + " " + String.valueOf(helper.isSharingWiFi()).toUpperCase());
 
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         ComponentName thisWidget = new ComponentName(context, TetheringWidgetProvider.class);
+
         int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
         for (int widgetId : allWidgetIds) {
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), helper.isSharingWiFi() ? R.layout.widget_layout_on : R.layout.widget_layout_off);
-            Intent intent2 = new Intent(context, TetheringWidgetProvider.class);
-            intent2.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-            intent2.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, allWidgetIds);
 
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
+            Intent intent2 = new Intent(context, WidgetService.class);
+            PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent2, 0);
+
             remoteViews.setOnClickPendingIntent(R.id.widget_button, pendingIntent);
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }

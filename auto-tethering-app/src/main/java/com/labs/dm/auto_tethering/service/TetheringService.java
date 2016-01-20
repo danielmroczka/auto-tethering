@@ -210,7 +210,7 @@ public class TetheringService extends IntentService {
     public void onCreate() {
         super.onCreate();
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        serviceHelper = new ServiceHelper(TAG, getApplicationContext());
+        serviceHelper = new ServiceHelper(getApplicationContext());
         onChangeProperties();
         init();
         runAsForeground();

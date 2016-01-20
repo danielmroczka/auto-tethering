@@ -62,7 +62,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         super.onCreate(savedInstanceState);
         db = DBManager.getInstance(getApplicationContext());
         addPreferencesFromResource(R.xml.preferences);
-        serviceHelper = new ServiceHelper("ServiceHelper", getApplicationContext());
+        serviceHelper = new ServiceHelper(getApplicationContext());
         loadPrefs();
         Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {

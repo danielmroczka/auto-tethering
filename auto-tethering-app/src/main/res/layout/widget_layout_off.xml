@@ -5,11 +5,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/myshape"
     android:descendantFocusability="blocksDescendants"
-    android:orientation="vertical"
-    android:paddingBottom="4dp"
-    android:paddingLeft="4dp"
-    android:paddingRight="4dp"
-    android:paddingTop="4dp">
+    android:orientation="vertical">
 
     <ImageButton
         android:id="@+id/widget_button"
@@ -22,10 +18,10 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:hint="Tap to switch on tethering"
         android:text="OFF"
-        android:textSize="14dp"
         android:textColor="#fb0e0e"
-        android:gravity="center" />
+        android:textSize="14dp" />
 
 </LinearLayout>

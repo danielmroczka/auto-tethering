@@ -20,12 +20,11 @@ public class ServiceHelper {
 
     private final Context context;
     private final WifiManager wifiManager;
-    private final String TAG;
+    private final String TAG = "ServiceHelper";
 
-    public ServiceHelper(String name, Context context) {
+    public ServiceHelper(Context context) {
         this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         this.context = context;
-        this.TAG = name;
     }
 
     /**

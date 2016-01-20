@@ -20,8 +20,8 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:hint="Tap to switch off tethering"
-        android:text="ON"
-        android:textColor="#12c812"
+        android:text="WAIT..."
+        android:textColor="#336ff9"
         android:textSize="14dp" />
 
 </LinearLayout>

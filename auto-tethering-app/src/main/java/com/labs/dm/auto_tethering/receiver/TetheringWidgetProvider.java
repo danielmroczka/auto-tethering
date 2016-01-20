@@ -22,7 +22,7 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         Log.i("Tethering widget", "onUpdate");
         ComponentName thisWidget = new ComponentName(context, TetheringWidgetProvider.class);
-        ServiceHelper helper = new ServiceHelper("", context);
+        ServiceHelper helper = new ServiceHelper(context);
         int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
         for (int widgetId : allWidgetIds) {
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), helper.isSharingWiFi() ? R.layout.widget_layout_on : R.layout.widget_layout_off);
