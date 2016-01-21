@@ -1,27 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-
 
     <CheckBox
         android:id="@+id/chkWidgetWifi"
         android:text="Auto switch WiFi Tethering"
         android:layout_width="fill_parent"
+        android:checked="true"
+        android:enabled="false"
         android:layout_height="wrap_content" />
 
     <CheckBox
         android:id="@+id/chkWidget3G"
         android:text="Auto switch internet connection"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
-
-    <CheckBox
-        android:id="@+id/chkWidgetPrompt"
-        android:text="Prompt before switching on"
-        android:layout_width="fill_parent"
+        android:checked="true"
         android:layout_height="wrap_content" />
 
     <Button
@@ -29,8 +24,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_marginTop="175dp"
-        android:text="Click Ok"
+        android:text="ADD WIDGET"
         android:textColor="#FFFFFF" />
 
 </LinearLayout>

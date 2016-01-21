@@ -4,12 +4,14 @@ import android.app.IntentService;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.RemoteViews;
 
-import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.receiver.TetheringWidgetProvider;
+
+import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
 
 public class WidgetService extends IntentService {
 
@@ -27,7 +29,15 @@ public class WidgetService extends IntentService {
         Intent serviceIntent = new Intent(this, TetheringService.class);
         stopService(serviceIntent);
 
-        tetheringAsyncTask(!state);
+        int widgetId = intent.getIntExtra(EXTRA_APPWIDGET_ID, -1);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        if (prefs.getBoolean("widget." + widgetId + ".mobile", false)) {
+            internetAsyncTask(!state);
+        }
+        if (prefs.getBoolean("widget." + widgetId + ".tethering", true)) {
+            tetheringAsyncTask(!state);
+        }
     }
 
     private void updateWidget() {
@@ -35,8 +45,8 @@ public class WidgetService extends IntentService {
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
         int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
         for (int widgetId : allWidgetIds) {
-            RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(), R.layout.widget_layout_wait);
-            appWidgetManager.updateAppWidget(widgetId, remoteViews);
+            //  RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(), R.layout.widget_layout_wait);
+            //  appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }
     }
 

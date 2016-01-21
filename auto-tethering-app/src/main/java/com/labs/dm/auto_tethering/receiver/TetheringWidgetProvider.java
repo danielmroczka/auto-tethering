@@ -6,12 +6,18 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.WidgetService;
+
+import java.util.Arrays;
+
+import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
 
 /**
  * Created by daniel on 2015-12-23.
@@ -28,10 +34,21 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), helper.isSharingWiFi() ? R.layout.widget_layout_on : R.layout.widget_layout_off);
 
             Intent intent = new Intent(context, WidgetService.class);
-            PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, 0);
-
+            intent.putExtra(EXTRA_APPWIDGET_ID, widgetId);
+            PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_ONE_SHOT);
             remoteViews.setOnClickPendingIntent(R.id.widget_button, pendingIntent);
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }
+    }
+
+    @Override
+    public void onDeleted(Context context, int[] appWidgetIds) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        for (int id : appWidgetIds) {
+            prefs.edit().remove("widget." + id + ".mobile").apply();
+            prefs.edit().remove("widget." + id + ".tethering").apply();
+        }
+        Log.i("TetheringStateChange", "Remove widget ids: " + Arrays.toString(appWidgetIds));
+        super.onDeleted(context, appWidgetIds);
     }
 }
