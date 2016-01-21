@@ -22,6 +22,6 @@
         android:hint="Tap to switch on tethering"
         android:text="OFF"
         android:textColor="#fb0e0e"
-        android:textSize="14dp" />
+        android:textSize="15dp" />
 
 </LinearLayout>

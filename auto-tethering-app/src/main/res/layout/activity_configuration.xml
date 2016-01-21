@@ -6,18 +6,18 @@
 
     <CheckBox
         android:id="@+id/chkWidgetWifi"
-        android:text="Auto switch WiFi Tethering"
         android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:checked="true"
         android:enabled="false"
-        android:layout_height="wrap_content" />
+        android:text="Turn on/off WiFi Tethering" />
 
     <CheckBox
         android:id="@+id/chkWidget3G"
-        android:text="Auto switch internet connection"
         android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:checked="true"
-        android:layout_height="wrap_content" />
+        android:text="Turn on/off internet connection" />
 
     <Button
         android:id="@+id/okButton"
@@ -26,5 +26,4 @@
         android:layout_alignParentLeft="true"
         android:text="ADD WIDGET"
         android:textColor="#FFFFFF" />
-
 </LinearLayout>
