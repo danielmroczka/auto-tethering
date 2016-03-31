@@ -26,6 +26,7 @@ import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
@@ -151,12 +152,19 @@ public class TetheringService extends IntentService {
                         }
                     }
                 }
+                if (!keepService()) {
+                    flag = false;
+                }
 
                 TimeUnit.SECONDS.sleep(CHECK_DELAY);
             } catch (InterruptedException e) {
                 Log.e(TAG, e.getMessage());
             }
         }
+    }
+
+    private boolean keepService() {
+        return prefs.getBoolean(AppProperties.ACTIVATE_KEEP_SERVICE, true);
     }
 
     private boolean tetheringAsyncTask(boolean state) {
@@ -342,7 +350,7 @@ public class TetheringService extends IntentService {
     }
 
     private void revertToInitialState() {
-        if (prefs.getBoolean(RETURN_TO_PREV_STATE, false)) {
+        if (prefs.getBoolean(RETURN_TO_PREV_STATE, false) && prefs.getBoolean(ACTIVATE_KEEP_SERVICE, true)) {
             serviceHelper.setMobileDataEnabled(initial3GStatus);
             serviceHelper.setWifiTethering(initialTetheredStatus);
         }

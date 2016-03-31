@@ -52,5 +52,7 @@
     <string name="revert.state.summary">Restore network state before run the service</string>
     <string name="title_activity_sim_card_list">SimCardListActivity</string>
     <string name="roaming.service.disabled">Service disabled due to roaming network</string>
+    <string name="activate.keep.serive.title">Run service in background</string>
+    <string name="activate.keep.service.summary">Keep service running after start tethering</string>
 </resources>
 

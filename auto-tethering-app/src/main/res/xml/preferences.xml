@@ -14,6 +14,12 @@
             android:summary="@string/activate.on.startup.summary"
             android:title="@string/activate.on.startup.title" />
         <CheckBoxPreference
+            android:defaultValue="true"
+            android:icon="@drawable/ic_service"
+            android:key="activate.keep.service"
+            android:summary="@string/activate.keep.service.summary"
+            android:title="@string/activate.keep.serive.title" />
+        <CheckBoxPreference
             android:defaultValue="false"
             android:icon="@drawable/ic_signal"
             android:key="activate.3g"
@@ -95,6 +101,11 @@
             android:maxLength="5"
             android:summary=""
             android:title="@string/idle.time.minutes" />
+        <PreferenceScreen
+            android:icon="@drawable/ic_clients"
+            android:key="idle.connected.clients"
+            android:summary="Tap to refresh"
+            android:title="Connected clients: 0" />
 
     </PreferenceScreen>
 
