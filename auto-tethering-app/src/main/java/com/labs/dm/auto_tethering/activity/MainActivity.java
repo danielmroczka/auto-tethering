@@ -17,11 +17,13 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.telephony.TelephonyManager;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.AppProperties;
@@ -38,11 +40,13 @@ import java.util.List;
 import java.util.Map;
 
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
+import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
 import static com.labs.dm.auto_tethering.AppProperties.SSID;
 import static com.labs.dm.auto_tethering.AppProperties.TIME_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.TIME_ON;
@@ -64,9 +68,26 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         addPreferencesFromResource(R.xml.preferences);
         serviceHelper = new ServiceHelper(getApplicationContext());
         loadPrefs();
+
         Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 preference.setSummary((String) newValue);
+                return true;
+            }
+        };
+
+        Preference.OnPreferenceChangeListener revertStateCheckBoxListener = new Preference.OnPreferenceChangeListener() {
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if ((Boolean) newValue) {
+
+                    Toast toast = Toast.makeText(getApplicationContext(), "Once application has been closed tethering and internet connection state will be restored to state before open this application", Toast.LENGTH_LONG);
+                    TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
+                    if (v != null) {
+                        v.setGravity(Gravity.CENTER);
+                        v.setPadding(12, 12, 12, 12);
+                    }
+                    toast.show();
+                }
                 return true;
             }
         };
@@ -100,6 +121,30 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         tetheringIdleTime.setOnPreferenceChangeListener(changeListener);
         EditTextPreference internetIdleTime = (EditTextPreference) findPreference(IDLE_3G_OFF_TIME);
         internetIdleTime.setOnPreferenceChangeListener(changeListener);
+
+        CheckBoxPreference revertStateCheckBox = (CheckBoxPreference) findPreference(RETURN_TO_PREV_STATE);
+        revertStateCheckBox.setOnPreferenceChangeListener(revertStateCheckBoxListener);
+
+        final PreferenceScreen connectedClients = (PreferenceScreen) findPreference("idle.connected.clients");
+
+        connectedClients.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                connectedClients.setTitle("Connected clients: " + Utils.connectedClients());
+                return false;
+            }
+        });
+
+        CheckBoxPreference keepServiceCheckBox = (CheckBoxPreference) findPreference(ACTIVATE_KEEP_SERVICE);
+        keepServiceCheckBox.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if ((Boolean) newValue) {
+                    startService();
+                }
+                return true;
+            }
+        });
 
         for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
             Preference p = findPreference(entry.getKey());
@@ -265,15 +310,19 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+        startService();
+        prefs.edit().putString(SSID, serviceHelper.getTetheringSSID()).apply();
+        loadPrefs();
+        displayPrompt();
+        registerAddSimCardListener();
+    }
+
+    private void startService() {
         if (!isServiceRunning(TetheringService.class)) {
             Intent serviceIntent = new Intent(this, TetheringService.class);
             serviceIntent.putExtra("runFromActivity", true);
             startService(serviceIntent);
         }
-        prefs.edit().putString(SSID, serviceHelper.getTetheringSSID()).apply();
-        loadPrefs();
-        displayPrompt();
-        registerAddSimCardListener();
     }
 
     private boolean isServiceRunning(Class<?> serviceClass) {

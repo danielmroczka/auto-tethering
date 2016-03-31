@@ -26,6 +26,7 @@ import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
@@ -42,6 +43,10 @@ import static com.labs.dm.auto_tethering.AppProperties.SCHEDULER;
  */
 public class TetheringService extends IntentService {
 
+    private enum Status {
+        DEACTIVED_ON_IDLE, DEFAULT
+    }
+
     private static final String TAG = "AutoTetheringService";
     private final static int CHECK_DELAY = 5;
     private Calendar timeOff, timeOn;
@@ -56,10 +61,11 @@ public class TetheringService extends IntentService {
     private Intent intent;
 
     private boolean triggeredFromWidget;
-
+    private Status status = Status.DEFAULT;
     public TetheringService() {
         super(TAG);
     }
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -120,20 +126,24 @@ public class TetheringService extends IntentService {
                             } else if (idle && connected3G && check3GIdle()) {
                                 internetAsyncTask(false);
                                 showNotification(getString(R.string.notification_idle_internet_off));
+                                status = Status.DEACTIVED_ON_IDLE;
                             } else if (idle && tethered && checkWifiIdle()) {
                                 tetheringAsyncTask(false);
                                 showNotification(getString(R.string.notification_idle_tethering_off));
+                                status = Status.DEACTIVED_ON_IDLE;
                             } else if (updateStatus()) {
                                 if (isActivated3G() && !connected3G) {
-                                    internetAsyncTask(true);
-                                    showNotification(getString(R.string.notification_internet_restored));
+                                    if (internetAsyncTask(true)) {
+                                        showNotification(getString(R.string.notification_internet_restored));
+                                    }
                                 } else if (!isActivated3G() && connected3G) {
                                     internetAsyncTask(false);
                                     showNotification(getString(R.string.notification_internet_off));
                                 }
                                 if (isActivatedTethering() && !tethered) {
-                                    tetheringAsyncTask(true);
-                                    showNotification(getString(R.string.notification_tethering_restored));
+                                    if (tetheringAsyncTask(true)) {
+                                        showNotification(getString(R.string.notification_tethering_restored));
+                                    }
                                 } else if (!isActivatedTethering() && tethered) {
                                     tetheringAsyncTask(false);
                                     showNotification(getString(R.string.notification_tethering_off));
@@ -141,6 +151,9 @@ public class TetheringService extends IntentService {
                             }
                         }
                     }
+                }
+                if (!keepService()) {
+                    flag = false;
                 }
 
                 TimeUnit.SECONDS.sleep(CHECK_DELAY);
@@ -150,8 +163,16 @@ public class TetheringService extends IntentService {
         }
     }
 
-    private void tetheringAsyncTask(boolean state) {
-        new TurnOnTetheringAsyncTask().doInBackground(state);
+    private boolean keepService() {
+        return prefs.getBoolean(AppProperties.ACTIVATE_KEEP_SERVICE, true);
+    }
+
+    private boolean tetheringAsyncTask(boolean state) {
+        if (!state || status != Status.DEACTIVED_ON_IDLE) {
+            new TurnOnTetheringAsyncTask().doInBackground(state);
+            return true;
+        }
+        return false;
     }
 
     private boolean updateStatus() {
@@ -172,16 +193,23 @@ public class TetheringService extends IntentService {
 
     }
 
+    /**
+     * Returns true when idle settings are switched on and no client is connected
+     *
+     * @return
+     */
     private boolean checkIdle() {
         if (prefs.getBoolean(IDLE_3G_OFF, false) || prefs.getBoolean(IDLE_TETHERING_OFF, false)) {
             if (Utils.connectedClients() > 0) {
                 lastAccess = Calendar.getInstance().getTimeInMillis();
+                status = Status.DEFAULT;
                 return false;
             }
 
             return true;
         } else {
             lastAccess = Calendar.getInstance().getTimeInMillis();
+            status = Status.DEFAULT;
         }
         return false;
     }
@@ -191,6 +219,7 @@ public class TetheringService extends IntentService {
             if (Calendar.getInstance().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_3G_OFF_TIME, "60")) * 1000 * 60) {
                 return true;
             }
+            status = Status.DEFAULT;
         }
 
         return false;
@@ -201,6 +230,8 @@ public class TetheringService extends IntentService {
             if (Calendar.getInstance().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_TETHERING_OFF_TIME, DEFAULT_IDLE_TETHERING_OFF_TIME)) * 1000 * 60) {
                 return true;
             }
+            status = Status.DEFAULT;
+
         }
 
         return false;
@@ -241,8 +272,12 @@ public class TetheringService extends IntentService {
         }
     }
 
-    private void internetAsyncTask(boolean state) {
-        new TurnOn3GAsyncTask().doInBackground(state);
+    private boolean internetAsyncTask(boolean state) {
+        if (!state || status != Status.DEACTIVED_ON_IDLE) {
+            new TurnOn3GAsyncTask().doInBackground(state);
+            return true;
+        }
+        return false;
     }
 
     private boolean isActivatedTethering() {
@@ -315,7 +350,7 @@ public class TetheringService extends IntentService {
     }
 
     private void revertToInitialState() {
-        if (prefs.getBoolean(RETURN_TO_PREV_STATE, false)) {
+        if (prefs.getBoolean(RETURN_TO_PREV_STATE, false) && prefs.getBoolean(ACTIVATE_KEEP_SERVICE, true)) {
             serviceHelper.setMobileDataEnabled(initial3GStatus);
             serviceHelper.setWifiTethering(initialTetheredStatus);
         }

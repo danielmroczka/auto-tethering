@@ -41,16 +41,18 @@
     <string name="initial.prompt">By default connection to internet and WiFi tethering are turned off. You need to set it manually. \nConnecting via packet data may incur additional charges. \nWIFI tethering will increase battery consumption. \n\nDo you want to turn on 3G connection and WIFI tethering?</string>
     <string name="notification.scheduled.internet.off">Turned off internet connection at scheduled time</string>
     <string name="notification.scheduled.tethering.off">Turned off WiFi Tethering at scheduled time</string>
-    <string name="notification.idle.internet.off">Turned off internet connection because of missing active clients</string>
-    <string name="notification.idle.tethering.off">Turned off WiFi Tethering because of missing active clients</string>
+    <string name="notification.idle.internet.off">Turned off internet connection due to clients inactivity</string>
+    <string name="notification.idle.tethering.off">Turned off WiFi Tethering due to clients inactivity</string>
     <string name="notification.internet.restored">Restored internet connection</string>
     <string name="notification.internet.off">Turned off internet connection</string>
     <string name="notification.tethering.restored">Restored WiFi Tethering</string>
     <string name="notification.tethering.off">Turned off WiFi Tethering</string>
     <string name="service.started">Service started</string>
     <string name="inserted.blocked.simcard">Inserted SIM card is blocked by the settings or network is unavailable!</string>
-    <string name="revert.state.summary">Revert to the state before run the service</string>
+    <string name="revert.state.summary">Restore network state before run the service</string>
     <string name="title_activity_sim_card_list">SimCardListActivity</string>
     <string name="roaming.service.disabled">Service disabled due to roaming network</string>
+    <string name="activate.keep.serive.title">Run service in background</string>
+    <string name="activate.keep.service.summary">Keep service running after start tethering</string>
 </resources>
 
