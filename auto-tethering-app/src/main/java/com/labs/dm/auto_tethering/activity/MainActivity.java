@@ -43,6 +43,7 @@ import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
+import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
 import static com.labs.dm.auto_tethering.AppProperties.SSID;
 import static com.labs.dm.auto_tethering.AppProperties.TIME_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.TIME_ON;
@@ -67,6 +68,14 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 preference.setSummary((String) newValue);
+                return true;
+            }
+        };
+        Preference.OnPreferenceChangeListener revertStateCheckBoxListener = new Preference.OnPreferenceChangeListener() {
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if ((Boolean) newValue) {
+                    Toast.makeText(getApplicationContext(), "Once application has been closed tethering and internet connection state will be restored to state before open this application", Toast.LENGTH_LONG).show();
+                }
                 return true;
             }
         };
@@ -100,6 +109,9 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         tetheringIdleTime.setOnPreferenceChangeListener(changeListener);
         EditTextPreference internetIdleTime = (EditTextPreference) findPreference(IDLE_3G_OFF_TIME);
         internetIdleTime.setOnPreferenceChangeListener(changeListener);
+
+        CheckBoxPreference revertStateCheckBox = (CheckBoxPreference) findPreference(RETURN_TO_PREV_STATE);
+        revertStateCheckBox.setOnPreferenceChangeListener(revertStateCheckBoxListener);
 
         for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
             Preference p = findPreference(entry.getKey());

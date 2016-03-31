@@ -139,7 +139,7 @@
             android:icon="@drawable/ic_cancel"
             android:key="return.state"
             android:summary="@string/revert.state.summary"
-            android:title="Initial state" />
+            android:title="Restore connection to initial state" />
     </PreferenceScreen>
 
     <PreferenceCategory
