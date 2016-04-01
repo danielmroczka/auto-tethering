@@ -17,6 +17,7 @@ bin
 *.jar
 *.db
 *.hdb
+*.apk
 
 hs_err_pid*
 
