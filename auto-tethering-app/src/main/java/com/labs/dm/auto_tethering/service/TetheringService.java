@@ -16,12 +16,8 @@ import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
-import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
@@ -62,6 +58,7 @@ public class TetheringService extends IntentService {
 
     private boolean triggeredFromWidget;
     private Status status = Status.DEFAULT;
+
     public TetheringService() {
         super(TAG);
     }
@@ -186,10 +183,10 @@ public class TetheringService extends IntentService {
     private boolean isScheduledTimeOff() {
         Calendar now = Calendar.getInstance();
         onChangeProperties();
-        timeOn.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
-        timeOff.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
+//        timeOn.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
+        //      timeOff.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
 
-        return isSchedulerOn() && now.after(timeOff) && now.before(timeOn);
+        return isSchedulerOn();// && now.after(timeOff) && now.before(timeOn);
 
     }
 
@@ -253,7 +250,7 @@ public class TetheringService extends IntentService {
     }
 
     private void onChangeProperties() {
-        DateFormat formatter = new SimpleDateFormat("HH:mm");
+        /*DateFormat formatter = new SimpleDateFormat("HH:mm");
 
         timeOff = Calendar.getInstance();
         timeOn = Calendar.getInstance();
@@ -269,7 +266,7 @@ public class TetheringService extends IntentService {
             }
         } catch (ParseException e) {
             Log.e(TAG, e.getMessage());
-        }
+        }*/
     }
 
     private boolean internetAsyncTask(boolean state) {

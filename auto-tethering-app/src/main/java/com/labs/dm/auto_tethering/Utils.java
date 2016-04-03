@@ -38,4 +38,37 @@ public class Utils {
         return res;
     }
 
+    public static String maskToDays(int mask) {
+        String binary = Integer.toBinaryString(mask);
+        String result = "";
+        for (int i = 0; i < binary.length(); i++) {
+            if ("1".equals(binary.substring(i, i + 1))) {
+                switch (i) {
+                    case 0:
+                        result += "Mon ";
+                        break;
+                    case 1:
+                        result += "Tue ";
+                        break;
+                    case 2:
+                        result += "Wed ";
+                        break;
+                    case 3:
+                        result += "Thu ";
+                        break;
+                    case 4:
+                        result += "Fri ";
+                        break;
+                    case 5:
+                        result += "Sat ";
+                        break;
+                    case 6:
+                        result += "Sun ";
+                        break;
+                }
+            }
+        }
+        result = result.trim().replaceAll(" ", ", ");
+        return result;
+    }
 }

@@ -37,32 +37,10 @@
         android:icon="@drawable/ic_clock"
         android:key="scheduler.screen"
         android:title="@string/scheduler.title">
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:icon="@drawable/ic_scheduler"
-            android:key="scheduler.on"
-            android:summary="@string/scheduler"
-            android:title="Activate Scheduler" />
-        <EditTextPreference
-            android:defaultValue="0:00"
-            android:dependency="scheduler.on"
-            android:dialogTitle="@string/enter.value"
-            android:icon="@drawable/ic_clock"
-            android:inputType="time"
-            android:key="scheduler.time.off"
-            android:maxLength="5"
-            android:summary="..."
-            android:title="Switch OFF time" />
-        <EditTextPreference
-            android:defaultValue="6:00"
-            android:dependency="scheduler.on"
-            android:dialogTitle="@string/enter.value"
-            android:icon="@drawable/ic_clock"
-            android:inputType="time"
-            android:key="scheduler.time.on"
-            android:maxLength="5"
-            android:summary="..."
-            android:title="Switch ON time" />
+        <PreferenceScreen
+            android:icon="@drawable/ic_add"
+            android:key="scheduler.add"
+            android:title="Add schedule" />
     </PreferenceScreen>
 
     <PreferenceScreen
@@ -116,8 +94,8 @@
 
         <PreferenceScreen
             android:icon="@drawable/ic_simcard"
-            android:title="SIM Card settings"
-            android:summary="Activation only on configured SIM card">
+            android:summary="Activation only on configured SIM card"
+            android:title="SIM Card settings">
             <PreferenceCategory android:title="SIM Card activation">
                 <CheckBoxPreference
                     android:defaultValue="false"
