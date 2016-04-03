@@ -41,6 +41,10 @@
             android:icon="@drawable/ic_add"
             android:key="scheduler.add"
             android:title="Add schedule" />
+        <PreferenceScreen
+            android:icon="@drawable/ic_remove"
+            android:key="schedule.remove"
+            android:title="Remove schedule" />
     </PreferenceScreen>
 
     <PreferenceScreen

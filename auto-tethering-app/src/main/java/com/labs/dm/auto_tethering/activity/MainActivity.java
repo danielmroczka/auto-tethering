@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.ScheduleCheckBoxPreference;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
@@ -204,28 +205,28 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         }
         for (Cron item : list) {
-            CheckBoxPreference ps = new CheckBoxPreference(getApplicationContext());
-            String title = item.getHourOff() + ":" + item.getMinOff() + "-" + item.getHourOn() + ":" + item.getMinOn();
+            ScheduleCheckBoxPreference ps = new ScheduleCheckBoxPreference(getApplicationContext());
+            String title = String.format("%02d:%02d - %02d:%02d", item.getHourOff(), item.getMinOff(), +item.getHourOn(), item.getMinOn());
             ps.setTitle(title);
             ps.setSummary(Utils.maskToDays(item.getMask()));
-            if (item.getStatus() == 0) {
+            ps.setId(item.getId());
 
-            }
-            ps.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("Edit schedule")
-                            .setMessage("Remove")
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-
-                            .setNegativeButton(R.string.no, null).show();
-                    return false;
-                }
-            });
+//            ps.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//                @Override
+//                public boolean onPreferenceClick(Preference preference) {
+//                    new AlertDialog.Builder(MainActivity.this)
+//                            .setTitle("Edit schedule")
+//                            .setMessage("Remove")
+//                            .setIcon(android.R.drawable.ic_dialog_alert)
+//
+//                            .setNegativeButton(R.string.no, null).show();
+//                    return false;
+//                }
+//            });
             p.addPreference(ps);
         }
     }
+
     private void addSimCard(String number) {
         final TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         final String ssn = tMgr.getSimSerialNumber();
@@ -246,6 +247,34 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 //startActivityForResult(new Intent(MainActivity.this, ScheduleActivity.class), 123);
                 startActivity(new Intent(MainActivity.this, ScheduleActivity.class));
                 prepareScheduleList();
+                return true;
+            }
+        });
+
+        PreferenceScreen p2 = (PreferenceScreen) findPreference("schedule.remove");
+        p2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                PreferenceScreen p = (PreferenceScreen) findPreference("scheduler.screen");
+                boolean changed = false;
+                for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
+                    Object object = p.getPreference(idx);
+                    if (object instanceof ScheduleCheckBoxPreference) {
+                        ScheduleCheckBoxPreference ps = (ScheduleCheckBoxPreference) object;
+                        boolean status = ((CheckBoxPreference) object).isChecked();
+                        if (status) {
+                            db.removeCron(ps.getId());
+                            p.removePreference((Preference) object);
+                            changed = true;
+                        }
+                    }
+                }
+
+                if (!changed) {
+                    Toast.makeText(getApplicationContext(), "Please select any item", Toast.LENGTH_LONG).show();
+                }
+
                 return true;
             }
         });

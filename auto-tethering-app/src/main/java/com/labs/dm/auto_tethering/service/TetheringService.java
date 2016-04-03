@@ -189,14 +189,16 @@ public class TetheringService extends IntentService {
         for (Cron cron : crons) {
             Calendar timeOn = Calendar.getInstance();
             timeOn.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH), cron.getHourOn(), cron.getMinOn());
+
             Calendar timeOff = Calendar.getInstance();
             timeOff.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH), cron.getHourOff(), cron.getMinOff());
-            state = state || now.after(timeOff) && now.before(timeOn);
+
+            int day = Utils.adapterDayOfWeek(now.get(Calendar.DAY_OF_WEEK));
+
+            state = state || ((now.after(timeOff) && now.before(timeOn) && (cron.getMask() & (int) Math.pow(2, day)) > 0));
         }
 
-
         return state;
-
     }
 
     /**
