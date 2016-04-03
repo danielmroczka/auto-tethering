@@ -16,9 +16,11 @@ import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
+import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
@@ -45,7 +47,7 @@ public class TetheringService extends IntentService {
 
     private static final String TAG = "AutoTetheringService";
     private final static int CHECK_DELAY = 5;
-    private Calendar timeOff, timeOn;
+    private List<Cron> crons;
     private SharedPreferences prefs;
     private long lastAccess = Calendar.getInstance().getTimeInMillis();
     private boolean initial3GStatus, initialTetheredStatus;
@@ -183,10 +185,17 @@ public class TetheringService extends IntentService {
     private boolean isScheduledTimeOff() {
         Calendar now = Calendar.getInstance();
         onChangeProperties();
-//        timeOn.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
-        //      timeOff.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
+        boolean state = false;
+        for (Cron cron : crons) {
+            Calendar timeOn = Calendar.getInstance();
+            timeOn.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH), cron.getHourOn(), cron.getMinOn());
+            Calendar timeOff = Calendar.getInstance();
+            timeOff.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH), cron.getHourOff(), cron.getMinOff());
+            state = state || now.after(timeOff) && now.before(timeOn);
+        }
 
-        return isSchedulerOn();// && now.after(timeOff) && now.before(timeOn);
+
+        return state;
 
     }
 
@@ -250,18 +259,37 @@ public class TetheringService extends IntentService {
     }
 
     private void onChangeProperties() {
-        /*DateFormat formatter = new SimpleDateFormat("HH:mm");
+        crons = DBManager.getInstance(getApplicationContext()).getCron();
+        /*
+        try {
+            crons = DBManager.getInstance(getApplicationContext()).getCron();
+            if (crons != null) {
+                if (crons.getTimeOff() != null) {
+                    timeOff.setTime(formatter.parse(crons.getTimeOff()));
+                }
+                if (crons.getTimeOn() != null) {
+                    timeOn.setTime(formatter.parse(crons.getTimeOn()));
+                }
+            }
+        } catch (ParseException e) {
+            Log.e(TAG, e.getMessage());
+        }
+
+
+        timeOff = Calendar.getInstance();
+        timeOn = Calendar.getInstance();
+       DateFormat formatter = new SimpleDateFormat("HH:mm");
 
         timeOff = Calendar.getInstance();
         timeOn = Calendar.getInstance();
         try {
-            Cron cron = DBManager.getInstance(getApplicationContext()).getCron();
-            if (cron != null) {
-                if (cron.getTimeOff() != null) {
-                    timeOff.setTime(formatter.parse(cron.getTimeOff()));
+            List<Cron> crons = DBManager.getInstance(getApplicationContext()).getCron();
+            if (crons != null) {
+                if (crons.getTimeOff() != null) {
+                    timeOff.setTime(formatter.parse(crons.getTimeOff()));
                 }
-                if (cron.getTimeOn() != null) {
-                    timeOn.setTime(formatter.parse(cron.getTimeOn()));
+                if (crons.getTimeOn() != null) {
+                    timeOn.setTime(formatter.parse(crons.getTimeOn()));
                 }
             }
         } catch (ParseException e) {

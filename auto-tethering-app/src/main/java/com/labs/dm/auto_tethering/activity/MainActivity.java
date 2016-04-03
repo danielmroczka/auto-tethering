@@ -208,7 +208,9 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             String title = item.getHourOff() + ":" + item.getMinOff() + "-" + item.getHourOn() + ":" + item.getMinOn();
             ps.setTitle(title);
             ps.setSummary(Utils.maskToDays(item.getMask()));
-            ps.setChecked(item.getStatus() == 0);
+            if (item.getStatus() == 0) {
+
+            }
             ps.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
