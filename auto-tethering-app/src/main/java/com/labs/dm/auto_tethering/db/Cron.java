@@ -7,6 +7,21 @@ public class Cron {
 
     public final static String NAME = "CRON";
 
+    public enum STATUS {
+        ACTIVE(1), OFF(0);
+
+        int value;
+
+        STATUS(int v) {
+            value = v;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+    }
+
     private int id;
     private int hourOff;
     private int minOff;

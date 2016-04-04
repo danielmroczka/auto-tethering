@@ -16,7 +16,7 @@ public class DBManager extends SQLiteOpenHelper {
 
     private final SQLiteDatabase writableDatabase;
     private final SQLiteDatabase readableDatabase;
-    public final static String DB_NAME = "autowifi3.db";
+    public final static String DB_NAME = "autowifi.db";
 
     private static DBManager instance;
 
@@ -57,6 +57,31 @@ public class DBManager extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < 2) {
+            db.execSQL("create table CRON(id INTEGER PRIMARY KEY, timeoff VARCHAR(5), timeon VARCHAR(5), mask INTEGER, status INTEGER)");
+
+            Cursor cursor = null;
+            try {
+                cursor = readableDatabase.query(Cron.NAME, null, null, null, null, null, null);
+                if (cursor.getCount() > 0) {
+                    cursor.moveToFirst();
+                    do {
+                        String timeOff = cursor.getString(1);
+                        String timeOn = cursor.getString(2);
+                        int hourOff = Integer.parseInt(timeOff.split(":")[0]);
+                        int minOff = Integer.parseInt(timeOff.split(":")[1]);
+                        int hourOn = Integer.parseInt(timeOn.split(":")[0]);
+                        int minOn = Integer.parseInt(timeOn.split(":")[1]);
+                        Cron cron = new Cron(hourOff, minOff, hourOn, minOn, 127, Cron.STATUS.ACTIVE.getValue());
+                        addOrUpdateCron(cron);
+                    }
+                    while (cursor.moveToNext());
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+
             //TODO add copy old value
             db.execSQL("drop index CRON_UNIQUE_IDX");
             db.execSQL("drop table CRON");

@@ -245,8 +245,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 //startActivityForResult(new Intent(MainActivity.this, ScheduleActivity.class), 123);
-                startActivity(new Intent(MainActivity.this, ScheduleActivity.class));
-                prepareScheduleList();
+                startActivityForResult(new Intent(MainActivity.this, ScheduleActivity.class), 123);
+
                 return true;
             }
         });
@@ -379,8 +379,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             p.setSummary(serviceHelper.getTetheringSSID());
         }
         if (reqCode == 123) {
-            Preference p = findPreference(SSID);
-            p.setSummary(serviceHelper.getTetheringSSID());
+            prepareScheduleList();
         }
 
     }

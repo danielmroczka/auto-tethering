@@ -40,7 +40,7 @@
             android:parentActivityName=".activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.labs.dm.auto_tethering.activity.MainActivity" />
+                android:value=".activity.MainActivity" />
         </activity>
         <activity
             android:name=".activity.ConfigurationActivity"

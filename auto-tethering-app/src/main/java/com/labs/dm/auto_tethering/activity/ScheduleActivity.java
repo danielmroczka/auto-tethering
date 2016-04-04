@@ -42,8 +42,8 @@ public class ScheduleActivity extends Activity {
 
                 Intent intent = new Intent();
                 intent.putExtra("edittextvalue", "value_here");
-                setResult(RESULT_OK, intent);
-                finish();
+                //setResult(RESULT_OK, intent);
+                finishActivityFromChild(ScheduleActivity.this, 123);
             }
         });
     }
