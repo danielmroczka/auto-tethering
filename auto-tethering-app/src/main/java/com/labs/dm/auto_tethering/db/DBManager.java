@@ -72,7 +72,7 @@ public class DBManager extends SQLiteOpenHelper {
                         int hourOn = Integer.parseInt(timeOn.split(":")[0]);
                         int minOn = Integer.parseInt(timeOn.split(":")[1]);
                         Cron cron = new Cron(hourOff, minOff, hourOn, minOn, 127, Cron.STATUS.ACTIVE.getValue());
-                        addOrUpdateCron(cron);
+                        addOrUpdateCron(db, cron);
                     }
                     while (cursor.moveToNext());
                 }
