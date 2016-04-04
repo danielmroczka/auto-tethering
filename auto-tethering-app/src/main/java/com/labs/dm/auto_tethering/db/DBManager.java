@@ -57,11 +57,11 @@ public class DBManager extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < 2) {
-            db.execSQL("create table CRON(id INTEGER PRIMARY KEY, timeoff VARCHAR(5), timeon VARCHAR(5), mask INTEGER, status INTEGER)");
 
             Cursor cursor = null;
             try {
-                cursor = readableDatabase.query(Cron.NAME, null, null, null, null, null, null);
+
+                cursor = db.query(Cron.NAME, null, null, null, null, null, null);
                 if (cursor.getCount() > 0) {
                     cursor.moveToFirst();
                     do {
@@ -166,7 +166,7 @@ public class DBManager extends SQLiteOpenHelper {
         return writableDatabase.delete(Cron.NAME, "id=" + String.valueOf(id), null);
     }
 
-    public long addOrUpdateCron(Cron cron) {
+    public long addOrUpdateCron(SQLiteDatabase db, Cron cron) {
         ContentValues content = new ContentValues();
         content.put("hourOff", cron.getHourOff());
         content.put("minOff", cron.getMinOff());
@@ -179,8 +179,12 @@ public class DBManager extends SQLiteOpenHelper {
         if (c != null) {
             return writableDatabase.update(Cron.NAME, content, "id=?", new String[]{String.valueOf(c.getId())});
         } else {*/
-        return writableDatabase.insert(Cron.NAME, null, content);
+        return db.insert(Cron.NAME, null, content);
         //      }
+    }
+
+    public long addOrUpdateCron(Cron cron) {
+        return addOrUpdateCron(writableDatabase, cron);
     }
 
     public void reset() {
