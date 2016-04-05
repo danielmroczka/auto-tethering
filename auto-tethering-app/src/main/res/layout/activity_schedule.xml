@@ -26,7 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Schedule switch OFF"
+                android:text="Scheduled switch OFF"
                 android:id="@+id/textView3" />
 
             <TimePicker
@@ -55,7 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Repeat on days"
+                android:text="Repeat weekly on:"
                 android:id="@+id/textView5" />
 
             <LinearLayout

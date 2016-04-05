@@ -55,6 +55,7 @@ import static com.labs.dm.auto_tethering.AppProperties.SSID;
 public class MainActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final int ON_CHANGE_SSID = 1;
+    private static final int ON_CHANGE_SCHEDULE = 2;
     private SharedPreferences prefs;
     private ServiceHelper serviceHelper;
     private DBManager db;
@@ -226,7 +227,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                startActivityForResult(new Intent(MainActivity.this, ScheduleActivity.class), 123);
+                startActivityForResult(new Intent(MainActivity.this, ScheduleActivity.class), ON_CHANGE_SCHEDULE);
                 return true;
             }
         });
@@ -356,15 +357,16 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     protected void onActivityResult(int reqCode, int resCode, Intent data) {
         if (reqCode == ON_CHANGE_SSID) {
-            Preference p = findPreference(SSID);
-            p.setSummary(serviceHelper.getTetheringSSID());
+            if (resCode == android.app.Activity.RESULT_OK) {
+                Preference p = findPreference(SSID);
+                p.setSummary(serviceHelper.getTetheringSSID());
+            }
         }
-        if (reqCode == 123) {
-            if(resCode == android.app.Activity.RESULT_OK){
+        if (reqCode == ON_CHANGE_SCHEDULE) {
+            if (resCode == android.app.Activity.RESULT_OK) {
                 prepareScheduleList();
             }
         }
-
     }
 
     @Override
