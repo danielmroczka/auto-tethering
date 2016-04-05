@@ -67,7 +67,7 @@ public class ScheduleActivity extends Activity {
             }
         }
 
-        Cron cron = new Cron(time1.getCurrentHour(), time1.getCurrentMinute(), time2.getCurrentHour(), time2.getCurrentMinute(), mask, 0);
+        Cron cron = new Cron(time1.getCurrentHour(), time1.getCurrentMinute(), time2.getCurrentHour(), time2.getCurrentMinute(), mask, Cron.STATUS.SCHED_OFF_ENABLED.getValue());
         db.addOrUpdateCron(cron);
     }
 }

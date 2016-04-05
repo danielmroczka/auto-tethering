@@ -8,7 +8,7 @@ public class Cron {
     public final static String NAME = "CRON";
 
     public enum STATUS {
-        ACTIVE(1), OFF(0);
+        DEFAULT(0), SCHED_OFF_ENABLED(1), SCHED_OFF_DISABLED(2), SCHED_ON_ENABLED(3), SCHED_ON_DISABLED(4);
 
         int value;
 

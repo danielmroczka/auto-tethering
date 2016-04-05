@@ -196,14 +196,14 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void prepareScheduleList() {
-        PreferenceScreen p = (PreferenceScreen) findPreference("scheduler.screen");
+        PreferenceCategory p = (PreferenceCategory) findPreference("scheduled.shutdown.list");
         List<Cron> list = db.getCron();
-        for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
-            Object object = p.getPreference(idx);
-            if (object instanceof CheckBoxPreference) {
-                p.removePreference((CheckBoxPreference) object);
-            }
-        }
+//        for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
+//            Object object = p.getPreference(idx);
+//            if (object instanceof CheckBoxPreference) {
+//                p.removePreference((CheckBoxPreference) object);
+//            }
+//        }
         for (Cron item : list) {
             ScheduleCheckBoxPreference ps = new ScheduleCheckBoxPreference(getApplicationContext());
             String title = String.format("%02d:%02d - %02d:%02d", item.getHourOff(), item.getMinOff(), +item.getHourOn(), item.getMinOn());
@@ -256,9 +256,10 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                PreferenceScreen p = (PreferenceScreen) findPreference("scheduler.screen");
+                PreferenceCategory p = (PreferenceCategory) findPreference("scheduled.shutdown.list");
                 boolean changed = false;
-                for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
+
+                for (int idx = p.getPreferenceCount() - 1; idx >= 0; idx--) {
                     Object object = p.getPreference(idx);
                     if (object instanceof ScheduleCheckBoxPreference) {
                         ScheduleCheckBoxPreference ps = (ScheduleCheckBoxPreference) object;

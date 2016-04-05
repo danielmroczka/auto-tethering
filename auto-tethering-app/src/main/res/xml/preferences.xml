@@ -44,7 +44,10 @@
         <PreferenceScreen
             android:icon="@drawable/ic_remove"
             android:key="schedule.remove"
-            android:title="Remove schedule" />
+            android:title="Remove schedule(s)" />
+        <PreferenceCategory
+            android:key="scheduled.shutdown.list"
+            android:title="Scheduled shutdown tethering" />
     </PreferenceScreen>
 
     <PreferenceScreen

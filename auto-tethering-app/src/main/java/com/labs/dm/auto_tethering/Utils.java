@@ -41,30 +41,31 @@ public class Utils {
     }
 
     public static String maskToDays(int mask) {
-        String binary = Integer.toBinaryString(mask);
+        //String binary = Integer.toBinaryString(mask);
+        String binary = String.format("%7s", Integer.toBinaryString(mask)).replace(' ', '0');
         String result = "";
-        for (int i = 0; i < binary.length(); i++) {
+        for (int i = binary.length() - 1; i >= 0; i--) {
             if ("1".equals(binary.substring(i, i + 1))) {
                 switch (i) {
-                    case 0:
+                    case 6:
                         result += "Mon ";
                         break;
-                    case 1:
+                    case 5:
                         result += "Tue ";
                         break;
-                    case 2:
+                    case 4:
                         result += "Wed ";
                         break;
                     case 3:
                         result += "Thu ";
                         break;
-                    case 4:
+                    case 2:
                         result += "Fri ";
                         break;
-                    case 5:
+                    case 1:
                         result += "Sat ";
                         break;
-                    case 6:
+                    case 0:
                         result += "Sun ";
                         break;
                 }
@@ -76,13 +77,13 @@ public class Utils {
 
     public static int adapterDayOfWeek(int day) {
         Map<Integer, Integer> map = new HashMap<Integer, Integer>();
-        map.put(1,6);
-        map.put(2,0);
-        map.put(3,1);
-        map.put(4,2);
-        map.put(5,3);
-        map.put(6,4);
-        map.put(7,5);
-        return  map.get(day);
+        map.put(1, 6);
+        map.put(2, 0);
+        map.put(3, 1);
+        map.put(4, 2);
+        map.put(5, 3);
+        map.put(6, 4);
+        map.put(7, 5);
+        return map.get(day);
     }
 }

@@ -57,7 +57,7 @@ public class DBManager extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < 2) {
-            Cron cron = null;
+            Cron backupCron = null;
             Cursor cursor = null;
             try {
 
@@ -71,7 +71,7 @@ public class DBManager extends SQLiteOpenHelper {
                         int minOff = Integer.parseInt(timeOff.split(":")[1]);
                         int hourOn = Integer.parseInt(timeOn.split(":")[0]);
                         int minOn = Integer.parseInt(timeOn.split(":")[1]);
-                        cron = new Cron(hourOff, minOff, hourOn, minOn, 127, Cron.STATUS.ACTIVE.getValue());
+                        backupCron = new Cron(hourOff, minOff, hourOn, minOn, 127, Cron.STATUS.SCHED_OFF_ENABLED.getValue());
                     }
                     while (cursor.moveToNext());
                 }
@@ -85,8 +85,8 @@ public class DBManager extends SQLiteOpenHelper {
             db.execSQL("drop index CRON_UNIQUE_IDX");
             db.execSQL("drop table CRON");
             db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
-            if (cron != null) {
-                addOrUpdateCron(db, cron);
+            if (backupCron != null) {
+                addOrUpdateCron(db, backupCron);
             }
             //db.execSQL("create unique index CRON_UNIQUE_IDX on cron(timeoff, timeon, mask)");
         }
@@ -175,14 +175,9 @@ public class DBManager extends SQLiteOpenHelper {
         content.put("hourOn", cron.getHourOn());
         content.put("minOn", cron.getMinOn());
         content.put("mask", cron.getMask());
+        content.put("status", cron.getStatus());
 
-/*        Cron c = getCron();
-
-        if (c != null) {
-            return writableDatabase.update(Cron.NAME, content, "id=?", new String[]{String.valueOf(c.getId())});
-        } else {*/
         return db.insert(Cron.NAME, null, content);
-        //      }
     }
 
     public long addOrUpdateCron(Cron cron) {
