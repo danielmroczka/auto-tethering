@@ -198,31 +198,13 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     private void prepareScheduleList() {
         PreferenceCategory p = (PreferenceCategory) findPreference("scheduled.shutdown.list");
         List<Cron> list = db.getCron();
-//        for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
-//            Object object = p.getPreference(idx);
-//            if (object instanceof CheckBoxPreference) {
-//                p.removePreference((CheckBoxPreference) object);
-//            }
-//        }
+        p.removeAll();
         for (Cron item : list) {
             ScheduleCheckBoxPreference ps = new ScheduleCheckBoxPreference(getApplicationContext());
             String title = String.format("%02d:%02d - %02d:%02d", item.getHourOff(), item.getMinOff(), +item.getHourOn(), item.getMinOn());
             ps.setTitle(title);
             ps.setSummary(Utils.maskToDays(item.getMask()));
             ps.setId(item.getId());
-
-//            ps.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-//                @Override
-//                public boolean onPreferenceClick(Preference preference) {
-//                    new AlertDialog.Builder(MainActivity.this)
-//                            .setTitle("Edit schedule")
-//                            .setMessage("Remove")
-//                            .setIcon(android.R.drawable.ic_dialog_alert)
-//
-//                            .setNegativeButton(R.string.no, null).show();
-//                    return false;
-//                }
-//            });
             p.addPreference(ps);
         }
     }
@@ -244,9 +226,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                //startActivityForResult(new Intent(MainActivity.this, ScheduleActivity.class), 123);
                 startActivityForResult(new Intent(MainActivity.this, ScheduleActivity.class), 123);
-
                 return true;
             }
         });
@@ -380,7 +360,9 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             p.setSummary(serviceHelper.getTetheringSSID());
         }
         if (reqCode == 123) {
-            prepareScheduleList();
+            if(resCode == android.app.Activity.RESULT_OK){
+                prepareScheduleList();
+            }
         }
 
     }

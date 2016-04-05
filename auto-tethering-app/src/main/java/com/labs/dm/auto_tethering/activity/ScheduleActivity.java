@@ -27,7 +27,7 @@ public class ScheduleActivity extends Activity {
             @Override
             public void onClick(View v) {
                 setResult(Activity.RESULT_CANCELED);
-                moveTaskToBack(true);
+                finish();
             }
         });
 
@@ -35,15 +35,10 @@ public class ScheduleActivity extends Activity {
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //startActivityForResult(new Intent(ScheduleActivity.this, MainActivity.class), 123);
-                //onBackPressed();
-
                 insertSchedule();
-
                 Intent intent = new Intent();
-                intent.putExtra("edittextvalue", "value_here");
                 setResult(RESULT_OK, intent);
-                finish();//(ScheduleActivity.this, 123);
+                finish();
             }
         });
     }
