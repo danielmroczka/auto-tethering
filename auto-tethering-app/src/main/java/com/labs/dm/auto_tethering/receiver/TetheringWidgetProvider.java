@@ -20,7 +20,7 @@ import java.util.Arrays;
 import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
 
 /**
- * Created by daniel on 2015-12-23.
+ * Created by Daniel Mroczka on 2015-12-23.
  */
 public class TetheringWidgetProvider extends AppWidgetProvider {
 

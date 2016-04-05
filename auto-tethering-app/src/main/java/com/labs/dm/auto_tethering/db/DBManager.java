@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by daniel on 2015-07-06.
+ * Created by Daniel Mroczka on 2015-07-06.
  */
 public class DBManager extends SQLiteOpenHelper {
 

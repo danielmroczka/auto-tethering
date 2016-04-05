@@ -18,7 +18,7 @@ import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
 import static android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID;
 
 /**
- * Created by daniel on 2016-01-09.
+ * Created by Daniel Mroczka on 2016-01-09.
  */
 public class ConfigurationActivity extends Activity {
 

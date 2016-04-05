@@ -1,7 +1,7 @@
 package com.labs.dm.auto_tethering.db;
 
 /**
- * Created by daniel on 2015-11-18.
+ * Created by Daniel Mroczka on 2015-11-18.
  */
 public class Cron {
 

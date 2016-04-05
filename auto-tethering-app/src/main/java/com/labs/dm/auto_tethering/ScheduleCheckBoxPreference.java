@@ -4,7 +4,7 @@ import android.content.Context;
 import android.preference.CheckBoxPreference;
 
 /**
- * Created by daniel on 2016-04-04.
+ * Created by Daniel Mroczka on 2016-04-04.
  */
 public class ScheduleCheckBoxPreference extends CheckBoxPreference {
 

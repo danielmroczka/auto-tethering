@@ -9,7 +9,7 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.hasFocus;
 
 /**
- * Created by daniel on 2015-10-11.
+ * Created by Daniel Mroczka on 2015-10-11.
  */
 public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
