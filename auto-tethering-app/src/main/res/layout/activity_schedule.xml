@@ -23,14 +23,14 @@
             android:paddingTop="8dp">
 
             <TextView
+                android:id="@+id/textView3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Scheduled switch OFF"
-                android:id="@+id/textView3" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TimePicker
-                android:id="@+id/timePicker"
+                android:id="@+id/timeOff"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingBottom="8dp"
@@ -38,25 +38,25 @@
                 android:timePickerMode="spinner" />
 
             <TextView
+                android:id="@+id/scheduleTimeOff"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Scheduled switch ON"
-                android:id="@+id/textView4" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TimePicker
-                android:id="@+id/timePicker2"
+                android:id="@+id/scheduleTimeOn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingBottom="8dp"
                 android:paddingTop="8dp" />
 
             <TextView
+                android:id="@+id/textView5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Repeat weekly on:"
-                android:id="@+id/textView5" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -129,20 +129,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:weightSum="1">
+                android:weightSum="2">
 
                 <Button
+                    android:id="@+id/btnCancel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Cancel"
-                    android:id="@+id/button"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:text="Cancel" />
 
                 <Button
-                    android:layout_width="145dp"
+                    android:id="@+id/btnOk"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Save"
-                    android:id="@+id/button2" />
+                    android:layout_weight="1"
+                    android:text="Save" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

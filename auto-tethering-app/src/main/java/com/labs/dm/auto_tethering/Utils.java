@@ -76,7 +76,7 @@ public class Utils {
     }
 
     public static int adapterDayOfWeek(int day) {
-        Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> map = new HashMap<>();
         map.put(1, 6);
         map.put(2, 0);
         map.put(3, 1);

@@ -48,9 +48,6 @@
         <PreferenceCategory
             android:key="scheduled.shutdown.list"
             android:title="Scheduled tethering deactivation" />
-        <PreferenceCategory
-                android:key="scheduled.activation.list"
-                android:title="Scheduled tethering activation" />
     </PreferenceScreen>
 
     <PreferenceScreen

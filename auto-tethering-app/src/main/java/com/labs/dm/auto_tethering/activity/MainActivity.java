@@ -160,12 +160,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         }
 
-        List<Cron> cron = db.getCron();
-        if (cron != null) {
-            // editTimeOn.setSummary(cron.getTimeOn());
-            // editTimeOff.setSummary(cron.getTimeOff());
-        }
-
         Preference p = findPreference(SSID);
         p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -201,7 +195,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         List<Cron> list = db.getCron();
         p.removeAll();
         for (Cron item : list) {
-            ScheduleCheckBoxPreference ps = new ScheduleCheckBoxPreference(getApplicationContext());
+            ScheduleCheckBoxPreference ps = new ScheduleCheckBoxPreference(item, getApplicationContext());
             String title = String.format("%02d:%02d - %02d:%02d", item.getHourOff(), item.getMinOff(), +item.getHourOn(), item.getMinOn());
             ps.setTitle(title);
             ps.setSummary(Utils.maskToDays(item.getMask()));
@@ -223,7 +217,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     private void registerAddSchedule() {
         PreferenceScreen p = (PreferenceScreen) findPreference("scheduler.add");
-        final PreferenceScreen main = (PreferenceScreen) findPreference("scheduler.screen");
         p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -239,6 +232,22 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             public boolean onPreferenceClick(Preference preference) {
                 PreferenceCategory p = (PreferenceCategory) findPreference("scheduled.shutdown.list");
                 boolean changed = false;
+
+                p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        return true;
+                    }
+
+                   /* public void showPopup(View v) {
+                        PopupMenu menu = new PopupMenu(this, v);
+                        PopupMenu popup = new PopupMenu(MainActivity.this, v);
+                        PopupMenu popup = new PopupMenu(this, v);
+                        MenuInflater inflater = popup.getMenuInflater();
+                        inflater.inflate(R.menu.actions, popup.getMenu());
+                        popup.show();
+                    }*/
+                });
 
                 for (int idx = p.getPreferenceCount() - 1; idx >= 0; idx--) {
                     Object object = p.getPreference(idx);
@@ -260,6 +269,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 return true;
             }
         });
+
+
     }
 
     private void registerAddSimCardListener() {

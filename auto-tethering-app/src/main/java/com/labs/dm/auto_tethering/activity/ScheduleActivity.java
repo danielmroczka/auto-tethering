@@ -3,6 +3,7 @@ package com.labs.dm.auto_tethering.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TimePicker;
@@ -22,7 +23,7 @@ public class ScheduleActivity extends Activity {
         setContentView(R.layout.activity_schedule);
         db = DBManager.getInstance(getApplicationContext());
 
-        Button cancel = (Button) findViewById(R.id.button);
+        Button cancel = (Button) findViewById(R.id.btnCancel);
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -31,7 +32,7 @@ public class ScheduleActivity extends Activity {
             }
         });
 
-        Button ok = (Button) findViewById(R.id.button2);
+        Button ok = (Button) findViewById(R.id.btnOk);
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -41,11 +42,14 @@ public class ScheduleActivity extends Activity {
                 finish();
             }
         });
+
+        ((TimePicker) findViewById(R.id.timeOff)).setIs24HourView(DateFormat.is24HourFormat(this));
+        ((TimePicker) findViewById(R.id.scheduleTimeOn)).setIs24HourView(DateFormat.is24HourFormat(this));
     }
 
     private void insertSchedule() {
-        TimePicker time1 = (TimePicker) findViewById(R.id.timePicker);
-        TimePicker time2 = (TimePicker) findViewById(R.id.timePicker2);
+        TimePicker time1 = (TimePicker) findViewById(R.id.timeOff);
+        TimePicker time2 = (TimePicker) findViewById(R.id.scheduleTimeOn);
         ToggleButton[] dayweek = new ToggleButton[7];
         dayweek[0] = (ToggleButton) findViewById(R.id.btnMonday);
         dayweek[1] = (ToggleButton) findViewById(R.id.btnTuesday);
