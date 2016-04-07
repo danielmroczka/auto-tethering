@@ -90,31 +90,9 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 return true;
             }
         };
-       /* Preference.OnPreferenceChangeListener editTimeChangeListener = new Preference.OnPreferenceChangeListener() {
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                boolean res = Utils.validateTime((String) newValue);
-                if (res) {
-                    preference.setSummary((String) newValue);
-
-                    if (preference.getKey().equals(AppProperties.TIME_OFF)) {
-                        Cron cron = new Cron(newValue.toString(), null, 0, 0);
-                        db.addOrUpdateCron(cron);
-                    }
-                    if (preference.getKey().equals(AppProperties.TIME_ON)) {
-                        Cron cron = new Cron(null, newValue.toString(), 0, 0);
-                        db.addOrUpdateCron(cron);
-                    }
-                }
-                return res;
-            }
-        };*/
 
         PreferenceScreen editSSID = (PreferenceScreen) findPreference(SSID);
         editSSID.setOnPreferenceChangeListener(changeListener);
-        //EditTextPreference editTimeOn = (EditTextPreference) findPreference(TIME_ON);
-        //editTimeOn.setOnPreferenceChangeListener(editTimeChangeListener);
-        //EditTextPreference editTimeOff = (EditTextPreference) findPreference(TIME_OFF);
-        //editTimeOff.setOnPreferenceChangeListener(editTimeChangeListener);
 
         EditTextPreference tetheringIdleTime = (EditTextPreference) findPreference(IDLE_TETHERING_OFF_TIME);
         tetheringIdleTime.setOnPreferenceChangeListener(changeListener);
@@ -460,24 +438,32 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                         .setNegativeButton(R.string.no, null).show();
                 return true;
             case R.id.action_exit:
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.warning)
-                        .setMessage(R.string.prompt_onexit)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                if (prefs.getBoolean(ACTIVATE_KEEP_SERVICE, true)) {
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.warning)
+                            .setMessage(R.string.prompt_onexit)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent serviceIntent = new Intent(MainActivity.this, TetheringService.class);
-                                stopService(serviceIntent);
-                                finish();
-                            }
-                        })
-                        .setNegativeButton(R.string.no, null).show();
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    exitApp();
+                                }
+                            })
+                            .setNegativeButton(R.string.no, null).show();
+                } else {
+                    exitApp();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void exitApp() {
+        Intent serviceIntent = new Intent(MainActivity.this, TetheringService.class);
+        stopService(serviceIntent);
+        finish();
     }
 
     @Override

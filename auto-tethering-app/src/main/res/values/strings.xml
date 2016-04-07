@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Auto WiFi Tethering</string>
-    <string name="activate.on.startup.summary">Activate service on startup</string>
+    <string name="activate.on.startup.summary">Activate the service on boot</string>
     <string name="activate.only.title">SIM card white list activation</string>
-    <string name="activate.only.summary">Activate only if SIM card is on the white list</string>
+    <string name="activate.only.summary">Activate only when SIM card is on the white list</string>
     <string name="activate.title">Activation</string>
     <string name="scheduler">Turn off tethering and internet connection for specified hours</string>
     <string name="enter.value">Enter value</string>
