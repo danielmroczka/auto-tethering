@@ -48,7 +48,7 @@ public class ScheduleActivity extends Activity {
     }
 
     private void insertSchedule() {
-        TimePicker timeOff = (TimePicker) findViewById(R.id.scheduleTimeOff);
+        TimePicker timeOff = (TimePicker) findViewById(R.id.timeOff);
         TimePicker timeOn = (TimePicker) findViewById(R.id.scheduleTimeOn);
         ToggleButton[] dayweek = new ToggleButton[7];
 
@@ -56,7 +56,7 @@ public class ScheduleActivity extends Activity {
 
         int mask = 0;
         for (int day = 0; day < 7; day++) {
-            dayweek[pos] = (ToggleButton) findViewById(buttons[pos]);
+            dayweek[day] = (ToggleButton) findViewById(buttons[day]);
             if (dayweek[day].isChecked()) {
                 mask += Math.pow(2, day);
             }

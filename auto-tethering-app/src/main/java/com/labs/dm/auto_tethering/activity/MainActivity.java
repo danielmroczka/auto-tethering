@@ -16,15 +16,10 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.support.v7.widget.PopupMenu;
 import android.telephony.TelephonyManager;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.*;
+import android.widget.*;
 
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
@@ -174,12 +169,38 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         p.removeAll();
         for (Cron item : list) {
             ScheduleCheckBoxPreference ps = new ScheduleCheckBoxPreference(item, getApplicationContext());
+ps.setKey("dummy1");
+            ps.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    PopupMenu popup = new PopupMenu(MainActivity.this, null);
+                    MenuInflater inflater = popup.getMenuInflater();
+                    inflater.inflate(R.menu.popup2, popup.getMenu());
+                    popup.show();
+                    return true;
+                }
+            });
+
+
             String title = String.format("%02d:%02d - %02d:%02d", item.getHourOff(), item.getMinOff(), +item.getHourOn(), item.getMinOn());
             ps.setTitle(title);
             ps.setSummary(Utils.maskToDays(item.getMask()));
             ps.setId(item.getId());
             p.addPreference(ps);
+
         }
+
+        ImageButton bt = (ImageButton) findViewById(R.id.btnToggle);
+        bt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popup = new PopupMenu(MainActivity.this, null);
+                MenuInflater inflater = popup.getMenuInflater();
+                inflater.inflate(R.menu.popup2, popup.getMenu());
+                popup.show();
+
+            }
+        });
     }
 
     private void addSimCard(String number) {
@@ -219,11 +240,11 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
                    /* public void showPopup(View v) {
                         PopupMenu menu = new PopupMenu(this, v);
-                        PopupMenu popup = new PopupMenu(MainActivity.this, v);
-                        PopupMenu popup = new PopupMenu(this, v);
-                        MenuInflater inflater = popup.getMenuInflater();
-                        inflater.inflate(R.menu.actions, popup.getMenu());
-                        popup.show();
+                        PopupMenu popup2.xml = new PopupMenu(MainActivity.this, v);
+                        PopupMenu popup2.xml = new PopupMenu(this, v);
+                        MenuInflater inflater = popup2.xml.getMenuInflater();
+                        inflater.inflate(R.menu.actions, popup2.xml.getMenu());
+                        popup2.xml.show();
                     }*/
                 });
 
