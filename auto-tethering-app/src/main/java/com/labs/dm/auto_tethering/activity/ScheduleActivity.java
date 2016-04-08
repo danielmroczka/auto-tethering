@@ -48,25 +48,21 @@ public class ScheduleActivity extends Activity {
     }
 
     private void insertSchedule() {
-        TimePicker time1 = (TimePicker) findViewById(R.id.timeOff);
-        TimePicker time2 = (TimePicker) findViewById(R.id.scheduleTimeOn);
+        TimePicker timeOff = (TimePicker) findViewById(R.id.timeOff);
+        TimePicker timeOn = (TimePicker) findViewById(R.id.scheduleTimeOn);
         ToggleButton[] dayweek = new ToggleButton[7];
-        dayweek[0] = (ToggleButton) findViewById(R.id.btnMonday);
-        dayweek[1] = (ToggleButton) findViewById(R.id.btnTuesday);
-        dayweek[2] = (ToggleButton) findViewById(R.id.btnWednesday);
-        dayweek[3] = (ToggleButton) findViewById(R.id.btnThursday);
-        dayweek[4] = (ToggleButton) findViewById(R.id.btnFriday);
-        dayweek[5] = (ToggleButton) findViewById(R.id.btnSaturday);
-        dayweek[6] = (ToggleButton) findViewById(R.id.btnSunday);
+
+        int[] buttons = {R.id.btnMonday, R.id.btnTuesday, R.id.btnWednesday, R.id.btnThursday, R.id.btnFriday, R.id.btnSaturday, R.id.btnSunday};
 
         int mask = 0;
         for (int day = 0; day < 7; day++) {
+            dayweek[day] = (ToggleButton) findViewById(buttons[day]);
             if (dayweek[day].isChecked()) {
                 mask += Math.pow(2, day);
             }
         }
 
-        Cron cron = new Cron(time1.getCurrentHour(), time1.getCurrentMinute(), time2.getCurrentHour(), time2.getCurrentMinute(), mask, Cron.STATUS.SCHED_OFF_ENABLED.getValue());
+        Cron cron = new Cron(timeOff.getCurrentHour(), timeOff.getCurrentMinute(), timeOn.getCurrentHour(), timeOn.getCurrentMinute(), mask, Cron.STATUS.SCHED_OFF_ENABLED.getValue());
         db.addOrUpdateCron(cron);
     }
 }
