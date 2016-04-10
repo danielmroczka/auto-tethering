@@ -195,7 +195,9 @@ public class TetheringService extends IntentService {
 
             boolean matchedMask = (cron.getMask() & (int) Math.pow(2, Utils.adapterDayOfWeek(now.get(Calendar.DAY_OF_WEEK)))) > 0;
 
-            state = state || (timeOff.getTimeInMillis() < now.getTimeInMillis() && now.getTimeInMillis() < timeOn.getTimeInMillis() && matchedMask);
+            boolean active = cron.getStatus() == Cron.STATUS.SCHED_OFF_ENABLED.getValue();
+
+            state = state || (active && timeOff.getTimeInMillis() < now.getTimeInMillis() && now.getTimeInMillis() < timeOn.getTimeInMillis() && matchedMask);
         }
 
         return state;
@@ -262,41 +264,6 @@ public class TetheringService extends IntentService {
 
     private void onChangeProperties() {
         crons = DBManager.getInstance(getApplicationContext()).getCron();
-        /*
-        try {
-            crons = DBManager.getInstance(getApplicationContext()).getCron();
-            if (crons != null) {
-                if (crons.getTimeOff() != null) {
-                    timeOff.setTime(formatter.parse(crons.getTimeOff()));
-                }
-                if (crons.getTimeOn() != null) {
-                    timeOn.setTime(formatter.parse(crons.getTimeOn()));
-                }
-            }
-        } catch (ParseException e) {
-            Log.e(TAG, e.getMessage());
-        }
-
-
-        timeOff = Calendar.getInstance();
-        timeOn = Calendar.getInstance();
-       DateFormat formatter = new SimpleDateFormat("HH:mm");
-
-        timeOff = Calendar.getInstance();
-        timeOn = Calendar.getInstance();
-        try {
-            List<Cron> crons = DBManager.getInstance(getApplicationContext()).getCron();
-            if (crons != null) {
-                if (crons.getTimeOff() != null) {
-                    timeOff.setTime(formatter.parse(crons.getTimeOff()));
-                }
-                if (crons.getTimeOn() != null) {
-                    timeOn.setTime(formatter.parse(crons.getTimeOn()));
-                }
-            }
-        } catch (ParseException e) {
-            Log.e(TAG, e.getMessage());
-        }*/
     }
 
     private boolean internetAsyncTask(boolean state) {
@@ -309,10 +276,6 @@ public class TetheringService extends IntentService {
 
     private boolean isActivatedTethering() {
         return prefs.getBoolean(ACTIVATE_TETHERING, false);
-    }
-
-    private boolean isSchedulerOn() {
-        return prefs.getBoolean(SCHEDULER, false);
     }
 
     private boolean isActivated3G() {

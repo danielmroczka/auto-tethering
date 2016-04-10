@@ -16,7 +16,6 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
-import android.support.v7.widget.PopupMenu;
 import android.telephony.TelephonyManager;
 import android.view.*;
 import android.widget.*;
@@ -31,6 +30,8 @@ import com.labs.dm.auto_tethering.db.SimCard;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -164,43 +165,26 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void prepareScheduleList() {
-        PreferenceCategory p = (PreferenceCategory) findPreference("scheduled.shutdown.list");
+        final PreferenceCategory p = (PreferenceCategory) findPreference("scheduled.shutdown.list");
         List<Cron> list = db.getCron();
+        Collections.sort(list, new Comparator<Cron>() {
+            @Override
+            public int compare(Cron lhs, Cron rhs) {
+                int diffOff = 60 * (lhs.getHourOff() - rhs.getHourOff()) + (lhs.getMinOff() - rhs.getMinOff());
+                int diffOn = 60 * (lhs.getHourOn() - rhs.getHourOn()) + (lhs.getMinOn() - rhs.getMinOn());
+                return diffOff > 0 ? diffOff : diffOn;
+            }
+        });
         p.removeAll();
-        for (Cron item : list) {
-            ScheduleCheckBoxPreference ps = new ScheduleCheckBoxPreference(item, getApplicationContext());
-ps.setKey("dummy1");
-            ps.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    PopupMenu popup = new PopupMenu(MainActivity.this, null);
-                    MenuInflater inflater = popup.getMenuInflater();
-                    inflater.inflate(R.menu.popup2, popup.getMenu());
-                    popup.show();
-                    return true;
-                }
-            });
-
-
-            String title = String.format("%02d:%02d - %02d:%02d", item.getHourOff(), item.getMinOff(), +item.getHourOn(), item.getMinOn());
+        for (final Cron cron : list) {
+            final ScheduleCheckBoxPreference ps = new ScheduleCheckBoxPreference(p, cron, getApplicationContext());
+            String title = String.format("%02d:%02d - %02d:%02d", cron.getHourOff(), cron.getMinOff(), +cron.getHourOn(), cron.getMinOn());
             ps.setTitle(title);
-            ps.setSummary(Utils.maskToDays(item.getMask()));
-            ps.setId(item.getId());
+            ps.setSummary(Utils.maskToDays(cron.getMask()));
+            ps.setId(cron.getId());
             p.addPreference(ps);
 
         }
-
-        ImageButton bt = (ImageButton) findViewById(R.id.btnToggle);
-        bt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PopupMenu popup = new PopupMenu(MainActivity.this, null);
-                MenuInflater inflater = popup.getMenuInflater();
-                inflater.inflate(R.menu.popup2, popup.getMenu());
-                popup.show();
-
-            }
-        });
     }
 
     private void addSimCard(String number) {
@@ -223,53 +207,6 @@ ps.setKey("dummy1");
                 return true;
             }
         });
-
-        PreferenceScreen p2 = (PreferenceScreen) findPreference("schedule.remove");
-        p2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                PreferenceCategory p = (PreferenceCategory) findPreference("scheduled.shutdown.list");
-                boolean changed = false;
-
-                p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        return true;
-                    }
-
-                   /* public void showPopup(View v) {
-                        PopupMenu menu = new PopupMenu(this, v);
-                        PopupMenu popup2.xml = new PopupMenu(MainActivity.this, v);
-                        PopupMenu popup2.xml = new PopupMenu(this, v);
-                        MenuInflater inflater = popup2.xml.getMenuInflater();
-                        inflater.inflate(R.menu.actions, popup2.xml.getMenu());
-                        popup2.xml.show();
-                    }*/
-                });
-
-                for (int idx = p.getPreferenceCount() - 1; idx >= 0; idx--) {
-                    Object object = p.getPreference(idx);
-                    if (object instanceof ScheduleCheckBoxPreference) {
-                        ScheduleCheckBoxPreference ps = (ScheduleCheckBoxPreference) object;
-                        boolean status = ((CheckBoxPreference) object).isChecked();
-                        if (status) {
-                            db.removeCron(ps.getId());
-                            p.removePreference((Preference) object);
-                            changed = true;
-                        }
-                    }
-                }
-
-                if (!changed) {
-                    Toast.makeText(getApplicationContext(), "Please select any item", Toast.LENGTH_LONG).show();
-                }
-
-                return true;
-            }
-        });
-
-
     }
 
     private void registerAddSimCardListener() {

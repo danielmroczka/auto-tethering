@@ -177,7 +177,11 @@ public class DBManager extends SQLiteOpenHelper {
         content.put("mask", cron.getMask());
         content.put("status", cron.getStatus());
 
-        return db.insert(Cron.NAME, null, content);
+        if (cron.getId() > 0) {
+            return db.update(Cron.NAME, content, "id=" + cron.getId(), null);
+        } else {
+            return db.insert(Cron.NAME, null, content);
+        }
     }
 
     public long addOrUpdateCron(Cron cron) {

@@ -8,9 +8,9 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="8dp"
+        android:layout_gravity="center_vertical"
         android:orientation="vertical"
-        android:layout_gravity="center_vertical">
+        android:padding="8dp">
 
         <ImageButton
             android:id="@+id/btnToggle"
@@ -24,34 +24,36 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="8dp"
+        android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_weight="1">
+        android:padding="8dp">
 
         <TextView
             android:id="@android:id/title"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Title"
-            android:textSize="24dp" />
+            android:textSize="28dp" />
 
         <TextView
             android:id="@android:id/summary"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Summary"
-            android:textSize="16dp" />
+            android:textSize="14dp" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:orientation="vertical">
-
-        <CheckBox
-            android:id="@+id/chk"
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical"
+        >
+        <ImageButton
+            android:id="@+id/btnScheduleDelete"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_remove" />
     </LinearLayout>
 </LinearLayout>
