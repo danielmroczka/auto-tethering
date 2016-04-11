@@ -1,7 +1,7 @@
 package com.labs.dm.auto_tethering.db;
 
 /**
- * Created by daniel on 2015-11-07.
+ * Created by Daniel Mroczka on 2015-11-07.
  */
 public class SimCard {
 

@@ -17,18 +17,12 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.telephony.TelephonyManager;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.*;
+import android.widget.*;
 
-import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.ScheduleCheckBoxPreference;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
@@ -48,8 +42,6 @@ import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
 import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
 import static com.labs.dm.auto_tethering.AppProperties.SSID;
-import static com.labs.dm.auto_tethering.AppProperties.TIME_OFF;
-import static com.labs.dm.auto_tethering.AppProperties.TIME_ON;
 
 /**
  * Created by Daniel Mroczka
@@ -57,14 +49,15 @@ import static com.labs.dm.auto_tethering.AppProperties.TIME_ON;
 public class MainActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final int ON_CHANGE_SSID = 1;
+    private static final int ON_CHANGE_SCHEDULE = 2;
     private SharedPreferences prefs;
     private ServiceHelper serviceHelper;
     private DBManager db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         db = DBManager.getInstance(getApplicationContext());
+        super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
         serviceHelper = new ServiceHelper(getApplicationContext());
         loadPrefs();
@@ -91,31 +84,9 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 return true;
             }
         };
-        Preference.OnPreferenceChangeListener editTimeChangeListener = new Preference.OnPreferenceChangeListener() {
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                boolean res = Utils.validateTime((String) newValue);
-                if (res) {
-                    preference.setSummary((String) newValue);
-
-                    if (preference.getKey().equals(AppProperties.TIME_OFF)) {
-                        Cron cron = new Cron(-1, newValue.toString(), null, 0, 0);
-                        db.addOrUpdateCron(cron);
-                    }
-                    if (preference.getKey().equals(AppProperties.TIME_ON)) {
-                        Cron cron = new Cron(-1, null, newValue.toString(), 0, 0);
-                        db.addOrUpdateCron(cron);
-                    }
-                }
-                return res;
-            }
-        };
 
         PreferenceScreen editSSID = (PreferenceScreen) findPreference(SSID);
         editSSID.setOnPreferenceChangeListener(changeListener);
-        EditTextPreference editTimeOn = (EditTextPreference) findPreference(TIME_ON);
-        editTimeOn.setOnPreferenceChangeListener(editTimeChangeListener);
-        EditTextPreference editTimeOff = (EditTextPreference) findPreference(TIME_OFF);
-        editTimeOff.setOnPreferenceChangeListener(editTimeChangeListener);
 
         EditTextPreference tetheringIdleTime = (EditTextPreference) findPreference(IDLE_TETHERING_OFF_TIME);
         tetheringIdleTime.setOnPreferenceChangeListener(changeListener);
@@ -161,12 +132,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         }
 
-        Cron cron = db.getCron();
-        if (cron != null) {
-            editTimeOn.setSummary(cron.getTimeOn());
-            editTimeOff.setSummary(cron.getTimeOff());
-        }
-
         Preference p = findPreference(SSID);
         p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -176,23 +141,42 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
-        prepareSimCardWhiteList();
+
     }
 
     private void prepareSimCardWhiteList() {
-        PreferenceCategory p = (PreferenceCategory) findPreference("simcard.list");
+        PreferenceCategory pc = (PreferenceCategory) findPreference("simcard.list");
         List<SimCard> list = db.readSimCard();
-        for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
-            Object object = p.getPreference(idx);
+        for (int idx = 0; idx < pc.getPreferenceCount(); idx++) {
+            Object object = pc.getPreference(idx);
             if (object instanceof CheckBoxPreference) {
-                p.removePreference((CheckBoxPreference) object);
+                pc.removePreference((CheckBoxPreference) object);
             }
         }
         for (SimCard item : list) {
             Preference ps = new CheckBoxPreference(getApplicationContext());
             ps.setTitle(item.getNumber());
             ps.setSummary("SSN: " + item.getSsn());
+            pc.addPreference(ps);
+        }
+
+        PreferenceScreen ps = (PreferenceScreen) findPreference("add.current.simcard");
+        ps.setEnabled(true);
+    }
+
+    private void prepareScheduleList() {
+        final PreferenceCategory p = (PreferenceCategory) findPreference("scheduled.shutdown.list");
+        List<Cron> list = db.getCron();
+
+        p.removeAll();
+        for (final Cron cron : list) {
+            final ScheduleCheckBoxPreference ps = new ScheduleCheckBoxPreference(p, cron, getApplicationContext());
+            String title = String.format("%02d:%02d - %02d:%02d", cron.getHourOff(), cron.getMinOff(), +cron.getHourOn(), cron.getMinOn());
+            ps.setTitle(title);
+            ps.setSummary(Utils.maskToDays(cron.getMask()));
+            ps.setId(cron.getId());
             p.addPreference(ps);
+
         }
     }
 
@@ -205,6 +189,23 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         PreferenceScreen p = (PreferenceScreen) findPreference("add.current.simcard");
         p.setEnabled(!status);
         prepareSimCardWhiteList();
+    }
+
+    private void registerAddSchedule() {
+        PreferenceScreen p = (PreferenceScreen) findPreference("scheduler.add");
+        p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                PreferenceCategory cat = (PreferenceCategory) findPreference("scheduled.shutdown.list");
+                if (cat.getPreferenceCount() >= 10) {
+                    Toast.makeText(getApplicationContext(), "You cannot add more than 10 schedule items!", Toast.LENGTH_LONG).show();
+                    return false;
+                } else {
+                    startActivityForResult(new Intent(MainActivity.this, ScheduleActivity.class), ON_CHANGE_SCHEDULE);
+                    return true;
+                }
+            }
+        });
     }
 
     private void registerAddSimCardListener() {
@@ -302,8 +303,15 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     protected void onActivityResult(int reqCode, int resCode, Intent data) {
         if (reqCode == ON_CHANGE_SSID) {
-            Preference p = findPreference(SSID);
-            p.setSummary(serviceHelper.getTetheringSSID());
+            if (resCode == android.app.Activity.RESULT_OK) {
+                Preference p = findPreference(SSID);
+                p.setSummary(serviceHelper.getTetheringSSID());
+            }
+        }
+        if (reqCode == ON_CHANGE_SCHEDULE) {
+            if (resCode == android.app.Activity.RESULT_OK) {
+                prepareScheduleList();
+            }
         }
     }
 
@@ -313,8 +321,11 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         startService();
         prefs.edit().putString(SSID, serviceHelper.getTetheringSSID()).apply();
         loadPrefs();
-        displayPrompt();
+        displayPromptAtStartup();
         registerAddSimCardListener();
+        registerAddSchedule();
+        prepareSimCardWhiteList();
+        prepareScheduleList();
     }
 
     private void startService() {
@@ -335,34 +346,51 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         return false;
     }
 
-    private void displayPrompt() {
-        if (!prefs.getString(LATEST_VERSION, "").isEmpty()) {
-            return;
+    private void displayPromptAtStartup() {
+        int version = Integer.parseInt(prefs.getString(LATEST_VERSION, "0"));
+
+        if (version == 0) {
+            /** First start after installation **/
+            prefs.edit().putBoolean(ACTIVATE_3G, false).apply();
+            prefs.edit().putBoolean(ACTIVATE_TETHERING, false).apply();
+
+            new AlertDialog.Builder(this)
+
+                    .setTitle(R.string.warning)
+                    .setMessage(getString(R.string.initial_prompt))
+
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            prefs.edit().putBoolean(ACTIVATE_3G, true).apply();
+                            prefs.edit().putBoolean(ACTIVATE_TETHERING, true).apply();
+                        }
+                    })
+
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    }).show();
+            prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
+        } else if (version < BuildConfig.VERSION_CODE) {
+
+            /** First start after update **/
+            new AlertDialog.Builder(this)
+                    .setTitle("Release notes 0.0.24")
+                    .setMessage(getString(R.string.release_notes))
+                    .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    })
+                    .show();
+            prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
+        } else if (version == BuildConfig.VERSION_CODE) {
+            /** Another execution **/
         }
-
-        prefs.edit().putBoolean(ACTIVATE_3G, false).apply();
-        prefs.edit().putBoolean(ACTIVATE_TETHERING, false).apply();
-
-        new AlertDialog.Builder(this)
-
-                .setTitle(R.string.warning)
-                .setMessage(getString(R.string.initial_prompt))
-
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        prefs.edit().putBoolean(ACTIVATE_3G, true).apply();
-                        prefs.edit().putBoolean(ACTIVATE_TETHERING, true).apply();
-                    }
-                })
-
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                }).show();
-        prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
     }
 
     @Override
@@ -381,29 +409,39 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                             public void onClick(DialogInterface dialog, int which) {
                                 prefs.edit().clear().apply();
                                 db.reset();
+                                prepareSimCardWhiteList();
+                                prepareScheduleList();
                             }
                         })
                         .setNegativeButton(R.string.no, null).show();
                 return true;
             case R.id.action_exit:
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.warning)
-                        .setMessage(R.string.prompt_onexit)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                if (prefs.getBoolean(ACTIVATE_KEEP_SERVICE, true)) {
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.warning)
+                            .setMessage(R.string.prompt_onexit)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent serviceIntent = new Intent(MainActivity.this, TetheringService.class);
-                                stopService(serviceIntent);
-                                finish();
-                            }
-                        })
-                        .setNegativeButton(R.string.no, null).show();
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    exitApp();
+                                }
+                            })
+                            .setNegativeButton(R.string.no, null).show();
+                } else {
+                    exitApp();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void exitApp() {
+        Intent serviceIntent = new Intent(MainActivity.this, TetheringService.class);
+        stopService(serviceIntent);
+        finish();
     }
 
     @Override

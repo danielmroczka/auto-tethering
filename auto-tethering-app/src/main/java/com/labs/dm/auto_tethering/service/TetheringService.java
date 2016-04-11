@@ -19,10 +19,8 @@ import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
@@ -49,7 +47,7 @@ public class TetheringService extends IntentService {
 
     private static final String TAG = "AutoTetheringService";
     private final static int CHECK_DELAY = 5;
-    private Calendar timeOff, timeOn;
+    private List<Cron> crons;
     private SharedPreferences prefs;
     private long lastAccess = Calendar.getInstance().getTimeInMillis();
     private boolean initial3GStatus, initialTetheredStatus;
@@ -62,6 +60,7 @@ public class TetheringService extends IntentService {
 
     private boolean triggeredFromWidget;
     private Status status = Status.DEFAULT;
+
     public TetheringService() {
         super(TAG);
     }
@@ -186,11 +185,22 @@ public class TetheringService extends IntentService {
     private boolean isScheduledTimeOff() {
         Calendar now = Calendar.getInstance();
         onChangeProperties();
-        timeOn.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
-        timeOff.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
+        boolean state = false;
+        for (Cron cron : crons) {
+            Calendar timeOn = Calendar.getInstance();
+            timeOn.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH), cron.getHourOn(), cron.getMinOn(), 0);
 
-        return isSchedulerOn() && now.after(timeOff) && now.before(timeOn);
+            Calendar timeOff = Calendar.getInstance();
+            timeOff.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH), cron.getHourOff(), cron.getMinOff(), 0);
 
+            boolean matchedMask = (cron.getMask() & (int) Math.pow(2, Utils.adapterDayOfWeek(now.get(Calendar.DAY_OF_WEEK)))) > 0;
+
+            boolean active = cron.getStatus() == Cron.STATUS.SCHED_OFF_ENABLED.getValue();
+
+            state = state || (active && timeOff.getTimeInMillis() < now.getTimeInMillis() && now.getTimeInMillis() < timeOn.getTimeInMillis() && matchedMask);
+        }
+
+        return state;
     }
 
     /**
@@ -253,23 +263,7 @@ public class TetheringService extends IntentService {
     }
 
     private void onChangeProperties() {
-        DateFormat formatter = new SimpleDateFormat("HH:mm");
-
-        timeOff = Calendar.getInstance();
-        timeOn = Calendar.getInstance();
-        try {
-            Cron cron = DBManager.getInstance(getApplicationContext()).getCron();
-            if (cron != null) {
-                if (cron.getTimeOff() != null) {
-                    timeOff.setTime(formatter.parse(cron.getTimeOff()));
-                }
-                if (cron.getTimeOn() != null) {
-                    timeOn.setTime(formatter.parse(cron.getTimeOn()));
-                }
-            }
-        } catch (ParseException e) {
-            Log.e(TAG, e.getMessage());
-        }
+        crons = DBManager.getInstance(getApplicationContext()).getCron();
     }
 
     private boolean internetAsyncTask(boolean state) {
@@ -282,10 +276,6 @@ public class TetheringService extends IntentService {
 
     private boolean isActivatedTethering() {
         return prefs.getBoolean(ACTIVATE_TETHERING, false);
-    }
-
-    private boolean isSchedulerOn() {
-        return prefs.getBoolean(SCHEDULER, false);
     }
 
     private boolean isActivated3G() {

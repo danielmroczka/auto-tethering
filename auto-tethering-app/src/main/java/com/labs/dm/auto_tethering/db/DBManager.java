@@ -5,12 +5,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
- * Created by daniel on 2015-07-06.
+ * Created by Daniel Mroczka on 2015-07-06.
  */
 public class DBManager extends SQLiteOpenHelper {
 
@@ -20,15 +20,15 @@ public class DBManager extends SQLiteOpenHelper {
 
     private static DBManager instance;
 
-    public static DBManager getInstance(Context context) {
+    public static synchronized DBManager getInstance(Context context) {
         if (instance == null) {
-            instance = new DBManager(context);
+            instance = new DBManager(context.getApplicationContext());
         }
         return instance;
     }
 
     private DBManager(Context context, String name) {
-        super(context, name, null, 1);
+        super(context, name, null, 3);
         writableDatabase = getWritableDatabase();
         readableDatabase = getReadableDatabase();
     }
@@ -48,14 +48,52 @@ public class DBManager extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         // CREATE TABLE
         db.execSQL("create table SIMCARD(id INTEGER PRIMARY KEY, ssn VARCHAR(20), number VARCHAR(20), status INTEGER)");
-        db.execSQL("create table CRON(id INTEGER PRIMARY KEY, timeoff VARCHAR(5), timeon VARCHAR(5), mask INTEGER, status INTEGER)");
+        db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
-        db.execSQL("create unique index CRON_UNIQUE_IDX on cron(timeoff, timeon, mask)");
+        db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
+        Log.i("DBManager", "DB structure created");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        Log.i("DBManager", "onUpgrade old=" + oldVersion + ", new=" + newVersion);
+        if (oldVersion < 3) {
+            Cron backupCron = null;
+            Cursor cursor = null;
+            try {
+
+                cursor = db.query(Cron.NAME, null, null, null, null, null, null);
+                if (cursor.getCount() > 0) {
+                    cursor.moveToFirst();
+                    do {
+                        String timeOff = cursor.getString(1);
+                        String timeOn = cursor.getString(2);
+                        int hourOff = Integer.parseInt(timeOff.split(":")[0]);
+                        int minOff = Integer.parseInt(timeOff.split(":")[1]);
+                        int hourOn = Integer.parseInt(timeOn.split(":")[0]);
+                        int minOn = Integer.parseInt(timeOn.split(":")[1]);
+                        backupCron = new Cron(hourOff, minOff, hourOn, minOn, 127, Cron.STATUS.SCHED_OFF_ENABLED.getValue());
+                    }
+                    while (cursor.moveToNext());
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+
+            db.execSQL("drop table CRON");
+            db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
+            db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
+
+            if (backupCron != null) {
+                addOrUpdateCron(db, backupCron);
+            }
+
+            Log.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
+
+        }
     }
 
     public List<SimCard> readSimCard() {
@@ -106,46 +144,64 @@ public class DBManager extends SQLiteOpenHelper {
         return writableDatabase.delete(SimCard.NAME, "ssn='" + ssn + "'", null);
     }
 
-    public Cron getCron() {
-        Cron cron = null;
-
+    public List<Cron> getCron() {
+        List<Cron> list = new ArrayList<>();
         Cursor cursor = null;
         try {
             cursor = readableDatabase.query(Cron.NAME, null, null, null, null, null, null);
-
-            if (cursor.getCount() > 0) {
+            if (cursor.getCount() > 0 && cursor.getColumnCount() >= 7) {
                 cursor.moveToFirst();
-                cron = new Cron(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getInt(3), cursor.getInt(4));
+                do {
+                    Cron cron = new Cron(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getInt(5), cursor.getInt(6));
+                    cron.setId(cursor.getInt(0));
+                    list.add(cron);
+                }
+                while (cursor.moveToNext());
             }
         } finally {
             if (cursor != null) {
                 cursor.close();
             }
         }
-        return cron;
 
+        Collections.sort(list, new Comparator<Cron>() {
+            @Override
+            public int compare(Cron lhs, Cron rhs) {
+                int diffOff = 60 * (lhs.getHourOff() - rhs.getHourOff()) + (lhs.getMinOff() - rhs.getMinOff());
+                int diffOn = 60 * (lhs.getHourOn() - rhs.getHourOn()) + (lhs.getMinOn() - rhs.getMinOn());
+                return diffOff > 0 ? diffOff : diffOn;
+            }
+        });
+        return list;
     }
 
     public int removeCron(final int id) {
         return writableDatabase.delete(Cron.NAME, "id=" + String.valueOf(id), null);
     }
 
-    public long addOrUpdateCron(Cron cron) {
+    public long addOrUpdateCron(SQLiteDatabase db, Cron cron) {
         ContentValues content = new ContentValues();
-        if (cron.getTimeOff() != null) {
-            content.put("timeOff", cron.getTimeOff());
-        }
-        if (cron.getTimeOn() != null) {
-            content.put("timeOn", cron.getTimeOn());
-        }
+        content.put("hourOff", cron.getHourOff());
+        content.put("minOff", cron.getMinOff());
+        content.put("hourOn", cron.getHourOn());
+        content.put("minOn", cron.getMinOn());
+        content.put("mask", cron.getMask());
+        content.put("status", cron.getStatus());
 
-        Cron c = getCron();
-
-        if (c != null) {
-            return writableDatabase.update(Cron.NAME, content, "id=?", new String[]{String.valueOf(c.getId())});
+        if (cron.getId() > 0) {
+            return db.update(Cron.NAME, content, "id=" + cron.getId(), null);
         } else {
-            return writableDatabase.insert(Cron.NAME, null, content);
+            return db.insert(Cron.NAME, null, content);
         }
+    }
+
+    public Date getNextSchedule() {
+        List<Cron> crons = getCron();
+        return new Date();
+    }
+
+    public long addOrUpdateCron(Cron cron) {
+        return addOrUpdateCron(writableDatabase, cron);
     }
 
     public void reset() {

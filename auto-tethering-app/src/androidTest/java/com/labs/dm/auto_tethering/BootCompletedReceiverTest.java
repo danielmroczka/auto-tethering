@@ -9,7 +9,7 @@ import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import static org.mockito.Mockito.mock;
 
 /**
- * Created by daniel on 2015-10-08.
+ * Created by Daniel Mroczka on 2015-10-08.
  */
 public class BootCompletedReceiverTest extends AndroidTestCase {
     private BootCompletedReceiver receiver;

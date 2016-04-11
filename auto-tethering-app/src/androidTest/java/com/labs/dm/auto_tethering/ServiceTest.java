@@ -7,7 +7,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
 /**
- * Created by daniel on 2015-10-07.
+ * Created by Daniel Mroczka on 2015-10-07.
  */
 public class ServiceTest extends ServiceTestCase<TetheringService> {
 

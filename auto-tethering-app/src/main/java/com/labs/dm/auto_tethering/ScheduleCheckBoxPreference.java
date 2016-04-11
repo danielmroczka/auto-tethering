@@ -1,0 +1,79 @@
+package com.labs.dm.auto_tethering;
+
+import android.content.Context;
+import android.preference.Preference;
+import android.preference.PreferenceCategory;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+
+import com.labs.dm.auto_tethering.db.Cron;
+import com.labs.dm.auto_tethering.db.DBManager;
+
+/**
+ * Created by Daniel Mroczka on 2016-04-04.
+ */
+public class ScheduleCheckBoxPreference extends Preference {
+    private DBManager db;
+    private final PreferenceCategory parent;
+    private Cron cron;
+    private int id;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public ScheduleCheckBoxPreference(PreferenceCategory parent, Cron cron, Context context) {
+        super(context);
+        this.cron = cron;
+        this.parent = parent;
+        db = DBManager.getInstance(getContext());
+    }
+
+    @Override
+    protected void onBindView(View view) {
+        super.onBindView(view);
+        final ImageButton btnToogle = (ImageButton) view.findViewById(R.id.btnToggle);
+        final ImageButton btnRemove = (ImageButton) view.findViewById(R.id.btnScheduleDelete);
+        if (cron.getStatus() == Cron.STATUS.SCHED_OFF_DISABLED.getValue()) {
+            btnToogle.setSelected(false);
+        } else if (cron.getStatus() == Cron.STATUS.SCHED_OFF_ENABLED.getValue()) {
+            btnToogle.setSelected(true);
+        }
+
+        btnToogle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                btnToogle.setSelected(!btnToogle.isSelected());
+                if (cron.getStatus() == Cron.STATUS.SCHED_OFF_ENABLED.getValue()) {
+                    cron.setStatus(Cron.STATUS.SCHED_OFF_DISABLED.getValue());
+                } else if (cron.getStatus() == Cron.STATUS.SCHED_OFF_DISABLED.getValue()) {
+                    cron.setStatus(Cron.STATUS.SCHED_OFF_ENABLED.getValue());
+                }
+                db.addOrUpdateCron(cron);
+            }
+        });
+
+        btnRemove.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (db.removeCron(cron.getId()) > 0) {
+                    parent.removePreference(ScheduleCheckBoxPreference.this);
+                }
+            }
+        });
+    }
+
+    @Override
+    protected View onCreateView(ViewGroup parent) {
+        super.onCreateView(parent);
+        LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        return li.inflate(R.layout.add_schedule_item, parent, false);
+    }
+}
