@@ -28,7 +28,7 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
     private DBManager(Context context, String name) {
-        super(context, name, null, 2);
+        super(context, name, null, 3);
         writableDatabase = getWritableDatabase();
         readableDatabase = getReadableDatabase();
     }
@@ -51,12 +51,12 @@ public class DBManager extends SQLiteOpenHelper {
         db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
-        // db.execSQL("create unique index CRON_UNIQUE_IDX on cron(timeoff, timeon, mask)");
+        db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask, status)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 2) {
+        if (oldVersion < 3) {
             Cron backupCron = null;
             Cursor cursor = null;
             try {

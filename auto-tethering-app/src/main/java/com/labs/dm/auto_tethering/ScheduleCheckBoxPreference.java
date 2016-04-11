@@ -63,8 +63,9 @@ public class ScheduleCheckBoxPreference extends Preference {
 
             @Override
             public void onClick(View v) {
-                db.removeCron(cron.getId());
-                parent.removePreference(ScheduleCheckBoxPreference.this);
+                if (db.removeCron(cron.getId()) > 0) {
+                    parent.removePreference(ScheduleCheckBoxPreference.this);
+                }
             }
         });
     }

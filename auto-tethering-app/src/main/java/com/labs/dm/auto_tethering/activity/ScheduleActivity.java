@@ -7,6 +7,7 @@ import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TimePicker;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.labs.dm.auto_tethering.R;
@@ -63,6 +64,8 @@ public class ScheduleActivity extends Activity {
         }
 
         Cron cron = new Cron(timeOff.getCurrentHour(), timeOff.getCurrentMinute(), timeOn.getCurrentHour(), timeOn.getCurrentMinute(), mask, Cron.STATUS.SCHED_OFF_ENABLED.getValue());
-        db.addOrUpdateCron(cron);
+        if (db.addOrUpdateCron(cron) <= 0) {
+            Toast.makeText(getApplicationContext(), "Cannot add the same schedule items more than once!", Toast.LENGTH_LONG).show();
+        }
     }
 }
