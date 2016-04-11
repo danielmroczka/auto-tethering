@@ -150,13 +150,12 @@ public class DBManager extends SQLiteOpenHelper {
         Cursor cursor = null;
         try {
             cursor = readableDatabase.query(Cron.NAME, null, null, null, null, null, null);
-            if (cursor.getCount() > 0) {
+            if (cursor.getCount() > 0 && cursor.getColumnCount() >= 7) {
                 cursor.moveToFirst();
                 do {
                     Cron cron = new Cron(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getInt(5), cursor.getInt(6));
                     cron.setId(cursor.getInt(0));
                     list.add(cron);
-
                 }
                 while (cursor.moveToNext());
             }
