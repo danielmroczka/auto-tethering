@@ -21,9 +21,9 @@ public class DBManager extends SQLiteOpenHelper {
 
     private static DBManager instance;
 
-    public static DBManager getInstance(Context context) {
+    public static synchronized DBManager getInstance(Context context) {
         if (instance == null) {
-            instance = new DBManager(context);
+            instance = new DBManager(context.getApplicationContext());
         }
         return instance;
     }
@@ -93,6 +93,7 @@ public class DBManager extends SQLiteOpenHelper {
             }
 
             Log.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
+
         }
     }
 

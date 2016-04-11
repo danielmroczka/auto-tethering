@@ -143,12 +143,12 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
-        prepareSimCardWhiteList();
-        prepareScheduleList();
+
     }
 
     private void prepareSimCardWhiteList() {
         PreferenceCategory p = (PreferenceCategory) findPreference("simcard.list");
+        //p.removeAll();
         List<SimCard> list = db.readSimCard();
         for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
             Object object = p.getPreference(idx);
@@ -325,6 +325,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         displayPrompt();
         registerAddSimCardListener();
         registerAddSchedule();
+        prepareSimCardWhiteList();
+        prepareScheduleList();
     }
 
     private void startService() {
