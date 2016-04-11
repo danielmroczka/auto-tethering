@@ -322,7 +322,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         startService();
         prefs.edit().putString(SSID, serviceHelper.getTetheringSSID()).apply();
         loadPrefs();
-        displayPrompt();
+        displayPromptAtStartup();
         registerAddSimCardListener();
         registerAddSchedule();
         prepareSimCardWhiteList();
@@ -347,34 +347,51 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         return false;
     }
 
-    private void displayPrompt() {
-        if (!prefs.getString(LATEST_VERSION, "").isEmpty()) {
-            return;
+    private void displayPromptAtStartup() {
+        int version = Integer.parseInt(prefs.getString(LATEST_VERSION, "0"));
+
+        if (version == 0) {
+            /** First start after installation **/
+            prefs.edit().putBoolean(ACTIVATE_3G, false).apply();
+            prefs.edit().putBoolean(ACTIVATE_TETHERING, false).apply();
+
+            new AlertDialog.Builder(this)
+
+                    .setTitle(R.string.warning)
+                    .setMessage(getString(R.string.initial_prompt))
+
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            prefs.edit().putBoolean(ACTIVATE_3G, true).apply();
+                            prefs.edit().putBoolean(ACTIVATE_TETHERING, true).apply();
+                        }
+                    })
+
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    }).show();
+            prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
+        } else if (version < BuildConfig.VERSION_CODE) {
+
+        /** First start after update **/
+            new AlertDialog.Builder(this)
+                    .setTitle("Release notes 0.0.24")
+                    .setMessage(getString(R.string.release_notes))
+                    .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    })
+                    .show();
+            prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
+        } else if (version == BuildConfig.VERSION_CODE) {
+        /** Another execution **/
         }
-
-        prefs.edit().putBoolean(ACTIVATE_3G, false).apply();
-        prefs.edit().putBoolean(ACTIVATE_TETHERING, false).apply();
-
-        new AlertDialog.Builder(this)
-
-                .setTitle(R.string.warning)
-                .setMessage(getString(R.string.initial_prompt))
-
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        prefs.edit().putBoolean(ACTIVATE_3G, true).apply();
-                        prefs.edit().putBoolean(ACTIVATE_TETHERING, true).apply();
-                    }
-                })
-
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                }).show();
-        prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
     }
 
     @Override

@@ -18,7 +18,7 @@
             android:icon="@drawable/ic_service"
             android:key="activate.keep.service"
             android:summary="@string/activate.keep.service.summary"
-            android:title="@string/activate.keep.serive.title" />
+            android:title="@string/activate.keep.service.title" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:icon="@drawable/ic_signal"
