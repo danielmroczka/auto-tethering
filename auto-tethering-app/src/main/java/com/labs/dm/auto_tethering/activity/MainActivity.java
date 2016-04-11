@@ -147,21 +147,23 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void prepareSimCardWhiteList() {
-        PreferenceCategory p = (PreferenceCategory) findPreference("simcard.list");
-        //p.removeAll();
+        PreferenceCategory pc = (PreferenceCategory) findPreference("simcard.list");
         List<SimCard> list = db.readSimCard();
-        for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
-            Object object = p.getPreference(idx);
+        for (int idx = 0; idx < pc.getPreferenceCount(); idx++) {
+            Object object = pc.getPreference(idx);
             if (object instanceof CheckBoxPreference) {
-                p.removePreference((CheckBoxPreference) object);
+                pc.removePreference((CheckBoxPreference) object);
             }
         }
         for (SimCard item : list) {
             Preference ps = new CheckBoxPreference(getApplicationContext());
             ps.setTitle(item.getNumber());
             ps.setSummary("SSN: " + item.getSsn());
-            p.addPreference(ps);
+            pc.addPreference(ps);
         }
+
+        PreferenceScreen ps = (PreferenceScreen) findPreference("add.current.simcard");
+        ps.setEnabled(true);
     }
 
     private void prepareScheduleList() {
@@ -410,6 +412,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                             public void onClick(DialogInterface dialog, int which) {
                                 prefs.edit().clear().apply();
                                 db.reset();
+                                prepareSimCardWhiteList();
+                                prepareScheduleList();
                             }
                         })
                         .setNegativeButton(R.string.no, null).show();
