@@ -81,14 +81,10 @@ public class DBManager extends SQLiteOpenHelper {
                 }
             }
 
-            //TODO add copy old value
-            db.execSQL("drop index CRON_UNIQUE_IDX");
-            db.execSQL("drop table CRON");
-            db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
+            onCreate(db);
             if (backupCron != null) {
                 addOrUpdateCron(db, backupCron);
             }
-            //db.execSQL("create unique index CRON_UNIQUE_IDX on cron(timeoff, timeon, mask)");
         }
     }
 
