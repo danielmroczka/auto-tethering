@@ -51,7 +51,7 @@ public class DBManager extends SQLiteOpenHelper {
         db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
-        db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask, status)");
+        db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
     }
 
     @Override
@@ -81,7 +81,10 @@ public class DBManager extends SQLiteOpenHelper {
                 }
             }
 
-            onCreate(db);
+            db.execSQL("drop table CRON");
+            db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
+            db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
+
             if (backupCron != null) {
                 addOrUpdateCron(db, backupCron);
             }
