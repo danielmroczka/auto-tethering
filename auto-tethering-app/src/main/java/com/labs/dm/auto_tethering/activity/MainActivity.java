@@ -30,8 +30,6 @@ import com.labs.dm.auto_tethering.db.SimCard;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -169,14 +167,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     private void prepareScheduleList() {
         final PreferenceCategory p = (PreferenceCategory) findPreference("scheduled.shutdown.list");
         List<Cron> list = db.getCron();
-        Collections.sort(list, new Comparator<Cron>() {
-            @Override
-            public int compare(Cron lhs, Cron rhs) {
-                int diffOff = 60 * (lhs.getHourOff() - rhs.getHourOff()) + (lhs.getMinOff() - rhs.getMinOff());
-                int diffOn = 60 * (lhs.getHourOn() - rhs.getHourOn()) + (lhs.getMinOn() - rhs.getMinOn());
-                return diffOff > 0 ? diffOff : diffOn;
-            }
-        });
+
         p.removeAll();
         for (final Cron cron : list) {
             final ScheduleCheckBoxPreference ps = new ScheduleCheckBoxPreference(p, cron, getApplicationContext());
@@ -205,8 +196,14 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                startActivityForResult(new Intent(MainActivity.this, ScheduleActivity.class), ON_CHANGE_SCHEDULE);
-                return true;
+                PreferenceCategory cat = (PreferenceCategory) findPreference("scheduled.shutdown.list");
+                if (cat.getPreferenceCount() >= 10) {
+                    Toast.makeText(getApplicationContext(), "You cannot add more than 10 schedule items!", Toast.LENGTH_LONG).show();
+                    return false;
+                } else {
+                    startActivityForResult(new Intent(MainActivity.this, ScheduleActivity.class), ON_CHANGE_SCHEDULE);
+                    return true;
+                }
             }
         });
     }
@@ -379,7 +376,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
         } else if (version < BuildConfig.VERSION_CODE) {
 
-        /** First start after update **/
+            /** First start after update **/
             new AlertDialog.Builder(this)
                     .setTitle("Release notes 0.0.24")
                     .setMessage(getString(R.string.release_notes))
@@ -392,7 +389,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     .show();
             prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
         } else if (version == BuildConfig.VERSION_CODE) {
-        /** Another execution **/
+            /** Another execution **/
         }
     }
 

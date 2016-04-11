@@ -7,8 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Daniel Mroczka on 2015-07-06.
@@ -164,8 +163,16 @@ public class DBManager extends SQLiteOpenHelper {
                 cursor.close();
             }
         }
-        return list;
 
+        Collections.sort(list, new Comparator<Cron>() {
+            @Override
+            public int compare(Cron lhs, Cron rhs) {
+                int diffOff = 60 * (lhs.getHourOff() - rhs.getHourOff()) + (lhs.getMinOff() - rhs.getMinOff());
+                int diffOn = 60 * (lhs.getHourOn() - rhs.getHourOn()) + (lhs.getMinOn() - rhs.getMinOn());
+                return diffOff > 0 ? diffOff : diffOn;
+            }
+        });
+        return list;
     }
 
     public int removeCron(final int id) {
@@ -186,6 +193,11 @@ public class DBManager extends SQLiteOpenHelper {
         } else {
             return db.insert(Cron.NAME, null, content);
         }
+    }
+
+    public Date getNextSchedule() {
+        List<Cron> crons = getCron();
+        return new Date();
     }
 
     public long addOrUpdateCron(Cron cron) {
