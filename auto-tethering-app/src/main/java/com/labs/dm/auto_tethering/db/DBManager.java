@@ -53,12 +53,12 @@ public class DBManager extends SQLiteOpenHelper {
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
         db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
-        Log.w("DBManager", "DB structure created");
+        Log.i("DBManager", "DB structure created");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.w("DBManager", "onUpgrade old=" + oldVersion + ", new=" + newVersion);
+        Log.i("DBManager", "onUpgrade old=" + oldVersion + ", new=" + newVersion);
         if (oldVersion < 3) {
             Cron backupCron = null;
             Cursor cursor = null;
@@ -92,7 +92,7 @@ public class DBManager extends SQLiteOpenHelper {
                 addOrUpdateCron(db, backupCron);
             }
 
-            Log.w("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
+            Log.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
         }
     }
 

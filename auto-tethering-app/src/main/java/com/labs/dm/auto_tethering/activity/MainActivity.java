@@ -58,8 +58,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         db = DBManager.getInstance(getApplicationContext());
+        super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
         serviceHelper = new ServiceHelper(getApplicationContext());
         loadPrefs();
