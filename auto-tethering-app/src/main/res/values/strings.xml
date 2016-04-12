@@ -54,6 +54,9 @@
     <string name="roaming.service.disabled">Service disabled due to roaming network</string>
     <string name="activate.keep.service.title">Run service in background</string>
     <string name="activate.keep.service.summary">Keep service running after start tethering</string>
-    <string name="release_notes">[x] Refactoring of scheduler - now you can configure multiple time scheduler repeated weekly for configured days of the week\n    PLEASE REVIEW AND UPDATE YOUR SCHEDULER SETTINGS\n\n[x] Application works as a service depends on configuration (default = yes)</string>
+    <string name="release_notes">[x] Refactoring of scheduler - now you can configure multiple time scheduler repeated
+        weekly for configured days of the week\n PLEASE REVIEW AND UPDATE YOUR SCHEDULER SETTINGS\n\n[x] Application
+        works as a service depends on configuration (default = yes)\n\n[x]Hotfix for upgrading data structure
+    </string>
 </resources>
 

@@ -17,6 +17,7 @@ public class DBManager extends SQLiteOpenHelper {
     private final SQLiteDatabase writableDatabase;
     private final SQLiteDatabase readableDatabase;
     public final static String DB_NAME = "autowifi.db";
+    private static int DB_VERSION = 4;
 
     private static DBManager instance;
 
@@ -28,7 +29,7 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
     private DBManager(Context context, String name) {
-        super(context, name, null, 3);
+        super(context, name, null, DB_VERSION);
         writableDatabase = getWritableDatabase();
         readableDatabase = getReadableDatabase();
     }
