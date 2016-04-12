@@ -17,8 +17,14 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.telephony.TelephonyManager;
-import android.view.*;
-import android.widget.*;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
@@ -174,7 +180,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             String title = String.format("%02d:%02d - %02d:%02d", cron.getHourOff(), cron.getMinOff(), +cron.getHourOn(), cron.getMinOn());
             ps.setTitle(title);
             ps.setSummary(Utils.maskToDays(cron.getMask()));
-            ps.setId(cron.getId());
             p.addPreference(ps);
 
         }
@@ -200,10 +205,9 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 if (cat.getPreferenceCount() >= 10) {
                     Toast.makeText(getApplicationContext(), "You cannot add more than 10 schedule items!", Toast.LENGTH_LONG).show();
                     return false;
-                } else {
-                    startActivityForResult(new Intent(MainActivity.this, ScheduleActivity.class), ON_CHANGE_SCHEDULE);
-                    return true;
                 }
+                startActivityForResult(new Intent(MainActivity.this, ScheduleActivity.class), ON_CHANGE_SCHEDULE);
+                return true;
             }
         });
     }
@@ -355,10 +359,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             prefs.edit().putBoolean(ACTIVATE_TETHERING, false).apply();
 
             new AlertDialog.Builder(this)
-
                     .setTitle(R.string.warning)
                     .setMessage(getString(R.string.initial_prompt))
-
                     .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -366,13 +368,13 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                             prefs.edit().putBoolean(ACTIVATE_TETHERING, true).apply();
                         }
                     })
-
                     .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 
                         }
-                    }).show();
+                    })
+                    .show();
             prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
         } else if (version < BuildConfig.VERSION_CODE) {
 
