@@ -17,6 +17,7 @@ public class DBManager extends SQLiteOpenHelper {
     private final SQLiteDatabase writableDatabase;
     private final SQLiteDatabase readableDatabase;
     public final static String DB_NAME = "autowifi.db";
+    private static int DB_VERSION = 4;
 
     private static DBManager instance;
 
@@ -28,7 +29,7 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
     private DBManager(Context context, String name) {
-        super(context, name, null, 3);
+        super(context, name, null, DB_VERSION);
         writableDatabase = getWritableDatabase();
         readableDatabase = getReadableDatabase();
     }
@@ -58,41 +59,11 @@ public class DBManager extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.i("DBManager", "onUpgrade old=" + oldVersion + ", new=" + newVersion);
-        if (oldVersion < 3) {
-            Cron backupCron = null;
-            Cursor cursor = null;
-            try {
-
-                cursor = db.query(Cron.NAME, null, null, null, null, null, null);
-                if (cursor.getCount() > 0) {
-                    cursor.moveToFirst();
-                    do {
-                        String timeOff = cursor.getString(1);
-                        String timeOn = cursor.getString(2);
-                        int hourOff = Integer.parseInt(timeOff.split(":")[0]);
-                        int minOff = Integer.parseInt(timeOff.split(":")[1]);
-                        int hourOn = Integer.parseInt(timeOn.split(":")[0]);
-                        int minOn = Integer.parseInt(timeOn.split(":")[1]);
-                        backupCron = new Cron(hourOff, minOff, hourOn, minOn, 127, Cron.STATUS.SCHED_OFF_ENABLED.getValue());
-                    }
-                    while (cursor.moveToNext());
-                }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
-            }
-
-            db.execSQL("drop table CRON");
+        if (oldVersion < 4) {
+            db.execSQL("drop table IF EXISTS CRON");
             db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
             db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
-
-            if (backupCron != null) {
-                addOrUpdateCron(db, backupCron);
-            }
-
             Log.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
-
         }
     }
 
@@ -149,7 +120,7 @@ public class DBManager extends SQLiteOpenHelper {
         Cursor cursor = null;
         try {
             cursor = readableDatabase.query(Cron.NAME, null, null, null, null, null, null);
-            if (cursor.getCount() > 0 && cursor.getColumnCount() >= 7) {
+            if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {
                     Cron cron = new Cron(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getInt(5), cursor.getInt(6));

@@ -74,4 +74,12 @@ public class Cron {
     public void setStatus(int status) {
         this.status = status;
     }
+
+    public void toggle() {
+        if (getStatus() == STATUS.SCHED_OFF_ENABLED.getValue()) {
+            setStatus(STATUS.SCHED_OFF_DISABLED.getValue());
+        } else if (getStatus() == STATUS.SCHED_OFF_DISABLED.getValue()) {
+            setStatus(STATUS.SCHED_OFF_ENABLED.getValue());
+        }
+    }
 }

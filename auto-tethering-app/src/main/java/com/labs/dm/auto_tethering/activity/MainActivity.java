@@ -2,24 +2,15 @@ package com.labs.dm.auto_tethering.activity;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
+import android.preference.*;
 import android.telephony.TelephonyManager;
 import android.view.*;
-import android.widget.*;
-
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.ScheduleCheckBoxPreference;
@@ -33,15 +24,7 @@ import com.labs.dm.auto_tethering.service.TetheringService;
 import java.util.List;
 import java.util.Map;
 
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
-import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
-import static com.labs.dm.auto_tethering.AppProperties.SSID;
+import static com.labs.dm.auto_tethering.AppProperties.*;
 
 /**
  * Created by Daniel Mroczka
@@ -174,7 +157,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             String title = String.format("%02d:%02d - %02d:%02d", cron.getHourOff(), cron.getMinOff(), +cron.getHourOn(), cron.getMinOn());
             ps.setTitle(title);
             ps.setSummary(Utils.maskToDays(cron.getMask()));
-            ps.setId(cron.getId());
             p.addPreference(ps);
 
         }
@@ -200,10 +182,9 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 if (cat.getPreferenceCount() >= 10) {
                     Toast.makeText(getApplicationContext(), "You cannot add more than 10 schedule items!", Toast.LENGTH_LONG).show();
                     return false;
-                } else {
-                    startActivityForResult(new Intent(MainActivity.this, ScheduleActivity.class), ON_CHANGE_SCHEDULE);
-                    return true;
                 }
+                startActivityForResult(new Intent(MainActivity.this, ScheduleActivity.class), ON_CHANGE_SCHEDULE);
+                return true;
             }
         });
     }
@@ -355,10 +336,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             prefs.edit().putBoolean(ACTIVATE_TETHERING, false).apply();
 
             new AlertDialog.Builder(this)
-
                     .setTitle(R.string.warning)
                     .setMessage(getString(R.string.initial_prompt))
-
                     .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -366,19 +345,19 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                             prefs.edit().putBoolean(ACTIVATE_TETHERING, true).apply();
                         }
                     })
-
                     .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 
                         }
-                    }).show();
+                    })
+                    .show();
             prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
         } else if (version < BuildConfig.VERSION_CODE) {
 
             /** First start after update **/
             new AlertDialog.Builder(this)
-                    .setTitle("Release notes 0.0.24")
+                    .setTitle("Release notes 0.0.26")
                     .setMessage(getString(R.string.release_notes))
                     .setPositiveButton("Close", new DialogInterface.OnClickListener() {
                         @Override

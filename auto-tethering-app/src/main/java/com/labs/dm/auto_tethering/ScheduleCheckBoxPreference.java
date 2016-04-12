@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
@@ -15,18 +16,9 @@ import com.labs.dm.auto_tethering.db.DBManager;
  * Created by Daniel Mroczka on 2016-04-04.
  */
 public class ScheduleCheckBoxPreference extends Preference {
-    private DBManager db;
+    private final DBManager db;
     private final PreferenceCategory parent;
-    private Cron cron;
-    private int id;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
+    private final Cron cron;
 
     public ScheduleCheckBoxPreference(PreferenceCategory parent, Cron cron, Context context) {
         super(context);
@@ -40,6 +32,8 @@ public class ScheduleCheckBoxPreference extends Preference {
         super.onBindView(view);
         final ImageButton btnToogle = (ImageButton) view.findViewById(R.id.btnToggle);
         final ImageButton btnRemove = (ImageButton) view.findViewById(R.id.btnScheduleDelete);
+        final LinearLayout middleLayout = (LinearLayout) view.findViewById(R.id.middleLayout);
+
         if (cron.getStatus() == Cron.STATUS.SCHED_OFF_DISABLED.getValue()) {
             btnToogle.setSelected(false);
         } else if (cron.getStatus() == Cron.STATUS.SCHED_OFF_ENABLED.getValue()) {
@@ -50,11 +44,7 @@ public class ScheduleCheckBoxPreference extends Preference {
             @Override
             public void onClick(View view) {
                 btnToogle.setSelected(!btnToogle.isSelected());
-                if (cron.getStatus() == Cron.STATUS.SCHED_OFF_ENABLED.getValue()) {
-                    cron.setStatus(Cron.STATUS.SCHED_OFF_DISABLED.getValue());
-                } else if (cron.getStatus() == Cron.STATUS.SCHED_OFF_DISABLED.getValue()) {
-                    cron.setStatus(Cron.STATUS.SCHED_OFF_ENABLED.getValue());
-                }
+                cron.toggle();
                 db.addOrUpdateCron(cron);
             }
         });
