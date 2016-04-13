@@ -24,20 +24,20 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TimePicker
-            android:id="@+id/timeOff"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp"
-            android:timePickerMode="spinner" />
+                android:id="@+id/scheduleTimeOff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp"
+                android:timePickerMode="spinner" />
 
         <TextView
-            android:id="@+id/scheduleTimeOff"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/scheduled_switch_on"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/scheduled_switch_on"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TimePicker
             android:id="@+id/scheduleTimeOn"

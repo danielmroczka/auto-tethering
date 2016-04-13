@@ -1,108 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.labs.dm.auto_tethering">
+          package="com.labs.dm.auto_tethering">
 
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <uses-feature
-        android:name="android.hardware.telephony"
-        android:required="true" />
+            android:name="android.hardware.telephony"
+            android:required="true"/>
     <uses-feature
-        android:name="android.hardware.wifi"
-        android:required="true" />
+            android:name="android.hardware.wifi"
+            android:required="true"/>
 
     <application
-        android:allowBackup="true"
-        android:icon="@drawable/app"
-        android:label="@string/app_name"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity
-            android:name=".activity.MainActivity"
+            android:icon="@drawable/app"
             android:label="@string/app_name"
-            android:noHistory="false"
-            android:windowSoftInputMode="adjustPan">
+            android:supportsRtl="true"
+            android:theme="@style/AppTheme">
+        <!-- Activities -->
+        <activity
+                android:name=".activity.MainActivity"
+                android:label="@string/app_name"
+                android:noHistory="false"
+                android:windowSoftInputMode="adjustPan">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.AboutActivity"
-            android:label="@string/app_name"
-            android:parentActivityName=".activity.MainActivity">
+                android:name=".activity.AboutActivity"
+                android:label="@string/app_name"
+                android:parentActivityName=".activity.MainActivity">
             <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activity.MainActivity" />
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".activity.MainActivity"/>
         </activity>
         <activity
-            android:name=".activity.ConfigurationActivity"
-            android:label="Configuration">
+                android:name=".activity.ConfigurationActivity"
+                android:label="Configuration">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
         </activity>
+        <activity
+                android:name=".activity.ScheduleActivity"
+                android:parentActivityName=".activity.MainActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".activity.MainActivity"/>
+        </activity>
+        <activity
+                android:name=".activity.SimCardListActivity"
+                android:label="@string/title_activity_sim_card_list"
+                android:parentActivityName=".activity.MainActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".activity.MainActivity"/>
+        </activity>
+        <!-- Receivers -->
+
+        <receiver
+                android:name=".receiver.BootCompletedReceiver"
+                android:enabled="true"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver
+                android:name=".receiver.TetheringStateReceiver"
+                android:enabled="true"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.net.wifi.WIFI_AP_STATE_CHANGED"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver
+                android:name=".receiver.TetheringWidgetProvider"
+                android:label="Auto tethering">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+
+            <meta-data
+                    android:name="android.appwidget.provider"
+                    android:resource="@xml/widget"/>
+        </receiver>
+
+        <!-- Services -->
+        <service
+                android:name=".service.TetheringService"
+                android:enabled="true"
+                android:exported="true"/>
 
         <service
-            android:name=".service.TetheringService"
-            android:enabled="true"
-            android:exported="true" />
+                android:name=".service.WidgetService"
+                android:exported="false"/>
 
-        <receiver
-            android:name=".receiver.BootCompletedReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-        <receiver
-            android:name=".receiver.TetheringStateReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.net.wifi.WIFI_AP_STATE_CHANGED" />
-            </intent-filter>
-        </receiver>
-
-        <activity
-            android:name=".activity.SimCardListActivity"
-            android:label="@string/title_activity_sim_card_list"
-            android:parentActivityName=".activity.MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.labs.dm.auto_tethering.activity.MainActivity" />
-        </activity>
-
-        <receiver
-            android:name=".receiver.TetheringWidgetProvider"
-            android:label="Auto tethering">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget" />
-        </receiver>
-
-        <service
-            android:name=".service.WidgetService"
-            android:exported="false" />
-
-        <activity
-            android:name=".activity.ScheduleActivity"
-            android:parentActivityName=".activity.MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activity.MainActivity" />
-        </activity>
     </application>
-
 </manifest>
