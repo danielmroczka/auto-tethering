@@ -30,16 +30,10 @@ public class ScheduleActivity extends Activity {
         timeOn = (TimePicker) findViewById(R.id.scheduleTimeOn);
         timeOff.setIs24HourView(DateFormat.is24HourFormat(this));
         timeOn.setIs24HourView(DateFormat.is24HourFormat(this));
+        readData();
 
-        Intent intent = getIntent();
-        if (intent.getIntExtra("cronId", 0) > 0) {
-            Cron cron = db.getCron(intent.getIntExtra("cronId", 0));
-            id = cron.getId();
-            readData(cron);
-        }
-
-        Button cancel = (Button) findViewById(R.id.btnCancel);
-        cancel.setOnClickListener(new View.OnClickListener() {
+        Button btnCancel = (Button) findViewById(R.id.btnCancel);
+        btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setResult(Activity.RESULT_CANCELED);
@@ -47,30 +41,32 @@ public class ScheduleActivity extends Activity {
             }
         });
 
-        Button ok = (Button) findViewById(R.id.btnOk);
-        ok.setOnClickListener(new View.OnClickListener() {
+        Button btnOk = (Button) findViewById(R.id.btnOk);
+        btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (insertSchedule()) {
-                    Intent intent = new Intent();
-                    setResult(RESULT_OK, intent);
+                    setResult(RESULT_OK, new Intent());
                     finish();
                 }
             }
         });
-
-
     }
 
-    private void readData(Cron cron) {
-        timeOff.setCurrentHour(cron.getHourOff());
-        timeOn.setCurrentHour(cron.getHourOn());
-        timeOff.setCurrentMinute(cron.getMinOff());
-        timeOn.setCurrentMinute(cron.getMinOn());
-        String binary = String.format("%7s", Integer.toBinaryString(cron.getMask())).replace(' ', '0');
-        for (int day = 0; day < buttons.length; day++) {
-            ToggleButton button = (ToggleButton) findViewById(buttons[(6 - day)]);
-            button.setChecked(binary.substring(day, day + 1).equals("1"));
+    private void readData() {
+        Intent intent = getIntent();
+        if (intent.getIntExtra("cronId", 0) > 0) {
+            Cron cron = db.getCron(intent.getIntExtra("cronId", 0));
+            id = cron.getId();
+            timeOff.setCurrentHour(cron.getHourOff());
+            timeOn.setCurrentHour(cron.getHourOn());
+            timeOff.setCurrentMinute(cron.getMinOff());
+            timeOn.setCurrentMinute(cron.getMinOn());
+            String binary = String.format("%7s", Integer.toBinaryString(cron.getMask())).replace(' ', '0');
+            for (int day = 0; day < buttons.length; day++) {
+                ToggleButton button = (ToggleButton) findViewById(buttons[6 - day]);
+                button.setChecked(binary.substring(day, day + 1).equals("1"));
+            }
         }
     }
 
