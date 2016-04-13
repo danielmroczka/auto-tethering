@@ -24,7 +24,7 @@ public class AboutActivity extends Activity {
         }
 
         TextView textView = (TextView) findViewById(R.id.versionTextView);
-        textView.setText("version: " + (pInfo != null ? pInfo.versionName : null));
+        textView.setText(String.format("version: %s", pInfo != null ? pInfo.versionName : null));
         System.getProperty("build.time");
     }
 

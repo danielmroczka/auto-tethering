@@ -58,5 +58,15 @@
         weekly for configured days of the week\n PLEASE REVIEW AND UPDATE YOUR SCHEDULER SETTINGS\n\n[x] Application
         works as a service depends on configuration (default = yes)\n\n[x]Hotfix for upgrading data structure
     </string>
+    <string name="turn_on_off_wifi_tethering">Turn on/off WiFi Tethering</string>
+    <string name="turn_on_off_internet_connection">Turn on/off internet connection</string>
+    <string name="add_widget">ADD WIDGET</string>
+    <string name="version">version:</string>
+    <string name="author">author: Daniel Mroczka</string>
+    <string name="scheduled_switch_off">Scheduled switch OFF</string>
+    <string name="scheduled_switch_on">Scheduled switch ON</string>
+    <string name="repeat_weekly_on">Repeat weekly on:</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
 </resources>
 
