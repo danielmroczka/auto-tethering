@@ -1,6 +1,7 @@
 package com.labs.dm.auto_tethering;
 
 import android.content.Context;
+import android.content.Intent;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.view.LayoutInflater;
@@ -8,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-
+import com.labs.dm.auto_tethering.activity.ScheduleActivity;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
 
@@ -56,6 +57,16 @@ public class ScheduleCheckBoxPreference extends Preference {
                 if (db.removeCron(cron.getId()) > 0) {
                     parent.removePreference(ScheduleCheckBoxPreference.this);
                 }
+            }
+        });
+
+        middleLayout.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), ScheduleActivity.class);
+                intent.putExtra("cronId", cron.getId());
+                getContext().startActivity(intent);
             }
         });
     }
