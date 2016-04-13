@@ -2,6 +2,7 @@ package com.labs.dm.auto_tethering;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -18,4 +19,13 @@ public class UtilsTest {
         assertFalse(Utils.validateTime("123:123"));
     }
 
+    @Test
+    public void testMaskToDays() throws Exception {
+        assertEquals("", Utils.maskToDays(0));
+        assertEquals("Mon", Utils.maskToDays(1));
+        assertEquals("Tue", Utils.maskToDays(2));
+        assertEquals("Mon, Tue", Utils.maskToDays(3));
+        assertEquals("Mon, Tue, Wed", Utils.maskToDays(7));
+        assertEquals("Sun", Utils.maskToDays(64));
+    }
 }
