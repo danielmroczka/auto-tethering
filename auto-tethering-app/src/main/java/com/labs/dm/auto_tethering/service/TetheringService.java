@@ -262,7 +262,7 @@ public class TetheringService extends IntentService {
     }
 
     private void onChangeProperties() {
-        crons = DBManager.getInstance(getApplicationContext()).getCron();
+        crons = DBManager.getInstance(getApplicationContext()).getCrons();
     }
 
     private boolean internetAsyncTask(boolean state) {

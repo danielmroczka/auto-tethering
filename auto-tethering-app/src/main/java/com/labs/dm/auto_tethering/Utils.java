@@ -41,7 +41,6 @@ public class Utils {
     }
 
     public static String maskToDays(int mask) {
-        //String binary = Integer.toBinaryString(mask);
         String binary = String.format("%7s", Integer.toBinaryString(mask)).replace(' ', '0');
         String result = "";
         for (int i = binary.length() - 1; i >= 0; i--) {

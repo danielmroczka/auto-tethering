@@ -7,7 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Daniel Mroczka on 2015-07-06.
@@ -115,7 +119,7 @@ public class DBManager extends SQLiteOpenHelper {
         return writableDatabase.delete(SimCard.NAME, "ssn='" + ssn + "'", null);
     }
 
-    public List<Cron> getCron() {
+    public List<Cron> getCrons() {
         List<Cron> list = new ArrayList<>();
         Cursor cursor = null;
         try {
@@ -146,6 +150,25 @@ public class DBManager extends SQLiteOpenHelper {
         return list;
     }
 
+    public Cron getCron(int id) {
+        Cursor cursor = null;
+        Cron cron = null;
+        try {
+            cursor = readableDatabase.query(Cron.NAME, null, "id=" + id, null, null, null, null);
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                cron = new Cron(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getInt(5), cursor.getInt(6));
+                cron.setId(cursor.getInt(0));
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return cron;
+    }
+
     public int removeCron(final int id) {
         return writableDatabase.delete(Cron.NAME, "id=" + String.valueOf(id), null);
     }
@@ -167,7 +190,7 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
     public Date getNextSchedule() {
-        List<Cron> crons = getCron();
+        List<Cron> crons = getCrons();
         return new Date();
     }
 

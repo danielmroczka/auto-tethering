@@ -9,12 +9,13 @@ import android.widget.Button;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
 
 public class ScheduleActivity extends Activity {
-
+    private int[] buttons = {R.id.btnMonday, R.id.btnTuesday, R.id.btnWednesday, R.id.btnThursday, R.id.btnFriday, R.id.btnSaturday, R.id.btnSunday};
     private DBManager db;
     private TimePicker timeOff;
     private TimePicker timeOn;
@@ -32,7 +33,7 @@ public class ScheduleActivity extends Activity {
 
         Intent intent = getIntent();
         if (intent.getIntExtra("cronId", 0) > 0) {
-            Cron cron = db.getCron().get(0); //TODO prototyping
+            Cron cron = db.getCron(intent.getIntExtra("cronId", 0));
             id = cron.getId();
             readData(cron);
         }
@@ -66,13 +67,15 @@ public class ScheduleActivity extends Activity {
         timeOn.setCurrentHour(cron.getHourOn());
         timeOff.setCurrentMinute(cron.getMinOff());
         timeOn.setCurrentMinute(cron.getMinOn());
+        String binary = String.format("%7s", Integer.toBinaryString(cron.getMask())).replace(' ', '0');
+        for (int day = 0; day < buttons.length; day++) {
+            ToggleButton button = (ToggleButton) findViewById(buttons[(6 - day)]);
+            button.setChecked(binary.substring(day, day + 1).equals("1"));
+        }
     }
 
     private boolean insertSchedule() {
         ToggleButton[] daysOfWeek = new ToggleButton[7];
-
-        int[] buttons = {R.id.btnMonday, R.id.btnTuesday, R.id.btnWednesday, R.id.btnThursday, R.id.btnFriday, R.id.btnSaturday, R.id.btnSunday};
-
         int mask = 0;
         for (int day = 0; day < 7; day++) {
             daysOfWeek[day] = (ToggleButton) findViewById(buttons[day]);

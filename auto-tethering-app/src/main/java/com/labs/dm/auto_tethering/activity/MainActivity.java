@@ -2,15 +2,30 @@ package com.labs.dm.auto_tethering.activity;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.content.*;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.*;
+import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.telephony.TelephonyManager;
-import android.view.*;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.ScheduleCheckBoxPreference;
@@ -24,15 +39,23 @@ import com.labs.dm.auto_tethering.service.TetheringService;
 import java.util.List;
 import java.util.Map;
 
-import static com.labs.dm.auto_tethering.AppProperties.*;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
+import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
+import static com.labs.dm.auto_tethering.AppProperties.SSID;
 
 /**
  * Created by Daniel Mroczka
  */
 public class MainActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final int ON_CHANGE_SSID = 1;
-    private static final int ON_CHANGE_SCHEDULE = 2;
+    public static final int ON_CHANGE_SSID = 1;
+    public static final int ON_CHANGE_SCHEDULE = 2;
     private SharedPreferences prefs;
     private ServiceHelper serviceHelper;
     private DBManager db;
@@ -149,7 +172,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     private void prepareScheduleList() {
         final PreferenceCategory p = (PreferenceCategory) findPreference("scheduled.shutdown.list");
-        List<Cron> list = db.getCron();
+        List<Cron> list = db.getCrons();
 
         p.removeAll();
         for (final Cron cron : list) {
