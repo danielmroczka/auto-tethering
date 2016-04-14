@@ -5,8 +5,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.TextView;
-
+import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
+
+import java.text.SimpleDateFormat;
 
 /**
  * Created by Daniel Mroczka
@@ -24,8 +26,9 @@ public class AboutActivity extends Activity {
         }
 
         TextView textView = (TextView) findViewById(R.id.versionTextView);
-        textView.setText(String.format("version: %s", pInfo != null ? pInfo.versionName : null));
-        System.getProperty("build.time");
+        String buildTime = new SimpleDateFormat("yyyyMMdd_HHmmss").format(BuildConfig.buildTime);
+        textView.setText(String.format("version: %s\n", pInfo != null ? pInfo.versionName : null));
+        textView.append(String.format("build: %s", buildTime));
     }
 
 }
