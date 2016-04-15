@@ -3,6 +3,8 @@
     <!-- Base application theme. -->
     <style name="AppTheme"></style>
 
-
+    <style name="button" parent="@android:style/Widget.Button">
+        <item name="android:shadowRadius">20</item>
+    </style>
 
 </resources>

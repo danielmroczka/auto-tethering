@@ -2,6 +2,7 @@ package com.labs.dm.auto_tethering.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.View;
@@ -30,6 +31,12 @@ public class ScheduleActivity extends Activity {
         timeOn = (TimePicker) findViewById(R.id.scheduleTimeOn);
         timeOff.setIs24HourView(DateFormat.is24HourFormat(this));
         timeOn.setIs24HourView(DateFormat.is24HourFormat(this));
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            timeOff.setSaveFromParentEnabled(false);
+            timeOn.setSaveFromParentEnabled(false);
+            timeOff.setSaveEnabled(true);
+            timeOn.setSaveEnabled(true);
+        }
         readData();
 
         Button btnCancel = (Button) findViewById(R.id.btnCancel);
