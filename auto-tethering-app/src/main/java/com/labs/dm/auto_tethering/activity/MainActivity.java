@@ -2,11 +2,13 @@ package com.labs.dm.auto_tethering.activity;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -33,6 +35,7 @@ import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
 import com.labs.dm.auto_tethering.db.SimCard;
+import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
@@ -67,6 +70,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         addPreferencesFromResource(R.xml.preferences);
         serviceHelper = new ServiceHelper(getApplicationContext());
         loadPrefs();
+
+        checkIfNotlocked();
 
         Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -146,8 +151,38 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 return true;
             }
         });
+    }
 
+    private void checkIfNotlocked() {
+        final ComponentName componentName = new ComponentName(this, BootCompletedReceiver.class);
+        int state = getPackageManager().getComponentEnabledSetting(componentName);
 
+        if (state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT && !prefs.getBoolean("autostart.blocked.donotremind", false)) {
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Warning")
+                    .setMessage("Startup application on system boot is currently blocked.\nDo you want to enable this setting?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DEFAULT, PackageManager.DONT_KILL_APP);
+                            Toast.makeText(getApplicationContext(), "Service activation on system boot has been enabled", Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .setNeutralButton(R.string.donot_remind, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            prefs.edit().putBoolean("autostart.blocked.donotremind", true).apply();
+                        }
+                    })
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    }).show();
+        }
     }
 
     private void prepareSimCardWhiteList() {
