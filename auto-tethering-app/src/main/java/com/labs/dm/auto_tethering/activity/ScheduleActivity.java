@@ -10,10 +10,11 @@ import android.widget.Button;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
+
+import java.util.Calendar;
 
 public class ScheduleActivity extends Activity {
     private int[] buttons = {R.id.btnMonday, R.id.btnTuesday, R.id.btnWednesday, R.id.btnThursday, R.id.btnFriday, R.id.btnSaturday, R.id.btnSunday};
@@ -31,6 +32,9 @@ public class ScheduleActivity extends Activity {
         timeOn = (TimePicker) findViewById(R.id.scheduleTimeOn);
         timeOff.setIs24HourView(DateFormat.is24HourFormat(this));
         timeOn.setIs24HourView(DateFormat.is24HourFormat(this));
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        timeOff.setCurrentHour(hour);
+        timeOn.setCurrentHour(hour);
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             timeOff.setSaveFromParentEnabled(false);
             timeOn.setSaveFromParentEnabled(false);

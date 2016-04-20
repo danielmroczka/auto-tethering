@@ -31,9 +31,6 @@
                 android:key="activate.tethering"
                 android:summary="@string/activateTethering.summary"
                 android:title="@string/activateTethering.title"/>
-        <PreferenceScreen
-                android:key="check.activation.on.startup"
-                android:summary="Tap to block/unblock service activation on startup"></PreferenceScreen>
     </PreferenceScreen>
 
     <PreferenceScreen
