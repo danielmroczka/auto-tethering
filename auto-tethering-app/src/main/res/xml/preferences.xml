@@ -132,6 +132,9 @@
             android:key="return.state"
             android:summary="@string/revert.state.summary"
             android:title="Restore connection to initial state" />
+        <PreferenceScreen
+            android:key="check.activation.on.startup"
+            android:summary="Tap to change service activation on startup"></PreferenceScreen>
     </PreferenceScreen>
 
     <PreferenceCategory

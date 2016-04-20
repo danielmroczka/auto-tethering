@@ -117,6 +117,49 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
+        final PreferenceScreen activationStartup = (PreferenceScreen) findPreference("check.activation.on.startup");
+        final ComponentName componentName = new ComponentName(MainActivity.this, BootCompletedReceiver.class);
+
+        int state = getPackageManager().getComponentEnabledSetting(componentName);
+
+        if (state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+            activationStartup.setTitle("Activation enabled");
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                activationStartup.setIcon(R.drawable.ic_add);
+            }
+        } else {
+            activationStartup.setTitle("Activation disabled");
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                activationStartup.setIcon(R.drawable.ic_remove);
+            }
+        }
+
+        activationStartup.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                int state = getPackageManager().getComponentEnabledSetting(componentName);
+
+                if (state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+                    getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+                    activationStartup.setTitle("Activation enabled");
+                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                        activationStartup.setIcon(R.drawable.ic_add);
+                    }
+                    Toast.makeText(getApplicationContext(), "Startup application on boot has been enabled", Toast.LENGTH_LONG).show();
+                } else {
+                    getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+                    activationStartup.setTitle("Activation disabled");
+                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                        activationStartup.setIcon(R.drawable.ic_remove);
+                    }
+                    prefs.edit().remove("autostart.blocked.donotremind").apply();
+                    Toast.makeText(getApplicationContext(), "Startup application on boot has been disabled", Toast.LENGTH_LONG).show();
+                }
+
+                return true;
+            }
+        });
+
         CheckBoxPreference keepServiceCheckBox = (CheckBoxPreference) findPreference(ACTIVATE_KEEP_SERVICE);
         keepServiceCheckBox.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
@@ -157,7 +200,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         final ComponentName componentName = new ComponentName(this, BootCompletedReceiver.class);
         int state = getPackageManager().getComponentEnabledSetting(componentName);
 
-        if (state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT && !prefs.getBoolean("autostart.blocked.donotremind", false)) {
+        if (state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED && !prefs.getBoolean("autostart.blocked.donotremind", false)) {
             new AlertDialog.Builder(MainActivity.this)
                     .setTitle("Warning")
                     .setMessage("Startup application on system boot is currently blocked.\nDo you want to enable this setting?")
@@ -166,7 +209,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DEFAULT, PackageManager.DONT_KILL_APP);
+                            getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
                             Toast.makeText(getApplicationContext(), "Service activation on system boot has been enabled", Toast.LENGTH_LONG).show();
                         }
                     })
@@ -415,7 +458,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
             /** First start after update **/
             new AlertDialog.Builder(this)
-                    .setTitle("Release notes 0.0.27")
+                    .setTitle("Release notes 0.0.28")
                     .setMessage(getString(R.string.release_notes))
                     .setPositiveButton("Close", new DialogInterface.OnClickListener() {
                         @Override
