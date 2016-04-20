@@ -109,10 +109,10 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
                 if (state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
                     getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-                    Toast.makeText(getApplicationContext(), "Startup application on boot has been enabled", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.on_startup_enable, Toast.LENGTH_LONG).show();
                 } else {
                     getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-                    Toast.makeText(getApplicationContext(), "Startup application on boot has been disabled", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.on_startup_disable, Toast.LENGTH_LONG).show();
                 }
 
                 return true;
@@ -168,8 +168,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
         if (state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED && !prefs.getBoolean("autostart.blocked.donotremind", false)) {
             new AlertDialog.Builder(MainActivity.this)
-                    .setTitle("Warning")
-                    .setMessage("Startup application on system boot is currently blocked.\nDo you want to enable this setting and unblock startup on system boot?")
+                    .setTitle(R.string.warning)
+                    .setMessage("Startup application on system boot is currently blocked and therefore service cannot run properly.\n\nDo you want to enable this setting?")
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
@@ -178,7 +178,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                             final CheckBoxPreference activationStartup = (CheckBoxPreference) findPreference("activate.on.startup");
                             activationStartup.setChecked(true);
                             getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-                            Toast.makeText(getApplicationContext(), "Service activation on system boot has been enabled", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), R.string.on_startup_enable, Toast.LENGTH_LONG).show();
                         }
                     })
                     .setNeutralButton(R.string.donot_remind, new DialogInterface.OnClickListener() {
@@ -308,12 +308,10 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                         boolean status = ((CheckBoxPreference) object).isChecked();
                         if (status) {
                             String ssn = ((CheckBoxPreference) object).getSummary().toString();
-                            if (ssn != null) {
-                                ssn = ssn.substring("SSN: ".length()).trim();
-                                db.removeSimCard(ssn);
-                                p.removePreference((Preference) object);
-                                changed = true;
-                            }
+                            ssn = ssn.substring("SSN: ".length()).trim();
+                            db.removeSimCard(ssn);
+                            p.removePreference((Preference) object);
+                            changed = true;
                         }
                     }
                 }

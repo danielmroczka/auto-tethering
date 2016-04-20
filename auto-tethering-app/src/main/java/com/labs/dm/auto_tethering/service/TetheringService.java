@@ -44,9 +44,7 @@ public class TetheringService extends IntentService {
     private boolean flag = true;
     private Notification notification;
     private final int NOTIFICATION_ID = 1234;
-    private Intent intent;
 
-    private boolean triggeredFromWidget;
     private Status status = Status.DEFAULT;
 
     public TetheringService() {
@@ -63,15 +61,12 @@ public class TetheringService extends IntentService {
             Log.i(TAG, "shouldOff");
             tetheringAsyncTask(false);
             showNotification(getString(R.string.notification_tethering_off));
-            triggeredFromWidget = true;
         } else if (state == 0) {
             Log.i(TAG, "shouldOn");
             tetheringAsyncTask(true);
             showNotification(getString(R.string.notification_tethering_restored));
-            triggeredFromWidget = true;
         }
 
-        this.intent = intent;
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -118,7 +113,7 @@ public class TetheringService extends IntentService {
                                 tetheringAsyncTask(false);
                                 showNotification(getString(R.string.notification_idle_tethering_off));
                                 status = Status.DEACTIVED_ON_IDLE;
-                            } else if (updateStatus()) {
+                            } else {
                                 if (isActivated3G() && !connected3G) {
                                     if (internetAsyncTask(true)) {
                                         showNotification(getString(R.string.notification_internet_restored));
@@ -160,10 +155,6 @@ public class TetheringService extends IntentService {
             return true;
         }
         return false;
-    }
-
-    private boolean updateStatus() {
-        return true;
     }
 
     private boolean isServiceActivated() {

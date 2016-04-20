@@ -66,5 +66,8 @@
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
     <string name="donot_remind">Don\'t Remind</string>
+    <string name="on_startup_disable">Startup application has been disabled. Service won\'t startup on system boot.
+    </string>
+    <string name="on_startup_enable">Startup application on boot has been enabled</string>
 </resources>
 
