@@ -6,5 +6,5 @@ export GIT_COMMITTER_EMAIL=daniel.mroczka@gmail.com
 export GIT_COMMITTER_NAME=danielmroczka
 
 git checkout dev || exit
-git merge "$TRAVIS_COMMIT" || exit
-git push
+git merge master
+git push --set-upstream origin dev
