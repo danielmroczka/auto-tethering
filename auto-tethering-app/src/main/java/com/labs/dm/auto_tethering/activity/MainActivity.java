@@ -2,32 +2,16 @@ package com.labs.dm.auto_tethering.activity;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
+import android.preference.*;
 import android.telephony.TelephonyManager;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.ScheduleCheckBoxPreference;
@@ -42,15 +26,7 @@ import com.labs.dm.auto_tethering.service.TetheringService;
 import java.util.List;
 import java.util.Map;
 
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
-import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
-import static com.labs.dm.auto_tethering.AppProperties.SSID;
+import static com.labs.dm.auto_tethering.AppProperties.*;
 
 /**
  * Created by Daniel Mroczka
@@ -72,7 +48,10 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         loadPrefs();
 
         checkIfNotlocked();
+        registerListeners();
+    }
 
+    private void registerListeners() {
         Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 preference.setSummary((String) newValue);
@@ -196,6 +175,13 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         });
     }
 
+    /**
+     * Method checks if service is locked to startup on system boot.
+     * If founds that service is blocked Dialog will be displayed with choices:
+     * - to unblock (Yes)
+     * - cancel (No)
+     * - switch of next invocation of this Dialog (Don't Remind)
+     */
     private void checkIfNotlocked() {
         final ComponentName componentName = new ComponentName(this, BootCompletedReceiver.class);
         int state = getPackageManager().getComponentEnabledSetting(componentName);
@@ -203,7 +189,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         if (state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED && !prefs.getBoolean("autostart.blocked.donotremind", false)) {
             new AlertDialog.Builder(MainActivity.this)
                     .setTitle("Warning")
-                    .setMessage("Startup application on system boot is currently blocked.\nDo you want to enable this setting?")
+                    .setMessage("Startup application on system boot is currently blocked.\nDo you want to enable this setting and unblock startup on system boot?")
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
@@ -219,12 +205,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                             prefs.edit().putBoolean("autostart.blocked.donotremind", true).apply();
                         }
                     })
-                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    }).show();
+                    .setNegativeButton(R.string.no, null
+                    ).show();
         }
     }
 
