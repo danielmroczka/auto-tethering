@@ -34,14 +34,14 @@
             android:id="@android:id/title"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Title"
+            android:text="@string/title"
             android:textSize="28sp" />
 
         <TextView
             android:id="@android:id/summary"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Summary"
+            android:text="@string/summary"
             android:textSize="14sp" />
     </LinearLayout>
 
