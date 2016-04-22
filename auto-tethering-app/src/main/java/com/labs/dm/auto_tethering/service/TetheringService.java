@@ -4,10 +4,9 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -28,6 +27,8 @@ import static com.labs.dm.auto_tethering.AppProperties.*;
  * Created by Daniel Mroczka
  */
 public class TetheringService extends IntentService {
+
+    private boolean snoozed = false;
 
     private enum Status {
         DEACTIVED_ON_IDLE, DEFAULT
@@ -89,7 +90,7 @@ public class TetheringService extends IntentService {
 
         while (flag) {
             try {
-                if (isServiceActivated()) {
+                if (isServiceActivated() && !snoozed) {
                     if (isCorrectSimCard()) {
                         if (checkForRoaming()) {
                             boolean connected3G = serviceHelper.checkMobileConnection();
@@ -233,6 +234,29 @@ public class TetheringService extends IntentService {
         serviceHelper = new ServiceHelper(getApplicationContext());
         onChangeProperties();
         init();
+        //runAsForeground();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("tethering");
+        filter.addAction("snooze");
+
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals("tethering")) {
+                    showNotification(getString(serviceHelper.isSharingWiFi() ? R.string.notification_tethering_off : R.string.notification_tethering_restored));
+                    tetheringAsyncTask(!serviceHelper.isSharingWiFi());
+                } else if (intent.getAction().equals("snooze")) {
+                    snoozed = !snoozed;
+                    showNotification(snoozed ? "Snoozed on" : "Snoozed off");
+                }
+            }
+        };
+        registerReceiver(receiver, filter);
+    }
+
+    @Override
+    public void onStart(Intent intent, int startId) {
+        super.onStart(intent, startId);
         runAsForeground();
     }
 
@@ -292,19 +316,53 @@ public class TetheringService extends IntentService {
     }
 
     private void runAsForeground() {
-        Notification notify = new Notification(R.drawable.app, getText(R.string.service_started), System.currentTimeMillis());
+        Notification notify = buildNotification("Service started");
         this.notification = notify;
         showNotification("Service started");
         startForeground(NOTIFICATION_ID, notify);
     }
 
+    private Notification buildNotification(String caption) {
+        Notification notify;
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            Intent onIntent = new Intent("tethering");
+            PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            Intent snoozeIntent = new Intent("snooze");
+            PendingIntent snoozePendingIntent = PendingIntent.getBroadcast(this, 0, snoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            boolean isTethering = serviceHelper.isSharingWiFi();
+            notify = new Notification.Builder(this)
+                    .setContentTitle(getText(R.string.app_name))
+                    .setContentText(caption)
+                    .setSmallIcon(R.drawable.app)
+                    .setTicker(caption)
+                    .setContentIntent(pendingIntent)
+                    .setPriority(Notification.PRIORITY_MAX)
+                    .setWhen(System.currentTimeMillis())
+                    .addAction(isTethering ? R.drawable.ic_wifi_off : R.drawable.ic_wifi_on, isTethering ? "Turn off" : "Turn on", onPendingIntent)
+                    .addAction(R.drawable.ic_exit, snoozed ? "Snoozed On" : "Snoozed Off", snoozePendingIntent)
+                    .build();
+        } else {
+            notify = new Notification(R.drawable.app, getText(R.string.service_started), System.currentTimeMillis());
+        }
+
+        return notify;
+    }
+
     private void showNotification(String body) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        PendingIntent pending = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        notification.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), body, pending);
+
+
+        Notification notification = buildNotification(body);
+
+/*        notification.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), body, pending);
         notification.when = System.currentTimeMillis();
-        notification.tickerText = body;
+        notification.tickerText = body;*/
+
         notificationManager.notify(NOTIFICATION_ID, notification);
         Log.i(TAG, "Notification: " + body);
     }
