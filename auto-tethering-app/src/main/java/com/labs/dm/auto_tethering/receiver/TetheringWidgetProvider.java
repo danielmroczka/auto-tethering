@@ -47,6 +47,7 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
         for (int id : appWidgetIds) {
             prefs.edit().remove("widget." + id + ".mobile").apply();
             prefs.edit().remove("widget." + id + ".tethering").apply();
+            prefs.edit().remove("widget." + id + ".close.service").apply();
         }
         Log.i("TetheringStateChange", "Remove widget ids: " + Arrays.toString(appWidgetIds));
         super.onDeleted(context, appWidgetIds);

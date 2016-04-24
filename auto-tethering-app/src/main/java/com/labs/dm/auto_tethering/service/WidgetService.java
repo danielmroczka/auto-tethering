@@ -1,6 +1,8 @@
 package com.labs.dm.auto_tethering.service;
 
+import android.app.ActivityManager;
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -20,19 +22,26 @@ public class WidgetService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         boolean state = serviceHelper.isSharingWiFi();
-        Log.i("WidgetService", "onHandleIntent, state=" + state);
-        Intent serviceIntent = new Intent(this, TetheringService.class);
-        stopService(serviceIntent);
-
-        int widgetId = intent.getIntExtra(EXTRA_APPWIDGET_ID, -1);
+        Log.i("WidgetService", "onHandleIntent, state=" + state + ", extras=" + intent.getExtras().toString());
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        int widgetId = intent.getIntExtra(EXTRA_APPWIDGET_ID, -1);
 
-        if (prefs.getBoolean("widget." + widgetId + ".mobile", false)) {
+        Intent serviceIntent = new Intent(this, TetheringService.class);
+
+        if (prefs.getBoolean("widget." + widgetId + ".close.service", false)) {
+            stopService(intent);
+        } else if (isServiceRunning(TetheringService.class)) {
+            serviceIntent.putExtra("snooze", true);
+            startService(serviceIntent);
+        }
+
+        //TODO
+/*        if (prefs.getBoolean("widget." + widgetId + ".mobile", false)) {
             internetAsyncTask(!state);
         }
         if (prefs.getBoolean("widget." + widgetId + ".tethering", true)) {
             tetheringAsyncTask(!state);
-        }
+        }*/
     }
 
     private class TurnOnTetheringAsyncTask extends AsyncTask<Boolean, Void, Void> {
@@ -63,5 +72,15 @@ public class WidgetService extends IntentService {
 
     private void internetAsyncTask(boolean state) {
         new TurnOn3GAsyncTask().doInBackground(state);
+    }
+
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

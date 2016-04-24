@@ -62,10 +62,12 @@ public class ConfigurationActivity extends Activity {
 
             CheckBox mobile = (CheckBox) findViewById(R.id.chkWidget3G);
             CheckBox tethering = (CheckBox) findViewById(R.id.chkWidgetWifi);
+            CheckBox closeService = (CheckBox) findViewById(R.id.closeService);
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             prefs.edit().putBoolean("widget." + mAppWidgetId + ".mobile", mobile.isChecked()).apply();
             prefs.edit().putBoolean("widget." + mAppWidgetId + ".tethering", tethering.isChecked()).apply();
+            prefs.edit().putBoolean("widget." + mAppWidgetId + ".close.service", closeService.isChecked()).apply();
 
             Intent startService = new Intent(ConfigurationActivity.this, TetheringWidgetProvider.class);
             startService.putExtra(EXTRA_APPWIDGET_ID, mAppWidgetId);
