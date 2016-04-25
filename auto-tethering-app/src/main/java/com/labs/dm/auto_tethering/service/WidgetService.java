@@ -26,22 +26,22 @@ public class WidgetService extends IntentService {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         int widgetId = intent.getIntExtra(EXTRA_APPWIDGET_ID, -1);
 
-        Intent serviceIntent = new Intent(this, TetheringService.class);
-
-        if (prefs.getBoolean("widget." + widgetId + ".close.service", false)) {
-            stopService(intent);
-        } else if (isServiceRunning(TetheringService.class)) {
-            serviceIntent.putExtra("snooze", true);
-            startService(serviceIntent);
+        if (isServiceRunning(TetheringService.class)) {
+            Intent onIntent = new Intent("widget");
+            onIntent.putExtra("changeMobileState", prefs.getBoolean("widget." + widgetId + ".mobile", false));
+            sendBroadcast(onIntent);
+        } else {
+            changeState(state, prefs, widgetId);
         }
+    }
 
-        //TODO
-/*        if (prefs.getBoolean("widget." + widgetId + ".mobile", false)) {
+    private void changeState(boolean state, SharedPreferences prefs, int widgetId) {
+        if (prefs.getBoolean("widget." + widgetId + ".mobile", false)) {
             internetAsyncTask(!state);
         }
         if (prefs.getBoolean("widget." + widgetId + ".tethering", true)) {
             tetheringAsyncTask(!state);
-        }*/
+        }
     }
 
     private class TurnOnTetheringAsyncTask extends AsyncTask<Boolean, Void, Void> {

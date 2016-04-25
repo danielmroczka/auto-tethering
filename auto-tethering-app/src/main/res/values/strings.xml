@@ -70,5 +70,6 @@
     </string>
     <string name="on_startup_enable">Startup application on boot has been enabled</string>
     <string name="close_service">Force to close service</string>
+    <string name="start_service">Force to start service</string>
 </resources>
 

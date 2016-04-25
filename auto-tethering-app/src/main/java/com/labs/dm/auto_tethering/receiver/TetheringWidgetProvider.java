@@ -44,10 +44,12 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
-        for (int id : appWidgetIds) {
-            prefs.edit().remove("widget." + id + ".mobile").apply();
-            prefs.edit().remove("widget." + id + ".tethering").apply();
-            prefs.edit().remove("widget." + id + ".close.service").apply();
+        for (String key : prefs.getAll().keySet()) {
+            for (int id : appWidgetIds) {
+                if (key.startsWith("widget." + id)) {
+                    prefs.edit().remove(key).apply();
+                }
+            }
         }
         Log.i("TetheringStateChange", "Remove widget ids: " + Arrays.toString(appWidgetIds));
         super.onDeleted(context, appWidgetIds);

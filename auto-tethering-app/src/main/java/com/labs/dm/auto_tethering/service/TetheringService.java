@@ -45,16 +45,11 @@ public class TetheringService extends IntentService {
 
     private boolean forceOff = false;
     private boolean forceOn = false;
-    private boolean snoozed = false;
+    boolean changeMobileState;
     private String lastNotifcationTickerText;
-    private int notificationStatus = NotificationStatus.OFF.ordinal();
 
     private enum Status {
         DEACTIVED_ON_IDLE, DEFAULT
-    }
-
-    private enum NotificationStatus {
-        ON, OFF, SERVICE
     }
 
     private static final String TAG = "AutoTetheringService";
@@ -82,45 +77,78 @@ public class TetheringService extends IntentService {
         serviceHelper = new ServiceHelper(getApplicationContext());
         onChangeProperties();
         init();
-        //runAsForeground();
         registerReceivers();
     }
 
     private void registerReceivers() {
         IntentFilter filter = new IntentFilter();
         filter.addAction("tethering");
-        filter.addAction("close");
-        filter.addAction("snooze");
+        filter.addAction("widget");
 
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if ("tethering".equals(intent.getAction())) {
-                    if (!forceOff && !forceOn) {
-                        forceOn = true;
-                        if (!serviceHelper.isSharingWiFi()) {
-                            showNotification(getString(R.string.notification_tethering_restored));
-                            tetheringAsyncTask(true);
-                        }
-
-                    } else if (forceOn && !forceOff) {
+                    if (forceOn && !forceOff) {
                         forceOff = true;
                         forceOn = false;
-                        if (serviceHelper.isSharingWiFi()) {
+                        //if (serviceHelper.isSharingWiFi()) {
                             showNotification(getString(R.string.notification_tethering_off));
                             tetheringAsyncTask(false);
-                        }
+                        //}
+                    } else if (!forceOff && !forceOn) {
+                        forceOn = true;
+                        //if (!serviceHelper.isSharingWiFi()) {
+                        showNotification(getString(R.string.notification_tethering_restored));
+                        tetheringAsyncTask(true);
+                        //}
+
                     } else {
                         forceOff = false;
                         forceOn = false;
                         showNotification(lastNotifcationTickerText);
                     }
-                    //add 3 states
-                } else if ("snooze".equals(intent.getAction())) {
-                    setSnoozed(!snoozed);
-                    showNotification(lastNotifcationTickerText);
-                } else if ("close".equals(intent.getAction())) {
-                    stopSelf();
+
+                    if (changeMobileState) {
+                        if (serviceHelper.checkMobileConnection()) {
+                            showNotification(getString(R.string.notification_internet_off));
+                            internetAsyncTask(false);
+                        } else {
+                            showNotification(getString(R.string.notification_internet_restored));
+                            internetAsyncTask(true);
+                        }
+                    }
+                }
+
+                if ("widget".equals(intent.getAction())) {
+                    changeMobileState = intent.getExtras().getBoolean("changeMobileState", false);
+
+                    if (serviceHelper.isSharingWiFi()) {
+                        forceOff = true;
+                        forceOn = false;
+                        //if (serviceHelper.isSharingWiFi()) {
+                        showNotification(getString(R.string.notification_tethering_off));
+                        tetheringAsyncTask(false);
+                        //}
+                    } else {
+                        forceOn = true;
+                        forceOff = false;
+                        // if (!serviceHelper.isSharingWiFi()) {
+                        showNotification(getString(R.string.notification_tethering_restored));
+                        tetheringAsyncTask(true);
+                        // }
+                    }
+
+                    if (changeMobileState) {
+                        if (serviceHelper.checkMobileConnection()) {
+                            showNotification(getString(R.string.notification_internet_off));
+                            internetAsyncTask(false);
+                        } else {
+                            showNotification(getString(R.string.notification_internet_restored));
+                            internetAsyncTask(true);
+                        }
+
+                    }
                 }
             }
         };
@@ -142,23 +170,23 @@ public class TetheringService extends IntentService {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "onStartCommand");
         runFromActivity = intent.getBooleanExtra("runFromActivity", false);
-        if (intent.getBooleanExtra("snooze", false)) {
-            //setSnoozed(true);
-            boolean state = serviceHelper.isSharingWiFi();
-            forceOff = state;
-            forceOn = !state;
-        }
-
-        int state = intent.getIntExtra("state", -1);
-        if (state == 1) {
-            Log.i(TAG, "shouldOff");
-            tetheringAsyncTask(false);
-            showNotification(getString(R.string.notification_tethering_off));
-        } else if (state == 0) {
-            Log.i(TAG, "shouldOn");
-            tetheringAsyncTask(true);
-            showNotification(getString(R.string.notification_tethering_restored));
-        }
+//        if (intent.getBooleanExtra("widget", false)) {
+//            boolean state = serviceHelper.isSharingWiFi();
+//            forceOff = state;
+//            forceOn = !state;
+//            changeMobileState = intent.getBooleanExtra("changeMobileState", true);
+//        }
+//
+//        int state = intent.getIntExtra("state", -1);
+//        if (state == 1) {
+//            Log.i(TAG, "shouldOff");
+//            tetheringAsyncTask(false);
+//            showNotification(getString(R.string.notification_tethering_off));
+//        } else if (state == 0) {
+//            Log.i(TAG, "shouldOn");
+//            tetheringAsyncTask(true);
+//            showNotification(getString(R.string.notification_tethering_restored));
+//        }
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -182,13 +210,17 @@ public class TetheringService extends IntentService {
 
         while (flag) {
             try {
-                if (isServiceActivated() && !snoozed) {
+                if (isServiceActivated() || keepService()) {
+                    if (forceOff || forceOn) {
+                        continue;
+                    }
                     if (isCorrectSimCard()) {
                         if (checkForRoaming()) {
                             boolean connected3G = serviceHelper.checkMobileConnection();
                             boolean tethered = serviceHelper.isSharingWiFi();
                             boolean idle = checkIdle();
 
+/*
                             if (forceOff && !forceOn) {
                                 if (connected3G) {
                                     internetAsyncTask(false);
@@ -207,7 +239,8 @@ public class TetheringService extends IntentService {
                                     tetheringAsyncTask(true);
                                     showNotification(getString(R.string.notification_tethering_restored));
                                 }
-                            } else if (isScheduledTimeOff()) {
+*/
+                            if (isScheduledTimeOff()) {
                                 if (connected3G) {
                                     internetAsyncTask(false);
                                     showNotification(getString(R.string.notification_scheduled_internet_off));
@@ -261,6 +294,7 @@ public class TetheringService extends IntentService {
     }
 
     private boolean tetheringAsyncTask(boolean state) {
+        //showNotification(getString(state ? R.string.notification_tethering_restored : R.string.notification_tethering_off));
         if (!state || status != Status.DEACTIVED_ON_IDLE) {
             new TurnOnTetheringAsyncTask().doInBackground(state);
             return true;
@@ -331,9 +365,7 @@ public class TetheringService extends IntentService {
                 return true;
             }
             status = Status.DEFAULT;
-
         }
-
         return false;
     }
 
@@ -343,6 +375,7 @@ public class TetheringService extends IntentService {
     }
 
     private boolean internetAsyncTask(boolean state) {
+        //showNotification(getString(state ? R.string.notification_internet_restored : R.string.notification_internet_off));
         if (!state || status != Status.DEACTIVED_ON_IDLE) {
             new TurnOn3GAsyncTask().doInBackground(state);
             return true;
@@ -396,21 +429,17 @@ public class TetheringService extends IntentService {
         }
     }
 
-    private Notification buildNotification() {
-        return buildNotification(lastNotifcationTickerText);
-    }
-
     private Notification buildNotification(String caption) {
         lastNotifcationTickerText = caption;
         Notification notify;
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            //boolean isTethering = serviceHelper.isSharingWiFi();
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             Intent onIntent = new Intent("tethering");
             PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
             int drawable = R.drawable.ic_service;
             String ticker = "Service on";
 
@@ -422,24 +451,21 @@ public class TetheringService extends IntentService {
                 ticker = "Tethering ON";
             }
 
-            Intent snoozeIntent = new Intent("snooze");
-            PendingIntent snoozePendingIntent = PendingIntent.getBroadcast(this, 0, snoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
             notify = new Notification.Builder(this)
                     .setContentTitle(getText(R.string.app_name))
                     .setContentText(caption)
+                    .setOngoing(true)
                     .setSmallIcon(R.drawable.app)
+                    .setAutoCancel(false)
                     .setTicker(caption)
                     .setContentIntent(pendingIntent)
                     .setPriority(Notification.PRIORITY_MAX)
                     .setWhen(System.currentTimeMillis())
                     .addAction(drawable, ticker, onPendingIntent)
-                    .addAction(snoozed ? R.drawable.ic_disabled : R.drawable.ic_clock_off, snoozed ? "Snoozed On" : "Snoozed Off", snoozePendingIntent)
                     .build();
         } else {
             notify = new Notification(R.drawable.app, getText(R.string.service_started), System.currentTimeMillis());
         }
-
         return notify;
     }
 
@@ -464,11 +490,6 @@ public class TetheringService extends IntentService {
             serviceHelper.setMobileDataEnabled(initial3GStatus);
             serviceHelper.setWifiTethering(initialTetheredStatus);
         }
-    }
-
-    public void setSnoozed(boolean snoozed) {
-        showNotification(!snoozed ? "Snoozed on" : "Snoozed off");
-        this.snoozed = snoozed;
     }
 
 }
