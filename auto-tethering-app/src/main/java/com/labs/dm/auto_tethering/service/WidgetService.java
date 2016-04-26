@@ -1,6 +1,8 @@
 package com.labs.dm.auto_tethering.service;
 
+import android.app.ActivityManager;
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -20,13 +22,20 @@ public class WidgetService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         boolean state = serviceHelper.isSharingWiFi();
-        Log.i("WidgetService", "onHandleIntent, state=" + state);
-        Intent serviceIntent = new Intent(this, TetheringService.class);
-        stopService(serviceIntent);
-
-        int widgetId = intent.getIntExtra(EXTRA_APPWIDGET_ID, -1);
+        Log.i("WidgetService", "onHandleIntent, state=" + state + ", extras=" + intent.getExtras().toString());
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        int widgetId = intent.getIntExtra(EXTRA_APPWIDGET_ID, -1);
 
+        if (isServiceRunning(TetheringService.class)) {
+            Intent onIntent = new Intent("widget");
+            onIntent.putExtra("changeMobileState", prefs.getBoolean("widget." + widgetId + ".mobile", false));
+            sendBroadcast(onIntent);
+        } else {
+            changeState(state, prefs, widgetId);
+        }
+    }
+
+    private void changeState(boolean state, SharedPreferences prefs, int widgetId) {
         if (prefs.getBoolean("widget." + widgetId + ".mobile", false)) {
             internetAsyncTask(!state);
         }
@@ -63,5 +72,15 @@ public class WidgetService extends IntentService {
 
     private void internetAsyncTask(boolean state) {
         new TurnOn3GAsyncTask().doInBackground(state);
+    }
+
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -27,7 +27,7 @@ public class TetheringStateReceiver extends BroadcastReceiver {
 
         int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
         for (int widgetId : allWidgetIds) {
-            Log.i("TetheringStateChange", "widget id" + widgetId);
+            Log.i("TetheringStateChange", "widget id=" + widgetId);
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), helper.isSharingWiFi() ? R.layout.widget_layout_on : R.layout.widget_layout_off);
 
             Intent intent2 = new Intent(context, WidgetService.class);
