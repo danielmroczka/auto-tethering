@@ -4,12 +4,17 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
@@ -21,7 +26,17 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.labs.dm.auto_tethering.AppProperties.*;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
+import static com.labs.dm.auto_tethering.AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
 
 /**
  * Created by Daniel Mroczka
@@ -88,7 +103,7 @@ public class TetheringService extends IntentService {
                         showNotification(lastNotifcationTickerText);
                     }
 
-                    if (changeMobileState) {
+                    if (changeMobileState || prefs.getBoolean("force.net.from.notify", true)) {
                         if (forceOff) {
                             showNotification(getString(R.string.notification_internet_off));
                             internetAsyncTask(false);
@@ -122,7 +137,6 @@ public class TetheringService extends IntentService {
                             showNotification(getString(R.string.notification_internet_restored));
                             internetAsyncTask(true);
                         }
-
                     }
                 }
             }
@@ -137,7 +151,7 @@ public class TetheringService extends IntentService {
     }
 
     private void init() {
-        initial3GStatus = serviceHelper.checkMobileConnection();
+        initial3GStatus = serviceHelper.isMobileConnectionActive();
         initialTetheredStatus = serviceHelper.isSharingWiFi();
     }
 
@@ -167,13 +181,13 @@ public class TetheringService extends IntentService {
 
         while (flag) {
             try {
+                if (forceOff || forceOn) {
+                    continue;
+                }
                 if (isServiceActivated() || keepService()) {
-                    if (forceOff || forceOn) {
-                        continue;
-                    }
                     if (isCorrectSimCard()) {
                         if (checkForRoaming()) {
-                            boolean connected3G = serviceHelper.checkMobileConnection();
+                            boolean connected3G = serviceHelper.isMobileConnectionActive();
                             boolean tethered = serviceHelper.isSharingWiFi();
                             boolean idle = checkIdle();
 
@@ -314,7 +328,7 @@ public class TetheringService extends IntentService {
     }
 
     private boolean internetAsyncTask(boolean state) {
-        if (serviceHelper.checkMobileConnection() == state) {
+        if (serviceHelper.isMobileConnectionActive() == state) {
             return false;
         }
         //showNotification(getString(state ? R.string.notification_internet_restored : R.string.notification_internet_off));
@@ -393,6 +407,17 @@ public class TetheringService extends IntentService {
                 ticker = "Tethering ON";
             }
 
+/*
+            RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.layout_notification);
+            contentView.setImageViewResource(R.id.image, R.drawable.app);
+            contentView.setTextViewText(R.id.title, getText(R.string.app_name));
+            contentView.setTextViewText(R.id.text, caption);
+            contentView.setTextViewText(R.id.action, ticker);
+            contentView.setTextViewText(R.id.time,  new SimpleDateFormat("HH:mm").format(System.currentTimeMillis()));
+            contentView.setImageViewResource(R.id.imageButton, drawable);
+            contentView.setOnClickPendingIntent(R.id.imageButton, onPendingIntent);
+*/
+
             notify = new Notification.Builder(this)
                     .setContentTitle(getText(R.string.app_name))
                     .setContentText(caption)
@@ -400,6 +425,7 @@ public class TetheringService extends IntentService {
                     .setSmallIcon(R.drawable.app)
                     .setAutoCancel(false)
                     .setTicker(caption)
+                    //.setContent(contentView)
                     .setContentIntent(pendingIntent)
                     .setPriority(Notification.PRIORITY_MAX)
                     .setWhen(System.currentTimeMillis())

@@ -63,7 +63,7 @@ public class ServiceHelper {
      *
      * @return
      */
-    public boolean checkMobileConnection() {
+    public boolean isMobileConnectionActive() {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         return cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnected();
     }

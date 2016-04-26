@@ -444,7 +444,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
             /** First start after update **/
             new AlertDialog.Builder(this)
-                    .setTitle("Release notes 0.0.29")
+                    .setTitle("Release notes 0.0.30")
                     .setMessage(getString(R.string.release_notes))
                     .setPositiveButton("Close", null)
                     .show();
