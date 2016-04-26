@@ -19,20 +19,6 @@
         android:checked="true"
         android:text="@string/turn_on_off_internet_connection" />
 
-    <CheckBox
-        android:id="@+id/closeService"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/close_service"
-        android:visibility="gone" />
-
-    <CheckBox
-        android:id="@+id/startService"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/start_service"
-        android:visibility="gone" />
-
     <Button
         android:id="@+id/okButton"
         android:layout_width="fill_parent"
