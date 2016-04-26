@@ -30,6 +30,7 @@ public class TetheringService extends IntentService {
 
     private boolean forceOff = false, forceOn = false;
     boolean changeMobileState;
+    private BroadcastReceiver receiver;
     private String lastNotifcationTickerText;
 
     private enum Status {
@@ -68,8 +69,7 @@ public class TetheringService extends IntentService {
         IntentFilter filter = new IntentFilter();
         filter.addAction("tethering");
         filter.addAction("widget");
-
-        BroadcastReceiver receiver = new MyBroadcastReceiver();
+        receiver = new MyBroadcastReceiver();
         registerReceiver(receiver, filter);
     }
 
@@ -324,6 +324,8 @@ public class TetheringService extends IntentService {
 
             Intent onIntent = new Intent("tethering");
             PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            Intent exitIntent = new Intent("exit");
+            PendingIntent exitPendingIntent = PendingIntent.getBroadcast(this, 0, exitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             int drawable = R.drawable.ic_service;
             String ticker = "Service on";
@@ -359,6 +361,7 @@ public class TetheringService extends IntentService {
                     .setPriority(Notification.PRIORITY_MAX)
                     .setWhen(System.currentTimeMillis())
                     .addAction(drawable, ticker, onPendingIntent)
+                    .addAction(R.drawable.ic_close, "Close", exitPendingIntent)
                     .build();
         } else {
             notify = new Notification(R.drawable.app, getText(R.string.service_started), System.currentTimeMillis());
@@ -379,6 +382,7 @@ public class TetheringService extends IntentService {
         revertToInitialState();
         stopForeground(true);
         stopSelf();
+        unregisterReceiver(receiver);
         super.onDestroy();
     }
 
