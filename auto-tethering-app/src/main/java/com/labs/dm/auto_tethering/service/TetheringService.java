@@ -388,10 +388,10 @@ public class TetheringService extends IntentService {
     private Notification buildNotification(String caption) {
         lastNotifcationTickerText = caption;
         Notification notify;
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             Intent onIntent = new Intent("tethering");
             PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -432,7 +432,8 @@ public class TetheringService extends IntentService {
                     .addAction(drawable, ticker, onPendingIntent)
                     .build();
         } else {
-            notify = new Notification(R.drawable.app, getText(R.string.service_started), System.currentTimeMillis());
+            notify = new Notification(R.drawable.app, caption, System.currentTimeMillis());
+            notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
         }
         return notify;
     }
