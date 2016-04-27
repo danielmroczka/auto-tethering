@@ -14,7 +14,6 @@
         android:paddingTop="4dp">
 
         <TextView
-            android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/scheduled_switch_off"
@@ -29,7 +28,6 @@
             android:paddingTop="4dp" />
 
         <TextView
-            android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/scheduled_switch_on"
@@ -44,7 +42,6 @@
             android:paddingTop="4dp" />
 
         <TextView
-            android:id="@+id/textView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/repeat_weekly_on"

@@ -1,0 +1,88 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:padding="4dp">
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="32dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignBottom="@+id/text"
+        android:layout_alignTop="@+id/title"
+        android:src="@drawable/app"
+        android:layout_centerVertical="true"
+        android:layout_margin="4dp" />
+
+    <TextView
+        android:id="@+id/title"
+        style="Custom Notification Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="4dp"
+        android:layout_toLeftOf="@+id/imageButton"
+        android:text="Title"
+        android:layout_toRightOf="@+id/image"
+        android:layout_toEndOf="@+id/image"
+        android:singleLine="true"
+        android:textColor="@android:color/background_light"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/text"
+        style="Custom Notification Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title"
+        android:layout_marginRight="4dp"
+        android:layout_toLeftOf="@+id/imageButton"
+        android:text="Text"
+        android:layout_toRightOf="@+id/image"
+        android:layout_toEndOf="@+id/image"
+        android:singleLine="true" />
+
+    <TextView
+        android:id="@+id/time"
+        style="Custom Notification Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+
+        android:text="12:00" />
+
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_service"
+        android:padding="4dp"
+        android:clickable="true"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:layout_alignTop="@+id/time"
+        android:layout_toStartOf="@+id/action"
+        android:layout_toLeftOf="@+id/action"
+        android:layout_margin="4dp"
+        android:layout_below="@+id/text" />
+
+    <TextView
+        android:id="@+id/action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/time"
+
+        android:layout_alignRight="@+id/time"
+        android:text="Small Text"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="visible"
+
+        android:layout_alignBottom="@+id/text"
+        android:layout_below="@+id/title"
+        android:textSize="12sp"
+        android:singleLine="true" />
+</RelativeLayout>

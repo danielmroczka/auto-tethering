@@ -10,7 +10,6 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -187,11 +186,6 @@ public class DBManager extends SQLiteOpenHelper {
         } else {
             return db.insert(Cron.NAME, null, content);
         }
-    }
-
-    public Date getNextSchedule() {
-        List<Cron> crons = getCrons();
-        return new Date();
     }
 
     public long addOrUpdateCron(Cron cron) {

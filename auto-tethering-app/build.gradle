@@ -47,8 +47,8 @@ android {
         applicationId "com.labs.dm.auto_tethering"
         minSdkVersion 10
         targetSdkVersion 21
-        versionCode 29
-        versionName "0.0.29"
+        versionCode 30
+        versionName "0.0.30"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 

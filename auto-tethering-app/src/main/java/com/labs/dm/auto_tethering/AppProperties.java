@@ -22,6 +22,7 @@ public class AppProperties {
     public static final String IDLE_TETHERING_OFF_TIME = "idle.wifi.off.time";
     public static final String ACTIVATE_ON_ROAMING = "activate.on.roaming";
     public static final String RETURN_TO_PREV_STATE = "return.state";
+    public static final String FORCE_NET_FROM_NOTIFY = "force.net.from.notify";
 
     //DEFAULT
     public static final String DEFAULT_IDLE_TETHERING_OFF_TIME = "60";

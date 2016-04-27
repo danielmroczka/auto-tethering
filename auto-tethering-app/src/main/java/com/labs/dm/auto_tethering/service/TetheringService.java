@@ -4,10 +4,9 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -28,6 +27,10 @@ import static com.labs.dm.auto_tethering.AppProperties.*;
  * Created by Daniel Mroczka
  */
 public class TetheringService extends IntentService {
+
+    private boolean forceOff = false, forceOn = false;
+    boolean changeMobileState;
+    private String lastNotifcationTickerText;
 
     private enum Status {
         DEACTIVED_ON_IDLE, DEFAULT
@@ -51,22 +54,40 @@ public class TetheringService extends IntentService {
         super(TAG);
     }
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        serviceHelper = new ServiceHelper(getApplicationContext());
+        onChangeProperties();
+        init();
+        registerReceivers();
+    }
+
+    private void registerReceivers() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("tethering");
+        filter.addAction("widget");
+
+        BroadcastReceiver receiver = new MyBroadcastReceiver();
+        registerReceiver(receiver, filter);
+    }
+
+    @Override
+    public void onStart(Intent intent, int startId) {
+        super.onStart(intent, startId);
+        runAsForeground();
+    }
+
+    private void init() {
+        initial3GStatus = serviceHelper.isMobileConnectionActive();
+        initialTetheredStatus = serviceHelper.isSharingWiFi();
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "onStartCommand");
-        runFromActivity = intent.getBooleanExtra(("runFromActivity"), false);
-        int state = intent.getIntExtra("state", -1);
-        if (state == 1) {
-            Log.i(TAG, "shouldOff");
-            tetheringAsyncTask(false);
-            showNotification(getString(R.string.notification_tethering_off));
-        } else if (state == 0) {
-            Log.i(TAG, "shouldOn");
-            tetheringAsyncTask(true);
-            showNotification(getString(R.string.notification_tethering_restored));
-        }
-
+        runFromActivity = intent.getBooleanExtra("runFromActivity", false);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -89,10 +110,13 @@ public class TetheringService extends IntentService {
 
         while (flag) {
             try {
-                if (isServiceActivated()) {
+                if (forceOff || forceOn) {
+                    continue;
+                }
+                if (isServiceActivated() || keepService()) {
                     if (isCorrectSimCard()) {
                         if (checkForRoaming()) {
-                            boolean connected3G = serviceHelper.checkMobileConnection();
+                            boolean connected3G = serviceHelper.isMobileConnectionActive();
                             boolean tethered = serviceHelper.isSharingWiFi();
                             boolean idle = checkIdle();
 
@@ -150,6 +174,10 @@ public class TetheringService extends IntentService {
     }
 
     private boolean tetheringAsyncTask(boolean state) {
+        if (serviceHelper.isSharingWiFi() == state) {
+            return false;
+        }
+        //showNotification(getString(state ? R.string.notification_tethering_restored : R.string.notification_tethering_off));
         if (!state || status != Status.DEACTIVED_ON_IDLE) {
             new TurnOnTetheringAsyncTask().doInBackground(state);
             return true;
@@ -220,25 +248,8 @@ public class TetheringService extends IntentService {
                 return true;
             }
             status = Status.DEFAULT;
-
         }
-
         return false;
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        serviceHelper = new ServiceHelper(getApplicationContext());
-        onChangeProperties();
-        init();
-        runAsForeground();
-    }
-
-    private void init() {
-        initial3GStatus = serviceHelper.checkMobileConnection();
-        initialTetheredStatus = serviceHelper.isSharingWiFi();
     }
 
     private void onChangeProperties() {
@@ -246,6 +257,10 @@ public class TetheringService extends IntentService {
     }
 
     private boolean internetAsyncTask(boolean state) {
+        if (serviceHelper.isMobileConnectionActive() == state) {
+            return false;
+        }
+        //showNotification(getString(state ? R.string.notification_internet_restored : R.string.notification_internet_off));
         if (!state || status != Status.DEACTIVED_ON_IDLE) {
             new TurnOn3GAsyncTask().doInBackground(state);
             return true;
@@ -292,19 +307,69 @@ public class TetheringService extends IntentService {
     }
 
     private void runAsForeground() {
-        Notification notify = new Notification(R.drawable.app, getText(R.string.service_started), System.currentTimeMillis());
-        this.notification = notify;
-        showNotification("Service started");
-        startForeground(NOTIFICATION_ID, notify);
+        if (notification == null) {
+            this.notification = buildNotification("Service started");
+            showNotification("Service started");
+            startForeground(NOTIFICATION_ID, notification);
+        }
+    }
+
+    private Notification buildNotification(String caption) {
+        lastNotifcationTickerText = caption;
+        Notification notify;
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+
+            Intent onIntent = new Intent("tethering");
+            PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            int drawable = R.drawable.ic_service;
+            String ticker = "Service on";
+
+            if (forceOff && !forceOn) {
+                drawable = R.drawable.ic_wifi_off24;
+                ticker = "Tethering OFF";
+            } else if (forceOn && !forceOff) {
+                drawable = R.drawable.ic_wifi_on24;
+                ticker = "Tethering ON";
+            }
+
+/*
+            RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.layout_notification);
+            contentView.setImageViewResource(R.id.image, R.drawable.app);
+            contentView.setTextViewText(R.id.title, getText(R.string.app_name));
+            contentView.setTextViewText(R.id.text, caption);
+            contentView.setTextViewText(R.id.action, ticker);
+            contentView.setTextViewText(R.id.time,  new SimpleDateFormat("HH:mm").format(System.currentTimeMillis()));
+            contentView.setImageViewResource(R.id.imageButton, drawable);
+            contentView.setOnClickPendingIntent(R.id.imageButton, onPendingIntent);
+*/
+
+            notify = new Notification.Builder(this)
+                    .setContentTitle(getText(R.string.app_name))
+                    .setContentText(caption)
+                    .setOngoing(true)
+                    .setSmallIcon(R.drawable.app)
+                    .setAutoCancel(false)
+                    .setTicker(caption)
+                    //.setContent(contentView)
+                    .setContentIntent(pendingIntent)
+                    .setPriority(Notification.PRIORITY_MAX)
+                    .setWhen(System.currentTimeMillis())
+                    .addAction(drawable, ticker, onPendingIntent)
+                    .build();
+        } else {
+            notify = new Notification(R.drawable.app, caption, System.currentTimeMillis());
+            notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
+        }
+        return notify;
     }
 
     private void showNotification(String body) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        PendingIntent pending = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        notification.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), body, pending);
-        notification.when = System.currentTimeMillis();
-        notification.tickerText = body;
+        Notification notification = buildNotification(body);
         notificationManager.notify(NOTIFICATION_ID, notification);
         Log.i(TAG, "Notification: " + body);
     }
@@ -322,6 +387,68 @@ public class TetheringService extends IntentService {
         if (prefs.getBoolean(RETURN_TO_PREV_STATE, false) && prefs.getBoolean(ACTIVATE_KEEP_SERVICE, true)) {
             serviceHelper.setMobileDataEnabled(initial3GStatus);
             serviceHelper.setWifiTethering(initialTetheredStatus);
+        }
+    }
+
+    private class MyBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("tethering".equals(intent.getAction())) {
+                if (forceOn && !forceOff) {
+                    forceOff = true;
+                    forceOn = false;
+                    showNotification(getString(R.string.notification_tethering_off));
+                    tetheringAsyncTask(false);
+                } else if (!forceOff && !forceOn) {
+                    forceOn = true;
+                    showNotification(getString(R.string.notification_tethering_restored));
+                    tetheringAsyncTask(true);
+                } else {
+                    forceOff = false;
+                    forceOn = false;
+                    showNotification(lastNotifcationTickerText);
+                }
+
+                if (prefs.getBoolean(FORCE_NET_FROM_NOTIFY, true)) {
+                    forceInternetConnect();
+                }
+            }
+
+            if ("widget".equals(intent.getAction())) {
+                changeMobileState = intent.getExtras().getBoolean("changeMobileState", false);
+
+                if (serviceHelper.isSharingWiFi()) {
+                    forceOff = true;
+                    forceOn = false;
+                    showNotification(getString(R.string.notification_tethering_off));
+                    tetheringAsyncTask(false);
+                } else {
+                    forceOn = true;
+                    forceOff = false;
+                    showNotification(getString(R.string.notification_tethering_restored));
+                    tetheringAsyncTask(true);
+                }
+
+                if (changeMobileState) {
+                    forceInternetConnect();
+                }
+            }
+        }
+
+        private void forceInternetConnect() {
+            if (forceOff) {
+                showNotification(getString(R.string.notification_internet_off));
+                internetAsyncTask(false);
+            } else if (forceOn) {
+                if (!checkForRoaming()) {
+                    showNotification(getString(R.string.roaming_service_disabled));
+                    forceOff = true;
+                    forceOn = false;
+                } else {
+                    showNotification(getString(R.string.notification_internet_restored));
+                    internetAsyncTask(true);
+                }
+            }
         }
     }
 }

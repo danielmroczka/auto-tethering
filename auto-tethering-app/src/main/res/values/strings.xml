@@ -30,7 +30,7 @@
     <string name="switch.off.tethering.idle.title">WiFi Tethering</string>
     <string name="switch.off.tethering.idle.summary">Switch off WiFi Tethering on idle</string>
     <string name="activate.on.startup.title">Startup</string>
-    <string name="startup.title">Services activation</string>
+    <string name="startup.title">Service activation</string>
     <string name="scheduler.title">Scheduler</string>
     <string name="idle.time.minutes">Idle time in minutes</string>
     <string name="warning">Warning</string>
@@ -54,7 +54,7 @@
     <string name="roaming.service.disabled">Service disabled due to roaming network</string>
     <string name="activate.keep.service.title">Run service in background</string>
     <string name="activate.keep.service.summary">Keep service running after start tethering</string>
-    <string name="release_notes">[x] Small bug fixing around startup service and scheduler</string>
+    <string name="release_notes">[x] Notification enhancement - now it is possible to switch off/on tethering from notification page (Android 4.0+).\n\n[x] Widget doesn\'t stop running service.\n\n[x] Add property to force internet connection if tethering triggered from notification page (Android 4.0+).</string>
     <string name="turn_on_off_wifi_tethering">Turn on/off WiFi Tethering</string>
     <string name="turn_on_off_internet_connection">Turn on/off internet connection</string>
     <string name="add_widget">ADD WIDGET</string>
@@ -69,5 +69,14 @@
     <string name="on_startup_disable">Startup application has been disabled. Service won\'t startup on system boot.
     </string>
     <string name="on_startup_enable">Startup application on boot has been enabled</string>
+    <string name="about">About</string>
+    <string name="reset_settings">Reset settings</string>
+    <string name="exit">Exit</string>
+    <string name="tap_to_switch_on_tethering">Tap to switch on tethering</string>
+    <string name="tap_to_switch_off_tethering">Tap to switch off tethering</string>
+    <string name="on">ON</string>
+    <string name="off">OFF</string>
+    <string name="title">Title</string>
+    <string name="summary">Summary</string>
 </resources>
 
