@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.receiver.TetheringWidgetProvider;
 
@@ -62,14 +61,15 @@ public class ConfigurationActivity extends Activity {
 
             CheckBox mobile = (CheckBox) findViewById(R.id.chkWidget3G);
             CheckBox tethering = (CheckBox) findViewById(R.id.chkWidgetWifi);
+            CheckBox startService = (CheckBox) findViewById(R.id.chkStartService);
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            prefs.edit().putBoolean("widget." + mAppWidgetId + ".mobile", mobile.isChecked()).apply();
-            prefs.edit().putBoolean("widget." + mAppWidgetId + ".tethering", tethering.isChecked()).apply();
+            prefs.edit().putBoolean(key("mobile"), mobile.isChecked()).apply();
+            prefs.edit().putBoolean(key("tethering"), tethering.isChecked()).apply();
+            prefs.edit().putBoolean(key("start.service"), startService.isChecked()).apply();
 
             Intent serviceIntent = new Intent(ConfigurationActivity.this, TetheringWidgetProvider.class);
             serviceIntent.putExtra(EXTRA_APPWIDGET_ID, mAppWidgetId);
-            serviceIntent.setAction("FROM CONFIGURATION ACTIVITY");
             setResult(RESULT_OK, serviceIntent);
             startService(serviceIntent);
             finish();
@@ -80,5 +80,9 @@ public class ConfigurationActivity extends Activity {
             finish();
         }
 
+    }
+
+    private String key(String key) {
+        return "widget." + mAppWidgetId + "." + key;
     }
 }

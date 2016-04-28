@@ -110,13 +110,13 @@
                 android:key="simcard.list"
                 android:title="Edit SIM card whitelist">
                 <PreferenceScreen
-                    android:icon="@drawable/ic_add"
-                    android:key="add.current.simcard"
-                    android:title="Add current SIM card"></PreferenceScreen>
+                        android:icon="@drawable/ic_add"
+                        android:key="add.current.simcard"
+                        android:title="Add current SIM card"/>
                 <PreferenceScreen
-                    android:icon="@drawable/ic_remove"
-                    android:key="remove.simcard"
-                    android:title="Remove selected"></PreferenceScreen>
+                        android:icon="@drawable/ic_remove"
+                        android:key="remove.simcard"
+                        android:title="Remove selected"/>
             </PreferenceCategory>
         </PreferenceScreen>
         <CheckBoxPreference
@@ -132,12 +132,11 @@
             android:summary="@string/revert.state.summary"
             android:title="Restore connection to initial state" />
         <CheckBoxPreference
-            android:defaultValue="true"
-            android:icon="@drawable/ic_signal"
-            android:key="force.net.from.notify"
-            android:summary="Connect to internet if tethering triggered from notification"
-            android:title="Activate mobile network" />
-
+                android:defaultValue="true"
+                android:icon="@drawable/ic_signal"
+                android:key="force.net.from.notify"
+                android:summary="Connect to internet if tethering triggered from notification"
+                android:title="Activate mobile data"/>
     </PreferenceScreen>
 
     <PreferenceCategory
