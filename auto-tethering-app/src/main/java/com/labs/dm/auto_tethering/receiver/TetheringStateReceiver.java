@@ -33,6 +33,7 @@ public class TetheringStateReceiver extends BroadcastReceiver {
             intent2.putExtra(EXTRA_APPWIDGET_ID, widgetId);
             PendingIntent pendingIntent = PendingIntent.getService(context, widgetId, intent2, PendingIntent.FLAG_ONE_SHOT);
 
+            remoteViews.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
             remoteViews.setOnClickPendingIntent(R.id.widget_button, pendingIntent);
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }

@@ -35,6 +35,7 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
             Intent intent = new Intent(context, WidgetService.class);
             intent.putExtra(EXTRA_APPWIDGET_ID, widgetId);
             PendingIntent pendingIntent = PendingIntent.getService(context, widgetId, intent, PendingIntent.FLAG_ONE_SHOT);
+            remoteViews.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
             remoteViews.setOnClickPendingIntent(R.id.widget_button, pendingIntent);
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }
