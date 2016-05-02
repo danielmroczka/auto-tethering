@@ -78,5 +78,6 @@
     <string name="off">OFF</string>
     <string name="title">Title</string>
     <string name="summary">Summary</string>
+    <string name="widget.conf.title">Widget Configuration</string>
 </resources>
 

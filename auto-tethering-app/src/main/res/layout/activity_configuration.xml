@@ -1,28 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
     <CheckBox
-        android:id="@+id/chkWidgetWifi"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:enabled="false"
-        android:text="@string/turn_on_off_wifi_tethering" />
+            android:id="@+id/chkWidgetWifi"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:enabled="false"
+            android:text="@string/turn_on_off_wifi_tethering"/>
 
     <CheckBox
-        android:id="@+id/chkWidget3G"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:text="@string/turn_on_off_internet_connection" />
+            android:id="@+id/chkWidget3G"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/turn_on_off_internet_connection"/>
+
+    <CheckBox
+            android:id="@+id/chkStartService"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="Start service if not running"/>
 
     <Button
-        android:id="@+id/okButton"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/add_widget"
-        android:textColor="#FFFFFF" />
+            android:id="@+id/okButton"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_widget"
+            android:textColor="#FFFFFF"/>
 </LinearLayout>

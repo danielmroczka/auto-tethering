@@ -26,9 +26,15 @@ public class WidgetService extends IntentService {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         int widgetId = intent.getIntExtra(EXTRA_APPWIDGET_ID, -1);
 
-        if (isServiceRunning(TetheringService.class)) {
+        if (!isServiceRunning(TetheringService.class) && prefs.getBoolean(key(widgetId, "start.service"), false)) {
+            Intent serviceIntent = new Intent(this, TetheringService.class);
+            startService(serviceIntent);
             Intent onIntent = new Intent("widget");
-            onIntent.putExtra("changeMobileState", prefs.getBoolean("widget." + widgetId + ".mobile", false));
+            onIntent.putExtra("changeMobileState", prefs.getBoolean(key(widgetId, "mobile"), false));
+            sendBroadcast(onIntent);
+        } else if (isServiceRunning(TetheringService.class)) {
+            Intent onIntent = new Intent("widget");
+            onIntent.putExtra("changeMobileState", prefs.getBoolean(key(widgetId, "mobile"), false));
             sendBroadcast(onIntent);
         } else {
             changeState(state, prefs, widgetId);
@@ -82,5 +88,9 @@ public class WidgetService extends IntentService {
             }
         }
         return false;
+    }
+
+    private String key(int id, String key) {
+        return "widget." + id + "." + key;
     }
 }
