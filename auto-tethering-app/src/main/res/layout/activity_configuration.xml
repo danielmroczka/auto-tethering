@@ -24,7 +24,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:checked="false"
-            android:text="Always start service"/>
+            android:text="Start service if not running"/>
 
     <Button
             android:id="@+id/okButton"

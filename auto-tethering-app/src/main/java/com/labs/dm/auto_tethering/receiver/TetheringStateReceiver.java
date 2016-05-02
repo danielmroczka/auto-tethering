@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.RemoteViews;
-
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.WidgetService;
@@ -32,7 +31,7 @@ public class TetheringStateReceiver extends BroadcastReceiver {
 
             Intent intent2 = new Intent(context, WidgetService.class);
             intent2.putExtra(EXTRA_APPWIDGET_ID, widgetId);
-            PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent2, PendingIntent.FLAG_ONE_SHOT);
+            PendingIntent pendingIntent = PendingIntent.getService(context, widgetId, intent2, PendingIntent.FLAG_ONE_SHOT);
 
             remoteViews.setOnClickPendingIntent(R.id.widget_button, pendingIntent);
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
