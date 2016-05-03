@@ -30,6 +30,7 @@ public class TetheringService extends IntentService {
 
     private boolean forceOff = false, forceOn = false;
     boolean changeMobileState;
+    private BroadcastReceiver receiver;
     private String lastNotifcationTickerText;
 
     private enum Status {
@@ -69,8 +70,7 @@ public class TetheringService extends IntentService {
         filter.addAction("tethering");
         filter.addAction("widget");
         filter.addAction("resume");
-
-        BroadcastReceiver receiver = new MyBroadcastReceiver();
+        receiver = new MyBroadcastReceiver();
         registerReceiver(receiver, filter);
     }
 
@@ -320,6 +320,8 @@ public class TetheringService extends IntentService {
         Notification notify;
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent exitIntent = new Intent("exit");
+        PendingIntent exitPendingIntent = PendingIntent.getBroadcast(this, 0, exitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             Notification.Builder builder = new Notification.Builder(this)
@@ -377,6 +379,7 @@ public class TetheringService extends IntentService {
         revertToInitialState();
         stopForeground(true);
         stopSelf();
+        unregisterReceiver(receiver);
         super.onDestroy();
     }
 

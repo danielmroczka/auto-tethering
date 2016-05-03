@@ -37,6 +37,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     public static final int ON_CHANGE_SCHEDULE = 2;
     private SharedPreferences prefs;
     private ServiceHelper serviceHelper;
+    private BroadcastReceiver receiver;
     private DBManager db;
 
     @Override
@@ -49,6 +50,17 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
         checkIfNotlocked();
         registerListeners();
+        registerReceievers();
+    }
+
+    private void registerReceievers() {
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                exitApp();
+            }
+        };
+        registerReceiver(receiver, new IntentFilter("exit"));
     }
 
     private void registerListeners() {
@@ -476,7 +488,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void exitApp() {
-        Intent serviceIntent = new Intent(MainActivity.this, TetheringService.class);
+        Intent serviceIntent = new Intent(this, TetheringService.class);
         stopService(serviceIntent);
         finish();
     }
@@ -505,5 +517,11 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     protected void onPause() {
         super.onPause();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(receiver);
+        super.onDestroy();
     }
 }
