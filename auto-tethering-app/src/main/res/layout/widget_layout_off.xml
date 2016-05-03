@@ -1,29 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@drawable/myshape"
-              android:clickable="true"
-              android:descendantFocusability="blocksDescendants"
-              android:id="@+id/widget_layout"
-              android:orientation="vertical">
+    android:id="@+id/widget_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/myshape"
+    android:clickable="true"
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="vertical">
 
     <ImageButton
-            android:id="@+id/widget_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_margin="2dp"
-            android:background="@drawable/ic_wifi_off"/>
+        android:id="@+id/widget_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="2dp"
+        android:background="@drawable/ic_wifi_off"
+        android:clickable="false" />
 
     <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:hint="@string/tap_to_switch_on_tethering"
-            android:text="@string/off"
-            android:clickable="true"
-            android:textColor="#fb0e0e"
-            android:textSize="15sp"/>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:gravity="center"
+        android:hint="@string/tap_to_switch_on_tethering"
+        android:text="@string/off"
+        android:textColor="#fb0e0e"
+        android:textSize="15sp" />
 
 </LinearLayout>

@@ -54,7 +54,7 @@
     <string name="roaming.service.disabled">Service disabled due to roaming network</string>
     <string name="activate.keep.service.title">Run service in background</string>
     <string name="activate.keep.service.summary">Keep service running after start tethering</string>
-    <string name="release_notes">[x] Notification enhancement - now it is possible to switch off/on tethering from notification page (Android 4.0+).\n\n[x] Widget doesn\'t stop running service.\n\n[x] Add property to force internet connection if tethering triggered from notification page (Android 4.0+).</string>
+    <string name="release_notes">[x] Support multiple widget instances.\n\n[x] Add info on the widget while WiFi tethering is enabling or disabling.\n\n[x]Fix widget usability</string>
     <string name="turn_on_off_wifi_tethering">Turn on/off WiFi Tethering</string>
     <string name="turn_on_off_internet_connection">Turn on/off internet connection</string>
     <string name="add_widget">ADD WIDGET</string>
