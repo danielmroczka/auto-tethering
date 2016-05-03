@@ -1,4 +1,4 @@
-package com.labs.dm.auto_tethering;
+package com.labs.dm.auto_tethering.ui;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-
+import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.activity.ScheduleActivity;
 import com.labs.dm.auto_tethering.db.Cron;

@@ -76,7 +76,7 @@ public class ConfigurationActivity extends Activity {
         }
 
         if (mAppWidgetId == INVALID_APPWIDGET_ID) {
-            Log.e("Invalid app widget id", "Invalid app widget id");
+            Log.e("WidgetAdd", "Invalid app widget id");
             finish();
         }
 

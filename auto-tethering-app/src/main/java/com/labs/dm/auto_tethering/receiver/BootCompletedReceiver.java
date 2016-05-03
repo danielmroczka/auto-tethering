@@ -6,15 +6,15 @@ import android.content.Intent;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
 /**
+ * Main responsibility of this receiver is to start TetheringService instance just after boot has been completed
+ *
  * Created by Daniel Mroczka
  */
 public class BootCompletedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            Intent serviceIntent = new Intent(context, TetheringService.class);
-            context.startService(serviceIntent);
-        }
+        Intent serviceIntent = new Intent(context, TetheringService.class);
+        context.startService(serviceIntent);
     }
 }
