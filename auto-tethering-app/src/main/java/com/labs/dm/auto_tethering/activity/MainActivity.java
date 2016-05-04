@@ -38,7 +38,7 @@ import com.labs.dm.auto_tethering.db.SimCard;
 import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
-import com.labs.dm.auto_tethering.ui.ScheduleCheckBoxPreference;
+import com.labs.dm.auto_tethering.ui.SchedulePreference;
 
 import java.util.List;
 import java.util.Map;
@@ -255,8 +255,15 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
         p.removeAll();
         for (final Cron cron : list) {
-            final ScheduleCheckBoxPreference ps = new ScheduleCheckBoxPreference(p, cron, this);
-            String title = String.format("%02d:%02d - %02d:%02d", cron.getHourOff(), cron.getMinOff(), cron.getHourOn(), cron.getMinOn());
+            final SchedulePreference ps = new SchedulePreference(p, cron, this);
+            String title;
+            if (cron.getHourOff() == -1) {
+                title = String.format("ON at %02d:%02d", cron.getHourOn(), cron.getMinOn());
+            } else if (cron.getHourOn() == -1) {
+                title = String.format("OFF at %02d:%02d", cron.getHourOff(), cron.getMinOff());
+            } else {
+                title = String.format("%02d:%02d - %02d:%02d", cron.getHourOff(), cron.getMinOff(), cron.getHourOn(), cron.getMinOn());
+            }
             ps.setTitle(title);
             ps.setSummary(Utils.maskToDays(cron.getMask()));
             p.addPreference(ps);

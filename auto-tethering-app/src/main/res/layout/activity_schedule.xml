@@ -13,9 +13,12 @@
         android:paddingBottom="4dp"
         android:paddingTop="4dp">
 
-        <TextView
+        <CheckBox
+            android:id="@+id/chkScheduleOff"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:checked="true"
+            android:labelFor="@+id/scheduleTimeOff"
             android:text="@string/scheduled_switch_off"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -27,9 +30,12 @@
             android:paddingBottom="4dp"
             android:paddingTop="4dp" />
 
-        <TextView
+        <CheckBox
+            android:id="@+id/chkScheduleOn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:checked="true"
+            android:labelFor="@+id/scheduleTimeOn"
             android:text="@string/scheduled_switch_on"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 

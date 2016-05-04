@@ -7,9 +7,12 @@ import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
@@ -21,6 +24,8 @@ public class ScheduleActivity extends Activity {
     private DBManager db;
     private TimePicker timeOff;
     private TimePicker timeOn;
+    private CheckBox chkOff;
+    private CheckBox chkOn;
     private int id;
 
     @Override
@@ -30,6 +35,22 @@ public class ScheduleActivity extends Activity {
         db = DBManager.getInstance(getApplicationContext());
         timeOff = (TimePicker) findViewById(R.id.scheduleTimeOff);
         timeOn = (TimePicker) findViewById(R.id.scheduleTimeOn);
+        chkOff = (CheckBox) findViewById(R.id.chkScheduleOff);
+        chkOn = (CheckBox) findViewById(R.id.chkScheduleOn);
+
+        chkOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                timeOff.setEnabled(isChecked);
+            }
+        });
+        chkOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                timeOn.setEnabled(isChecked);
+            }
+        });
+
         timeOff.setIs24HourView(DateFormat.is24HourFormat(this));
         timeOn.setIs24HourView(DateFormat.is24HourFormat(this));
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
@@ -69,8 +90,12 @@ public class ScheduleActivity extends Activity {
         if (intent.getIntExtra("cronId", 0) > 0) {
             Cron cron = db.getCron(intent.getIntExtra("cronId", 0));
             id = cron.getId();
-            timeOff.setCurrentHour(cron.getHourOff());
-            timeOn.setCurrentHour(cron.getHourOn());
+
+            chkOff.setChecked(cron.getHourOff() != -1);
+            chkOn.setChecked(cron.getHourOn() != -1);
+            int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+            timeOff.setCurrentHour(cron.getHourOff() != -1 ? cron.getHourOff() : hour);
+            timeOn.setCurrentHour(cron.getHourOn() != -1 ? cron.getHourOn() : hour);
             timeOff.setCurrentMinute(cron.getMinOff());
             timeOn.setCurrentMinute(cron.getMinOn());
             String binary = String.format("%7s", Integer.toBinaryString(cron.getMask())).replace(' ', '0');
@@ -96,7 +121,12 @@ public class ScheduleActivity extends Activity {
             return false;
         }
 
-        Cron cron = new Cron(timeOff.getCurrentHour(), timeOff.getCurrentMinute(), timeOn.getCurrentHour(), timeOn.getCurrentMinute(), mask, Cron.STATUS.SCHED_OFF_ENABLED.getValue());
+        Cron cron = new Cron(
+                timeOff.isEnabled() ? timeOff.getCurrentHour() : -1,
+                timeOff.isEnabled() ? timeOff.getCurrentMinute() : 0,
+                timeOn.isEnabled() ? timeOn.getCurrentHour() : -1,
+                timeOn.isEnabled() ? timeOn.getCurrentMinute() : 0,
+                mask, Cron.STATUS.SCHED_OFF_ENABLED.getValue());
         cron.setId(id);
         if (db.addOrUpdateCron(cron) <= 0) {
             Toast.makeText(getApplicationContext(), "Cannot add the same schedule items more than once!", Toast.LENGTH_LONG).show();

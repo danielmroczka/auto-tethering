@@ -219,10 +219,11 @@ public class TetheringService extends IntentService {
             timeOff.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH), cron.getHourOff(), cron.getMinOff(), 0);
 
             boolean matchedMask = (cron.getMask() & (int) Math.pow(2, Utils.adapterDayOfWeek(now.get(Calendar.DAY_OF_WEEK)))) > 0;
-
             boolean active = cron.getStatus() == Cron.STATUS.SCHED_OFF_ENABLED.getValue();
+            boolean timelineOff = cron.getHourOff() != -1 || timeOff.getTimeInMillis() < now.getTimeInMillis();
+            boolean timelineOn = cron.getHourOn() != -1 || now.getTimeInMillis() < timeOn.getTimeInMillis();
 
-            state = state || (active && timeOff.getTimeInMillis() < now.getTimeInMillis() && now.getTimeInMillis() < timeOn.getTimeInMillis() && matchedMask);
+            state = state || (active && timelineOff && timelineOn && matchedMask);
         }
 
         return state;
