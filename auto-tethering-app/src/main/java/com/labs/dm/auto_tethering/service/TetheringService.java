@@ -87,6 +87,7 @@ public class TetheringService extends IntentService {
         filter.addAction("tethering");
         filter.addAction("widget");
         filter.addAction("resume");
+        filter.addAction("exit");
         receiver = new MyBroadcastReceiver();
         registerReceiver(receiver, filter);
     }
@@ -357,26 +358,26 @@ public class TetheringService extends IntentService {
                     .bigText(caption)
                     .setBigContentTitle(getText(R.string.app_name)));
             //.setSummaryText(Formatter.formatShortFileSize(getApplicationContext(), TrafficStats.getMobileRxBytes() + TrafficStats.getMobileTxBytes())));
+            Intent onIntent = new Intent("tethering");
+            PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            int drawable = R.drawable.ic_service;
+            String ticker = "Service on";
+
+            if (forceOff && !forceOn) {
+                drawable = R.drawable.ic_wifi_off24;
+                ticker = "Tethering OFF";
+            } else if (forceOn && !forceOff) {
+                drawable = R.drawable.ic_wifi_on24;
+                ticker = "Tethering ON";
+            }
+
+            builder.addAction(drawable, ticker, onPendingIntent);
 
             if (status == Status.DEACTIVED_ON_IDLE) {
                 Intent onResumeIntent = new Intent("resume");
                 PendingIntent onResumePendingIntent = PendingIntent.getBroadcast(this, 0, onResumeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                builder.addAction(R.drawable.ic_cancel, "Resume", onResumePendingIntent);
-            } else {
-                Intent onIntent = new Intent("tethering");
-                PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-                int drawable = R.drawable.ic_service;
-                String ticker = "Service on";
-
-                if (forceOff && !forceOn) {
-                    drawable = R.drawable.ic_wifi_off24;
-                    ticker = "Tethering OFF";
-                } else if (forceOn && !forceOff) {
-                    drawable = R.drawable.ic_wifi_on24;
-                    ticker = "Tethering ON";
-                }
-                builder.addAction(drawable, ticker, onPendingIntent);
+                builder.addAction(R.drawable.ic_resume, "Resume", onResumePendingIntent);
             }
 
             builder.addAction(R.drawable.ic_exit, "Exit", exitPendingIntent);
@@ -459,6 +460,10 @@ public class TetheringService extends IntentService {
             if ("resume".equals(intent.getAction())) {
                 lastAccess = Calendar.getInstance().getTimeInMillis();
                 status = Status.DEFAULT;
+            }
+
+            if ("exit".equals(intent.getAction())) {
+                stopSelf();
             }
         }
 
