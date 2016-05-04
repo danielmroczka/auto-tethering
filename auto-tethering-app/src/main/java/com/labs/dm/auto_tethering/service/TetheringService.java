@@ -4,12 +4,16 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
@@ -21,7 +25,20 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.labs.dm.auto_tethering.AppProperties.*;
+import static android.os.Build.VERSION;
+import static android.os.Build.VERSION_CODES;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
+import static com.labs.dm.auto_tethering.AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.FORCE_NET_FROM_NOTIFY;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
 
 /**
  * Created by Daniel Mroczka
@@ -316,6 +333,9 @@ public class TetheringService extends IntentService {
     }
 
     private Notification buildNotification(String caption) {
+        if (caption.equals(lastNotifcationTickerText)) {
+
+        }
         lastNotifcationTickerText = caption;
         Notification notify;
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -323,17 +343,20 @@ public class TetheringService extends IntentService {
         Intent exitIntent = new Intent("exit");
         PendingIntent exitPendingIntent = PendingIntent.getBroadcast(this, 0, exitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
             Notification.Builder builder = new Notification.Builder(this)
                     .setContentTitle(getText(R.string.app_name))
-                    .setContentText(caption)
+                    //.setSubText("subtext")
+                    .setTicker(caption)
                     .setOngoing(true)
                     .setSmallIcon(R.drawable.app)
                     .setAutoCancel(false)
-                    .setTicker(caption)
                     .setContentIntent(pendingIntent)
-                    .setPriority(Notification.PRIORITY_MAX)
-                    .setWhen(System.currentTimeMillis());
+                    .setPriority(Notification.PRIORITY_MAX);
+            builder.setStyle(new Notification.BigTextStyle(builder)
+                    .bigText(caption)
+                    .setBigContentTitle(getText(R.string.app_name)));
+            //.setSummaryText(Formatter.formatShortFileSize(getApplicationContext(), TrafficStats.getMobileRxBytes() + TrafficStats.getMobileTxBytes())));
 
             if (status == Status.DEACTIVED_ON_IDLE) {
                 Intent onResumeIntent = new Intent("resume");
@@ -353,12 +376,11 @@ public class TetheringService extends IntentService {
                     drawable = R.drawable.ic_wifi_on24;
                     ticker = "Tethering ON";
                 }
-
                 builder.addAction(drawable, ticker, onPendingIntent);
             }
 
+            builder.addAction(R.drawable.ic_exit, "Exit", exitPendingIntent);
             notify = builder.build();
-
         } else {
             notify = new Notification(R.drawable.app, caption, System.currentTimeMillis());
             notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
