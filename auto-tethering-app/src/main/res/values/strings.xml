@@ -40,13 +40,13 @@
     <string name="reset.prompt">Do you want to reset current settings?</string>
     <string name="initial.prompt">By default connection to internet and WiFi tethering are turned off. You need to set it manually. \nConnecting via packet data may incur additional charges. \nWIFI tethering will increase battery consumption. \n\nDo you want to turn on 3G connection and WIFI tethering?</string>
     <string name="notification.scheduled.internet.off">Turned off internet connection at scheduled time</string>
-    <string name="notification.scheduled.tethering.off">Turned off WiFi Tethering at scheduled time</string>
+    <string name="notification.scheduled.tethering.off">Turned off WiFi tethering at scheduled time</string>
     <string name="notification.idle.internet.off">Turned off internet connection due to clients inactivity</string>
-    <string name="notification.idle.tethering.off">Turned off WiFi Tethering due to clients inactivity</string>
+    <string name="notification.idle.tethering.off">Turned off WiFi tethering due to clients inactivity</string>
     <string name="notification.internet.restored">Restored internet connection</string>
     <string name="notification.internet.off">Turned off internet connection</string>
-    <string name="notification.tethering.restored">Restored WiFi Tethering</string>
-    <string name="notification.tethering.off">Turned off WiFi Tethering</string>
+    <string name="notification.tethering.restored">Restored WiFi tethering</string>
+    <string name="notification.tethering.off">Turned off WiFi tethering</string>
     <string name="service.started">Service started</string>
     <string name="inserted.blocked.simcard">Inserted SIM card is blocked by the settings or network is unavailable!</string>
     <string name="revert.state.summary">Restore network state before run the service</string>
@@ -54,8 +54,7 @@
     <string name="roaming.service.disabled">Service disabled due to roaming network</string>
     <string name="activate.keep.service.title">Run service in background</string>
     <string name="activate.keep.service.summary">Keep service running after start tethering</string>
-    <string name="release_notes">[x] Support multiple widget instances.\n\n[x] Add info on the widget while WiFi tethering is enabling or disabling.\n\n[x]Fix widget usability</string>
-    <string name="turn_on_off_wifi_tethering">Turn on/off WiFi Tethering</string>
+    <string name="turn_on_off_wifi_tethering">Turn on/off WiFi tethering</string>
     <string name="turn_on_off_internet_connection">Turn on/off internet connection</string>
     <string name="add_widget">ADD WIDGET</string>
     <string name="version">version:</string>
@@ -79,5 +78,7 @@
     <string name="title">Title</string>
     <string name="summary">Summary</string>
     <string name="widget.conf.title">Widget Configuration</string>
+    <!-- RELEASE NOTES -->
+    <string name="release_notes">[x] Added resume action on notification page if tethering switched off due to inactivity (on idle).</string>
 </resources>
 
