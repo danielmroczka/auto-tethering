@@ -47,7 +47,7 @@
     </PreferenceScreen>
 
     <PreferenceScreen
-        android:icon="@drawable/ic_idle"
+        android:icon="@drawable/ic_sleep"
         android:key="idle.screen"
         android:title="Deactivate on idle">
         <CheckBoxPreference
