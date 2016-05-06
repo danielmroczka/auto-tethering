@@ -381,7 +381,7 @@ public class TetheringService extends IntentService {
                 builder.addAction(R.drawable.ic_resume, "Resume", onResumePendingIntent);
             }
 
-            builder.addAction(R.drawable.ic_exit, "Exit", exitPendingIntent);
+            builder.addAction(R.drawable.ic_exit, "Close", exitPendingIntent);
             notify = builder.build();
         } else {
             notify = new Notification(R.drawable.app, caption, System.currentTimeMillis());
