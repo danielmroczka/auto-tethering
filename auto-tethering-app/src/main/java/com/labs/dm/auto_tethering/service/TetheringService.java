@@ -39,6 +39,15 @@ import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF_IDLE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SIMCARD_BLOCK;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF_IDLE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_ON;
 
 /**
  * Created by Daniel Mroczka
@@ -99,16 +108,26 @@ public class TetheringService extends IntentService {
     }
 
     private void init() {
-        initial3GStatus = serviceHelper.isMobileConnectionActive();
+        initial3GStatus = serviceHelper.isConnectedToInternet();
         initialTetheredStatus = serviceHelper.isSharingWiFi();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "onStartCommand");
-        runFromActivity = intent.getBooleanExtra("runFromActivity", false);
+        runFromActivity = intent.getBooleanExtra(("runFromActivity"), false);
+        int state = intent.getIntExtra("state", -1);
+        if (state == 1) {
+            Log.i(TAG, "shouldOff");
+            execute(TETHER_OFF);
+        } else if (state == 0) {
+            Log.i(TAG, "shouldOn");
+            execute(TETHER_ON);
+        }
+
         return super.onStartCommand(intent, flags, startId);
     }
+
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -117,9 +136,7 @@ public class TetheringService extends IntentService {
             showNotification(getString(R.string.service_started));
 
             if (!isCorrectSimCard()) {
-                internetAsyncTask(false);
-                tetheringAsyncTask(false);
-                showNotification(getString(R.string.inserted_blocked_simcard));
+                execute(SIMCARD_BLOCK);
             }
 
             if (!checkForRoaming()) {
@@ -135,43 +152,27 @@ public class TetheringService extends IntentService {
                 if (isServiceActivated() || keepService()) {
                     if (isCorrectSimCard()) {
                         if (checkForRoaming()) {
-                            boolean connected3G = serviceHelper.isMobileConnectionActive();
+                            boolean connected3G = serviceHelper.isConnectedToInternet();
                             boolean tethered = serviceHelper.isSharingWiFi();
                             boolean idle = checkIdle();
 
                             if (isScheduledTimeOff()) {
-                                if (connected3G) {
-                                    internetAsyncTask(false);
-                                    showNotification(getString(R.string.notification_scheduled_internet_off));
-                                }
-                                if (tethered) {
-                                    tetheringAsyncTask(false);
-                                    showNotification(getString(R.string.notification_scheduled_tethering_off));
-                                }
-                            } else if (idle && connected3G && check3GIdle()) {
-                                internetAsyncTask(false);
-                                status = Status.DEACTIVED_ON_IDLE;
-                                showNotification(getString(R.string.notification_idle_internet_off));
-                            } else if (idle && tethered && checkWifiIdle()) {
-                                tetheringAsyncTask(false);
-                                status = Status.DEACTIVED_ON_IDLE;
-                                showNotification(getString(R.string.notification_idle_tethering_off));
+                                execute(SCHEDULED_INTERNET_OFF);
+                                execute(SCHEDULED_TETHER_OFF);
+                            } else if (idle && check3GIdle()) {
+                                execute(INTERNET_OFF_IDLE);
+                            } else if (idle && checkWifiIdle()) {
+                                execute(TETHER_OFF_IDLE);
                             } else {
                                 if (isActivated3G() && !connected3G) {
-                                    if (internetAsyncTask(true)) {
-                                        showNotification(getString(R.string.notification_internet_restored));
-                                    }
+                                    execute(INTERNET_ON);
                                 } else if (!isActivated3G() && connected3G) {
-                                    internetAsyncTask(false);
-                                    showNotification(getString(R.string.notification_internet_off));
+                                    execute(INTERNET_OFF);
                                 }
                                 if (isActivatedTethering() && !tethered) {
-                                    if (tetheringAsyncTask(true)) {
-                                        showNotification(getString(R.string.notification_tethering_restored));
-                                    }
+                                    execute(TETHER_ON);
                                 } else if (!isActivatedTethering() && tethered) {
-                                    tetheringAsyncTask(false);
-                                    showNotification(getString(R.string.notification_tethering_off));
+                                    execute(TETHER_OFF);
                                 }
                             }
                         }
@@ -277,7 +278,7 @@ public class TetheringService extends IntentService {
     }
 
     private boolean internetAsyncTask(boolean state) {
-        if (serviceHelper.isMobileConnectionActive() == state) {
+        if (serviceHelper.isConnectedToInternet() == state) {
             return false;
         }
         //showNotification(getString(state ? R.string.notification_internet_restored : R.string.notification_internet_off));
@@ -482,6 +483,60 @@ public class TetheringService extends IntentService {
                     internetAsyncTask(true);
                 }
             }
+        }
+    }
+
+    private void execute(ServiceAction serviceAction) {
+        boolean action = serviceAction.isOn();
+        boolean showNotify = false;
+
+        if (serviceAction.isInternet() && serviceHelper.isConnectedToInternet() != action) {
+            internetAsyncTask(action);
+            showNotify = true;
+        }
+        if (serviceAction.isTethering() && serviceHelper.isSharingWiFi() != action) {
+            tetheringAsyncTask(action);
+            showNotify = true;
+        }
+
+        if (showNotify) {
+            int id = R.string.service_started;
+
+            switch (serviceAction) {
+                case TETHER_ON:
+                    id = R.string.notification_tethering_restored;
+                    break;
+                case TETHER_OFF:
+                    id = R.string.notification_tethering_off;
+                    break;
+                case INTERNET_ON:
+                    id = R.string.notification_internet_restored;
+                    break;
+                case INTERNET_OFF:
+                    id = R.string.notification_internet_off;
+                    break;
+                case SCHEDULED_TETHER_ON:
+                    //TODO
+                    break;
+                case SCHEDULED_TETHER_OFF:
+                    id = R.string.notification_scheduled_tethering_off;
+                    break;
+                case SCHEDULED_INTERNET_ON:
+                    //TODO
+                    break;
+                case SCHEDULED_INTERNET_OFF:
+                    id = R.string.notification_scheduled_internet_off;
+                    break;
+                case TETHER_OFF_IDLE:
+                    id = R.string.notification_idle_tethering_off;
+                    status = Status.DEACTIVED_ON_IDLE;
+                    break;
+                case INTERNET_OFF_IDLE:
+                    id = R.string.notification_idle_internet_off;
+                    status = Status.DEACTIVED_ON_IDLE;
+                    break;
+            }
+            showNotification(getString(id));
         }
     }
 }
