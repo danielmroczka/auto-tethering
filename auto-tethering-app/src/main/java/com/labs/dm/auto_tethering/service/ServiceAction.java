@@ -47,4 +47,9 @@ public enum ServiceAction {
     public boolean isInternet() {
         return internet;
     }
+
+    @Override
+    public String toString() {
+        return name() + ", isTethering=" + isTethering() + ", isInternet=" + isInternet() + ", state=" + isOn();
+    }
 }

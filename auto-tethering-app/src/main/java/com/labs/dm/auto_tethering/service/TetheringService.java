@@ -4,16 +4,11 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
@@ -27,27 +22,8 @@ import java.util.concurrent.TimeUnit;
 
 import static android.os.Build.VERSION;
 import static android.os.Build.VERSION_CODES;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
-import static com.labs.dm.auto_tethering.AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.FORCE_NET_FROM_NOTIFY;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
-import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF_IDLE;
-import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_ON;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SIMCARD_BLOCK;
-import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF_IDLE;
-import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_ON;
+import static com.labs.dm.auto_tethering.AppProperties.*;
+import static com.labs.dm.auto_tethering.service.ServiceAction.*;
 
 /**
  * Created by Daniel Mroczka
@@ -115,13 +91,11 @@ public class TetheringService extends IntentService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "onStartCommand");
-        runFromActivity = intent.getBooleanExtra(("runFromActivity"), false);
+        runFromActivity = intent.getBooleanExtra("runFromActivity", false);
         int state = intent.getIntExtra("state", -1);
         if (state == 1) {
-            Log.i(TAG, "shouldOff");
             execute(TETHER_OFF);
         } else if (state == 0) {
-            Log.i(TAG, "shouldOn");
             execute(TETHER_ON);
         }
 
@@ -422,12 +396,10 @@ public class TetheringService extends IntentService {
                 if (forceOn && !forceOff) {
                     forceOff = true;
                     forceOn = false;
-                    showNotification(getString(R.string.notification_tethering_off));
-                    tetheringAsyncTask(false);
+                    execute(TETHER_OFF);
                 } else if (!forceOff && !forceOn) {
                     forceOn = true;
-                    showNotification(getString(R.string.notification_tethering_restored));
-                    tetheringAsyncTask(true);
+                    execute(TETHER_ON);
                 } else {
                     forceOff = false;
                     forceOn = false;
@@ -445,13 +417,11 @@ public class TetheringService extends IntentService {
                 if (serviceHelper.isSharingWiFi()) {
                     forceOff = true;
                     forceOn = false;
-                    showNotification(getString(R.string.notification_tethering_off));
-                    tetheringAsyncTask(false);
+                    execute(TETHER_OFF);
                 } else {
                     forceOn = true;
                     forceOff = false;
-                    showNotification(getString(R.string.notification_tethering_restored));
-                    tetheringAsyncTask(true);
+                    execute(TETHER_ON);
                 }
 
                 if (changeMobileState) {
@@ -471,16 +441,14 @@ public class TetheringService extends IntentService {
 
         private void forceInternetConnect() {
             if (forceOff) {
-                showNotification(getString(R.string.notification_internet_off));
-                internetAsyncTask(false);
+                execute(INTERNET_OFF);
             } else if (forceOn) {
                 if (!checkForRoaming()) {
                     showNotification(getString(R.string.roaming_service_disabled));
                     forceOff = true;
                     forceOn = false;
                 } else {
-                    showNotification(getString(R.string.notification_internet_restored));
-                    internetAsyncTask(true);
+                    execute(INTERNET_ON);
                 }
             }
         }
@@ -489,7 +457,6 @@ public class TetheringService extends IntentService {
     private void execute(ServiceAction serviceAction) {
         boolean action = serviceAction.isOn();
         boolean showNotify = false;
-
         if (serviceAction.isInternet() && serviceHelper.isConnectedToInternet() != action) {
             internetAsyncTask(action);
             showNotify = true;
@@ -500,6 +467,7 @@ public class TetheringService extends IntentService {
         }
 
         if (showNotify) {
+            Log.i(TAG, "Execute action: " + serviceAction.toString());
             int id = R.string.service_started;
 
             switch (serviceAction) {
