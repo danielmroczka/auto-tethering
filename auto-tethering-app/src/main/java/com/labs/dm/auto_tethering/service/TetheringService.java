@@ -43,7 +43,7 @@ public class TetheringService extends IntentService {
     private final static int CHECK_DELAY = 5;
     private List<Cron> crons;
     private SharedPreferences prefs;
-    private long lastAccess = Calendar.getInstance().getTimeInMillis();
+    private long lastAccess = getTime().getTimeInMillis();
     private boolean initial3GStatus, initialTetheredStatus;
     private ServiceHelper serviceHelper;
     private boolean runFromActivity;
@@ -184,14 +184,14 @@ public class TetheringService extends IntentService {
     }
 
     private boolean isScheduledTimeOff() {
-        Calendar now = Calendar.getInstance();
+        Calendar now = getTime();
         onChangeProperties();
         boolean state = false;
         for (Cron cron : crons) {
-            Calendar timeOn = Calendar.getInstance();
+            Calendar timeOn = getTime();
             timeOn.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH), cron.getHourOn(), cron.getMinOn(), 0);
 
-            Calendar timeOff = Calendar.getInstance();
+            Calendar timeOff = getTime();
             timeOff.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH), cron.getHourOff(), cron.getMinOff(), 0);
 
             boolean matchedMask = (cron.getMask() & (int) Math.pow(2, Utils.adapterDayOfWeek(now.get(Calendar.DAY_OF_WEEK)))) > 0;
@@ -205,6 +205,10 @@ public class TetheringService extends IntentService {
         return state;
     }
 
+    protected Calendar getTime() {
+        return Calendar.getInstance();
+    }
+
     /**
      * Returns true when idle settings are switched on and no client is connected
      *
@@ -213,14 +217,14 @@ public class TetheringService extends IntentService {
     private boolean checkIdle() {
         if (prefs.getBoolean(IDLE_3G_OFF, false) || prefs.getBoolean(IDLE_TETHERING_OFF, false)) {
             if (Utils.connectedClients() > 0) {
-                lastAccess = Calendar.getInstance().getTimeInMillis();
+                lastAccess = getTime().getTimeInMillis();
                 status = Status.DEFAULT;
                 return false;
             }
 
             return true;
         } else {
-            lastAccess = Calendar.getInstance().getTimeInMillis();
+            lastAccess = getTime().getTimeInMillis();
             status = Status.DEFAULT;
         }
         return false;
@@ -228,7 +232,7 @@ public class TetheringService extends IntentService {
 
     private boolean check3GIdle() {
         if (prefs.getBoolean(IDLE_3G_OFF, false)) {
-            if (Calendar.getInstance().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_3G_OFF_TIME, "60")) * 1000 * 60) {
+            if (getTime().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_3G_OFF_TIME, "60")) * 1000 * 60) {
                 return true;
             }
             status = Status.DEFAULT;
@@ -239,7 +243,7 @@ public class TetheringService extends IntentService {
 
     private boolean checkWifiIdle() {
         if (prefs.getBoolean(IDLE_TETHERING_OFF, false)) {
-            if (Calendar.getInstance().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_TETHERING_OFF_TIME, DEFAULT_IDLE_TETHERING_OFF_TIME)) * 1000 * 60) {
+            if (getTime().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_TETHERING_OFF_TIME, DEFAULT_IDLE_TETHERING_OFF_TIME)) * 1000 * 60) {
                 return true;
             }
             status = Status.DEFAULT;
@@ -430,7 +434,7 @@ public class TetheringService extends IntentService {
             }
 
             if ("resume".equals(intent.getAction())) {
-                lastAccess = Calendar.getInstance().getTimeInMillis();
+                lastAccess = getTime().getTimeInMillis();
                 status = Status.DEFAULT;
             }
 
