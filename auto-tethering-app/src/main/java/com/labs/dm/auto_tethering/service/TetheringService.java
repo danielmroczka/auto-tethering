@@ -4,11 +4,16 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
@@ -22,8 +27,27 @@ import java.util.concurrent.TimeUnit;
 
 import static android.os.Build.VERSION;
 import static android.os.Build.VERSION_CODES;
-import static com.labs.dm.auto_tethering.AppProperties.*;
-import static com.labs.dm.auto_tethering.service.ServiceAction.*;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
+import static com.labs.dm.auto_tethering.AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.FORCE_NET_FROM_NOTIFY;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF_IDLE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SIMCARD_BLOCK;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF_IDLE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_ON;
 
 /**
  * Created by Daniel Mroczka
@@ -31,7 +55,7 @@ import static com.labs.dm.auto_tethering.service.ServiceAction.*;
 public class TetheringService extends IntentService {
 
     private boolean forceOff = false, forceOn = false;
-    boolean changeMobileState;
+    private boolean changeMobileState;
     private BroadcastReceiver receiver;
     private String lastNotifcationTickerText;
 
@@ -167,16 +191,14 @@ public class TetheringService extends IntentService {
         return prefs.getBoolean(AppProperties.ACTIVATE_KEEP_SERVICE, true);
     }
 
-    private boolean tetheringAsyncTask(boolean state) {
+    private void tetheringAsyncTask(boolean state) {
         if (serviceHelper.isSharingWiFi() == state) {
-            return false;
+            return;
         }
-        //showNotification(getString(state ? R.string.notification_tethering_restored : R.string.notification_tethering_off));
+
         if (!state || status != Status.DEACTIVED_ON_IDLE) {
             new TurnOnTetheringAsyncTask().doInBackground(state);
-            return true;
         }
-        return false;
     }
 
     private boolean isServiceActivated() {
@@ -205,7 +227,7 @@ public class TetheringService extends IntentService {
         return state;
     }
 
-    protected Calendar getTime() {
+    private Calendar getTime() {
         return Calendar.getInstance();
     }
 
@@ -255,16 +277,14 @@ public class TetheringService extends IntentService {
         crons = DBManager.getInstance(getApplicationContext()).getCrons();
     }
 
-    private boolean internetAsyncTask(boolean state) {
+    private void internetAsyncTask(boolean state) {
         if (serviceHelper.isConnectedToInternet() == state) {
-            return false;
+            return;
         }
-        //showNotification(getString(state ? R.string.notification_internet_restored : R.string.notification_internet_off));
+
         if (!state || status != Status.DEACTIVED_ON_IDLE) {
             new TurnOn3GAsyncTask().doInBackground(state);
-            return true;
         }
-        return false;
     }
 
     private boolean isActivatedTethering() {
@@ -307,8 +327,8 @@ public class TetheringService extends IntentService {
 
     private void runAsForeground() {
         if (notification == null) {
-            this.notification = buildNotification("Service started");
-            showNotification("Service started");
+            this.notification = buildNotification(getString(R.string.service_started));
+            showNotification(getString(R.string.service_started));
             startForeground(NOTIFICATION_ID, notification);
         }
     }

@@ -38,7 +38,7 @@
     <!-- PROMPTS -->
     <string name="prompt.onexit">Do you want to exit and stop service?</string>
     <string name="reset.prompt">Do you want to reset current settings?</string>
-    <string name="initial.prompt">By default connection to internet and WiFi tethering are turned off. You need to set it manually. \nConnecting via packet data may incur additional charges. \nWIFI tethering will increase battery consumption. \n\nDo you want to turn on 3G connection and WIFI tethering?</string>
+    <string name="initial.prompt">By default connection to internet and WiFi tethering are turned off. You need to set them manually.\nConnecting via packet data may incur additional charges.\nWIFI tethering will increase battery consumption. \n\nDo you want to turn on 3G connection and Wi-Fi tethering now?</string>
     <string name="notification.scheduled.internet.off">Turned off internet connection at scheduled time</string>
     <string name="notification.scheduled.tethering.off">Turned off WiFi tethering at scheduled time</string>
     <string name="notification.idle.internet.off">Turned off internet connection due to clients inactivity</string>
