@@ -9,6 +9,7 @@ import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
 
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 /**
  * Created by Daniel Mroczka
@@ -26,7 +27,7 @@ public class AboutActivity extends Activity {
         }
 
         TextView textView = (TextView) findViewById(R.id.versionTextView);
-        String buildTime = new SimpleDateFormat("yyyyMMdd_HHmmss").format(BuildConfig.buildTime);
+        String buildTime = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ENGLISH).format(BuildConfig.buildTime);
         textView.setText(String.format("version: %s\n", pInfo != null ? pInfo.versionName : null));
         textView.append(String.format("build: %s", buildTime));
     }
