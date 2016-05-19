@@ -33,7 +33,7 @@ public class TetheringService extends IntentService {
     private String lastNotifcationTickerText;
 
     private enum Status {
-        DEACTIVED_ON_IDLE, DEFAULT
+        DEACTIVED_ON_IDLE, DEFAULT, USB_ACTIVATED, USB_DEACTIVATED
     }
 
     private static final String TAG = "AutoTetheringService";
@@ -68,6 +68,8 @@ public class TetheringService extends IntentService {
         IntentFilter filter = new IntentFilter();
         filter.addAction("tethering");
         filter.addAction("widget");
+        filter.addAction("usb.on");
+        filter.addAction("usb.off");
 
         BroadcastReceiver receiver = new MyBroadcastReceiver();
         registerReceiver(receiver, filter);
@@ -151,8 +153,12 @@ public class TetheringService extends IntentService {
                                         showNotification(getString(R.string.notification_tethering_restored));
                                     }
                                 } else if (!isActivatedTethering() && tethered) {
-                                    tetheringAsyncTask(false);
-                                    showNotification(getString(R.string.notification_tethering_off));
+                                    if (status == Status.USB_ACTIVATED && prefs.getBoolean("usb.activate.on.connect", false)) {
+                                        //
+                                    } else {
+                                        tetheringAsyncTask(false);
+                                        showNotification(getString(R.string.notification_tethering_off));
+                                    }
                                 }
                             }
                         }
@@ -319,7 +325,6 @@ public class TetheringService extends IntentService {
         Notification notify;
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 
             Intent onIntent = new Intent("tethering");
@@ -432,6 +437,18 @@ public class TetheringService extends IntentService {
                 if (changeMobileState) {
                     forceInternetConnect();
                 }
+            }
+
+            if ("usb.on".equals(intent.getAction())) {
+                showNotification(getString(R.string.notification_tethering_restored));
+                tetheringAsyncTask(true);
+                status = Status.USB_ACTIVATED;
+            }
+
+            if ("usb.off".equals(intent.getAction())) {
+                showNotification(getString(R.string.notification_tethering_off));
+                tetheringAsyncTask(false);
+                status = Status.USB_DEACTIVATED;
             }
         }
 

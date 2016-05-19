@@ -90,6 +90,43 @@
     </PreferenceScreen>
 
     <PreferenceScreen
+            android:icon="@drawable/ic_idle"
+            android:key="idle.screen"
+            android:title="Activate on USB connection">
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:icon="@drawable/ic_info"
+                android:key="usb.only.when.connected"
+                android:summary="Tether only when connected to power"
+                android:title="" />
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:icon="@drawable/ic_info"
+                android:key="usb.activate.on.connect"
+                android:summary="Activate tethering on power connect"
+                android:title="" />
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:icon="@drawable/ic_info"
+                android:key="usb.deactivate.on.disconnect"
+                android:summary="Deactivate tethering on power disconnect"
+                android:title="" />
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:icon="@drawable/ic_info"
+                android:key="usb.3g.force.on"
+                android:summary="Force internet connection on"
+                android:title="" />
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:icon="@drawable/ic_info"
+                android:key="usb.3g.disconnect"
+                android:summary="Disconnect on finish"
+                android:title="" />
+    </PreferenceScreen>
+
+
+    <PreferenceScreen
         android:icon="@drawable/ic_settings"
         android:key="adv.act.screen"
         android:title="@string/advanced.settings">
