@@ -4,16 +4,17 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
-import com.labs.dm.auto_tethering.R;
+
+import com.labs.dm.auto_tethering.service.ServiceHelper;
 
 public class ChargeBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
+        ServiceHelper helper = new ServiceHelper(context);
         if (action.equals(Intent.ACTION_POWER_CONNECTED)) {
             Intent onIntent = new Intent("usb.on");
             PendingIntent onPendingIntent = PendingIntent.getBroadcast(context, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -24,7 +25,7 @@ public class ChargeBroadcastReceiver extends BroadcastReceiver {
             }
             Log.i("usb", "onConnect");
             Toast.makeText(context, "USB on", Toast.LENGTH_LONG).show();
-        } else if (action.equals(Intent.ACTION_POWER_DISCONNECTED)) {
+        } else if (action.equals(Intent.ACTION_POWER_DISCONNECTED) && helper.isSharingWiFi()) {
             Intent onIntent = new Intent("usb.off");
             PendingIntent onPendingIntent = PendingIntent.getBroadcast(context, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             try {
