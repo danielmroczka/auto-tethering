@@ -19,6 +19,7 @@ import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cron;
+import com.labs.dm.auto_tethering.db.Cron.STATUS;
 import com.labs.dm.auto_tethering.db.DBManager;
 
 import java.util.Calendar;
@@ -39,6 +40,7 @@ import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
+import static com.labs.dm.auto_tethering.Utils.adapterDayOfWeek;
 import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF_IDLE;
 import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_ON;
@@ -154,7 +156,7 @@ public class TetheringService extends IntentService {
                             boolean tethered = serviceHelper.isSharingWiFi();
                             boolean idle = checkIdle();
 
-                            if (isScheduledTimeOff()) {
+                            if (scheduler() == ScheduleResult.OFF) {
                                 execute(SCHEDULED_INTERNET_OFF);
                                 execute(SCHEDULED_TETHER_OFF);
                             } else if (idle && check3GIdle()) {
@@ -205,26 +207,40 @@ public class TetheringService extends IntentService {
         return runFromActivity || prefs.getBoolean(AppProperties.ACTIVATE_ON_STARTUP, false);
     }
 
-    private boolean isScheduledTimeOff() {
+    private enum ScheduleResult {
+        ON, OFF, NONE
+    }
+
+    /**
+     * Iterates through all cron items.
+     *
+     * @return ScheduleResult
+     */
+    private ScheduleResult scheduler() {
         Calendar now = getTime();
         onChangeProperties();
         boolean state = false;
         for (Cron cron : crons) {
-            Calendar timeOn = getTime();
-            timeOn.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH), cron.getHourOn(), cron.getMinOn(), 0);
-
             Calendar timeOff = getTime();
-            timeOff.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH), cron.getHourOff(), cron.getMinOff(), 0);
+            adjustCalendar(timeOff, cron.getHourOff(), cron.getMinOff());
+            Calendar timeOn = getTime();
+            adjustCalendar(timeOn, cron.getHourOn(), cron.getMinOn());
 
-            boolean matchedMask = (cron.getMask() & (int) Math.pow(2, Utils.adapterDayOfWeek(now.get(Calendar.DAY_OF_WEEK)))) > 0;
-            boolean active = cron.getStatus() == Cron.STATUS.SCHED_OFF_ENABLED.getValue();
-            boolean timelineOff = cron.getHourOff() != -1 || timeOff.getTimeInMillis() < now.getTimeInMillis();
-            boolean timelineOn = cron.getHourOn() != -1 || now.getTimeInMillis() < timeOn.getTimeInMillis();
+            boolean matchedMask = (cron.getMask() & (int) Math.pow(2, adapterDayOfWeek(now.get(Calendar.DAY_OF_WEEK)))) > 0;
+            boolean active = cron.getStatus() == STATUS.SCHED_OFF_ENABLED.getValue();
+            boolean scheduledOff = timeOff.getTimeInMillis() < now.getTimeInMillis();
+            boolean scheduledOn = now.getTimeInMillis() < timeOn.getTimeInMillis();
 
-            state = state || (active && timelineOff && timelineOn && matchedMask);
+            state = state || (active && scheduledOff && scheduledOn && matchedMask);
         }
 
-        return state;
+        return state ? ScheduleResult.OFF : ScheduleResult.NONE;
+    }
+
+    private void adjustCalendar(Calendar calendar, int hour, int minute) {
+        calendar.set(Calendar.HOUR, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, 0);
     }
 
     private Calendar getTime() {
