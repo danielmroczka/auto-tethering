@@ -54,7 +54,7 @@ public class TetheringService extends IntentService {
     private String lastNotifcationTickerText;
 
     private enum Status {
-        DEACTIVED_ON_IDLE, ACTIVATED_ON_SCHEDULE, DEFAULT
+        DEACTIVED_ON_IDLE, ACTIVATED_ON_SCHEDULE, DEACTIVATED_ON_SCHEDULE, DEFAULT
     }
 
     private static final String TAG = "AutoTetheringService";
@@ -156,11 +156,13 @@ public class TetheringService extends IntentService {
                                     execute(SCHEDULED_INTERNET_ON);
                                 }
                                 execute(SCHEDULED_TETHER_ON);
+                            } else if (res == ScheduleResult.NONE) {
+                                status = Status.DEFAULT;
                             } else if (idle && check3GIdle()) {
                                 execute(INTERNET_OFF_IDLE);
                             } else if (idle && checkWifiIdle()) {
                                 execute(TETHER_OFF_IDLE);
-                            } else {
+                            } else if (status != Status.ACTIVATED_ON_SCHEDULE && status != Status.DEACTIVATED_ON_SCHEDULE) {
                                 if (isActivated3G() && !connected3G) {
                                     execute(INTERNET_ON);
                                 } else if (!isActivated3G() && connected3G && status == Status.DEFAULT) {
@@ -365,9 +367,6 @@ public class TetheringService extends IntentService {
     }
 
     private Notification buildNotification(String caption) {
-        if (caption.equals(lastNotifcationTickerText)) {
-
-        }
         lastNotifcationTickerText = caption;
         Notification notify;
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -378,7 +377,6 @@ public class TetheringService extends IntentService {
         if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
             Notification.Builder builder = new Notification.Builder(this)
                     .setContentTitle(getText(R.string.app_name))
-                    //.setSubText("subtext")
                     .setTicker(caption)
                     .setOngoing(true)
                     .setSmallIcon(R.drawable.app)
@@ -544,6 +542,7 @@ public class TetheringService extends IntentService {
                     break;
                 case SCHEDULED_TETHER_OFF:
                     id = R.string.notification_scheduled_tethering_off;
+                    status = Status.DEACTIVATED_ON_SCHEDULE;
                     break;
                 case SCHEDULED_INTERNET_ON:
                     id = R.string.notification_scheduled_internet_on;
@@ -551,6 +550,7 @@ public class TetheringService extends IntentService {
                     break;
                 case SCHEDULED_INTERNET_OFF:
                     id = R.string.notification_scheduled_internet_off;
+                    status = Status.DEACTIVATED_ON_SCHEDULE;
                     break;
                 case TETHER_OFF_IDLE:
                     id = R.string.notification_idle_tethering_off;
