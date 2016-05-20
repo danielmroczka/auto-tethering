@@ -232,14 +232,18 @@ public class TetheringService extends IntentService {
                 if (diff > 0 && CHECK_DELAY * 1000 >= diff) {
                     return ScheduleResult.ON;
                 }
-            } else if (active && matchedMask && cron.getHourOn() == -1) {
+                continue;
+            }
+            if (active && matchedMask && cron.getHourOn() == -1) {
                 long diff = now.getTimeInMillis() - timeOff.getTimeInMillis();
                 if (diff > 0 && CHECK_DELAY * 1000 >= diff) {
                     return ScheduleResult.OFF;
                 }
-            } else {
-                state = state || (active && scheduled && matchedMask);
+                continue;
             }
+
+            state = state || (active && scheduled && matchedMask);
+
 
         }
 
@@ -247,7 +251,7 @@ public class TetheringService extends IntentService {
     }
 
     private void adjustCalendar(Calendar calendar, int hour, int minute) {
-        calendar.set(Calendar.HOUR, hour);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.SECOND, 0);
     }
