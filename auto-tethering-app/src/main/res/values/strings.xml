@@ -80,5 +80,7 @@
     <string name="widget.conf.title">Widget Configuration</string>
     <!-- RELEASE NOTES -->
     <string name="release_notes">[x] Added resume action on notification page if tethering switched off due to inactivity (on idle).</string>
+    <string name="notification_scheduled_internet_on">Turned on internet connection at scheduled time</string>
+    <string name="notification_scheduled_tethering_on">Turned on WiFi tethering at scheduled time</string>
 </resources>
 

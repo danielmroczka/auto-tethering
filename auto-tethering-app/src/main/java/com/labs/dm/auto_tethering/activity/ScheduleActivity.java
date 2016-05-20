@@ -41,12 +41,20 @@ public class ScheduleActivity extends Activity {
         chkOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (!isChecked && !chkOn.isChecked()) {
+                    chkOff.setChecked(true);
+                    return;
+                }
                 timeOff.setEnabled(isChecked);
             }
         });
         chkOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (!isChecked && !chkOff.isChecked()) {
+                    chkOn.setChecked(true);
+                    return;
+                }
                 timeOn.setEnabled(isChecked);
             }
         });

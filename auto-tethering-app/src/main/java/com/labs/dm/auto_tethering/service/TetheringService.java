@@ -41,15 +41,7 @@ import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
 import static com.labs.dm.auto_tethering.Utils.adapterDayOfWeek;
-import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF_IDLE;
-import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_ON;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SIMCARD_BLOCK;
-import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF_IDLE;
-import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.*;
 
 /**
  * Created by Daniel Mroczka
@@ -62,7 +54,7 @@ public class TetheringService extends IntentService {
     private String lastNotifcationTickerText;
 
     private enum Status {
-        DEACTIVED_ON_IDLE, DEFAULT
+        DEACTIVED_ON_IDLE, ACTIVATED_ON_SCHEDULE, DEFAULT
     }
 
     private static final String TAG = "AutoTetheringService";
@@ -155,10 +147,15 @@ public class TetheringService extends IntentService {
                             boolean connected3G = serviceHelper.isConnectedToInternet();
                             boolean tethered = serviceHelper.isSharingWiFi();
                             boolean idle = checkIdle();
-
-                            if (scheduler() == ScheduleResult.OFF) {
+                            ScheduleResult res = scheduler();
+                            if (res == ScheduleResult.OFF) {
                                 execute(SCHEDULED_INTERNET_OFF);
                                 execute(SCHEDULED_TETHER_OFF);
+                            } else if (res == ScheduleResult.ON) {
+                                if (isActivated3G()) {
+                                    execute(SCHEDULED_INTERNET_ON);
+                                }
+                                execute(SCHEDULED_TETHER_ON);
                             } else if (idle && check3GIdle()) {
                                 execute(INTERNET_OFF_IDLE);
                             } else if (idle && checkWifiIdle()) {
@@ -166,12 +163,12 @@ public class TetheringService extends IntentService {
                             } else {
                                 if (isActivated3G() && !connected3G) {
                                     execute(INTERNET_ON);
-                                } else if (!isActivated3G() && connected3G) {
+                                } else if (!isActivated3G() && connected3G && status == Status.DEFAULT) {
                                     execute(INTERNET_OFF);
                                 }
                                 if (isActivatedTethering() && !tethered) {
                                     execute(TETHER_ON);
-                                } else if (!isActivatedTethering() && tethered) {
+                                } else if (!isActivatedTethering() && tethered && status == Status.DEFAULT) {
                                     execute(TETHER_OFF);
                                 }
                             }
@@ -228,10 +225,22 @@ public class TetheringService extends IntentService {
 
             boolean matchedMask = (cron.getMask() & (int) Math.pow(2, adapterDayOfWeek(now.get(Calendar.DAY_OF_WEEK)))) > 0;
             boolean active = cron.getStatus() == STATUS.SCHED_OFF_ENABLED.getValue();
-            boolean scheduledOff = timeOff.getTimeInMillis() < now.getTimeInMillis();
-            boolean scheduledOn = now.getTimeInMillis() < timeOn.getTimeInMillis();
+            boolean scheduled = timeOff.getTimeInMillis() < now.getTimeInMillis() && now.getTimeInMillis() < timeOn.getTimeInMillis();
 
-            state = state || (active && scheduledOff && scheduledOn && matchedMask);
+            if (active && matchedMask && cron.getHourOff() == -1) {
+                long diff = now.getTimeInMillis() - timeOn.getTimeInMillis();
+                if (diff > 0 && CHECK_DELAY * 1000 >= diff) {
+                    return ScheduleResult.ON;
+                }
+            } else if (active && matchedMask && cron.getHourOn() == -1) {
+                long diff = now.getTimeInMillis() - timeOff.getTimeInMillis();
+                if (diff > 0 && CHECK_DELAY * 1000 >= diff) {
+                    return ScheduleResult.OFF;
+                }
+            } else {
+                state = state || (active && scheduled && matchedMask);
+            }
+
         }
 
         return state ? ScheduleResult.OFF : ScheduleResult.NONE;
@@ -263,7 +272,9 @@ public class TetheringService extends IntentService {
             return true;
         } else {
             lastAccess = getTime().getTimeInMillis();
-            status = Status.DEFAULT;
+            if (status == Status.DEACTIVED_ON_IDLE) {
+                status = Status.DEFAULT;
+            }
         }
         return false;
     }
@@ -524,13 +535,15 @@ public class TetheringService extends IntentService {
                     id = R.string.notification_internet_off;
                     break;
                 case SCHEDULED_TETHER_ON:
-                    //TODO
+                    id = R.string.notification_scheduled_tethering_on;
+                    status = Status.ACTIVATED_ON_SCHEDULE;
                     break;
                 case SCHEDULED_TETHER_OFF:
                     id = R.string.notification_scheduled_tethering_off;
                     break;
                 case SCHEDULED_INTERNET_ON:
-                    //TODO
+                    id = R.string.notification_scheduled_internet_on;
+                    status = Status.ACTIVATED_ON_SCHEDULE;
                     break;
                 case SCHEDULED_INTERNET_OFF:
                     id = R.string.notification_scheduled_internet_off;
