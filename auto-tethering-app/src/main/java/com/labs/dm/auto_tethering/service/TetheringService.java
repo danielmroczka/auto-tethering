@@ -163,7 +163,7 @@ public class TetheringService extends IntentService {
                             boolean idle = checkIdle();
                             ScheduleResult res = scheduler();
                             if (res == ScheduleResult.NONE) {
-                                status = Status.DEFAULT;
+                            //    status = Status.DEFAULT;
                             }
                             if (res == ScheduleResult.OFF) {
                                 execute(SCHEDULED_INTERNET_OFF);
@@ -231,34 +231,39 @@ public class TetheringService extends IntentService {
         onChangeProperties();
         boolean state = false;
         for (Cron cron : crons) {
+            boolean matchedMask = (cron.getMask() & (int) Math.pow(2, adapterDayOfWeek(now.get(Calendar.DAY_OF_WEEK)))) > 0;
+            boolean active = cron.getStatus() == STATUS.SCHED_OFF_ENABLED.getValue();
+            if (!active || !matchedMask) {
+                continue;
+            }
+
             Calendar timeOff = getTime();
             adjustCalendar(timeOff, cron.getHourOff(), cron.getMinOff());
             Calendar timeOn = getTime();
             adjustCalendar(timeOn, cron.getHourOn(), cron.getMinOn());
 
-            boolean matchedMask = (cron.getMask() & (int) Math.pow(2, adapterDayOfWeek(now.get(Calendar.DAY_OF_WEEK)))) > 0;
-            boolean active = cron.getStatus() == STATUS.SCHED_OFF_ENABLED.getValue();
-            boolean scheduled = timeOff.getTimeInMillis() < now.getTimeInMillis() && now.getTimeInMillis() < timeOn.getTimeInMillis();
-
-            if (active && matchedMask && cron.getHourOff() == -1) {
+            if (cron.getHourOff() == -1) {
                 long diff = now.getTimeInMillis() - timeOn.getTimeInMillis();
                 if (diff > 0 && CHECK_DELAY * 1000 >= diff) {
                     return ScheduleResult.ON;
                 }
-                continue;
-            }
-            if (active && matchedMask && cron.getHourOn() == -1) {
+            } else if (cron.getHourOn() == -1) {
                 long diff = now.getTimeInMillis() - timeOff.getTimeInMillis();
                 if (diff > 0 && CHECK_DELAY * 1000 >= diff) {
                     return ScheduleResult.OFF;
                 }
-                continue;
+            } else {
+                boolean scheduled = timeOff.getTimeInMillis() < now.getTimeInMillis() && now.getTimeInMillis() < timeOn.getTimeInMillis();
+                state = state || scheduled;
             }
-
-            state = state || (active && scheduled && matchedMask);
         }
 
-        return state ? ScheduleResult.OFF : status == Status.DEACTIVATED_ON_SCHEDULE ? ScheduleResult.ON : ScheduleResult.NONE;
+
+        if ((status==Status.ACTIVATED_ON_SCHEDULE || status==Status.DEACTIVATED_ON_SCHEDULE) && !state) {
+            return ScheduleResult.NONE;
+        }
+
+        return state ? ScheduleResult.OFF : ScheduleResult.ON;
     }
 
     private void adjustCalendar(Calendar calendar, int hour, int minute) {
