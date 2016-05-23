@@ -26,7 +26,7 @@
             android:summary="@string/activate3g.summary"
             android:title="@string/activate3g.title" />
         <CheckBoxPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:icon="@drawable/ic_wifi"
             android:key="activate.tethering"
             android:summary="@string/activateTethering.summary"

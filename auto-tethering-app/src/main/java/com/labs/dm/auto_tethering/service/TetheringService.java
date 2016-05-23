@@ -41,7 +41,17 @@ import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
 import static com.labs.dm.auto_tethering.Utils.adapterDayOfWeek;
-import static com.labs.dm.auto_tethering.service.ServiceAction.*;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF_IDLE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SIMCARD_BLOCK;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF_IDLE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_ON;
 
 /**
  * Created by Daniel Mroczka
@@ -52,6 +62,10 @@ public class TetheringService extends IntentService {
     private boolean changeMobileState;
     private BroadcastReceiver receiver;
     private String lastNotifcationTickerText;
+
+    private enum ScheduleResult {
+        ON, OFF, NONE
+    }
 
     private enum Status {
         DEACTIVED_ON_IDLE, ACTIVATED_ON_SCHEDULE, DEACTIVATED_ON_SCHEDULE, DEFAULT
@@ -148,6 +162,9 @@ public class TetheringService extends IntentService {
                             boolean tethered = serviceHelper.isSharingWiFi();
                             boolean idle = checkIdle();
                             ScheduleResult res = scheduler();
+                            if (res == ScheduleResult.NONE) {
+                                status = Status.DEFAULT;
+                            }
                             if (res == ScheduleResult.OFF) {
                                 execute(SCHEDULED_INTERNET_OFF);
                                 execute(SCHEDULED_TETHER_OFF);
@@ -156,8 +173,6 @@ public class TetheringService extends IntentService {
                                     execute(SCHEDULED_INTERNET_ON);
                                 }
                                 execute(SCHEDULED_TETHER_ON);
-                            } else if (res == ScheduleResult.NONE) {
-                                status = Status.DEFAULT;
                             } else if (idle && check3GIdle()) {
                                 execute(INTERNET_OFF_IDLE);
                             } else if (idle && checkWifiIdle()) {
@@ -206,10 +221,6 @@ public class TetheringService extends IntentService {
         return runFromActivity || prefs.getBoolean(AppProperties.ACTIVATE_ON_STARTUP, false);
     }
 
-    private enum ScheduleResult {
-        ON, OFF, NONE
-    }
-
     /**
      * Iterates through all cron items.
      *
@@ -245,11 +256,9 @@ public class TetheringService extends IntentService {
             }
 
             state = state || (active && scheduled && matchedMask);
-
-
         }
 
-        return state ? ScheduleResult.OFF : ScheduleResult.NONE;
+        return state ? ScheduleResult.OFF : status == Status.DEACTIVATED_ON_SCHEDULE ? ScheduleResult.ON : ScheduleResult.NONE;
     }
 
     private void adjustCalendar(Calendar calendar, int hour, int minute) {
