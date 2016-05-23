@@ -68,7 +68,11 @@ public class TetheringService extends IntentService {
     }
 
     private enum Status {
-        DEACTIVED_ON_IDLE, ACTIVATED_ON_SCHEDULE, DEACTIVATED_ON_SCHEDULE, DEFAULT
+        DEACTIVED_ON_IDLE,
+        ACTIVATED_ON_SCHEDULE,
+        DEACTIVATED_ON_SCHEDULE,
+        DEACTIVATED_ON_SCHEDULE_LONG,
+        DEFAULT
     }
 
     private static final String TAG = "AutoTetheringService";
@@ -156,40 +160,39 @@ public class TetheringService extends IntentService {
                     continue;
                 }
                 if (isServiceActivated() || keepService()) {
-                    if (isCorrectSimCard()) {
-                        if (checkForRoaming()) {
-                            boolean connected3G = serviceHelper.isConnectedToInternet();
-                            boolean tethered = serviceHelper.isSharingWiFi();
-                            boolean idle = checkIdle();
-                            ScheduleResult res = scheduler();
-                            if (res == ScheduleResult.NONE) {
-                            //    status = Status.DEFAULT;
+                    if (isCorrectSimCard() && checkForRoaming()) {
+                        boolean connected3G = serviceHelper.isConnectedToInternet();
+                        boolean tethered = serviceHelper.isSharingWiFi();
+                        boolean idle = checkIdle();
+                        ScheduleResult res = scheduler();
+                        if (res == ScheduleResult.OFF) {
+                            execute(SCHEDULED_INTERNET_OFF);
+                            execute(SCHEDULED_TETHER_OFF);
+                        } else if (res == ScheduleResult.ON) {
+                            if (isActivated3G()) {
+                                execute(SCHEDULED_INTERNET_ON);
                             }
-                            if (res == ScheduleResult.OFF) {
-                                execute(SCHEDULED_INTERNET_OFF);
-                                execute(SCHEDULED_TETHER_OFF);
-                            } else if (res == ScheduleResult.ON) {
-                                if (isActivated3G()) {
-                                    execute(SCHEDULED_INTERNET_ON);
-                                }
-                                execute(SCHEDULED_TETHER_ON);
-                            } else if (idle && check3GIdle()) {
+                            execute(SCHEDULED_TETHER_ON);
+                        } else if (idle) {
+                            if (check3GIdle()) {
                                 execute(INTERNET_OFF_IDLE);
-                            } else if (idle && checkWifiIdle()) {
+                            }
+                            if (checkWifiIdle()) {
                                 execute(TETHER_OFF_IDLE);
-                            } else if (status != Status.ACTIVATED_ON_SCHEDULE && status != Status.DEACTIVATED_ON_SCHEDULE) {
-                                if (isActivated3G() && !connected3G) {
-                                    execute(INTERNET_ON);
-                                } else if (!isActivated3G() && connected3G && status == Status.DEFAULT) {
-                                    execute(INTERNET_OFF);
-                                }
-                                if (isActivatedTethering() && !tethered) {
-                                    execute(TETHER_ON);
-                                } else if (!isActivatedTethering() && tethered && status == Status.DEFAULT) {
-                                    execute(TETHER_OFF);
-                                }
+                            }
+                        } else if (status != Status.ACTIVATED_ON_SCHEDULE && status != Status.DEACTIVATED_ON_SCHEDULE) {
+                            if (isActivated3G() && !connected3G) {
+                                execute(INTERNET_ON);
+                            } else if (!isActivated3G() && connected3G && status == Status.DEFAULT) {
+                                execute(INTERNET_OFF);
+                            }
+                            if (isActivatedTethering() && !tethered) {
+                                execute(TETHER_ON);
+                            } else if (!isActivatedTethering() && tethered && status == Status.DEFAULT) {
+                                execute(TETHER_OFF);
                             }
                         }
+
                     }
                 }
                 if (!keepService()) {
@@ -229,7 +232,7 @@ public class TetheringService extends IntentService {
     private ScheduleResult scheduler() {
         Calendar now = getTime();
         onChangeProperties();
-        boolean state = false;
+        boolean state = false, changed = false;
         for (Cron cron : crons) {
             boolean matchedMask = (cron.getMask() & (int) Math.pow(2, adapterDayOfWeek(now.get(Calendar.DAY_OF_WEEK)))) > 0;
             boolean active = cron.getStatus() == STATUS.SCHED_OFF_ENABLED.getValue();
@@ -253,17 +256,17 @@ public class TetheringService extends IntentService {
                     return ScheduleResult.OFF;
                 }
             } else {
+                long diff = now.getTimeInMillis() - timeOn.getTimeInMillis();
+                if (diff > 0 && CHECK_DELAY * 1000 >= diff) {
+                    changed = true;
+                    //   return ScheduleResult.ON;
+                }
                 boolean scheduled = timeOff.getTimeInMillis() < now.getTimeInMillis() && now.getTimeInMillis() < timeOn.getTimeInMillis();
                 state = state || scheduled;
             }
         }
 
-
-        if ((status==Status.ACTIVATED_ON_SCHEDULE || status==Status.DEACTIVATED_ON_SCHEDULE) && !state) {
-            return ScheduleResult.NONE;
-        }
-
-        return state ? ScheduleResult.OFF : ScheduleResult.ON;
+        return state ? ScheduleResult.OFF : changed ? ScheduleResult.ON : ScheduleResult.NONE;
     }
 
     private void adjustCalendar(Calendar calendar, int hour, int minute) {
@@ -367,6 +370,7 @@ public class TetheringService extends IntentService {
     private class TurnOnTetheringAsyncTask extends AsyncTask<Boolean, Void, Void> {
         @Override
         protected Void doInBackground(Boolean... params) {
+            lastAccess = getTime().getTimeInMillis();
             serviceHelper.setWifiTethering(params[0]);
             return null;
         }
