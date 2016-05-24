@@ -180,7 +180,9 @@ public class TetheringService extends IntentService {
                             if (checkWifiIdle()) {
                                 execute(TETHER_OFF_IDLE);
                             }
-                        } else if (status != Status.ACTIVATED_ON_SCHEDULE && status != Status.DEACTIVATED_ON_SCHEDULE) {
+                        }
+
+                        if (status == Status.DEFAULT) {
                             if (isActivated3G() && !connected3G) {
                                 execute(INTERNET_ON);
                             } else if (!isActivated3G() && connected3G && status == Status.DEFAULT) {
@@ -306,7 +308,7 @@ public class TetheringService extends IntentService {
             if (getTime().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_3G_OFF_TIME, "60")) * 1000 * 60) {
                 return true;
             }
-            status = Status.DEFAULT;
+           // status = Status.DEFAULT;
         }
 
         return false;
@@ -317,7 +319,7 @@ public class TetheringService extends IntentService {
             if (getTime().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_TETHERING_OFF_TIME, DEFAULT_IDLE_TETHERING_OFF_TIME)) * 1000 * 60) {
                 return true;
             }
-            status = Status.DEFAULT;
+            //status = Status.DEFAULT;
         }
         return false;
     }
