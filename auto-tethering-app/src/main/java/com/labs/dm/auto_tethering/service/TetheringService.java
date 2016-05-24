@@ -259,10 +259,9 @@ public class TetheringService extends IntentService {
                 long diff = now.getTimeInMillis() - timeOn.getTimeInMillis();
                 if (diff > 0 && CHECK_DELAY * 1000 >= diff) {
                     changed = true;
-                    //   return ScheduleResult.ON;
                 }
                 boolean scheduled = timeOff.getTimeInMillis() < now.getTimeInMillis() && now.getTimeInMillis() < timeOn.getTimeInMillis();
-                state = state || scheduled;
+                state |= scheduled;
             }
         }
 
@@ -288,7 +287,7 @@ public class TetheringService extends IntentService {
         if (prefs.getBoolean(IDLE_3G_OFF, false) || prefs.getBoolean(IDLE_TETHERING_OFF, false)) {
             if (Utils.connectedClients() > 0) {
                 lastAccess = getTime().getTimeInMillis();
-                status = Status.DEFAULT;
+                //status = Status.DEFAULT;
                 return false;
             }
 
