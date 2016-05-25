@@ -9,6 +9,8 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.util.concurrent.TimeUnit;
+
 import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
 
 public class WidgetService extends IntentService {
@@ -29,6 +31,12 @@ public class WidgetService extends IntentService {
         if (!isServiceRunning(TetheringService.class) && prefs.getBoolean(key(widgetId, "start.service"), false)) {
             Intent serviceIntent = new Intent(this, TetheringService.class);
             startService(serviceIntent);
+            //TODO Remove sleep
+            try {
+                TimeUnit.MILLISECONDS.sleep(250);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             Intent onIntent = new Intent("widget");
             onIntent.putExtra("changeMobileState", prefs.getBoolean(key(widgetId, "mobile"), false));
             sendBroadcast(onIntent);

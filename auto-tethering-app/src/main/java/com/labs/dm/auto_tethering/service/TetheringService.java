@@ -71,7 +71,6 @@ public class TetheringService extends IntentService {
         DEACTIVED_ON_IDLE,
         ACTIVATED_ON_SCHEDULE,
         DEACTIVATED_ON_SCHEDULE,
-        DEACTIVATED_ON_SCHEDULE_LONG,
         DEFAULT
     }
 
@@ -289,7 +288,6 @@ public class TetheringService extends IntentService {
         if (prefs.getBoolean(IDLE_3G_OFF, false) || prefs.getBoolean(IDLE_TETHERING_OFF, false)) {
             if (Utils.connectedClients() > 0) {
                 lastAccess = getTime().getTimeInMillis();
-                //status = Status.DEFAULT;
                 return false;
             }
 
@@ -308,7 +306,6 @@ public class TetheringService extends IntentService {
             if (getTime().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_3G_OFF_TIME, "60")) * 1000 * 60) {
                 return true;
             }
-           // status = Status.DEFAULT;
         }
 
         return false;
@@ -319,7 +316,6 @@ public class TetheringService extends IntentService {
             if (getTime().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_TETHERING_OFF_TIME, DEFAULT_IDLE_TETHERING_OFF_TIME)) * 1000 * 60) {
                 return true;
             }
-            //status = Status.DEFAULT;
         }
         return false;
     }
@@ -396,20 +392,20 @@ public class TetheringService extends IntentService {
         if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
             Notification.Builder builder = new Notification.Builder(this)
                     .setContentTitle(getText(R.string.app_name))
+                    .setContentText(caption)
                     .setTicker(caption)
                     .setOngoing(true)
                     .setSmallIcon(R.drawable.app)
+                    //.setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.app))
                     .setAutoCancel(false)
                     .setContentIntent(pendingIntent)
-                    .setPriority(Notification.PRIORITY_MAX);
-            builder.setStyle(new Notification.BigTextStyle(builder)
-                    .bigText(caption)
-                    .setBigContentTitle(getText(R.string.app_name)));
-            //.setSummaryText(Formatter.formatShortFileSize(getApplicationContext(), TrafficStats.getMobileRxBytes() + TrafficStats.getMobileTxBytes())));
+                    .setPriority(Notification.PRIORITY_MAX)
+                    .setStyle(new Notification.BigTextStyle().bigText(caption));
+
             Intent onIntent = new Intent("tethering");
             PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            int drawable = R.drawable.ic_service;
+            int drawable = R.drawable.ic_service24;
             String ticker = "Service on";
 
             if (forceOff && !forceOn) {
@@ -425,10 +421,10 @@ public class TetheringService extends IntentService {
             if (status == Status.DEACTIVED_ON_IDLE) {
                 Intent onResumeIntent = new Intent("resume");
                 PendingIntent onResumePendingIntent = PendingIntent.getBroadcast(this, 0, onResumeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                builder.addAction(R.drawable.ic_resume, "Resume", onResumePendingIntent);
+                builder.addAction(R.drawable.ic_resume24, "Resume", onResumePendingIntent);
             }
 
-            builder.addAction(R.drawable.ic_exit, "Close", exitPendingIntent);
+            builder.addAction(R.drawable.ic_exit24, "Exit", exitPendingIntent);
             notify = builder.build();
         } else {
             notify = new Notification(R.drawable.app, caption, System.currentTimeMillis());
