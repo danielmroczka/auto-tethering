@@ -79,7 +79,7 @@
     <string name="summary">Summary</string>
     <string name="widget.conf.title">Widget Configuration</string>
     <!-- RELEASE NOTES -->
-    <string name="release_notes">[x] Ability to only switch off or switch on tethering\n\n[x] Added close service button on notification page\n\n[x] Small bugfixing</string>
+    <string name="release_notes">[x] Fix widget functionality \'start the service if not working\'\n\n[x] Some small changes around display notification (icon size)</string>
     <string name="notification_scheduled_internet_on">Turned on internet connection at scheduled time</string>
     <string name="notification_scheduled_tethering_on">Turned on WiFi tethering at scheduled time</string>
 </resources>
