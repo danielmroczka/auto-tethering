@@ -15,9 +15,15 @@
     <string name="no">No</string>
     <string name="add.simcard.title">Add current SIM card</string>
     <string name="remove.simcard.title">Remove current SIM card</string>
-    <string name="add.simcard.summary">Add current SIM card to the white list (all simcards on the list will be acceptable)</string>
-    <string name="remove.simcard.summary">Remove current SIM card from the white list (connection will be denied if phone uses this simcard)</string>
-    <string name="simcard.warn">Removed SIM card from list and checked option \'Activate on SIM card from the white lists results that app will not be activated</string>
+    <string name="add.simcard.summary">Add current SIM card to the white list (all simcards on the list will be
+        acceptable)
+    </string>
+    <string name="remove.simcard.summary">Remove current SIM card from the white list (connection will be denied if
+        phone uses this simcard)
+    </string>
+    <string name="simcard.warn">Removed SIM card from list and checked option \'Activate on SIM card from the white
+        lists results that app will not be activated
+    </string>
     <string name="cannot.read.simcard">Unable to retrieve SIM card serial!</string>
     <string name="adv.activity.setting.summary">Advanced activity settings</string>
     <string name="startup.activity.screen.summary">Startup activity settings</string>
@@ -38,7 +44,10 @@
     <!-- PROMPTS -->
     <string name="prompt.onexit">Do you want to exit and stop service?</string>
     <string name="reset.prompt">Do you want to reset current settings?</string>
-    <string name="initial.prompt">By default connection to internet and WiFi tethering are turned off. You need to set them manually.\nConnecting via packet data may incur additional charges.\nWIFI tethering will increase battery consumption. \n\nDo you want to turn on 3G connection and Wi-Fi tethering now?</string>
+    <string name="initial.prompt">By default connection to internet and WiFi tethering are turned off. You need to set
+        them manually.\nConnecting via packet data may incur additional charges.\nWIFI tethering will increase battery
+        consumption. \n\nDo you want to turn on 3G connection and Wi-Fi tethering now?
+    </string>
     <string name="notification.scheduled.internet.off">Turned off internet connection at scheduled time</string>
     <string name="notification.scheduled.tethering.off">Turned off WiFi tethering at scheduled time</string>
     <string name="notification.idle.internet.off">Turned off internet connection due to clients inactivity</string>
@@ -47,8 +56,11 @@
     <string name="notification.internet.off">Turned off internet connection</string>
     <string name="notification.tethering.restored">Restored WiFi tethering</string>
     <string name="notification.tethering.off">Turned off WiFi tethering</string>
+    <string name="notification_scheduled_internet_on">Turned on internet connection at scheduled time</string>
+    <string name="notification_scheduled_tethering_on">Turned on WiFi tethering at scheduled time</string>
     <string name="service.started">Service started</string>
-    <string name="inserted.blocked.simcard">Inserted SIM card is blocked by the settings or network is unavailable!</string>
+    <string name="inserted.blocked.simcard">Inserted SIM card is blocked by the settings or network is unavailable!
+    </string>
     <string name="revert.state.summary">Restore network state before run the service</string>
     <string name="title_activity_sim_card_list">SimCardListActivity</string>
     <string name="roaming.service.disabled">Service disabled due to roaming network</string>
@@ -79,8 +91,8 @@
     <string name="summary">Summary</string>
     <string name="widget.conf.title">Widget Configuration</string>
     <!-- RELEASE NOTES -->
-    <string name="release_notes">[x] Fix widget functionality \'start the service if not working\'\n\n[x] Some small changes around display notification (icon size)</string>
-    <string name="notification_scheduled_internet_on">Turned on internet connection at scheduled time</string>
-    <string name="notification_scheduled_tethering_on">Turned on WiFi tethering at scheduled time</string>
+    <string name="release_notes">[x] Fix widget functionality \'start the service if not working\'\n\n[x] Some small
+        changes around display notification (icon size)
+    </string>
 </resources>
 
