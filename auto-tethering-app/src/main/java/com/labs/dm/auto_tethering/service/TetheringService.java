@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -285,6 +286,9 @@ public class TetheringService extends IntentService {
      * @return
      */
     private boolean checkIdle() {
+        Intent onIntent = new Intent("clients");
+        onIntent.putExtra("value", Utils.connectedClients());
+        sendBroadcast(onIntent);
         if (prefs.getBoolean(IDLE_3G_OFF, false) || prefs.getBoolean(IDLE_TETHERING_OFF, false)) {
             if (Utils.connectedClients() > 0) {
                 lastAccess = getTime().getTimeInMillis();

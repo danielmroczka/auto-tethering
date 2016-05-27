@@ -58,10 +58,18 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                exitApp();
+                if ("exit".equals(intent.getAction())) {
+                    exitApp();
+                } else if ("clients".equals(intent.getAction())) {
+                    final PreferenceScreen connectedClients = (PreferenceScreen) findPreference("idle.connected.clients");
+                    connectedClients.setTitle("Connected clients: " + intent.getIntExtra("value", 0));
+                }
             }
         };
-        registerReceiver(receiver, new IntentFilter("exit"));
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("exit");
+        filter.addAction("clients");
+        registerReceiver(receiver, filter);
     }
 
     private void registerListeners() {

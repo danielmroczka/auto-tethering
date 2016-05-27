@@ -20,7 +20,7 @@ import com.labs.dm.auto_tethering.db.DBManager;
 import java.util.Calendar;
 
 public class ScheduleActivity extends Activity {
-    private int[] buttons = {R.id.btnMonday, R.id.btnTuesday, R.id.btnWednesday, R.id.btnThursday, R.id.btnFriday, R.id.btnSaturday, R.id.btnSunday};
+    private final int[] buttons = {R.id.btnMonday, R.id.btnTuesday, R.id.btnWednesday, R.id.btnThursday, R.id.btnFriday, R.id.btnSaturday, R.id.btnSunday};
     private DBManager db;
     private TimePicker timeOff;
     private TimePicker timeOn;
@@ -43,9 +43,9 @@ public class ScheduleActivity extends Activity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (!isChecked && !chkOn.isChecked()) {
                     chkOff.setChecked(true);
-                    return;
+                } else {
+                    timeOff.setEnabled(isChecked);
                 }
-                timeOff.setEnabled(isChecked);
             }
         });
         chkOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -53,9 +53,9 @@ public class ScheduleActivity extends Activity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (!isChecked && !chkOff.isChecked()) {
                     chkOn.setChecked(true);
-                    return;
+                } else {
+                    timeOn.setEnabled(isChecked);
                 }
-                timeOn.setEnabled(isChecked);
             }
         });
 
