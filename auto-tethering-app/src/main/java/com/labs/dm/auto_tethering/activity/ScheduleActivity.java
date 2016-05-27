@@ -115,6 +115,8 @@ public class ScheduleActivity extends Activity {
     }
 
     private boolean insertSchedule() {
+        timeOff.clearFocus();
+        timeOn.clearFocus();
         ToggleButton[] daysOfWeek = new ToggleButton[7];
         int mask = 0;
         for (int day = 0; day < 7; day++) {
