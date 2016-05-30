@@ -11,7 +11,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -186,12 +185,12 @@ public class TetheringService extends IntentService {
                         if (status == Status.DEFAULT) {
                             if (isActivated3G() && !connected3G) {
                                 execute(INTERNET_ON);
-                            } else if (!isActivated3G() && connected3G && status == Status.DEFAULT) {
+                            } else if (!isActivated3G() && connected3G) {
                                 execute(INTERNET_OFF);
                             }
                             if (isActivatedTethering() && !tethered) {
                                 execute(TETHER_ON);
-                            } else if (!isActivatedTethering() && tethered && status == Status.DEFAULT) {
+                            } else if (!isActivatedTethering() && tethered) {
                                 execute(TETHER_OFF);
                             }
                         }
