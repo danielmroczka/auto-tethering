@@ -110,13 +110,13 @@
                 android:key="simcard.list"
                 android:title="Edit SIM card whitelist">
                 <PreferenceScreen
-                        android:icon="@drawable/ic_add"
-                        android:key="add.current.simcard"
-                        android:title="Add current SIM card"/>
+                    android:icon="@drawable/ic_add"
+                    android:key="add.current.simcard"
+                    android:title="Add current SIM card" />
                 <PreferenceScreen
-                        android:icon="@drawable/ic_remove"
-                        android:key="remove.simcard"
-                        android:title="Remove selected"/>
+                    android:icon="@drawable/ic_remove"
+                    android:key="remove.simcard"
+                    android:title="Remove selected" />
             </PreferenceCategory>
         </PreferenceScreen>
         <CheckBoxPreference
@@ -132,11 +132,25 @@
             android:summary="@string/revert.state.summary"
             android:title="Restore connection to initial state" />
         <CheckBoxPreference
-                android:defaultValue="true"
-                android:icon="@drawable/ic_signal"
-                android:key="force.net.from.notify"
-                android:summary="Connect to internet if tethering triggered from notification"
-                android:title="Activate mobile data"/>
+            android:defaultValue="true"
+            android:icon="@drawable/ic_signal"
+            android:key="force.net.from.notify"
+            android:summary="Connect to internet if tethering triggered from notification"
+            android:title="Activate mobile data" />
+    </PreferenceScreen>
+
+    <PreferenceScreen
+        android:key="experimental"
+        android:icon="@drawable/ic_experimental"
+        android:title="Experimental">
+        <PreferenceScreen android:title="USB activation">
+            <CheckBoxPreference
+                android:summary="Tethering active only when USB connected"
+                android:key="usb.tether.on.plug"
+                android:title="USB connection" />
+        </PreferenceScreen>
+        <PreferenceScreen android:title="Bluetooth activation"></PreferenceScreen>
+        <PreferenceScreen android:title="Data usage"></PreferenceScreen>
     </PreferenceScreen>
 
     <PreferenceCategory

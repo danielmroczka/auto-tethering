@@ -159,7 +159,7 @@ public class TetheringService extends IntentService {
                     continue;
                 }
                 if (isServiceActivated() || keepService()) {
-                    if (isCorrectSimCard() && checkForRoaming()) {
+                    if (enabled()) {
                         boolean connected3G = serviceHelper.isConnectedToInternet();
                         boolean tethered = serviceHelper.isSharingWiFi();
                         boolean idle = checkIdle();
@@ -206,6 +206,15 @@ public class TetheringService extends IntentService {
                 Log.e(TAG, e.getMessage());
             }
         }
+    }
+
+    private boolean enabled() {
+        return isCorrectSimCard() && checkForRoaming() && usb();
+    }
+
+    private boolean usb() {
+        boolean flag = prefs.getBoolean("usb.tether.on.plug", false);
+        return !flag || flag && true;
     }
 
     private boolean keepService() {
