@@ -61,9 +61,9 @@ public class ServiceHelper {
         Intent batteryStatus = context.registerReceiver(null, ifilter);
 
 // Are we charging / charged?
-     //   int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        //   int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
 //        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-  //              status == BatteryManager.BATTERY_STATUS_FULL;
+        //              status == BatteryManager.BATTERY_STATUS_FULL;
 
 // How are we charging?
         int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
@@ -75,7 +75,7 @@ public class ServiceHelper {
         Intent batteryStatus = context.registerReceiver(null, ifilter);
         int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-        return level / (float)scale;
+        return level / (float) scale;
     }
     /**
      * Returns declared portable Wi-Fi hotspot network SSID.

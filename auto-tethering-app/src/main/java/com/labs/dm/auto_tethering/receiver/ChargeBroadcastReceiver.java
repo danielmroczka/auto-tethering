@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
 public class ChargeBroadcastReceiver extends BroadcastReceiver {
@@ -16,6 +15,7 @@ public class ChargeBroadcastReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         ServiceHelper helper = new ServiceHelper(context);
         Intent usbIntent = null;
+
         if (action.equals(Intent.ACTION_POWER_CONNECTED)) {
             usbIntent = new Intent("usb.on");
             Log.i("usb", "onConnect");

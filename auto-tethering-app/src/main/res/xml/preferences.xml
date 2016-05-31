@@ -190,7 +190,13 @@
 
             </PreferenceCategory>
         </PreferenceScreen>
-        <PreferenceScreen android:title="Bluetooth activation" android:icon="@drawable/ic_bluetooth"></PreferenceScreen>
+        <PreferenceScreen android:title="Bluetooth activation" android:icon="@drawable/ic_bluetooth">
+            <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="bt.start.discovery"
+                    android:summary="Find devices"
+                    android:title=""/>
+        </PreferenceScreen>
         <PreferenceScreen android:title="Data usage"></PreferenceScreen>
         <ListPreference
                 android:key="profiles.list"

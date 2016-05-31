@@ -3,6 +3,8 @@
           package="com.labs.dm.auto_tethering">
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
@@ -18,11 +20,12 @@
             android:required="true"/>
 
     <application
+            android:allowBackup="true"
             android:icon="@drawable/app"
             android:label="@string/app_name"
             android:supportsRtl="true"
-            android:allowBackup="true"
             android:theme="@style/AppTheme">
+
         <!-- Activities -->
         <activity
                 android:name=".activity.MainActivity"
@@ -31,6 +34,7 @@
                 android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
@@ -74,7 +78,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-
         <receiver
                 android:name=".receiver.TetheringStateReceiver"
                 android:enabled="true"
@@ -83,7 +86,6 @@
                 <action android:name="android.net.wifi.WIFI_AP_STATE_CHANGED"/>
             </intent-filter>
         </receiver>
-
         <receiver
                 android:name=".receiver.TetheringWidgetProvider"
                 android:label="Auto tethering">
@@ -95,12 +97,21 @@
                     android:name="android.appwidget.provider"
                     android:resource="@xml/widget"/>
         </receiver>
-
-        <receiver android:name=".receiver.ChargeBroadcastReceiver" android:enabled="true"
-                  android:exported="true">
+        <receiver
+                android:name=".receiver.ChargeBroadcastReceiver"
+                android:enabled="true"
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
                 <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+                android:name=".receiver.BluetoothBroadcastReceiver"
+                android:enabled="true"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.bluetooth.BluetoothDevice.ACTION_FOUND"/>
             </intent-filter>
         </receiver>
         <!-- Services -->
@@ -108,10 +119,9 @@
                 android:name=".service.TetheringService"
                 android:enabled="true"
                 android:exported="true"/>
-
         <service
                 android:name=".service.WidgetService"
                 android:exported="false"/>
-
     </application>
+
 </manifest>

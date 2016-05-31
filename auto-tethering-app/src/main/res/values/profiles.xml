@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <resources>
-<!--    <profile name="profile1">
-        <map>
-            <boolean name="activate.tethering" value="true"/>
-        </map>
-    </profile>
-    <profile name="profile2">
-        <map>
-            <boolean name="activate.tethering" value="false"/>
-        </map>
-    </profile>-->
+    <!--    <profile name="profile1">
+            <map>
+                <boolean name="activate.tethering" value="true"/>
+            </map>
+        </profile>
+        <profile name="profile2">
+            <map>
+                <boolean name="activate.tethering" value="false"/>
+            </map>
+        </profile>-->
 
 </resources>
