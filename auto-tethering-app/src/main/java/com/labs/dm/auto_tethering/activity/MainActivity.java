@@ -20,6 +20,8 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.telephony.TelephonyManager;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -176,13 +178,28 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
+        EditTextPreference batteryLevelValue = (EditTextPreference) findPreference("usb.off.battery.lvl.value");
+        batteryLevelValue.getEditText().setFilters(new InputFilter[]{
+                new InputFilter() {
+                    @Override
+                    public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                        int input = Integer.parseInt(dest.toString() + source.toString());
+                        if (0 < input && input <= 100) {
+                            return null;
+                        }
+                        return "";
+                    }
+                }});
+
         for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
             Preference p = findPreference(entry.getKey());
 
             switch (entry.getKey()) {
                 case IDLE_3G_OFF_TIME:
                 case IDLE_TETHERING_OFF_TIME:
+                case "usb.off.battery.lvl.value":
                     p.setSummary((CharSequence) entry.getValue());
+                    p.getEditor().commit();
                     break;
 
                 case SSID:

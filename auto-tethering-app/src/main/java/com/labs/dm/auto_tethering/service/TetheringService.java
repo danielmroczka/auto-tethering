@@ -71,7 +71,7 @@ public class TetheringService extends IntentService {
         DEACTIVED_ON_IDLE,
         ACTIVATED_ON_SCHEDULE,
         DEACTIVATED_ON_SCHEDULE,
-        DEFAULT
+        USB_ON, DEFAULT
     }
 
     private static final String TAG = "AutoTetheringService";
@@ -108,6 +108,8 @@ public class TetheringService extends IntentService {
         filter.addAction("widget");
         filter.addAction("resume");
         filter.addAction("exit");
+        filter.addAction("usb.on");
+        filter.addAction("usb.off");
         receiver = new MyBroadcastReceiver();
         registerReceiver(receiver, filter);
     }
@@ -116,6 +118,10 @@ public class TetheringService extends IntentService {
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
         runAsForeground();
+
+        if (prefs.getBoolean("usb.activate.on.connect", false) && serviceHelper.isPluggedToPower()) {
+            sendBroadcast(new Intent("usb.on"));
+        }
     }
 
     private void init() {
@@ -209,12 +215,17 @@ public class TetheringService extends IntentService {
     }
 
     private boolean enabled() {
-        return isCorrectSimCard() && checkForRoaming() && usb();
+        return isCorrectSimCard() && checkForRoaming();
+    }
+
+    private boolean batteryLevel() {
+        boolean batteryLevel = prefs.getBoolean("usb.off.battery.lvl", false);
+        return !batteryLevel || (batteryLevel && 100f * serviceHelper.batteryLevel() >= Integer.valueOf(prefs.getString("usb.off.battery.lvl.value", "15")));
     }
 
     private boolean usb() {
-        boolean flag = prefs.getBoolean("usb.tether.on.plug", false);
-        return !flag || flag && true;
+        boolean flag = prefs.getBoolean("usb.only.when.connected", false);
+        return (!flag || (flag && serviceHelper.isPluggedToPower())) && batteryLevel();
     }
 
     private boolean keepService() {
@@ -352,11 +363,11 @@ public class TetheringService extends IntentService {
     }
 
     private boolean isActivatedTethering() {
-        return prefs.getBoolean(ACTIVATE_TETHERING, false);
+        return prefs.getBoolean(ACTIVATE_TETHERING, false) && usb();
     }
 
     private boolean isActivated3G() {
-        return prefs.getBoolean(ACTIVATE_3G, false);
+        return prefs.getBoolean(ACTIVATE_3G, false) && usb();
     }
 
     private boolean checkForRoaming() {
@@ -520,6 +531,26 @@ public class TetheringService extends IntentService {
                 status = Status.DEFAULT;
             }
 
+            if ("usb.on".equals(intent.getAction())) {
+                if (prefs.getBoolean("usb.activate.on.connect", false)) {
+                    execute(TETHER_ON, R.string.activate_tethering_usb_on);
+                }
+                if (prefs.getBoolean("usb.internet.force.on", false)) {
+                    execute(INTERNET_ON, R.string.activate_internet_usb_on);
+                }
+                status = Status.USB_ON;
+            }
+            if ("usb.off".equals(intent.getAction())) {
+                if (prefs.getBoolean("usb.activate.off.connect", false)) {
+                    execute(TETHER_OFF, R.string.activate_tethering_usb_off);
+                }
+                if (prefs.getBoolean("usb.internet.force.off", false)) {
+                    execute(INTERNET_OFF, R.string.activate_internet_usb_off);
+                }
+                status = Status.DEFAULT;
+            }
+
+
             if ("exit".equals(intent.getAction())) {
                 stopSelf();
             }
@@ -541,6 +572,10 @@ public class TetheringService extends IntentService {
     }
 
     private void execute(ServiceAction serviceAction) {
+        execute(serviceAction, 0);
+    }
+
+    private void execute(ServiceAction serviceAction, int msg) {
         boolean action = serviceAction.isOn();
         Status oldStatus = status;
         boolean showNotify = false;
@@ -600,6 +635,10 @@ public class TetheringService extends IntentService {
                 status = Status.DEACTIVED_ON_IDLE;
                 break;
         }
+        if (msg != 0) {
+            id = msg;
+        }
+
         if (showNotify || status != oldStatus) {
             showNotification(getString(id));
         }

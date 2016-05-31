@@ -1,9 +1,12 @@
 package com.labs.dm.auto_tethering.service;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.os.BatteryManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -48,6 +51,32 @@ public class ServiceHelper {
         return false;
     }
 
+    /**
+     * Returns true if device is connected to usb or charger
+     *
+     * @return
+     */
+    public boolean isPluggedToPower() {
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = context.registerReceiver(null, ifilter);
+
+// Are we charging / charged?
+     //   int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+//        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+  //              status == BatteryManager.BATTERY_STATUS_FULL;
+
+// How are we charging?
+        int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        return chargePlug == BatteryManager.BATTERY_PLUGGED_USB || chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
+    }
+
+    public float batteryLevel() {
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = context.registerReceiver(null, ifilter);
+        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        return level / (float)scale;
+    }
     /**
      * Returns declared portable Wi-Fi hotspot network SSID.
      *
