@@ -111,7 +111,9 @@
                 android:enabled="true"
                 android:exported="true">
             <intent-filter>
-                <action android:name="android.bluetooth.BluetoothDevice.ACTION_FOUND"/>
+                <action android:name="android.bluetooth.device.action.FOUND"/>
+                <action android:name="android.bluetooth.adapter.action.DISCOVERY_STARTED"/>
+                <action android:name="android.bluetooth.adapter.action.DISCOVERY_FINISHED"/>
             </intent-filter>
         </receiver>
         <!-- Services -->

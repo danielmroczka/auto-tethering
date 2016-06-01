@@ -59,13 +59,9 @@ public class ServiceHelper {
     public boolean isPluggedToPower() {
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, ifilter);
-
-// Are we charging / charged?
         //   int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-//        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-        //              status == BatteryManager.BATTERY_STATUS_FULL;
-
-// How are we charging?
+        //   boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+        //   status == BatteryManager.BATTERY_STATUS_FULL;
         int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
         return chargePlug == BatteryManager.BATTERY_PLUGGED_USB || chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
     }
@@ -77,6 +73,7 @@ public class ServiceHelper {
         int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
         return level / (float) scale;
     }
+
     /**
      * Returns declared portable Wi-Fi hotspot network SSID.
      *
@@ -163,5 +160,49 @@ public class ServiceHelper {
             }
         }
         return null;
+    }
+
+    public void usbTethering(boolean value) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        Log.d(TAG, "test enable usb tethering");
+        String[] available = null;
+        int code = -1;
+        Method[] wmMethods = cm.getClass().getDeclaredMethods();
+
+        for (Method method : wmMethods) {
+            if (method.getName().equals("getTetherableIfaces")) {
+
+                try {
+                    available = (String[]) method.invoke(cm);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                    return;
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                break;
+            }
+        }
+
+        for (Method method : wmMethods) {
+            if (method.getName().equals("tether")) {
+                try {
+                    code = (Integer) method.invoke(cm, available[0]);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                    return;
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                break;
+            }
+        }
+
+        if (code == 0)
+            Log.d(TAG, "Enable usb tethering successfully!");
+        else
+            Log.d(TAG, "Enable usb tethering failed!");
     }
 }
