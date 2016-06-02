@@ -1,7 +1,12 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" />
+    <style name="AppTheme">
+        <!--
+                <item name="android:textColorSecondary">#ffe600</item>
+                <item name="android:colorForeground">#ffe600</item>
+        -->
+    </style>
 
     <style name="button" parent="@android:style/Widget.Button">
         <item name="android:shadowRadius">20</item>
@@ -17,7 +22,7 @@
         <item name="android:padding">5dp</item>
     </style>
 
-    <!--<style name="MyStyle" parent="@android:style/Preference.DialogPreference.EditTextPreference">
-        <item name="android:colorForeground">#CC4410</item>
-    </style>-->
+    <style name="MyEditTextStyle" parent="@android:style/Widget.EditText">
+        <item name="android:textColor">#ffe600</item>
+    </style>
 </resources>

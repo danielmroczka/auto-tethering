@@ -208,6 +208,7 @@ public class ServiceHelper {
     }
 
     public static long getDataUsage() {
+        //return TrafficStats.getUidRxBytes(-5) + TrafficStats.getUidTxBytes(-5);
         return TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes();
         //return TrafficStats.getMobileRxBytes() + TrafficStats.getMobileTxBytes();
     }

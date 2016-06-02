@@ -211,17 +211,18 @@
                     android:inputType="number"
                     android:key="data.limit.value"
                     android:defaultValue="1000"
-                    android:title="Limit data usage [MB]" />
+                    android:maxLength="6"
+                    android:title="Data usage limit [MB]"/>
             <PreferenceScreen
-                android:key="data.limit.reset"
-                android:title="Reset data usage counter" />
+                    android:key="data.limit.counter"
+                    android:title="Data usage counter"/>
             <PreferenceScreen
-                android:key="data.limit.counter"
-                android:summary="100MB"
-                android:title="Current data usage" />
+                    android:key="data.limit.reset"
+                    android:title="Reset data usage counter"/>
             <CheckBoxPreference
-                android:key="data.limit.daily.reset"
-                android:title="Reset counter every day" />
+                    android:key="data.limit.daily.reset"
+                    android:summary="Reset will be triggered just after midnight everyday"
+                    android:title="Reset counter every day" />
         </PreferenceScreen>
         <PreferenceScreen
             android:icon="@drawable/ic_usb"

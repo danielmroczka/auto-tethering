@@ -48,10 +48,12 @@ public class TetheringService extends IntentService {
     }
 
     private enum Status {
-        DEACTIVED_ON_IDLE,
+        DEACTIVATED_ON_IDLE,
         ACTIVATED_ON_SCHEDULE,
         DEACTIVATED_ON_SCHEDULE,
-        USB_ON, DATA_USAGE_LIMIT_EXCEED, DEFAULT
+        USB_ON,
+        DATA_USAGE_LIMIT_EXCEED,
+        DEFAULT
     }
 
     private static final String TAG = "AutoTetheringService";
@@ -288,12 +290,10 @@ public class TetheringService extends IntentService {
                     Log.i(TAG, "Adjust after the boot " + ServiceHelper.getDataUsage());
                     long offset = prefs.getLong("data.usage.last.value", 0) - Math.abs(prefs.getLong("data.usage.reset.value", 0));
                     prefs.edit().putLong("data.usage.reset.value", -offset).apply();
-                    prefs.edit().putLong("data.usage.last.value", ServiceHelper.getDataUsage()).apply();
                     prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
-                } else {
-                    prefs.edit().putLong("data.usage.last.value", ServiceHelper.getDataUsage()).apply();
                 }
 
+                prefs.edit().putLong("data.usage.last.value", ServiceHelper.getDataUsage()).apply();
                 long usage = ServiceHelper.getDataUsage() - prefs.getLong("data.usage.reset.value", 0);
                 Intent onIntent = new Intent("data.usage");
                 onIntent.putExtra("value", usage);
@@ -341,7 +341,7 @@ public class TetheringService extends IntentService {
             return;
         }
 
-        if (!state || status != Status.DEACTIVED_ON_IDLE) {
+        if (!state || status != Status.DEACTIVATED_ON_IDLE) {
             new TurnOnTetheringAsyncTask().doInBackground(state);
         }
     }
@@ -422,7 +422,7 @@ public class TetheringService extends IntentService {
             return true;
         } else {
             updateLastAccess();
-            if (status == Status.DEACTIVED_ON_IDLE) {
+            if (status == Status.DEACTIVATED_ON_IDLE) {
                 status = Status.DEFAULT;
             }
         }
@@ -461,7 +461,7 @@ public class TetheringService extends IntentService {
             return;
         }
 
-        if (!state || status != Status.DEACTIVED_ON_IDLE) {
+        if (!state || status != Status.DEACTIVATED_ON_IDLE) {
             new TurnOn3GAsyncTask().doInBackground(state);
         }
     }
@@ -550,7 +550,7 @@ public class TetheringService extends IntentService {
 
             builder.addAction(drawable, ticker, onPendingIntent);
 
-            if (status == Status.DEACTIVED_ON_IDLE) {
+            if (status == Status.DEACTIVATED_ON_IDLE) {
                 Intent onResumeIntent = new Intent("resume");
                 PendingIntent onResumePendingIntent = PendingIntent.getBroadcast(this, 0, onResumeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 builder.addAction(R.drawable.ic_resume24, "Resume", onResumePendingIntent);
@@ -737,11 +737,11 @@ public class TetheringService extends IntentService {
                 break;
             case TETHER_OFF_IDLE:
                 id = R.string.notification_idle_tethering_off;
-                status = Status.DEACTIVED_ON_IDLE;
+                status = Status.DEACTIVATED_ON_IDLE;
                 break;
             case INTERNET_OFF_IDLE:
                 id = R.string.notification_idle_internet_off;
-                status = Status.DEACTIVED_ON_IDLE;
+                status = Status.DEACTIVATED_ON_IDLE;
                 break;
             case DATA_USAGE_EXCEED_LIMIT:
                 id = R.string.notification_data_execced_limit;

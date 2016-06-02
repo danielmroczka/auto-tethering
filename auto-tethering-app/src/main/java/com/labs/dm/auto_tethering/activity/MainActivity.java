@@ -211,31 +211,32 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         resetDataUsage.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                long dataUsage = ServiceHelper.getDataUsage();
-                prefs.edit().putLong("data.usage.reset.value", dataUsage).apply();
-                prefs.edit().putLong("data.usage.last.value", dataUsage).apply();
-                prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(R.string.warning)
+                        .setMessage("Do you want to reset data usage counter?")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
-                Intent intent = new Intent("data.usage");
-                sendBroadcast(intent);
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                long dataUsage = ServiceHelper.getDataUsage();
+                                prefs.edit().putLong("data.usage.reset.value", dataUsage).apply();
+                                prefs.edit().putLong("data.usage.last.value", dataUsage).apply();
+                                prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
+
+                                Intent intent = new Intent("data.usage");
+                                sendBroadcast(intent);
+                            }
+                        })
+                        .setNegativeButton(R.string.no, null
+                        ).show();
+
                 return true;
             }
         });
 
         EditTextPreference dataLimit = (EditTextPreference) findPreference("data.limit.value");
         dataLimit.setOnPreferenceChangeListener(changeListener);
-
-        /*PreferenceScreen counterDataUsage = (PreferenceScreen) findPreference("data.limit.reset");
-        counterDataUsage.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Intent intent = new Intent("data.usage");
-                sendBroadcast(intent);
-
-                return true;
-            }
-        });*/
     }
 
     /**
