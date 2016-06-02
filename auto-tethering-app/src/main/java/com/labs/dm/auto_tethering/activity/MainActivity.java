@@ -67,7 +67,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     connectedClients.setTitle("Connected clients: " + intent.getIntExtra("value", 0));
                 } else if ("data.usage".equals(intent.getAction())) {
                     final PreferenceScreen dataUsage = (PreferenceScreen) findPreference("data.limit.counter");
-                    dataUsage.setSummary(String.format("%.2f MB", intent.getLongExtra("value", -1) / 1048576f));
+                    dataUsage.setSummary(String.format("%.2f MB", intent.getLongExtra("value", 0) / 1048576f));
                 }
             }
         };
@@ -211,14 +211,31 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         resetDataUsage.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                prefs.edit().putLong("data.usage.last.value", ServiceHelper.getDataUsage()).apply();
-                prefs.edit().putLong("data.usage.last.timestamp", System.currentTimeMillis()).apply();
-                return false;
+                long dataUsage = ServiceHelper.getDataUsage();
+                prefs.edit().putLong("data.usage.reset.value", dataUsage).apply();
+                prefs.edit().putLong("data.usage.last.value", dataUsage).apply();
+                prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
+
+                Intent intent = new Intent("data.usage");
+                sendBroadcast(intent);
+                return true;
             }
         });
 
         EditTextPreference dataLimit = (EditTextPreference) findPreference("data.limit.value");
         dataLimit.setOnPreferenceChangeListener(changeListener);
+
+        /*PreferenceScreen counterDataUsage = (PreferenceScreen) findPreference("data.limit.reset");
+        counterDataUsage.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent intent = new Intent("data.usage");
+                sendBroadcast(intent);
+
+                return true;
+            }
+        });*/
     }
 
     /**

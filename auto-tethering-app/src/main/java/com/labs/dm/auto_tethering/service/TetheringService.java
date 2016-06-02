@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
+import android.text.format.DateUtils;
 import android.util.Log;
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
@@ -259,15 +260,41 @@ public class TetheringService extends IntentService {
                     }
                 }
 
-                long lastUpdate = prefs.getLong("data.usage.last.timestamp", 0l);
+                long lastUpdate = prefs.getLong("data.usage.reset.timestamp", 0);
                 long lastBootTime = System.currentTimeMillis() - SystemClock.elapsedRealtime();
 
-                if (lastBootTime > lastUpdate) {
+                /**
+                 * Execute for the very first time, set data with initial values
+                 */
+                if (lastUpdate == 0) {
+                    Log.i(TAG, "Init data usage " + ServiceHelper.getDataUsage());
+                    prefs.edit().putLong("data.usage.reset.value", ServiceHelper.getDataUsage()).apply();
                     prefs.edit().putLong("data.usage.last.value", ServiceHelper.getDataUsage()).apply();
-                    prefs.edit().putLong("data.usage.last.timestamp", System.currentTimeMillis()).apply();
+                    prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
+                    lastUpdate = prefs.getLong("data.usage.reset.timestamp", 0);
+                }
+                if (prefs.getBoolean("data.limit.daily.reset", false) && !DateUtils.isToday(prefs.getLong("data.usage.reset.timestamp", 0))) {
+                    Log.i(TAG, "Daily counter reset" + ServiceHelper.getDataUsage());
+                    long dataUsage = ServiceHelper.getDataUsage();
+                    prefs.edit().putLong("data.usage.reset.value", dataUsage).apply();
+                    prefs.edit().putLong("data.usage.last.value", dataUsage).apply();
+                    prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
                 }
 
-                long usage = ServiceHelper.getDataUsage() - prefs.getLong("data.usage.last.value", 0l);
+                /**
+                 * Restart device in the meantime, restore last stored value to counter
+                 */
+                if (lastBootTime > lastUpdate) {
+                    Log.i(TAG, "Adjust after the boot " + ServiceHelper.getDataUsage());
+                    long offset = prefs.getLong("data.usage.last.value", 0) - Math.abs(prefs.getLong("data.usage.reset.value", 0));
+                    prefs.edit().putLong("data.usage.reset.value", -offset).apply();
+                    prefs.edit().putLong("data.usage.last.value", ServiceHelper.getDataUsage()).apply();
+                    prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
+                } else {
+                    prefs.edit().putLong("data.usage.last.value", ServiceHelper.getDataUsage()).apply();
+                }
+
+                long usage = ServiceHelper.getDataUsage() - prefs.getLong("data.usage.reset.value", 0);
                 Intent onIntent = new Intent("data.usage");
                 onIntent.putExtra("value", usage);
                 sendBroadcast(onIntent);
@@ -275,6 +302,10 @@ public class TetheringService extends IntentService {
                 if (prefs.getBoolean("data.limit.on", false)) {
                     if (usage / (1048576f) > Integer.parseInt(prefs.getString("data.limit.value", "0"))) {
                         execute(DATA_USAGE_EXCEED_LIMIT);
+                    }
+                } else {
+                    if (status == Status.DATA_USAGE_LIMIT_EXCEED) {
+                        status = Status.DEFAULT;
                     }
                 }
 
