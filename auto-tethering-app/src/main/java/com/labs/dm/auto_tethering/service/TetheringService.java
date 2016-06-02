@@ -6,11 +6,17 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.net.TrafficStats;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
@@ -26,9 +32,31 @@ import java.util.concurrent.TimeUnit;
 
 import static android.os.Build.VERSION;
 import static android.os.Build.VERSION_CODES;
-import static com.labs.dm.auto_tethering.AppProperties.*;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
+import static com.labs.dm.auto_tethering.AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.FORCE_NET_FROM_NOTIFY;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
 import static com.labs.dm.auto_tethering.Utils.adapterDayOfWeek;
-import static com.labs.dm.auto_tethering.service.ServiceAction.*;
+import static com.labs.dm.auto_tethering.service.ServiceAction.DATA_USAGE_EXCEED_LIMIT;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF_IDLE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SIMCARD_BLOCK;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF_IDLE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_ON;
 
 /**
  * Created by Daniel Mroczka
@@ -49,7 +77,7 @@ public class TetheringService extends IntentService {
         DEACTIVED_ON_IDLE,
         ACTIVATED_ON_SCHEDULE,
         DEACTIVATED_ON_SCHEDULE,
-        USB_ON, DEFAULT
+        USB_ON, DATA_USAGE_LIMIT_EXCEED, DEFAULT
     }
 
     private static final String TAG = "AutoTetheringService";
@@ -257,6 +285,16 @@ public class TetheringService extends IntentService {
                         Log.i(TAG, "Found paired bt in range!");
                     }
                 }
+
+                if (prefs.getBoolean("data.limit.on", false)) {
+                    long usage = getDataUsage();
+                    if (usage / (1024f * 1024f) > prefs.getInt("data.limit.value", 100)) {
+                        execute(DATA_USAGE_EXCEED_LIMIT);
+                        Intent onIntent = new Intent("data.usage");
+                        onIntent.putExtra("value", usage / (1024f * 1024f));
+                        sendBroadcast(onIntent);
+                    }
+                }
                 counter++;
 
                 TimeUnit.SECONDS.sleep(CHECK_DELAY);
@@ -264,6 +302,11 @@ public class TetheringService extends IntentService {
                 Log.e(TAG, e.getMessage());
             }
         }
+    }
+
+    private long getDataUsage() {
+        return TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes();
+        //return TrafficStats.getMobileRxBytes() + TrafficStats.getMobileTxBytes();
     }
 
     private boolean enabled() {
@@ -690,6 +733,10 @@ public class TetheringService extends IntentService {
             case INTERNET_OFF_IDLE:
                 id = R.string.notification_idle_internet_off;
                 status = Status.DEACTIVED_ON_IDLE;
+                break;
+            case DATA_USAGE_EXCEED_LIMIT:
+                id = R.string.notification_data_execced_limit;
+                status = Status.DATA_USAGE_LIMIT_EXCEED;
                 break;
         }
         if (msg != 0) {

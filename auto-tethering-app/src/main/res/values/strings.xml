@@ -96,5 +96,6 @@
     <string name="activate_internet_usb_on">Internet activated on USB connection</string>
     <string name="activate_tethering_usb_off">Tethering deactivated on USB disconnect</string>
     <string name="activate_internet_usb_off">Internet deactivated on USB disconnect</string>
+    <string name="notification_data_execced_limit">Data usage exceed the limit</string>
 </resources>
 
