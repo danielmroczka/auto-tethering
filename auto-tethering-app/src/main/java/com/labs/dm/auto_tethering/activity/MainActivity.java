@@ -2,37 +2,18 @@ package com.labs.dm.auto_tethering.activity;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.pm.PackageManager;
-import android.net.TrafficStats;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
+import android.preference.*;
 import android.telephony.TelephonyManager;
 import android.text.InputFilter;
 import android.text.Spanned;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
@@ -48,15 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
-import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
-import static com.labs.dm.auto_tethering.AppProperties.SSID;
+import static com.labs.dm.auto_tethering.AppProperties.*;
 
 /**
  * Created by Daniel Mroczka
@@ -94,7 +67,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     connectedClients.setTitle("Connected clients: " + intent.getIntExtra("value", 0));
                 } else if ("data.usage".equals(intent.getAction())) {
                     final PreferenceScreen dataUsage = (PreferenceScreen) findPreference("data.limit.counter");
-                    dataUsage.setSummary(intent.getIntExtra("value", 0));
+                    dataUsage.setSummary(String.format("%.2f MB", intent.getLongExtra("value", -1) / 1048576f));
                 }
             }
         };
@@ -205,6 +178,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 case IDLE_3G_OFF_TIME:
                 case IDLE_TETHERING_OFF_TIME:
                 case "usb.off.battery.lvl.value":
+                case "data.limit.value":
                     p.setSummary((CharSequence) entry.getValue());
                     p.getEditor().commit();
                     break;
@@ -224,29 +198,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
-        PreferenceScreen stats = (PreferenceScreen) findPreference("stats");
-        stats.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                PackageManager pkg = getPackageManager();
-                pkg.getInstalledApplications(PackageManager.GET_META_DATA);
-
-
-                ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-                List<ActivityManager.RunningAppProcessInfo> runningApps = manager.getRunningAppProcesses();
-                for (ActivityManager.RunningAppProcessInfo runningApp : runningApps) {
-                    // Get UID of the selected process
-                    int uid = runningApp.uid;
-                    // Get traffic data
-                    long received = TrafficStats.getUidRxBytes(uid);
-                    long send = TrafficStats.getUidTxBytes(uid);
-                    Log.v("" + uid, "Send :" + send + ", Received :" + received);
-
-                }
-                return false;
-            }
-        });
-
         PreferenceScreen usbTethering = (PreferenceScreen) findPreference("usb.tethering");
         usbTethering.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -256,6 +207,18 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
+        PreferenceScreen resetDataUsage = (PreferenceScreen) findPreference("data.limit.reset");
+        resetDataUsage.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                prefs.edit().putLong("data.usage.last.value", ServiceHelper.getDataUsage()).apply();
+                prefs.edit().putLong("data.usage.last.timestamp", System.currentTimeMillis()).apply();
+                return false;
+            }
+        });
+
+        EditTextPreference dataLimit = (EditTextPreference) findPreference("data.limit.value");
+        dataLimit.setOnPreferenceChangeListener(changeListener);
     }
 
     /**

@@ -15,7 +15,7 @@ public enum ServiceAction {
     SCHEDULED_INTERNET_OFF,
     TETHER_OFF_IDLE,
     INTERNET_OFF_IDLE,
-    DATA_USAGE_EXCEED_LIMIT(false, true, true),
+    DATA_USAGE_EXCEED_LIMIT,
     ROAMING_OFF(true, true, false),
     SIMCARD_BLOCK(true, true, false);
 

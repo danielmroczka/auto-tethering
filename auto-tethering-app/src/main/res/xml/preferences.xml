@@ -202,19 +202,16 @@
         <PreferenceScreen
             android:icon="@drawable/ic_stats"
             android:title="Data usage">
-            <PreferenceScreen
-                android:key="stats"
-                android:summary="Stats" />
             <CheckBoxPreference
                 android:key="data.limit.on"
                 android:summary="Turn off tethering once data usage exceed the limit"
                 android:title="Data usage limit on" />
             <EditTextPreference
-                android:dependency="data.limit.on"
-                android:inputType="number"
-                android:key="data.limit.value"
-                android:summary="100MB"
-                android:title="Limit data usage [MB]" />
+                    android:dependency="data.limit.on"
+                    android:inputType="number"
+                    android:key="data.limit.value"
+                    android:defaultValue="1000"
+                    android:title="Limit data usage [MB]" />
             <PreferenceScreen
                 android:key="data.limit.reset"
                 android:title="Reset data usage counter" />

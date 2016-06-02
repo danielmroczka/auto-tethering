@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.net.TrafficStats;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
@@ -204,5 +205,10 @@ public class ServiceHelper {
             Log.d(TAG, "Enable usb tethering successfully!");
         else
             Log.d(TAG, "Enable usb tethering failed!");
+    }
+
+    public static long getDataUsage() {
+        return TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes();
+        //return TrafficStats.getMobileRxBytes() + TrafficStats.getMobileTxBytes();
     }
 }
