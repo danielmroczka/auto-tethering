@@ -1,7 +1,6 @@
 package com.labs.dm.auto_tethering.service;
 
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -9,8 +8,6 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
-
-import static android.content.ContentValues.TAG;
 
 /**
  * Created by Daniel Mroczka on 6/3/2016.
@@ -21,6 +18,7 @@ public class BluetoothTimerTask extends TimerTask {
     private List<String> devices = new ArrayList<>();
 
     public BluetoothTimerTask(Context context, SharedPreferences prefs) {
+        Log.i("BT Constructor", "ping");
         this.context = context;
         this.prefs = prefs;
     }
@@ -38,20 +36,6 @@ public class BluetoothTimerTask extends TimerTask {
                 mBluetoothAdapter.startDiscovery();
             }
         }
-        boolean found = false;
-        for (BluetoothDevice dev : mBluetoothAdapter.getBondedDevices()) {
-            for (String name : devices) {
-                if (dev.getName().equals(name)) {
-                    found = true;
-                    break;
-                }
-            }
-        }
-
-        if (found) {
-            Log.i(TAG, "Found paired bt in range!");
-        }
     }
-
 }
 

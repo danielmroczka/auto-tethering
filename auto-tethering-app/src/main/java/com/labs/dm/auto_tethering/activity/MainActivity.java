@@ -11,6 +11,7 @@ import android.telephony.TelephonyManager;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.view.*;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -352,6 +353,75 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         });
     }
 
+    private void registerBTListener() {
+        PreferenceScreen p = (PreferenceScreen) findPreference("bt.add.device");
+        p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                final PreferenceCategory category = (PreferenceCategory) findPreference("bt.list");
+
+                AlertDialog.Builder builderSingle = new AlertDialog.Builder(MainActivity.this);
+                builderSingle.setIcon(R.drawable.app);
+                builderSingle.setTitle("Select One Item");
+
+                final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.select_dialog_singlechoice);
+                arrayAdapter.add("Galaxy");
+                arrayAdapter.add("Gio");
+                arrayAdapter.add("Nexus");
+
+                builderSingle.setNegativeButton(
+                        "Cancel",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which >= 0) {
+                            String name = arrayAdapter.getItem(which);
+                            prefs.edit().putString("bt.devices", name).apply();
+                            Preference ps = new CheckBoxPreference(getApplicationContext());
+                            ps.setTitle(name);
+                            category.addPreference(ps);
+                        }
+                        dialog.dismiss();
+                    }
+                });
+                builderSingle.show();
+                return false;
+            }
+        });
+
+        PreferenceScreen p2 = (PreferenceScreen) findPreference("bt.remove.device");
+        p2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                PreferenceCategory p = (PreferenceCategory) findPreference("bt.list");
+                boolean changed = false;
+                for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
+                    Object object = p.getPreference(idx);
+                    if (object instanceof CheckBoxPreference) {
+                        boolean status = ((CheckBoxPreference) object).isChecked();
+                        if (status) {
+                            p.removePreference((Preference) object);
+                            changed = true;
+                        }
+                    }
+                }
+
+                if (!changed) {
+                    Toast.makeText(getApplicationContext(), "Please select any item", Toast.LENGTH_LONG).show();
+                }
+                return true;
+            }
+        });
+    }
+
     private void registerAddSimCardListener() {
         final TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         final String ssn = tMgr.getSimSerialNumber();
@@ -393,39 +463,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
-        PreferenceScreen p2 = (PreferenceScreen) findPreference("remove.simcard");
-        p2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                PreferenceCategory p = (PreferenceCategory) findPreference("simcard.list");
-                boolean changed = false;
-                for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
-                    Object object = p.getPreference(idx);
-                    if (object instanceof CheckBoxPreference) {
-                        boolean status = ((CheckBoxPreference) object).isChecked();
-                        if (status) {
-                            String ssn = ((CheckBoxPreference) object).getSummary().toString();
-                            ssn = ssn.substring("SSN: ".length()).trim();
-                            db.removeSimCard(ssn);
-                            p.removePreference((Preference) object);
-                            changed = true;
-                        }
-                    }
-                }
-
-                if (!changed) {
-                    Toast.makeText(getApplicationContext(), "Please select any item", Toast.LENGTH_LONG).show();
-                }
-
-                boolean status = db.isOnWhiteList(ssn);
-
-                PreferenceScreen p2 = (PreferenceScreen) findPreference("add.current.simcard");
-                p2.setEnabled(!status);
-
-                return true;
-            }
-        });
     }
 
     @Override
@@ -465,8 +503,20 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         loadPrefs();
         registerAddSimCardListener();
         registerAddSchedule();
+        registerBTListener();
         prepareSimCardWhiteList();
+        prepareBTList();
         prepareScheduleList();
+    }
+
+    private void prepareBTList() {
+        PreferenceCategory pc = (PreferenceCategory) findPreference("bt.list");
+        Preference ps = new CheckBoxPreference(getApplicationContext());
+        ps.setTitle(prefs.getString("bt.devices", null));
+        if (ps.getTitle() != null) {
+            pc.addPreference(ps);
+        }
+
     }
 
     private void startService() {

@@ -86,7 +86,7 @@ public class TetheringService extends IntentService {
         TimerTask bluetoothTask = new BluetoothTimerTask(getApplicationContext(), prefs);
         timer = new Timer();
         timer.schedule(dataUsageTask, 100, 15000);
-        timer.schedule(bluetoothTask, 5000, 60000);
+        timer.schedule(bluetoothTask, 5000, 15000);
     }
 
     private void registerReceivers() {
@@ -97,7 +97,9 @@ public class TetheringService extends IntentService {
         filter.addAction("exit");
         filter.addAction("usb.on");
         filter.addAction("usb.off");
-        filter.addAction("bt.ready");
+        filter.addAction("bt.found.new");
+        filter.addAction("bt.found.start");
+        filter.addAction("bt.found.end");
         receiver = new MyBroadcastReceiver();
         registerReceiver(receiver, filter);
     }
@@ -596,12 +598,15 @@ public class TetheringService extends IntentService {
                 }
                 status = Status.DEFAULT;
             }
-//            if ("bt.ready".equals(intent.getAction())) {
-//                if (intent.getBooleanExtra("clear", false)) {
-//                    devices.clear();
-//                }
-//                devices.add(intent.getStringExtra("device"));
-//            }
+            if ("bt.found.start".equals(intent.getAction())) {
+                devices.clear();
+            }
+            if ("bt.found.new".equals(intent.getAction())) {
+                devices.add(intent.getStringExtra("device"));
+            }
+            if ("bt.found.end".equals(intent.getAction())) {
+                Log.i("BT Found Count:", String.valueOf(devices.size()));
+            }
 
             if ("exit".equals(intent.getAction())) {
                 stopSelf();

@@ -202,6 +202,19 @@
                 android:key="bt.start.discovery"
                 android:summary="Find devices"
                 android:title="" />
+
+            <PreferenceCategory
+                    android:key="bt.list"
+                    android:title="Bluetooth devices whitelist">
+                <PreferenceScreen
+                        android:icon="@drawable/ic_add"
+                        android:key="bt.add.device"
+                        android:title="Add BT device"/>
+                <PreferenceScreen
+                        android:icon="@drawable/ic_remove"
+                        android:key="bt.remove.device"
+                        android:title="Remove selected"/>
+            </PreferenceCategory>
         </PreferenceScreen>
         <PreferenceScreen
             android:icon="@drawable/ic_stats"
