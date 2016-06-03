@@ -201,6 +201,7 @@
         </PreferenceScreen>
         <PreferenceScreen
             android:icon="@drawable/ic_stats"
+            android:key="data.limit"
             android:title="Data usage">
             <CheckBoxPreference
                 android:key="data.limit.on"
@@ -231,11 +232,13 @@
                 android:key="usb.tethering"
                 android:summary="Turn on USB tethering" />
         </PreferenceScreen>
-        <ListPreference
-            android:entries="@array/Profile"
-            android:entryValues="@array/ProfileContext"
-            android:key="profiles.list"
-            android:title="Profiles"></ListPreference>
+        <!--
+                <ListPreference
+                    android:entries="@array/Profile"
+                    android:entryValues="@array/ProfileContext"
+                    android:key="profiles.list"
+                    android:title="Profiles"></ListPreference>
+        -->
 
     </PreferenceScreen>
 
