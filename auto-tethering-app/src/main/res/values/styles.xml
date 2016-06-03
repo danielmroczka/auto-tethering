@@ -2,10 +2,10 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme">
-        <item name="android:textColorSecondary">@color/indicator</item>        <!--
-                <item name="android:textColorSecondary">#ffe600</item>
-                <item name="android:colorForeground">#ffe600</item>
-        -->
+        <!--   <item name="android:textColorSecondary">@color/indicator</item>
+                   <item name="android:textColorSecondary">#ffe600</item>
+                   <item name="android:colorForeground">#ffe600</item>
+           -->
     </style>
 
     <style name="button" parent="@android:style/Widget.Button">
