@@ -1,8 +1,6 @@
 package com.labs.dm.auto_tethering.service;
 
-import android.app.ActivityManager;
 import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -28,7 +26,7 @@ public class WidgetService extends IntentService {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         int widgetId = intent.getIntExtra(EXTRA_APPWIDGET_ID, -1);
 
-        if (!isServiceRunning(TetheringService.class) && prefs.getBoolean(key(widgetId, "start.service"), false)) {
+        if (!serviceHelper.isServiceRunning(TetheringService.class) && prefs.getBoolean(key(widgetId, "start.service"), false)) {
             Intent serviceIntent = new Intent(this, TetheringService.class);
             startService(serviceIntent);
             //TODO Remove sleep
@@ -40,7 +38,7 @@ public class WidgetService extends IntentService {
             Intent onIntent = new Intent("widget");
             onIntent.putExtra("changeMobileState", prefs.getBoolean(key(widgetId, "mobile"), false));
             sendBroadcast(onIntent);
-        } else if (isServiceRunning(TetheringService.class)) {
+        } else if (serviceHelper.isServiceRunning(TetheringService.class)) {
             Intent onIntent = new Intent("widget");
             onIntent.putExtra("changeMobileState", prefs.getBoolean(key(widgetId, "mobile"), false));
             sendBroadcast(onIntent);
@@ -86,16 +84,6 @@ public class WidgetService extends IntentService {
 
     private void internetAsyncTask(boolean state) {
         new TurnOn3GAsyncTask().doInBackground(state);
-    }
-
-    private boolean isServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private String key(int id, String key) {

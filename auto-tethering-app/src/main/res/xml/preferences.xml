@@ -145,8 +145,8 @@
         android:summary="Features under development"
         android:title="Experimental">
         <PreferenceScreen
-            android:icon="@drawable/ic_usb"
-            android:title="USB activation">
+                android:icon="@drawable/ic_usb"
+                android:title="USB/AC activation">
             <CheckBoxPreference
                 android:icon="@drawable/ic_usb"
                 android:key="usb.only.when.connected"
@@ -187,7 +187,11 @@
                     android:key="usb.internet.force.off"
                     android:summary="Disconnect internet on power disconnect"
                     android:title="" />
-
+                <CheckBoxPreference
+                        android:defaultValue="false"
+                        android:key="usb.internet.start.service"
+                        android:summary="Start service on power connect (if it is not running)"
+                        android:title=""/>
             </PreferenceCategory>
         </PreferenceScreen>
         <PreferenceScreen

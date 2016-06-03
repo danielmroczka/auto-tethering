@@ -5,19 +5,11 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.os.AsyncTask;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
-import android.text.format.DateUtils;
 import android.util.Log;
-
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
@@ -26,38 +18,14 @@ import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.Cron.STATUS;
 import com.labs.dm.auto_tethering.db.DBManager;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static android.os.Build.VERSION;
 import static android.os.Build.VERSION_CODES;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
-import static com.labs.dm.auto_tethering.AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.FORCE_NET_FROM_NOTIFY;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
+import static com.labs.dm.auto_tethering.AppProperties.*;
 import static com.labs.dm.auto_tethering.Utils.adapterDayOfWeek;
-import static com.labs.dm.auto_tethering.service.ServiceAction.DATA_USAGE_EXCEED_LIMIT;
-import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF_IDLE;
-import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_ON;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_ON;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_ON;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SIMCARD_BLOCK;
-import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF_IDLE;
-import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.*;
 
 /**
  * Created by Daniel Mroczka
@@ -94,6 +62,7 @@ public class TetheringService extends IntentService {
     private boolean flag = true;
     private Notification notification;
     private final int NOTIFICATION_ID = 1234;
+    private Timer timer;
 
     private Status status = Status.DEFAULT;
 
@@ -109,6 +78,15 @@ public class TetheringService extends IntentService {
         onChangeProperties();
         init();
         registerReceivers();
+        registerTimeTask();
+    }
+
+    private void registerTimeTask() {
+        TimerTask dataUsageTask = new DataUsageTimerTask(getApplicationContext(), prefs);
+        TimerTask bluetoothTask = new BluetoothTimerTask(getApplicationContext(), prefs);
+        timer = new Timer();
+        timer.schedule(dataUsageTask, 100, 15000);
+        timer.schedule(bluetoothTask, 5000, 60000);
     }
 
     private void registerReceivers() {
@@ -201,7 +179,6 @@ public class TetheringService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        int counter = 0;
         if (isServiceActivated()) {
             showNotification(getString(R.string.service_started));
 
@@ -261,69 +238,7 @@ public class TetheringService extends IntentService {
                     flag = false;
                 }
 
-                if (prefs.getBoolean("bt.start.discovery", false)) {
-                    BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-                    if (counter % 3 == 0) {
-                        if (!mBluetoothAdapter.isEnabled()) {
-                            mBluetoothAdapter.enable();
-                        }
-
-                        if (!mBluetoothAdapter.isDiscovering()) {
-                            mBluetoothAdapter.startDiscovery();
-                        }
-                        counter = 0;
-                    }
-                    boolean found = false;
-                    for (BluetoothDevice dev : mBluetoothAdapter.getBondedDevices()) {
-                        for (String name : devices) {
-                            if (dev.getName().equals(name)) {
-                                found = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (found) {
-                        Log.i(TAG, "Found paired bt in range!");
-                    }
-                }
-
-                long lastUpdate = prefs.getLong("data.usage.reset.timestamp", 0);
-                long lastBootTime = System.currentTimeMillis() - SystemClock.elapsedRealtime();
-
-                /**
-                 * Execute for the very first time, set data with initial values
-                 */
-                if (lastUpdate == 0) {
-                    Log.i(TAG, "Init data usage " + ServiceHelper.getDataUsage());
-                    prefs.edit().putLong("data.usage.reset.value", ServiceHelper.getDataUsage()).apply();
-                    prefs.edit().putLong("data.usage.last.value", ServiceHelper.getDataUsage()).apply();
-                    prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
-                    lastUpdate = prefs.getLong("data.usage.reset.timestamp", 0);
-                }
-                if (prefs.getBoolean("data.limit.daily.reset", false) && !DateUtils.isToday(prefs.getLong("data.usage.reset.timestamp", 0))) {
-                    Log.i(TAG, "Daily counter reset" + ServiceHelper.getDataUsage());
-                    long dataUsage = ServiceHelper.getDataUsage();
-                    prefs.edit().putLong("data.usage.reset.value", dataUsage).apply();
-                    prefs.edit().putLong("data.usage.last.value", dataUsage).apply();
-                    prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
-                }
-
-                /**
-                 * Restart device in the meantime, restore last stored value to counter
-                 */
-                if (lastBootTime > lastUpdate) {
-                    Log.i(TAG, "Adjust after the boot " + ServiceHelper.getDataUsage());
-                    long offset = prefs.getLong("data.usage.last.value", 0) - Math.abs(prefs.getLong("data.usage.reset.value", 0));
-                    prefs.edit().putLong("data.usage.reset.value", -offset).apply();
-                    prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
-                }
-
-                prefs.edit().putLong("data.usage.last.value", ServiceHelper.getDataUsage()).apply();
                 long usage = ServiceHelper.getDataUsage() - prefs.getLong("data.usage.reset.value", 0);
-                Intent onIntent = new Intent("data.usage");
-                onIntent.putExtra("value", usage);
-                sendBroadcast(onIntent);
 
                 if (prefs.getBoolean("data.limit.on", false)) {
                     if (usage / (1048576f) > Integer.parseInt(prefs.getString("data.limit.value", "0"))) {
@@ -334,8 +249,6 @@ public class TetheringService extends IntentService {
                         status = Status.DEFAULT;
                     }
                 }
-
-                counter++;
 
                 TimeUnit.SECONDS.sleep(CHECK_DELAY);
             } catch (InterruptedException e) {
@@ -683,12 +596,12 @@ public class TetheringService extends IntentService {
                 }
                 status = Status.DEFAULT;
             }
-            if ("bt.ready".equals(intent.getAction())) {
-                if (intent.getBooleanExtra("clear", false)) {
-                    devices.clear();
-                }
-                devices.add(intent.getStringExtra("device"));
-            }
+//            if ("bt.ready".equals(intent.getAction())) {
+//                if (intent.getBooleanExtra("clear", false)) {
+//                    devices.clear();
+//                }
+//                devices.add(intent.getStringExtra("device"));
+//            }
 
             if ("exit".equals(intent.getAction())) {
                 stopSelf();

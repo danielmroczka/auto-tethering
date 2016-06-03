@@ -1,5 +1,7 @@
 package com.labs.dm.auto_tethering.service;
 
+import android.app.ActivityManager;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -14,6 +16,8 @@ import android.widget.Toast;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import static android.os.BatteryManager.BATTERY_PLUGGED_USB;
 
 /**
  * Helper class responsible for communication with WIFI and mobile services
@@ -64,7 +68,7 @@ public class ServiceHelper {
         //   boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
         //   status == BatteryManager.BATTERY_STATUS_FULL;
         int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
-        return chargePlug == BatteryManager.BATTERY_PLUGGED_USB || chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
+        return chargePlug == BATTERY_PLUGGED_USB || chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
     }
 
     public float batteryLevel() {
@@ -211,5 +215,21 @@ public class ServiceHelper {
         //return TrafficStats.getUidRxBytes(-5) + TrafficStats.getUidTxBytes(-5);
         //return TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes();
         return TrafficStats.getMobileRxBytes() + TrafficStats.getMobileTxBytes();
+    }
+
+    /**
+     * Checks if service is running
+     *
+     * @param serviceClass
+     * @return
+     */
+    public boolean isServiceRunning(Class<? extends Service> serviceClass) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
