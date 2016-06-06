@@ -4,7 +4,6 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.bluetooth.BluetoothAdapter;
 import android.content.*;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -111,51 +110,6 @@ public class TetheringService extends IntentService {
 
         if (prefs.getBoolean("usb.activate.on.connect", false) && serviceHelper.isPluggedToPower()) {
             sendBroadcast(new Intent("usb.on"));
-        }
-
-        if (prefs.getBoolean("bt.start.discovery", false)) {
-            BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-            if (!mBluetoothAdapter.isEnabled()) {
-                mBluetoothAdapter.enable();
-            }
-
-            mBluetoothAdapter.startDiscovery();
-            Log.i("Paired devices", String.valueOf(mBluetoothAdapter.getBondedDevices().size()));
-            /*for (BluetoothDevice dev : mBluetoothAdapter.getBondedDevices()) {
-                Log.i("Paired device", dev.getName());
-                Log.i("  Paired:", dev.getAddress());
-                Log.i("  Paired:", String.valueOf(dev.getBondState()));
-                BluetoothSocket mSocket = null;
-
-
-                try {
-                    Method method = dev.getClass().getMethod("getUuids"); /// get all services
-                    ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(dev); /// get all services
-
-                    BluetoothSocket socket = dev.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid()); ///pick one at random
-                    socket.connect();
-                    socket.close();
-                    Log.e("BluetoothPlugin", dev.getName() + "Device is in range");
-                } catch (Exception e) {
-                    Log.e("BluetoothPlugin", dev.getName() + "Device is NOT in range");
-                }
-                *//*Method method;
-                try {
-                    method = dev.getClass().getMethod("createRfcommSocket", new Class[] {int.class});
-                    mSocket = (BluetoothSocket) method.invoke(dev,1);
-                    mSocket.
-                    Log.i("  Paired:", String.valueOf(mSocket.isConnected()));
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }*//*
-
-
-            }*/
-
-            //BroadcastReceiver mReceiver = new BluetoothBroadcastReceiver();
-            //IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-            //registerReceiver(mReceiver, filter);
         }
     }
 
@@ -605,6 +559,12 @@ public class TetheringService extends IntentService {
                 devices.add(intent.getStringExtra("device"));
             }
             if ("bt.found.end".equals(intent.getAction())) {
+                for (String deviceName : devices) {
+                    if (deviceName.equals(prefs.getString("bt.list", ""))) {
+                        execute(TETHER_ON, R.string.activate_tethering_bt_on);
+                        execute(INTERNET_ON, R.string.activate_internet_bt_on);
+                    }
+                }
                 Log.i("BT Found Count:", String.valueOf(devices.size()));
             }
 

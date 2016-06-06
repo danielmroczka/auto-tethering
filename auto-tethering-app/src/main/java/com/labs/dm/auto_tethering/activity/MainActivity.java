@@ -245,6 +245,24 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
         EditTextPreference dataLimit = (EditTextPreference) findPreference("data.limit.value");
         dataLimit.setOnPreferenceChangeListener(changeListener);
+
+//        CheckBoxPreference btCheckBox = (CheckBoxPreference) findPreference("bt.start.discovery");
+//        final ComponentName componentName2 = new ComponentName(MainActivity.this, BluetoothBroadcastReceiver.class);
+//        btCheckBox.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//            @Override
+//            public boolean onPreferenceClick(Preference preference) {
+//                int state = getPackageManager().getComponentEnabledSetting(componentName2);
+//
+//                if (state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
+//                    getPackageManager().setComponentEnabledSetting(componentName2, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+//                } else {
+//                    getPackageManager().setComponentEnabledSetting(componentName2, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+//                }
+//
+//                return true;
+//            }
+//        });
+//        btCheckBox.setChecked(prefs.getBoolean("bt.start.discovery", false));
     }
 
     /**
