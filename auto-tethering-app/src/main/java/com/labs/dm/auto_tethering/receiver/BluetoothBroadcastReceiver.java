@@ -16,36 +16,26 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-
+        Intent btIntent = null;
         if (BluetoothDevice.ACTION_FOUND.equals(action)) {
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             Toast.makeText(context, "Bluetooth found " + device.getName(), Toast.LENGTH_LONG).show();
             Log.i("BT Broadcast Receiver", device.getName());
-
-            Intent btIntent = new Intent("bt.found.new");
+            btIntent = new Intent("bt.found.new");
             btIntent.putExtra("device", device.getName());
-            PendingIntent onPendingIntent = PendingIntent.getBroadcast(context, 0, btIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            try {
-                onPendingIntent.send();
-            } catch (PendingIntent.CanceledException e) {
-                e.printStackTrace();
-            }
         }
 
         if (ACTION_DISCOVERY_STARTED.equals(action)) {
             Log.i("BT Broadcast Receiver", "Discovery Started");
-            Intent btIntent = new Intent("bt.found.start");
-            PendingIntent onPendingIntent = PendingIntent.getBroadcast(context, 0, btIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            try {
-                onPendingIntent.send();
-            } catch (PendingIntent.CanceledException e) {
-                e.printStackTrace();
-            }
+            btIntent = new Intent("bt.found.start");
         }
 
         if (ACTION_DISCOVERY_FINISHED.equals(action)) {
             Log.i("BT Broadcast Receiver", "Discovery Finished");
-            Intent btIntent = new Intent("bt.found.end");
+            btIntent = new Intent("bt.found.end");
+        }
+
+        if (btIntent != null) {
             PendingIntent onPendingIntent = PendingIntent.getBroadcast(context, 0, btIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             try {
                 onPendingIntent.send();

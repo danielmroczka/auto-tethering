@@ -2,6 +2,7 @@ package com.labs.dm.auto_tethering.service;
 
 import android.app.ActivityManager;
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -231,5 +232,19 @@ public class ServiceHelper {
             }
         }
         return false;
+    }
+
+    public boolean isBluetoothActive() {
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        return mBluetoothAdapter.isEnabled();
+    }
+
+    public void setBluetoothStatus(boolean bluetoothStatus) {
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothStatus) {
+            mBluetoothAdapter.enable();
+        } else {
+            mBluetoothAdapter.disable();
+        }
     }
 }

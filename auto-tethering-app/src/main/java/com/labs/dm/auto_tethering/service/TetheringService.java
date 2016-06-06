@@ -4,11 +4,17 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.*;
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
@@ -17,14 +23,41 @@ import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.Cron.STATUS;
 import com.labs.dm.auto_tethering.db.DBManager;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import static android.os.Build.VERSION;
 import static android.os.Build.VERSION_CODES;
-import static com.labs.dm.auto_tethering.AppProperties.*;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
+import static com.labs.dm.auto_tethering.AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.FORCE_NET_FROM_NOTIFY;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
 import static com.labs.dm.auto_tethering.Utils.adapterDayOfWeek;
-import static com.labs.dm.auto_tethering.service.ServiceAction.*;
+import static com.labs.dm.auto_tethering.service.ServiceAction.BLUETOOTH_INTERNET_TETHERING_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.DATA_USAGE_EXCEED_LIMIT;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF_IDLE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SIMCARD_BLOCK;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF_IDLE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_ON;
 
 /**
  * Created by Daniel Mroczka
@@ -47,6 +80,7 @@ public class TetheringService extends IntentService {
         DEACTIVATED_ON_SCHEDULE,
         USB_ON,
         DATA_USAGE_LIMIT_EXCEED,
+        BT,
         DEFAULT
     }
 
@@ -55,7 +89,7 @@ public class TetheringService extends IntentService {
     private List<Cron> crons;
     private SharedPreferences prefs;
     private long lastAccess = getTime().getTimeInMillis();
-    private boolean initial3GStatus, initialTetheredStatus;
+    private boolean initial3GStatus, initialTetheredStatus, initialBluetoothStatus;
     private ServiceHelper serviceHelper;
     private boolean runFromActivity;
     private boolean flag = true;
@@ -99,6 +133,7 @@ public class TetheringService extends IntentService {
         filter.addAction("bt.found.new");
         filter.addAction("bt.found.start");
         filter.addAction("bt.found.end");
+        filter.addAction("bt.set.idle");
         receiver = new MyBroadcastReceiver();
         registerReceiver(receiver, filter);
     }
@@ -116,6 +151,7 @@ public class TetheringService extends IntentService {
     private void init() {
         initial3GStatus = serviceHelper.isConnectedToInternet();
         initialTetheredStatus = serviceHelper.isSharingWiFi();
+        initialBluetoothStatus = serviceHelper.isBluetoothActive();
     }
 
     @Override
@@ -473,6 +509,7 @@ public class TetheringService extends IntentService {
 
     @Override
     public void onDestroy() {
+        Log.i(TAG, "onDestroy");
         flag = false;
         revertToInitialState();
         stopForeground(true);
@@ -486,6 +523,7 @@ public class TetheringService extends IntentService {
             serviceHelper.setMobileDataEnabled(initial3GStatus);
             serviceHelper.setWifiTethering(initialTetheredStatus);
         }
+        serviceHelper.setBluetoothStatus(initialBluetoothStatus);
     }
 
     private class MyBroadcastReceiver extends BroadcastReceiver {
@@ -559,13 +597,23 @@ public class TetheringService extends IntentService {
                 devices.add(intent.getStringExtra("device"));
             }
             if ("bt.found.end".equals(intent.getAction())) {
+                boolean found = false;
                 for (String deviceName : devices) {
-                    if (deviceName.equals(prefs.getString("bt.list", ""))) {
-                        execute(TETHER_ON, R.string.activate_tethering_bt_on);
-                        execute(INTERNET_ON, R.string.activate_internet_bt_on);
+                    if (deviceName.equals(prefs.getString("bt.devices", ""))) {
+                        status = Status.BT;
+                        execute(BLUETOOTH_INTERNET_TETHERING_ON, R.string.activate_tethering_bt_on);
+                        found = true;
+                        break;
                     }
                 }
-                Log.i("BT Found Count:", String.valueOf(devices.size()));
+                if (!found && status == Status.BT) {
+                    status = Status.DEFAULT;
+                }
+            }
+            if ("bt.set.idle".equals(intent.getAction())) {
+                if (!initialBluetoothStatus && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                    BluetoothAdapter.getDefaultAdapter().disable();
+                }
             }
 
             if ("exit".equals(intent.getAction())) {
@@ -654,6 +702,10 @@ public class TetheringService extends IntentService {
             case DATA_USAGE_EXCEED_LIMIT:
                 id = R.string.notification_data_execced_limit;
                 status = Status.DATA_USAGE_LIMIT_EXCEED;
+                break;
+            case BLUETOOTH_INTERNET_TETHERING_ON:
+                id = R.string.bluetooth;
+                status = Status.BT;
                 break;
         }
         if (msg != 0) {

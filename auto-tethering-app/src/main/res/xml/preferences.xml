@@ -200,9 +200,8 @@
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:key="bt.start.discovery"
-                android:summary="Find devices"
-                android:title="" />
-
+                android:summary=""
+                android:title="Find Devices" />
             <PreferenceCategory
                     android:key="bt.list"
                     android:title="Bluetooth devices whitelist">
