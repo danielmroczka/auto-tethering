@@ -2,25 +2,45 @@ package com.labs.dm.auto_tethering.activity;
 
 import android.app.AlertDialog;
 import android.app.NotificationManager;
-import android.content.*;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.*;
+import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.telephony.TelephonyManager;
 import android.text.InputFilter;
 import android.text.Spanned;
-import android.view.*;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
 import com.labs.dm.auto_tethering.db.SimCard;
+import com.labs.dm.auto_tethering.receiver.BluetoothBroadcastReceiver;
 import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
@@ -29,8 +49,17 @@ import com.labs.dm.auto_tethering.ui.SchedulePreference;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
-import static com.labs.dm.auto_tethering.AppProperties.*;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
+import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
+import static com.labs.dm.auto_tethering.AppProperties.SSID;
 
 /**
  * Created by Daniel Mroczka
@@ -246,23 +275,27 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         EditTextPreference dataLimit = (EditTextPreference) findPreference("data.limit.value");
         dataLimit.setOnPreferenceChangeListener(changeListener);
 
-//        CheckBoxPreference btCheckBox = (CheckBoxPreference) findPreference("bt.start.discovery");
-//        final ComponentName componentName2 = new ComponentName(MainActivity.this, BluetoothBroadcastReceiver.class);
-//        btCheckBox.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-//            @Override
-//            public boolean onPreferenceClick(Preference preference) {
-//                int state = getPackageManager().getComponentEnabledSetting(componentName2);
-//
-//                if (state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
-//                    getPackageManager().setComponentEnabledSetting(componentName2, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-//                } else {
-//                    getPackageManager().setComponentEnabledSetting(componentName2, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-//                }
-//
-//                return true;
-//            }
-//        });
-//        btCheckBox.setChecked(prefs.getBoolean("bt.start.discovery", false));
+        CheckBoxPreference btCheckBox = (CheckBoxPreference) findPreference("bt.start.discovery");
+        final ComponentName componentName2 = new ComponentName(MainActivity.this, BluetoothBroadcastReceiver.class);
+        btCheckBox.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                int state = getPackageManager().getComponentEnabledSetting(componentName2);
+
+                if (state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
+                    if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                        BluetoothAdapter.getDefaultAdapter().enable();
+                    }
+                    getPackageManager().setComponentEnabledSetting(componentName2, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+                } else {
+                    sendBroadcast(new Intent("bt.set.idle"));
+                    getPackageManager().setComponentEnabledSetting(componentName2, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+                }
+
+                return true;
+            }
+        });
+        btCheckBox.setChecked(prefs.getBoolean("bt.start.discovery", false));
     }
 
     /**
@@ -383,9 +416,11 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 builderSingle.setTitle("Select One Item");
 
                 final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.select_dialog_singlechoice);
-                arrayAdapter.add("Galaxy");
-                arrayAdapter.add("Gio");
-                arrayAdapter.add("Nexus");
+
+                Set<BluetoothDevice> pairedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
+                for (BluetoothDevice device : pairedDevices) {
+                    arrayAdapter.add(device.getName());
+                }
 
                 builderSingle.setNegativeButton(
                         "Cancel",
