@@ -4,36 +4,20 @@ import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
+import android.preference.*;
 import android.telephony.TelephonyManager;
 import android.text.InputFilter;
 import android.text.Spanned;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import android.util.Log;
+import android.view.*;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
@@ -51,15 +35,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
-import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
-import static com.labs.dm.auto_tethering.AppProperties.SSID;
+import static com.labs.dm.auto_tethering.AppProperties.*;
 
 /**
  * Created by Daniel Mroczka
@@ -436,10 +412,22 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     public void onClick(DialogInterface dialog, int which) {
                         if (which >= 0) {
                             String name = arrayAdapter.getItem(which);
-                            prefs.edit().putString("bt.devices", name).apply();
-                            Preference ps = new CheckBoxPreference(getApplicationContext());
-                            ps.setTitle(name);
-                            category.addPreference(ps);
+
+                            boolean found = false;
+                            Map<String, ?> map = prefs.getAll();
+                            for (Map.Entry<String, ?> entry : map.entrySet()) {
+                                if (entry.getKey().startsWith("bt.devices.") && entry.getValue().equals(name)) {
+                                    found = true;
+                                }
+                            }
+                            if (!found) {
+                                prefs.edit().putString("bt.devices." + name, name).apply();
+                                Preference ps = new CheckBoxPreference(getApplicationContext());
+                                ps.setTitle(name);
+                                category.addPreference(ps);
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Device already added!", Toast.LENGTH_LONG).show();
+                            }
                         }
                         dialog.dismiss();
                     }
@@ -457,11 +445,12 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 PreferenceCategory p = (PreferenceCategory) findPreference("bt.list");
                 boolean changed = false;
                 for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
-                    Object object = p.getPreference(idx);
-                    if (object instanceof CheckBoxPreference) {
-                        boolean status = ((CheckBoxPreference) object).isChecked();
+                    Preference pref = p.getPreference(idx);
+                    if (pref instanceof CheckBoxPreference) {
+                        boolean status = ((CheckBoxPreference) pref).isChecked();
                         if (status) {
-                            p.removePreference((Preference) object);
+                            prefs.edit().remove("bt.devices." + pref.getTitle()).apply();
+                            p.removePreference(pref);
                             changed = true;
                         }
                     }
@@ -564,12 +553,19 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     private void prepareBTList() {
         PreferenceCategory pc = (PreferenceCategory) findPreference("bt.list");
-        Preference ps = new CheckBoxPreference(getApplicationContext());
-        ps.setTitle(prefs.getString("bt.devices", null));
-        if (ps.getTitle() != null) {
-            pc.addPreference(ps);
-        }
 
+        Map<String, ?> map = prefs.getAll();
+        for (Map.Entry<String, ?> entry : map.entrySet()) {
+            Log.i("MAIN", entry.getKey());
+            if (entry.getKey().startsWith("bt.devices.")) {
+                Preference ps = new CheckBoxPreference(getApplicationContext());
+                ps.setTitle(String.valueOf(entry.getValue()));
+                if (ps.getTitle() != null) {
+                    Log.i("MAIN2", String.valueOf(ps.getTitle()));
+                    pc.addPreference(ps);
+                }
+            }
+        }
     }
 
     private void startService() {
