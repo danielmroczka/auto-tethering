@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.TimerTask;
 
 /**
@@ -15,7 +13,6 @@ import java.util.TimerTask;
 public class BluetoothTimerTask extends TimerTask {
     private Context context;
     private SharedPreferences prefs;
-    private List<String> devices = new ArrayList<>();
 
     public BluetoothTimerTask(Context context, SharedPreferences prefs) {
         Log.i("BT Constructor", "ping");

@@ -5,12 +5,15 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.ParcelUuid;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -23,6 +26,7 @@ import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.Cron.STATUS;
 import com.labs.dm.auto_tethering.db.DBManager;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -96,6 +100,7 @@ public class TetheringService extends IntentService {
     private Notification notification;
     private final int NOTIFICATION_ID = 1234;
     private Timer timer;
+    private TimerTask dataUsageTask, bluetoothTask;
 
     private Status status = Status.DEFAULT;
 
@@ -115,8 +120,8 @@ public class TetheringService extends IntentService {
     }
 
     private void registerTimeTask() {
-        TimerTask dataUsageTask = new DataUsageTimerTask(getApplicationContext(), prefs);
-        TimerTask bluetoothTask = new BluetoothTimerTask(getApplicationContext(), prefs);
+        dataUsageTask = new DataUsageTimerTask(getApplicationContext(), prefs);
+        bluetoothTask = new BluetoothTimerTask(getApplicationContext(), prefs);
         timer = new Timer();
         timer.schedule(dataUsageTask, 100, 15000);
         timer.schedule(bluetoothTask, 5000, 15000);
@@ -134,6 +139,8 @@ public class TetheringService extends IntentService {
         filter.addAction("bt.found.start");
         filter.addAction("bt.found.end");
         filter.addAction("bt.set.idle");
+        filter.addAction("bt.bonded");
+
         receiver = new MyBroadcastReceiver();
         registerReceiver(receiver, filter);
     }
@@ -419,6 +426,36 @@ public class TetheringService extends IntentService {
         }
     }
 
+    private class FindAvailableBluetoothDevicesAsyncTask extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... params) {
+            boolean found = false;
+            for (BluetoothDevice device : BluetoothAdapter.getDefaultAdapter().getBondedDevices()) {
+                if (device.getName().equals(prefs.getString("bt.devices", ""))) {
+                    try {
+                        Method method = device.getClass().getMethod("getUuids"); /// get all services
+                        ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device); /// get all services
+
+                        BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid()); ///pick one at random
+                        socket.connect();
+                        socket.close();
+                        found = true;
+                    } catch (Exception e) {
+                        Log.e("BluetoothPlugin", device.getName() + "Device is not in range");
+                    }
+                    if (found) {
+                        Log.i(TAG, "Found binded pair!");
+                        sendBroadcast(new Intent("bt.bonded"));
+                        // execute(BLUETOOTH_INTERNET_TETHERING_ON, R.string.activate_tethering_bt_on);
+                        break;
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
     private class TurnOn3GAsyncTask extends AsyncTask<Boolean, Void, Void> {
         @Override
         protected Void doInBackground(Boolean... params) {
@@ -515,6 +552,8 @@ public class TetheringService extends IntentService {
         stopForeground(true);
         stopSelf();
         unregisterReceiver(receiver);
+        dataUsageTask.cancel();
+        bluetoothTask.cancel();
         super.onDestroy();
     }
 
@@ -606,6 +645,7 @@ public class TetheringService extends IntentService {
                         break;
                     }
                 }
+
                 if (!found && status == Status.BT) {
                     status = Status.DEFAULT;
                 }
