@@ -203,12 +203,13 @@
                 android:summary=""
                 android:title="Find Devices" />
             <PreferenceCategory
+                    android:dependency="bt.start.discovery"
                     android:key="bt.list"
                     android:title="Bluetooth devices whitelist">
                 <PreferenceScreen
                         android:icon="@drawable/ic_add"
                         android:key="bt.add.device"
-                        android:title="Add BT device"/>
+                        android:title="Add Bluetooth device"/>
                 <PreferenceScreen
                         android:icon="@drawable/ic_remove"
                         android:key="bt.remove.device"

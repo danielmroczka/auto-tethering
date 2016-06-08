@@ -3,6 +3,7 @@ package com.labs.dm.auto_tethering.service;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -11,12 +12,14 @@ import android.net.TrafficStats;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Set;
 
 import static android.os.BatteryManager.BATTERY_PLUGGED_USB;
 
@@ -246,5 +249,27 @@ public class ServiceHelper {
         } else {
             mBluetoothAdapter.disable();
         }
+    }
+
+    /**
+     * Retrieving bonded devices requires switched on Bluetooth connection.
+     * In case if BT connection is not active it will turn on read all bonded devices and then restore to initial state.
+     *
+     * @return
+     */
+    public Set<BluetoothDevice> getBondedDevices() {
+        boolean state = BluetoothAdapter.getDefaultAdapter().isEnabled();
+        if (!state) {
+            BluetoothAdapter.getDefaultAdapter().enable();
+            long time = SystemClock.currentThreadTimeMillis();
+            while (!BluetoothAdapter.getDefaultAdapter().isEnabled() && SystemClock.currentThreadTimeMillis() - time < 3000) {
+
+            }
+        }
+        Set<BluetoothDevice> pairedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
+        if (!state) {
+            BluetoothAdapter.getDefaultAdapter().disable();
+        }
+        return pairedDevices;
     }
 }
