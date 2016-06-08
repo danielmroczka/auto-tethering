@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
@@ -26,6 +27,7 @@ public class ChargeBroadcastReceiver extends BroadcastReceiver {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
             if (prefs.getBoolean("usb.internet.start.service", false) && !helper.isServiceRunning(TetheringService.class)) {
                 Intent serviceIntent = new Intent(context, TetheringService.class);
+                serviceIntent.putExtra("usb.on", true);
                 context.startService(serviceIntent);
             }
 

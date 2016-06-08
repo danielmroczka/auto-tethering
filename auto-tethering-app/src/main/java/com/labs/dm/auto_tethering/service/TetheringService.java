@@ -168,6 +168,9 @@ public class TetheringService extends IntentService {
         } else if (state == 0) {
             execute(TETHER_ON);
         }
+        if (intent.getBooleanExtra("usb.on", false)) {
+            sendBroadcast(new Intent("usb.on"));
+        }
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -428,25 +431,24 @@ public class TetheringService extends IntentService {
         @Override
         protected Void doInBackground(Boolean... params) {
             boolean found = false;
+
+            List<String> preferredDevices = findPreferredDevices();
             for (BluetoothDevice device : BluetoothAdapter.getDefaultAdapter().getBondedDevices()) {
-                List<String> prefferedDevices = findPreferredDevices();
-                for (String pref : prefferedDevices) {
+                for (String pref : preferredDevices) {
                     if (device.getName().equals(pref)) {
                         try {
-                            Method method = device.getClass().getMethod("getUuids"); /// get all services
-                            ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device); /// get all services
-
-                            BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid()); ///pick one at random
+                            Method method = device.getClass().getMethod("getUuids");
+                            ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
+                            BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
                             socket.connect();
                             socket.close();
                             found = true;
                         } catch (Exception e) {
-                            Log.e("BluetoothPlugin", device.getName() + "Device is not in range");
+                            Log.e(TAG, device.getName() + "Device is not in range");
                         }
                         if (found) {
                             Log.i(TAG, "Found bonded pair!");
                             sendBroadcast(new Intent("bt.bonded"));
-                            // execute(BLUETOOTH_INTERNET_TETHERING_ON, R.string.activate_tethering_bt_on);
                             break;
                         }
                     }
@@ -649,10 +651,7 @@ public class TetheringService extends IntentService {
                     }
                 }
 
-                new FindAvailableBluetoothDevicesAsyncTask() {
-
-                }.doInBackground(true);
-
+                new FindAvailableBluetoothDevicesAsyncTask().doInBackground(true);
 
                 if (!found && status == Status.BT) {
                     status = Status.DEFAULT;
