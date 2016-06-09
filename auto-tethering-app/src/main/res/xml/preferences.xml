@@ -168,7 +168,12 @@
                 android:title="Battery level limit in %" />
             <PreferenceCategory android:title="Activate on USB connection">
                 <CheckBoxPreference
-                    android:defaultValue="false"
+                        android:defaultValue="false"
+                        android:key="usb.internet.start.service"
+                        android:summary="Start service on power connect (if it is not running)"
+                        android:title=""/>
+                <CheckBoxPreference
+                        android:defaultValue="false"
                     android:key="usb.activate.on.connect"
                     android:summary="Activate tethering on power connect"
                     android:title="" />
@@ -187,23 +192,22 @@
                     android:key="usb.internet.force.off"
                     android:summary="Disconnect internet on power disconnect"
                     android:title="" />
-                <CheckBoxPreference
-                        android:defaultValue="false"
-                        android:key="usb.internet.start.service"
-                        android:summary="Start service on power connect (if it is not running)"
-                        android:title=""/>
             </PreferenceCategory>
         </PreferenceScreen>
         <PreferenceScreen
             android:icon="@drawable/ic_bluetooth"
             android:title="Bluetooth activation">
             <CheckBoxPreference
-                android:defaultValue="false"
-                android:key="bt.start.discovery"
-                android:summary=""
-                android:title="Find Devices" />
+                    android:defaultValue="false"
+                    android:key="bt.start.discovery"
+                    android:summary="Periodically scan if preferred devices are in range"
+                    android:title="Find Bluetooth devices"/>
+            <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="bt.internet.restore.to.initial"
+                    android:summary="When device is no longer in range disconnect internet"
+                    android:title="Restore internet state"/>
             <PreferenceCategory
-                    android:dependency="bt.start.discovery"
                     android:key="bt.list"
                     android:title="Bluetooth devices whitelist">
                 <PreferenceScreen
@@ -243,19 +247,13 @@
                     android:title="Reset counter every day" />
         </PreferenceScreen>
         <PreferenceScreen
-            android:icon="@drawable/ic_usb"
-            android:title="USB Tethering">
+                android:enabled="false"
+                android:icon="@drawable/ic_usb"
+                android:title="USB Tethering">
             <PreferenceScreen
                 android:key="usb.tethering"
                 android:summary="Turn on USB tethering" />
         </PreferenceScreen>
-        <!--
-                <ListPreference
-                    android:entries="@array/Profile"
-                    android:entryValues="@array/ProfileContext"
-                    android:key="profiles.list"
-                    android:title="Profiles"></ListPreference>
-        -->
 
     </PreferenceScreen>
 

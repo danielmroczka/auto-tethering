@@ -24,7 +24,6 @@ public class DataUsageTimerTask extends TimerTask {
 
     @Override
     public void run() {
-        Log.i("TimerTask", "ping");
         long lastUpdate = prefs.getLong("data.usage.reset.timestamp", 0);
         long lastBootTime = System.currentTimeMillis() - SystemClock.elapsedRealtime();
 

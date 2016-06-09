@@ -30,10 +30,7 @@ import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 import com.labs.dm.auto_tethering.ui.SchedulePreference;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.labs.dm.auto_tethering.AppProperties.*;
 
@@ -73,7 +70,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     connectedClients.setTitle("Connected clients: " + intent.getIntExtra("value", 0));
                 } else if ("data.usage".equals(intent.getAction())) {
                     final PreferenceScreen dataUsage = (PreferenceScreen) findPreference("data.limit.counter");
-                    dataUsage.setSummary(String.format("%.2f MB", intent.getLongExtra("value", 0) / 1048576f));
+                    dataUsage.setSummary(String.format("%.2f MB from %tT %tD", intent.getLongExtra("value", 0) / 1048576f, new Date(prefs.getLong("data.usage.reset.timestamp", 0)), new Date(prefs.getLong("data.usage.reset.timestamp", 0)))); // TODO Fix formatting
                 } else if ("unlock".equals(intent.getAction())) {
                     NotificationManager nMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     nMgr.cancel(1234);
@@ -394,85 +391,100 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     private void registerBTListener() {
         PreferenceScreen p = (PreferenceScreen) findPreference("bt.add.device");
         p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                final PreferenceCategory category = (PreferenceCategory) findPreference("bt.list");
+                                           @Override
+                                           public boolean onPreferenceClick(Preference preference) {
+                                               final PreferenceCategory category = (PreferenceCategory) findPreference("bt.list");
 
-                AlertDialog.Builder builderSingle = new AlertDialog.Builder(MainActivity.this);
-                builderSingle.setIcon(R.drawable.app);
-                builderSingle.setTitle("Select One Item");
+                                               AlertDialog.Builder builderSingle = new AlertDialog.Builder(MainActivity.this);
+                                               builderSingle.setIcon(R.drawable.ic_bluetooth);
+                                               builderSingle.setTitle("Select One Item");
 
-                final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.select_dialog_singlechoice);
+                                               final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.select_dialog_singlechoice);
 
-                Set<BluetoothDevice> pairedDevices = serviceHelper.getBondedDevices();
-                for (BluetoothDevice device : pairedDevices) {
-                    arrayAdapter.add(device.getName());
-                }
+                                               Set<BluetoothDevice> pairedDevices = serviceHelper.getBondedDevices();
+                                               for (BluetoothDevice device : pairedDevices) {
+                                                   arrayAdapter.add(device.getName());
+                                               }
 
-                builderSingle.setNegativeButton(
-                        "Cancel",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
+                                               builderSingle.setNegativeButton(
+                                                       "Cancel",
+                                                       new DialogInterface.OnClickListener() {
+                                                           @Override
+                                                           public void onClick(DialogInterface dialog, int which) {
+                                                               dialog.dismiss();
+                                                           }
+                                                       });
 
-                builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which >= 0) {
-                            String name = arrayAdapter.getItem(which);
+                                               builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+                                                           @Override
+                                                           public void onClick(DialogInterface dialog, int which) {
+                                                               if (which >= 0) {
+                                                                   String name = arrayAdapter.getItem(which);
 
-                            boolean found = false;
-                            Map<String, ?> map = prefs.getAll();
-                            for (Map.Entry<String, ?> entry : map.entrySet()) {
-                                if (entry.getKey().startsWith("bt.devices.") && entry.getValue().equals(name)) {
-                                    found = true;
-                                }
-                            }
-                            if (!found) {
-                                prefs.edit().putString("bt.devices." + name, name).apply();
-                                Preference ps = new CheckBoxPreference(getApplicationContext());
-                                ps.setTitle(name);
-                                category.addPreference(ps);
-                            } else {
-                                Toast.makeText(getApplicationContext(), "Device already added!", Toast.LENGTH_LONG).show();
-                            }
-                        }
-                        dialog.dismiss();
-                    }
-                });
-                builderSingle.show();
-                return false;
-            }
-        });
+                                                                   boolean found = false;
+                                                                   int counter = 0;
+                                                                   Map<String, ?> map = prefs.getAll();
+                                                                   for (Map.Entry<String, ?> entry : map.entrySet()) {
+                                                                       if (entry.getKey().startsWith("bt.devices.")) {
+                                                                           counter++;
+                                                                           if (entry.getValue().equals(name)) {
+                                                                               found = true;
+                                                                           }
+                                                                       }
+                                                                   }
+
+                                                                   if (counter >= 5) {
+                                                                       Toast.makeText(getApplicationContext(), "Exceeded the limit of max. 5 devices!", Toast.LENGTH_LONG).show();
+                                                                   } else if (!found) {
+                                                                       prefs.edit().putString("bt.devices." + name, name).apply();
+                                                                       Preference ps = new CheckBoxPreference(getApplicationContext());
+                                                                       ps.setTitle(name);
+                                                                       category.addPreference(ps);
+                                                                   } else {
+                                                                       Toast.makeText(getApplicationContext(), "Device already added!", Toast.LENGTH_LONG).show();
+                                                                   }
+                                                               }
+                                                               dialog.dismiss();
+                                                           }
+                                                       }
+
+                                               );
+                                               builderSingle.show();
+                                               return false;
+                                           }
+                                       }
+
+        );
 
         PreferenceScreen p2 = (PreferenceScreen) findPreference("bt.remove.device");
-        p2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        p2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
 
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                PreferenceCategory p = (PreferenceCategory) findPreference("bt.list");
-                boolean changed = false;
-                for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
-                    Preference pref = p.getPreference(idx);
-                    if (pref instanceof CheckBoxPreference) {
-                        boolean status = ((CheckBoxPreference) pref).isChecked();
-                        if (status) {
-                            prefs.edit().remove("bt.devices." + pref.getTitle()).apply();
-                            p.removePreference(pref);
-                            changed = true;
-                        }
-                    }
-                }
+                                        {
 
-                if (!changed) {
-                    Toast.makeText(getApplicationContext(), "Please select any item", Toast.LENGTH_LONG).show();
-                }
-                return true;
-            }
-        });
+                                            @Override
+                                            public boolean onPreferenceClick(Preference preference) {
+                                                PreferenceCategory p = (PreferenceCategory) findPreference("bt.list");
+                                                boolean changed = false;
+                                                for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
+                                                    Preference pref = p.getPreference(idx);
+                                                    if (pref instanceof CheckBoxPreference) {
+                                                        boolean status = ((CheckBoxPreference) pref).isChecked();
+                                                        if (status) {
+                                                            prefs.edit().remove("bt.devices." + pref.getTitle()).apply();
+                                                            p.removePreference(pref);
+                                                            changed = true;
+                                                        }
+                                                    }
+                                                }
+
+                                                if (!changed) {
+                                                    Toast.makeText(getApplicationContext(), "Please select any item", Toast.LENGTH_LONG).show();
+                                                }
+                                                return true;
+                                            }
+                                        }
+
+        );
     }
 
     private void registerAddSimCardListener() {

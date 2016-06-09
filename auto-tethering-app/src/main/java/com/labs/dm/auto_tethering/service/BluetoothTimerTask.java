@@ -2,6 +2,7 @@ package com.labs.dm.auto_tethering.service;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
@@ -22,6 +23,8 @@ public class BluetoothTimerTask extends TimerTask {
 
     @Override
     public void run() {
+        context.startService(new Intent(context, TetheringService.class));
+
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (prefs.getBoolean("bt.start.discovery", false)) {
 

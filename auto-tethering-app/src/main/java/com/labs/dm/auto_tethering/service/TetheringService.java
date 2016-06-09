@@ -56,7 +56,7 @@ public class TetheringService extends IntentService {
         DEFAULT
     }
 
-    private static final String TAG = "AutoTetheringService";
+    private static final String TAG = "TetheringService";
     private final static int CHECK_DELAY = 5;
     private List<Cron> crons;
     private SharedPreferences prefs;
@@ -393,12 +393,14 @@ public class TetheringService extends IntentService {
         }
     }
 
-    private class FindAvailableBluetoothDevicesAsyncTask extends AsyncTask<Boolean, Void, Void> {
+    private class FindAvailableBluetoothDevicesAsyncTask extends AsyncTask<Void, Void, Void> {
 
         @Override
-        protected Void doInBackground(Boolean... params) {
+        protected Void doInBackground(Void... params) {
             boolean found = false;
-
+            if (BluetoothAdapter.getDefaultAdapter().isDiscovering()) {
+                BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+            }
             List<String> preferredDevices = findPreferredDevices();
             for (BluetoothDevice device : serviceHelper.getBondedDevices()) {
                 for (String pref : preferredDevices) {
@@ -407,7 +409,9 @@ public class TetheringService extends IntentService {
                             Method method = device.getClass().getMethod("getUuids");
                             ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
                             BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
+                            Log.d("BT Socket", "connecting...");
                             socket.connect();
+                            Log.d("BT Socket", "connected.");
                             socket.close();
                             found = true;
                         } catch (Exception e) {
@@ -618,9 +622,12 @@ public class TetheringService extends IntentService {
                     }
                 }
 
-                new FindAvailableBluetoothDevicesAsyncTask().doInBackground(true);
+                new FindAvailableBluetoothDevicesAsyncTask().doInBackground();
 
                 if (!found && status == Status.BT) {
+                    if (prefs.getBoolean("bt.internet.restore.to.initial", false) && serviceHelper.isConnectedToInternet() && !initial3GStatus) {
+                        execute(INTERNET_OFF);
+                    }
                     status = Status.DEFAULT;
                 }
             }
