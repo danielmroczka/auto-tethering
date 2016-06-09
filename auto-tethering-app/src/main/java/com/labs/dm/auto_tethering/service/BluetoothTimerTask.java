@@ -23,10 +23,9 @@ public class BluetoothTimerTask extends TimerTask {
 
     @Override
     public void run() {
-        context.startService(new Intent(context, TetheringService.class));
-
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (prefs.getBoolean("bt.start.discovery", false)) {
+            context.getApplicationContext().startService(new Intent(context.getApplicationContext(), BluetoothService.class));
+            BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
             if (!mBluetoothAdapter.isEnabled()) {
                 mBluetoothAdapter.enable();

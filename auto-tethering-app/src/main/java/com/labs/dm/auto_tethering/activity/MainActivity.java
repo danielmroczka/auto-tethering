@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.TetherInvent;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
@@ -63,7 +64,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if ("exit".equals(intent.getAction())) {
+                if (TetherInvent.EXIT.equals(intent.getAction())) {
                     exitApp();
                 } else if ("clients".equals(intent.getAction())) {
                     final PreferenceScreen connectedClients = (PreferenceScreen) findPreference("idle.connected.clients");
@@ -81,7 +82,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         };
         IntentFilter filter = new IntentFilter();
-        filter.addAction("exit");
+        filter.addAction(TetherInvent.EXIT);
         filter.addAction("clients");
         filter.addAction("data.usage");
         filter.addAction("unlock");
@@ -457,14 +458,12 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         );
 
         PreferenceScreen p2 = (PreferenceScreen) findPreference("bt.remove.device");
-        p2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
-
-                                        {
-
+        p2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                                             @Override
                                             public boolean onPreferenceClick(Preference preference) {
                                                 PreferenceCategory p = (PreferenceCategory) findPreference("bt.list");
                                                 boolean changed = false;
+
                                                 for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
                                                     Preference pref = p.getPreference(idx);
                                                     if (pref instanceof CheckBoxPreference) {
@@ -483,7 +482,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                                                 return true;
                                             }
                                         }
-
         );
     }
 

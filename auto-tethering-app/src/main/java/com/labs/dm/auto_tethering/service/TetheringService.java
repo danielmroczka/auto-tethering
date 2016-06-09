@@ -15,6 +15,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.TetherInvent;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cron;
@@ -100,7 +101,7 @@ public class TetheringService extends IntentService {
         filter.addAction("tethering");
         filter.addAction("widget");
         filter.addAction("resume");
-        filter.addAction("exit");
+        filter.addAction(TetherInvent.EXIT);
         filter.addAction("usb.on");
         filter.addAction("usb.off");
         filter.addAction("bt.found.new");
@@ -541,22 +542,25 @@ public class TetheringService extends IntentService {
     private class MyBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if ("tethering".equals(intent.getAction())) {
-                if (forceOn && !forceOff) {
-                    forceOff = true;
-                    forceOn = false;
-                    execute(TETHER_OFF);
-                } else if (!forceOff && !forceOn) {
-                    forceOn = true;
-                    execute(TETHER_ON);
-                } else {
-                    forceOff = false;
-                    forceOn = false;
-                    showNotification(lastNotifcationTickerText);
-                }
+            switch (intent.getAction()) {
+                case "tethering": {
+                    if (forceOn && !forceOff) {
+                        forceOff = true;
+                        forceOn = false;
+                        execute(TETHER_OFF);
+                    } else if (!forceOff && !forceOn) {
+                        forceOn = true;
+                        execute(TETHER_ON);
+                    } else {
+                        forceOff = false;
+                        forceOn = false;
+                        showNotification(lastNotifcationTickerText);
+                    }
 
-                if (prefs.getBoolean(FORCE_NET_FROM_NOTIFY, true)) {
-                    forceInternetConnect();
+                    if (prefs.getBoolean(FORCE_NET_FROM_NOTIFY, true)) {
+                        forceInternetConnect();
+                    }
+                    break;
                 }
             }
 
@@ -613,7 +617,7 @@ public class TetheringService extends IntentService {
                 List<String> preferredDevices = findPreferredDevices();
                 for (String deviceName : devices) {
                     for (String preferredDevice : preferredDevices) {
-                        if (deviceName.equals(preferredDevice)) {
+                        if (deviceName != null && preferredDevice != null && deviceName.equals(preferredDevice)) {
                             status = Status.BT;
                             execute(BLUETOOTH_INTERNET_TETHERING_ON);
                             found = true;
@@ -643,7 +647,7 @@ public class TetheringService extends IntentService {
                 execute(BLUETOOTH_INTERNET_TETHERING_ON);
             }
 
-            if ("exit".equals(intent.getAction())) {
+            if (TetherInvent.EXIT.equals(intent.getAction())) {
                 stopSelf();
             }
         }

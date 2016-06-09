@@ -170,7 +170,7 @@
                 <CheckBoxPreference
                         android:defaultValue="false"
                         android:key="usb.internet.start.service"
-                        android:summary="Start service on power connect (if it is not running)"
+                        android:summary="Start service on power connection"
                         android:title=""/>
                 <CheckBoxPreference
                         android:defaultValue="false"
