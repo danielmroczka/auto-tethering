@@ -66,13 +66,13 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             public void onReceive(Context context, Intent intent) {
                 if (TetherInvent.EXIT.equals(intent.getAction())) {
                     exitApp();
-                } else if ("clients".equals(intent.getAction())) {
+                } else if (TetherInvent.CLIENTS.equals(intent.getAction())) {
                     final PreferenceScreen connectedClients = (PreferenceScreen) findPreference("idle.connected.clients");
                     connectedClients.setTitle("Connected clients: " + intent.getIntExtra("value", 0));
-                } else if ("data.usage".equals(intent.getAction())) {
+                } else if (TetherInvent.DATA_USAGE.equals(intent.getAction())) {
                     final PreferenceScreen dataUsage = (PreferenceScreen) findPreference("data.limit.counter");
                     dataUsage.setSummary(String.format("%.2f MB from %tT %tD", intent.getLongExtra("value", 0) / 1048576f, new Date(prefs.getLong("data.usage.reset.timestamp", 0)), new Date(prefs.getLong("data.usage.reset.timestamp", 0)))); // TODO Fix formatting
-                } else if ("unlock".equals(intent.getAction())) {
+                } else if (TetherInvent.UNLOCK.equals(intent.getAction())) {
                     NotificationManager nMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     nMgr.cancel(1234);
                     PreferenceScreen screen = (PreferenceScreen) findPreference("experimental");
@@ -83,9 +83,9 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         };
         IntentFilter filter = new IntentFilter();
         filter.addAction(TetherInvent.EXIT);
-        filter.addAction("clients");
-        filter.addAction("data.usage");
-        filter.addAction("unlock");
+        filter.addAction(TetherInvent.CLIENTS);
+        filter.addAction(TetherInvent.DATA_USAGE);
+        filter.addAction(TetherInvent.UNLOCK);
         registerReceiver(receiver, filter);
     }
 
@@ -235,7 +235,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                                 prefs.edit().putLong("data.usage.last.value", dataUsage).apply();
                                 prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
 
-                                Intent intent = new Intent("data.usage");
+                                Intent intent = new Intent(TetherInvent.DATA_USAGE);
                                 sendBroadcast(intent);
                             }
                         })
@@ -260,7 +260,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     }
                     getPackageManager().setComponentEnabledSetting(componentName2, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
                 } else {
-                    sendBroadcast(new Intent("bt.set.idle"));
+                    sendBroadcast(new Intent(TetherInvent.BT_SET_IDLE));
                     getPackageManager().setComponentEnabledSetting(componentName2, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
                 }
 
@@ -273,7 +273,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 //                    }
 //                    getPackageManager().setComponentEnabledSetting(componentName2, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
 //                } else {
-//                    sendBroadcast(new Intent("bt.set.idle"));
+//                    sendBroadcast(new Intent(TetherInvent.BT_SET_IDLE));
 //                    getPackageManager().setComponentEnabledSetting(componentName2, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
 //                }
 
@@ -464,13 +464,13 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                                                 PreferenceCategory p = (PreferenceCategory) findPreference("bt.list");
                                                 boolean changed = false;
 
-                                                for (int idx = 0; idx < p.getPreferenceCount(); idx++) {
+                                                for (int idx = p.getPreferenceCount() - 1; idx >= 0; idx--) {
                                                     Preference pref = p.getPreference(idx);
                                                     if (pref instanceof CheckBoxPreference) {
                                                         boolean status = ((CheckBoxPreference) pref).isChecked();
                                                         if (status) {
-                                                            prefs.edit().remove("bt.devices." + pref.getTitle()).apply();
                                                             p.removePreference(pref);
+                                                            prefs.edit().remove("bt.devices." + pref.getTitle()).apply();
                                                             changed = true;
                                                         }
                                                     }

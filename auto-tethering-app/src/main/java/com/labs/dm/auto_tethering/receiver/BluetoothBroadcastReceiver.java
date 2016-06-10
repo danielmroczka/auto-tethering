@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import com.labs.dm.auto_tethering.TetherInvent;
 
 import static android.bluetooth.BluetoothAdapter.ACTION_DISCOVERY_FINISHED;
 import static android.bluetooth.BluetoothAdapter.ACTION_DISCOVERY_STARTED;
@@ -22,17 +23,17 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
             if (device != null) {
                 //Toast.makeText(context, "Bluetooth found " + device.getName(), Toast.LENGTH_LONG).show();
                 Log.i("BT BroadcastReceiver", "Found devices: " + device.getName());
-                btIntent = new Intent("bt.found.new");
+                btIntent = new Intent(TetherInvent.BT_FOUND_NEW);
                 btIntent.putExtra("device", device.getName());
             }
         }
 
         if (ACTION_DISCOVERY_STARTED.equals(action)) {
-            btIntent = new Intent("bt.found.start");
+            btIntent = new Intent(TetherInvent.BT_FOUND_START);
         }
 
         if (ACTION_DISCOVERY_FINISHED.equals(action)) {
-            btIntent = new Intent("bt.found.end");
+            btIntent = new Intent(TetherInvent.BT_FOUND_END);
         }
 
         if (btIntent != null) {

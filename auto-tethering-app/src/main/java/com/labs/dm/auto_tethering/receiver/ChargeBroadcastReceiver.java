@@ -8,7 +8,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
-
+import com.labs.dm.auto_tethering.TetherInvent;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
@@ -21,7 +21,7 @@ public class ChargeBroadcastReceiver extends BroadcastReceiver {
         Intent usbIntent = null;
 
         if (action.equals(Intent.ACTION_POWER_CONNECTED)) {
-            usbIntent = new Intent("usb.on");
+            usbIntent = new Intent(TetherInvent.USB_ON);
             Log.i("usb", "onConnect");
             Toast.makeText(context, "USB on", Toast.LENGTH_LONG).show();
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -32,7 +32,7 @@ public class ChargeBroadcastReceiver extends BroadcastReceiver {
             }
 
         } else if (action.equals(Intent.ACTION_POWER_DISCONNECTED) && helper.isSharingWiFi()) {
-            usbIntent = new Intent("usb.off");
+            usbIntent = new Intent(TetherInvent.USB_OFF);
             Log.i("usb", "onDisconnect");
             Toast.makeText(context, "USB off", Toast.LENGTH_LONG).show();
         }
