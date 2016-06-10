@@ -42,6 +42,7 @@ public class TetheringService extends IntentService {
     private BroadcastReceiver receiver;
     private String lastNotifcationTickerText;
     private List<String> devices = new ArrayList<>();
+    private BluetoothDevice connectedDevice;
 
     private enum ScheduleResult {
         ON, OFF, NONE
@@ -394,8 +395,6 @@ public class TetheringService extends IntentService {
         }
     }
 
-    private BluetoothDevice connectedDevice;
-
     private class FindAvailableBluetoothDevicesAsyncTask extends AsyncTask<BluetoothDevice, Void, Void> {
 
         @Override
@@ -421,13 +420,14 @@ public class TetheringService extends IntentService {
             }
 
             for (BluetoothDevice device : devicesToCheck) {
+                Log.d("BT Socket", "Connecting to " + device.getName());
                 try {
                     Method method = device.getClass().getMethod("getUuids");
                     ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
                     BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
-                    Log.d("BT Socket", "connecting...");
+
                     socket.connect();
-                    Log.d("BT Socket", "connected.");
+                    Log.d("BT Socket", "Connected  to " + device.getName());
                     socket.close();
                     found = true;
                     connectedDevice = device;
