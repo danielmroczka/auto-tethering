@@ -5,4 +5,5 @@ package com.labs.dm.auto_tethering;
  */
 public class TetherInvent {
     public static final String EXIT = "com.labs.dm.auto_tethering.EXIT";
+    public static final String RESUME = "com.labs.dm.auto_tethering.RESUME";
 }

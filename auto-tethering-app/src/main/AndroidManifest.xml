@@ -124,6 +124,9 @@
         <service
                 android:name=".service.WidgetService"
                 android:exported="false"/>
+        <service
+            android:name=".service.BluetoothService"
+            android:exported="false"/>
     </application>
 
 </manifest>

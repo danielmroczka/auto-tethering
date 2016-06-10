@@ -13,6 +13,7 @@ import android.os.ParcelUuid;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherInvent;
@@ -100,7 +101,7 @@ public class TetheringService extends IntentService {
         IntentFilter filter = new IntentFilter();
         filter.addAction("tethering");
         filter.addAction("widget");
-        filter.addAction("resume");
+        filter.addAction(TetherInvent.RESUME);
         filter.addAction(TetherInvent.EXIT);
         filter.addAction("usb.on");
         filter.addAction("usb.off");
@@ -460,7 +461,7 @@ public class TetheringService extends IntentService {
         Notification notify;
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        Intent exitIntent = new Intent("exit");
+        Intent exitIntent = new Intent(TetherInvent.EXIT);
         PendingIntent exitPendingIntent = PendingIntent.getBroadcast(this, 0, exitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
@@ -493,7 +494,7 @@ public class TetheringService extends IntentService {
             builder.addAction(drawable, ticker, onPendingIntent);
 
             if (status == Status.DEACTIVATED_ON_IDLE) {
-                Intent onResumeIntent = new Intent("resume");
+                Intent onResumeIntent = new Intent(TetherInvent.RESUME);
                 PendingIntent onResumePendingIntent = PendingIntent.getBroadcast(this, 0, onResumeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 builder.addAction(R.drawable.ic_resume24, "Resume", onResumePendingIntent);
             } else if (status == Status.DATA_USAGE_LIMIT_EXCEED) {
@@ -543,7 +544,7 @@ public class TetheringService extends IntentService {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
-                case "tethering": {
+                case "tethering":
                     if (forceOn && !forceOff) {
                         forceOff = true;
                         forceOn = false;
@@ -561,7 +562,12 @@ public class TetheringService extends IntentService {
                         forceInternetConnect();
                     }
                     break;
-                }
+
+                case TetherInvent.RESUME:
+                    updateLastAccess();
+                    status = Status.DEFAULT;
+                    break;
+
             }
 
             if ("widget".equals(intent.getAction())) {
@@ -583,10 +589,6 @@ public class TetheringService extends IntentService {
                 }
             }
 
-            if ("resume".equals(intent.getAction())) {
-                updateLastAccess();
-                status = Status.DEFAULT;
-            }
 
             if ("usb.on".equals(intent.getAction())) {
                 if (prefs.getBoolean("usb.activate.on.connect", false)) {
