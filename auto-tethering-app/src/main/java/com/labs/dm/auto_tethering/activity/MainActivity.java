@@ -31,6 +31,7 @@ import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 import com.labs.dm.auto_tethering.ui.SchedulePreference;
 
+import java.text.Format;
 import java.util.*;
 
 import static com.labs.dm.auto_tethering.AppProperties.*;
@@ -71,7 +72,10 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     connectedClients.setTitle("Connected clients: " + intent.getIntExtra("value", 0));
                 } else if (TetherInvent.DATA_USAGE.equals(intent.getAction())) {
                     final PreferenceScreen dataUsage = (PreferenceScreen) findPreference("data.limit.counter");
-                    dataUsage.setSummary(String.format("%.2f MB from %tT %tD", intent.getLongExtra("value", 0) / 1048576f, new Date(prefs.getLong("data.usage.reset.timestamp", 0)), new Date(prefs.getLong("data.usage.reset.timestamp", 0)))); // TODO Fix formatting
+                    Format dateFormat = android.text.format.DateFormat.getDateFormat(getApplicationContext());
+                    Format timeFormat = android.text.format.DateFormat.getTimeFormat(getApplicationContext());
+                    Date date = new Date(prefs.getLong("data.usage.reset.timestamp", 0));
+                    dataUsage.setSummary(String.format("%.2f MB from %s %s", intent.getLongExtra("value", 0) / 1048576f,  dateFormat.format(date), timeFormat.format(date)));
                 } else if (TetherInvent.UNLOCK.equals(intent.getAction())) {
                     NotificationManager nMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     nMgr.cancel(1234);
