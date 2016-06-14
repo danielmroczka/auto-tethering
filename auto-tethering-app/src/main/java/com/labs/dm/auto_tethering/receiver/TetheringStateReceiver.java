@@ -18,16 +18,18 @@ import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
 
 public class TetheringStateReceiver extends BroadcastReceiver {
 
+    private final String TAG = "TetheringStateChange";
+
     @Override
     public void onReceive(Context context, Intent intent) {
         ServiceHelper helper = new ServiceHelper(context);
-        Log.i("TetheringStateChange", intent.getAction() + " " + String.valueOf(helper.isSharingWiFi()).toUpperCase());
+        Log.i(TAG, intent.getAction() + " " + String.valueOf(helper.isSharingWiFi()).toUpperCase());
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         ComponentName thisWidget = new ComponentName(context, TetheringWidgetProvider.class);
 
         int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
         for (int widgetId : allWidgetIds) {
-            Log.i("TetheringStateChange", "widget id=" + widgetId);
+            Log.i(TAG, "widget id=" + widgetId);
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), getLayout(intent));
             Intent intent2 = new Intent(context, WidgetService.class);
             intent2.putExtra(EXTRA_APPWIDGET_ID, widgetId);

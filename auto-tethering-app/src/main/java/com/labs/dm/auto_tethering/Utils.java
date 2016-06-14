@@ -1,11 +1,11 @@
 package com.labs.dm.auto_tethering;
 
+import android.util.SparseIntArray;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,7 +75,7 @@ public class Utils {
     }
 
     public static int adapterDayOfWeek(int day) {
-        Map<Integer, Integer> map = new HashMap<>();
+        SparseIntArray map = new SparseIntArray();
         map.put(1, 6);
         map.put(2, 0);
         map.put(3, 1);

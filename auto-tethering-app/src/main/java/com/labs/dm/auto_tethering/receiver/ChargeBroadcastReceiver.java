@@ -8,11 +8,14 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.TetherInvent;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
 public class ChargeBroadcastReceiver extends BroadcastReceiver {
+
+    private final String TAG = "USB Broadcast Receiver";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -22,8 +25,8 @@ public class ChargeBroadcastReceiver extends BroadcastReceiver {
 
         if (action.equals(Intent.ACTION_POWER_CONNECTED)) {
             usbIntent = new Intent(TetherInvent.USB_ON);
-            Log.i("usb", "onConnect");
-            Toast.makeText(context, "USB on", Toast.LENGTH_LONG).show();
+            Log.i(TAG, "onConnect");
+            //Toast.makeText(context, "USB on", Toast.LENGTH_LONG).show();
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
             if (prefs.getBoolean("usb.internet.start.service", false) && !helper.isServiceRunning(TetheringService.class)) {
                 Intent serviceIntent = new Intent(context, TetheringService.class);
@@ -33,7 +36,7 @@ public class ChargeBroadcastReceiver extends BroadcastReceiver {
 
         } else if (action.equals(Intent.ACTION_POWER_DISCONNECTED) && helper.isSharingWiFi()) {
             usbIntent = new Intent(TetherInvent.USB_OFF);
-            Log.i("usb", "onDisconnect");
+            Log.i(TAG, "onDisconnect");
             Toast.makeText(context, "USB off", Toast.LENGTH_LONG).show();
         }
 
@@ -42,7 +45,7 @@ public class ChargeBroadcastReceiver extends BroadcastReceiver {
             try {
                 onPendingIntent.send();
             } catch (PendingIntent.CanceledException e) {
-                e.printStackTrace();
+                Log.e(TAG, e.getMessage());
             }
         }
 

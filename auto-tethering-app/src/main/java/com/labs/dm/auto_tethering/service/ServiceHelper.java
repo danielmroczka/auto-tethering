@@ -68,9 +68,6 @@ public class ServiceHelper {
     public boolean isPluggedToPower() {
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, ifilter);
-        //   int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-        //   boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-        //   status == BatteryManager.BATTERY_STATUS_FULL;
         int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
         return chargePlug == BATTERY_PLUGGED_USB || chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
     }
@@ -171,6 +168,7 @@ public class ServiceHelper {
         return null;
     }
 
+    @Deprecated
     public void usbTethering(boolean value) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         Log.d(TAG, "test enable usb tethering");
@@ -216,8 +214,6 @@ public class ServiceHelper {
     }
 
     public static long getDataUsage() {
-        //return TrafficStats.getUidRxBytes(-5) + TrafficStats.getUidTxBytes(-5);
-        //return TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes();
         return TrafficStats.getMobileRxBytes() + TrafficStats.getMobileTxBytes();
     }
 

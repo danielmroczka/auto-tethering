@@ -24,9 +24,11 @@ import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
  */
 public class TetheringWidgetProvider extends AppWidgetProvider {
 
+    private final String TAG = "Tethering Widget";
+
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        Log.i("Tethering widget", "onUpdate");
+        Log.i(TAG, "onUpdate");
         ComponentName thisWidget = new ComponentName(context, TetheringWidgetProvider.class);
         ServiceHelper helper = new ServiceHelper(context);
         int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
@@ -51,7 +53,7 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
                 }
             }
         }
-        Log.i("TetheringStateChange", "Remove widget ids: " + Arrays.toString(appWidgetIds));
+        Log.i(TAG, "Remove widget ids: " + Arrays.toString(appWidgetIds));
         super.onDeleted(context, appWidgetIds);
     }
 }

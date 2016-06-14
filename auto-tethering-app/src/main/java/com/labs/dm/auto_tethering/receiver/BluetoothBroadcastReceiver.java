@@ -6,34 +6,39 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import com.labs.dm.auto_tethering.TetherInvent;
 
 import static android.bluetooth.BluetoothAdapter.ACTION_DISCOVERY_FINISHED;
 import static android.bluetooth.BluetoothAdapter.ACTION_DISCOVERY_STARTED;
+import static android.bluetooth.BluetoothDevice.ACTION_FOUND;
+import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
+import static com.labs.dm.auto_tethering.TetherInvent.BT_FOUND_END;
+import static com.labs.dm.auto_tethering.TetherInvent.BT_FOUND_NEW;
+import static com.labs.dm.auto_tethering.TetherInvent.BT_FOUND_START;
 
 public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
+    private final String TAG = "BT Broadcast Receiver";
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i("BT Broadcast Receiver", intent.getAction());
-        String action = intent.getAction();
+        Log.i(TAG, intent.getAction());
         Intent btIntent = null;
-        if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-            if (device != null) {
-                //Toast.makeText(context, "Bluetooth found " + device.getName(), Toast.LENGTH_LONG).show();
-                Log.i("BT BroadcastReceiver", "Found devices: " + device.getName());
-                btIntent = new Intent(TetherInvent.BT_FOUND_NEW);
-                btIntent.putExtra("device", device.getName());
-            }
-        }
 
-        if (ACTION_DISCOVERY_STARTED.equals(action)) {
-            btIntent = new Intent(TetherInvent.BT_FOUND_START);
-        }
-
-        if (ACTION_DISCOVERY_FINISHED.equals(action)) {
-            btIntent = new Intent(TetherInvent.BT_FOUND_END);
+        switch (intent.getAction()) {
+            case ACTION_FOUND:
+                BluetoothDevice device = intent.getParcelableExtra(EXTRA_DEVICE);
+                if (device != null) {
+                    Log.i(TAG, "Found devices: " + device.getName());
+                    btIntent = new Intent(BT_FOUND_NEW);
+                    btIntent.putExtra("device", device.getName());
+                }
+                break;
+            case ACTION_DISCOVERY_STARTED:
+                btIntent = new Intent(BT_FOUND_START);
+                break;
+            case ACTION_DISCOVERY_FINISHED:
+                btIntent = new Intent(BT_FOUND_END);
+                break;
         }
 
         if (btIntent != null) {
@@ -41,7 +46,7 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
             try {
                 onPendingIntent.send();
             } catch (PendingIntent.CanceledException e) {
-                e.printStackTrace();
+                Log.e(TAG, e.getMessage());
             }
         }
     }
