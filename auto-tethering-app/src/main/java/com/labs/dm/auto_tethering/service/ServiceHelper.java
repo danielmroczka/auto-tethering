@@ -234,8 +234,7 @@ public class ServiceHelper {
     }
 
     public boolean isBluetoothActive() {
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        return mBluetoothAdapter.isEnabled();
+        return BluetoothAdapter.getDefaultAdapter().isEnabled();
     }
 
     public void setBluetoothStatus(boolean bluetoothStatus) {
@@ -254,17 +253,18 @@ public class ServiceHelper {
      * @return
      */
     public Set<BluetoothDevice> getBondedDevices() {
-        boolean state = BluetoothAdapter.getDefaultAdapter().isEnabled();
+        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        boolean state = adapter.isEnabled();
         if (!state) {
-            BluetoothAdapter.getDefaultAdapter().enable();
+            adapter.enable();
             long time = SystemClock.currentThreadTimeMillis();
-            while (!BluetoothAdapter.getDefaultAdapter().isEnabled() && SystemClock.currentThreadTimeMillis() - time < 3000) {
+            while (!adapter.isEnabled() && SystemClock.currentThreadTimeMillis() - time < 3000) {
 
             }
         }
-        Set<BluetoothDevice> pairedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
+        Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
         if (!state) {
-            BluetoothAdapter.getDefaultAdapter().disable();
+            adapter.disable();
         }
         return pairedDevices;
     }
