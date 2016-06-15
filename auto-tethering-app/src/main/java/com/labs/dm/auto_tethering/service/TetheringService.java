@@ -195,10 +195,7 @@ public class TetheringService extends IntentService {
 
         while (flag) {
             try {
-                if (forceOff || forceOn) {
-                    continue;
-                }
-                if (isServiceActivated() || keepService()) {
+                if (!(forceOff || forceOn) && (isServiceActivated() || keepService())) {
                     if (enabled()) {
                         boolean connected3G = serviceHelper.isConnectedToInternet();
                         boolean tethered = serviceHelper.isSharingWiFi();
