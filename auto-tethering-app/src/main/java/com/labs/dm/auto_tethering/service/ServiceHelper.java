@@ -44,7 +44,7 @@ public class ServiceHelper {
      *
      * @return
      */
-    public boolean isSharingWiFi() {
+    public boolean isTetheringWiFi() {
         try {
             final Method method = wifiManager.getClass().getDeclaredMethod("isWifiApEnabled");
             method.setAccessible(true);

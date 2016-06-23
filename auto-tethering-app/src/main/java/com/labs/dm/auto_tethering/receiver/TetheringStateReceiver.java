@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 import android.widget.RemoteViews;
-
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.WidgetService;
@@ -23,7 +22,7 @@ public class TetheringStateReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         ServiceHelper helper = new ServiceHelper(context);
-        Log.i(TAG, intent.getAction() + " " + String.valueOf(helper.isSharingWiFi()).toUpperCase());
+        Log.i(TAG, intent.getAction() + " " + String.valueOf(helper.isTetheringWiFi()).toUpperCase());
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         ComponentName thisWidget = new ComponentName(context, TetheringWidgetProvider.class);
 

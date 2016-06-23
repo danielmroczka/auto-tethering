@@ -32,7 +32,7 @@ public class ChargeBroadcastReceiver extends BroadcastReceiver {
 
             }
             case Intent.ACTION_POWER_DISCONNECTED: {
-                if (helper.isSharingWiFi()) {
+                if (helper.isTetheringWiFi()) {
                     usbIntent = new Intent(TetherInvent.USB_OFF);
                 }
             }

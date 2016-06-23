@@ -134,6 +134,23 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 connectedClients.setTitle("Connected clients: " + Utils.connectedClients());
+                /*final ProgressDialog dialog = new ProgressDialog(MainActivity.this);//, "aaa", "Detecting...", true);
+
+                dialog.show();
+                class A extends Thread {
+                    @Override
+                    public void run() {
+                        connectedClients.setTitle("Connected clients: " + Utils.connectedClients());
+                        try {
+                            TimeUnit.SECONDS.sleep(5);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        dialog.dismiss();
+
+                    }
+                    }
+                new A().start();*/
                 return false;
             }
         });

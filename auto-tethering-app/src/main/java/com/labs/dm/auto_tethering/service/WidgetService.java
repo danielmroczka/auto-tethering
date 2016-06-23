@@ -22,7 +22,7 @@ public class WidgetService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        boolean state = serviceHelper.isSharingWiFi();
+        boolean state = serviceHelper.isTetheringWiFi();
         Log.i("WidgetService", "onHandleIntent, state=" + state + ", extras=" + intent.getExtras().toString());
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         int widgetId = intent.getIntExtra(EXTRA_APPWIDGET_ID, -1);
