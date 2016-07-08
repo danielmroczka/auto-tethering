@@ -28,21 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 import static android.os.Build.VERSION;
 import static android.os.Build.VERSION_CODES;
-import static com.labs.dm.auto_tethering.AppProperties.*;
-import static com.labs.dm.auto_tethering.TetherInvent.BT_BONDED;
-import static com.labs.dm.auto_tethering.TetherInvent.BT_CONNECTED;
-import static com.labs.dm.auto_tethering.TetherInvent.BT_DISCONNECTED;
-import static com.labs.dm.auto_tethering.TetherInvent.BT_FOUND_END;
-import static com.labs.dm.auto_tethering.TetherInvent.BT_FOUND_NEW;
-import static com.labs.dm.auto_tethering.TetherInvent.BT_FOUND_START;
-import static com.labs.dm.auto_tethering.TetherInvent.BT_SEARCH;
-import static com.labs.dm.auto_tethering.TetherInvent.BT_SET_IDLE;
-import static com.labs.dm.auto_tethering.TetherInvent.EXIT;
-import static com.labs.dm.auto_tethering.TetherInvent.RESUME;
-import static com.labs.dm.auto_tethering.TetherInvent.TETHERING;
-import static com.labs.dm.auto_tethering.TetherInvent.USB_OFF;
-import static com.labs.dm.auto_tethering.TetherInvent.USB_ON;
-import static com.labs.dm.auto_tethering.TetherInvent.WIDGET;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING;
@@ -55,6 +40,16 @@ import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
+import static com.labs.dm.auto_tethering.TetherInvent.BT_CONNECTED;
+import static com.labs.dm.auto_tethering.TetherInvent.BT_DISCONNECTED;
+import static com.labs.dm.auto_tethering.TetherInvent.BT_RESTORE;
+import static com.labs.dm.auto_tethering.TetherInvent.BT_SEARCH;
+import static com.labs.dm.auto_tethering.TetherInvent.EXIT;
+import static com.labs.dm.auto_tethering.TetherInvent.RESUME;
+import static com.labs.dm.auto_tethering.TetherInvent.TETHERING;
+import static com.labs.dm.auto_tethering.TetherInvent.USB_OFF;
+import static com.labs.dm.auto_tethering.TetherInvent.USB_ON;
+import static com.labs.dm.auto_tethering.TetherInvent.WIDGET;
 import static com.labs.dm.auto_tethering.Utils.adapterDayOfWeek;
 import static com.labs.dm.auto_tethering.service.ServiceAction.*;
 
@@ -67,8 +62,6 @@ public class TetheringService extends IntentService {
     private boolean changeMobileState;
     private BroadcastReceiver receiver;
     private String lastNotifcationTickerText;
-    private List<String> devices = new ArrayList<>();
-    //private BluetoothDevice connectedDevice;
     private String connectedDeviceName;
 
     private enum ScheduleResult {
@@ -118,15 +111,14 @@ public class TetheringService extends IntentService {
 
     private void registerTimeTask() {
         dataUsageTask = new DataUsageTimerTask(getApplicationContext(), prefs);
-        bluetoothTask = new BluetoothTimerTask(getApplicationContext(), prefs);
+        bluetoothTask = new BluetoothTimerTask(getApplicationContext());
         timer = new Timer();
         timer.schedule(dataUsageTask, 1000, 15000);
         timer.schedule(bluetoothTask, 5000, 30000);
     }
 
-    private String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF, BT_FOUND_NEW,
-            BT_FOUND_START, BT_FOUND_END, BT_SET_IDLE, BT_BONDED,
-            BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH};
+    private String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF,
+            BT_RESTORE, BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH};
 
     private void registerReceivers() {
         IntentFilter filter = new IntentFilter();
@@ -439,10 +431,7 @@ public class TetheringService extends IntentService {
                     BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
                     socket.connect();
                     Log.d("BT Socket", "Connected  to " + device.getName());
-                    //socket.close();
-                    //connectedDevice = device;
                 } catch (Exception e) {
-                    //connectedDevice = null;
                     Log.e(TAG, device.getName() + " Device is not in range");
                 }
             }
@@ -630,34 +619,20 @@ public class TetheringService extends IntentService {
                 status = Status.DEFAULT;
             }
 
-            if (TetherInvent.BT_FOUND_START.equals(intent.getAction())) {
-                devices.clear();
-            }
-            if (TetherInvent.BT_FOUND_NEW.equals(intent.getAction())) {
-                devices.add(intent.getStringExtra("device"));
-            }
-            if (TetherInvent.BT_SET_IDLE.equals(intent.getAction())) {
+            if (TetherInvent.BT_RESTORE.equals(intent.getAction())) {
                 if (!initialBluetoothStatus && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                     BluetoothAdapter.getDefaultAdapter().disable();
                 }
             }
 
-            if (TetherInvent.BT_BONDED.equals(intent.getAction())) {
-                status = Status.BT;
-                execute(BLUETOOTH_INTERNET_TETHERING_ON);
-            }
-
             if (TetherInvent.BT_CONNECTED.equals(intent.getAction())) {
-                //BluetoothDevice device = intent.getParcelableExtra(EXTRA_DEVICE);
                 String deviceName = intent.getStringExtra("name");
-                //connectedDevice = device;
                 connectedDeviceName = deviceName;
                 status = Status.BT;
                 execute(BLUETOOTH_INTERNET_TETHERING_ON);
             }
 
             if (TetherInvent.BT_DISCONNECTED.equals(intent.getAction())) {
-                //BluetoothDevice device = intent.getParcelableExtra(EXTRA_DEVICE);
                 String deviceName = intent.getStringExtra("name");
                 if (connectedDeviceName != null && connectedDeviceName.equals(deviceName)) {
                     connectedDeviceName = null;
