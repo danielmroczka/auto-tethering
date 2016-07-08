@@ -114,6 +114,10 @@
                 <action android:name="android.bluetooth.device.action.FOUND"/>
                 <action android:name="android.bluetooth.adapter.action.DISCOVERY_STARTED"/>
                 <action android:name="android.bluetooth.adapter.action.DISCOVERY_FINISHED"/>
+                <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED"/>
+                <action android:name="android.bluetooth.device.action.ACL_CONNECTED"/>
+                <action android:name="android.bluetooth.device.action.ACL_DISCONNECT_REQUESTED"/>
+                ACTION_ACL_CONNECTED
             </intent-filter>
         </receiver>
         <!-- Services -->
