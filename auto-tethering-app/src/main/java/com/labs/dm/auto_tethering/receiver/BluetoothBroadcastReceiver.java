@@ -5,17 +5,11 @@ import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Parcelable;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static android.bluetooth.BluetoothAdapter.ACTION_DISCOVERY_FINISHED;
-import static android.bluetooth.BluetoothAdapter.ACTION_DISCOVERY_STARTED;
-import static android.bluetooth.BluetoothDevice.ACTION_FOUND;
 import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
-import static com.labs.dm.auto_tethering.TetherInvent.*;
+import static com.labs.dm.auto_tethering.TetherInvent.BT_CONNECTED;
+import static com.labs.dm.auto_tethering.TetherInvent.BT_DISCONNECTED;
 
 public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
@@ -27,20 +21,6 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
         Intent btIntent = null;
 
         switch (intent.getAction()) {
-            case ACTION_FOUND:
-                BluetoothDevice device = intent.getParcelableExtra(EXTRA_DEVICE);
-                if (device != null) {
-                    Log.i(TAG, "Found devices: " + device.getName());
-                    btIntent = new Intent(BT_FOUND_NEW);
-                    btIntent.putExtra("device", device.getName());
-                }
-                break;
-            case ACTION_DISCOVERY_STARTED:
-                btIntent = new Intent(BT_FOUND_START);
-                break;
-            case ACTION_DISCOVERY_FINISHED:
-                btIntent = new Intent(BT_FOUND_END);
-                break;
             case BluetoothDevice.ACTION_ACL_CONNECTED:
                 btIntent = new Intent(BT_CONNECTED);
                 BluetoothDevice dv = intent.getParcelableExtra(EXTRA_DEVICE);
