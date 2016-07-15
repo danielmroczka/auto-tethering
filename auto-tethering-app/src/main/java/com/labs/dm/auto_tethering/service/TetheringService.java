@@ -7,17 +7,12 @@ import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.os.AsyncTask;
 import android.os.ParcelUuid;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherInvent;
@@ -28,52 +23,15 @@ import com.labs.dm.auto_tethering.db.Cron.STATUS;
 import com.labs.dm.auto_tethering.db.DBManager;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static android.os.Build.VERSION;
 import static android.os.Build.VERSION_CODES;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
-import static com.labs.dm.auto_tethering.AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.FORCE_NET_FROM_NOTIFY;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
-import static com.labs.dm.auto_tethering.TetherInvent.BT_CONNECTED;
-import static com.labs.dm.auto_tethering.TetherInvent.BT_DISCONNECTED;
-import static com.labs.dm.auto_tethering.TetherInvent.BT_RESTORE;
-import static com.labs.dm.auto_tethering.TetherInvent.BT_SEARCH;
-import static com.labs.dm.auto_tethering.TetherInvent.EXIT;
-import static com.labs.dm.auto_tethering.TetherInvent.RESUME;
-import static com.labs.dm.auto_tethering.TetherInvent.TETHERING;
-import static com.labs.dm.auto_tethering.TetherInvent.USB_OFF;
-import static com.labs.dm.auto_tethering.TetherInvent.USB_ON;
-import static com.labs.dm.auto_tethering.TetherInvent.WIDGET;
+import static com.labs.dm.auto_tethering.AppProperties.*;
+import static com.labs.dm.auto_tethering.TetherInvent.*;
 import static com.labs.dm.auto_tethering.Utils.adapterDayOfWeek;
-import static com.labs.dm.auto_tethering.service.ServiceAction.BLUETOOTH_INTERNET_TETHERING_ON;
-import static com.labs.dm.auto_tethering.service.ServiceAction.DATA_USAGE_EXCEED_LIMIT;
-import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF_IDLE;
-import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_ON;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_ON;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_ON;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SIMCARD_BLOCK;
-import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF_IDLE;
-import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.*;
 
 /**
  * Created by Daniel Mroczka
@@ -428,6 +386,9 @@ public class TetheringService extends IntentService {
         }
     }
 
+    /**
+     * Class triggers only by MyBroadcastReceiver every xx seconds.
+     */
     private class FindAvailableBluetoothDevicesAsyncTask extends AsyncTask<BluetoothDevice, Void, Void> {
 
         @Override
@@ -445,25 +406,57 @@ public class TetheringService extends IntentService {
                 }
             }
 
+            for (BluetoothDevice device : devicesToCheck) {
+                /**
+                 * If device is currently connected just only check this one without checking others.
+                 */
+                if (connectedDeviceName != null && !connectedDeviceName.equals(device.getName())) {
+                    continue;
+                }
 
-            if (connectedDeviceName == null) {
+                Intent btIntent = null;
 
-                for (BluetoothDevice device : devicesToCheck) {
+                try {
+                    //BluetoothDevice btDevice = mBluetoothAdapter.getRemoteDevice(btTargetAddress);
+                    //BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+                    //Method m = device.getClass().getMethod("createInsecureRfcommSocket", new Class[]{int.class});
+                    //BluetoothSocket socket = (BluetoothSocket) m.invoke(device, 1);
+
+                    Method method = device.getClass().getMethod("getUuids");
+                    method.setAccessible(true);
+                    ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
+                    BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
+                    //try {
                     Log.d("BT Socket", "Connecting to " + device.getName());
-                    try {
-                        //BluetoothDevice btDevice = mBluetoothAdapter.getRemoteDevice(btTargetAddress);
-                        // Method m = device.getClass().getMethod("createRfcommSocket", new Class[] { int.class });
-                        //   BluetoothSocket socket = (BluetoothSocket)m.invoke(device, 1);
+                    socket.connect();
+                    Log.d("BT Socket", "Connected  to " + device.getName());
+                    connectedDeviceName = device.getName();
+                    // } finally {
+                    socket.close();
+                    // }
 
-                        Method method = device.getClass().getMethod("getUuids");
-                        // method.setAccessible(true);
-                        ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
-                        BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
-                        //  device.
-                        socket.connect();
-                        Log.d("BT Socket", "Connected  to " + device.getName());
-                    } catch (Exception e) {
-                        Log.e(TAG, device.getName() + " Device is not in range");
+                    if (connectedDeviceName != null && !connectedDeviceName.equals(device.getName())) {
+                        btIntent = new Intent(BT_CONNECTED);
+                    }
+
+                    break;
+                } catch (Exception e) {
+                    Log.e(TAG, device.getName() + " Device is not in range");
+                    if (connectedDeviceName != null && connectedDeviceName.equals(device.getName())) {
+                        Log.i(TAG, device.getName() + " device has been disconnected");
+                        btIntent = new Intent(BT_DISCONNECTED);
+                    }
+                    connectedDeviceName = null;
+
+                }
+
+                if (btIntent != null) {
+                    btIntent.putExtra("name", device.getName());
+                    PendingIntent onPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, btIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    try {
+                        onPendingIntent.send();
+                    } catch (PendingIntent.CanceledException e) {
+                        Log.e(TAG, e.getMessage());
                     }
                 }
             }
@@ -674,9 +667,9 @@ public class TetheringService extends IntentService {
             }
 
             if (TetherInvent.BT_SEARCH.equals(intent.getAction())) {
-                if (connectedDeviceName == null) {
-                    new FindAvailableBluetoothDevicesAsyncTask().doInBackground();
-                }
+                // if (connectedDeviceName == null) {
+                new FindAvailableBluetoothDevicesAsyncTask().doInBackground();
+                // }
             }
 
             if (EXIT.equals(intent.getAction())) {
