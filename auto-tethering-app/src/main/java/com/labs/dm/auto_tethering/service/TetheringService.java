@@ -445,16 +445,26 @@ public class TetheringService extends IntentService {
                 }
             }
 
-            for (BluetoothDevice device : devicesToCheck) {
-                Log.d("BT Socket", "Connecting to " + device.getName());
-                try {
-                    Method method = device.getClass().getMethod("getUuids");
-                    ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
-                    BluetoothSocket socket = device.createRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
-                    socket.connect();
-                    Log.d("BT Socket", "Connected  to " + device.getName());
-                } catch (Exception e) {
-                    Log.e(TAG, device.getName() + " Device is not in range");
+
+            if (connectedDeviceName == null) {
+
+                for (BluetoothDevice device : devicesToCheck) {
+                    Log.d("BT Socket", "Connecting to " + device.getName());
+                    try {
+                        //BluetoothDevice btDevice = mBluetoothAdapter.getRemoteDevice(btTargetAddress);
+                        // Method m = device.getClass().getMethod("createRfcommSocket", new Class[] { int.class });
+                        //   BluetoothSocket socket = (BluetoothSocket)m.invoke(device, 1);
+
+                        Method method = device.getClass().getMethod("getUuids");
+                        // method.setAccessible(true);
+                        ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
+                        BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
+                        //  device.
+                        socket.connect();
+                        Log.d("BT Socket", "Connected  to " + device.getName());
+                    } catch (Exception e) {
+                        Log.e(TAG, device.getName() + " Device is not in range");
+                    }
                 }
             }
 
@@ -645,6 +655,7 @@ public class TetheringService extends IntentService {
                 if (!initialBluetoothStatus && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                     BluetoothAdapter.getDefaultAdapter().disable();
                 }
+                status = Status.DEFAULT;
             }
 
             if (TetherInvent.BT_CONNECTED.equals(intent.getAction())) {
