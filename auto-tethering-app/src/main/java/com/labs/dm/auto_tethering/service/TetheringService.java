@@ -7,12 +7,17 @@ import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.ParcelUuid;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherInvent;
@@ -23,7 +28,12 @@ import com.labs.dm.auto_tethering.db.Cron.STATUS;
 import com.labs.dm.auto_tethering.db.DBManager;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import static android.os.Build.VERSION;
@@ -51,7 +61,19 @@ import static com.labs.dm.auto_tethering.TetherInvent.USB_OFF;
 import static com.labs.dm.auto_tethering.TetherInvent.USB_ON;
 import static com.labs.dm.auto_tethering.TetherInvent.WIDGET;
 import static com.labs.dm.auto_tethering.Utils.adapterDayOfWeek;
-import static com.labs.dm.auto_tethering.service.ServiceAction.*;
+import static com.labs.dm.auto_tethering.service.ServiceAction.BLUETOOTH_INTERNET_TETHERING_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.DATA_USAGE_EXCEED_LIMIT;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF_IDLE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SIMCARD_BLOCK;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF_IDLE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_ON;
 
 /**
  * Created by Daniel Mroczka
@@ -111,7 +133,7 @@ public class TetheringService extends IntentService {
 
     private void registerTimeTask() {
         dataUsageTask = new DataUsageTimerTask(getApplicationContext(), prefs);
-        bluetoothTask = new BluetoothTimerTask(getApplicationContext());
+        bluetoothTask = new BluetoothTimerTask(getApplicationContext(), prefs);
         timer = new Timer();
         timer.schedule(dataUsageTask, 1000, 15000);
         timer.schedule(bluetoothTask, 5000, 30000);
@@ -428,7 +450,7 @@ public class TetheringService extends IntentService {
                 try {
                     Method method = device.getClass().getMethod("getUuids");
                     ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
-                    BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
+                    BluetoothSocket socket = device.createRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
                     socket.connect();
                     Log.d("BT Socket", "Connected  to " + device.getName());
                 } catch (Exception e) {
