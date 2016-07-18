@@ -572,16 +572,25 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     private void prepareBTList() {
         PreferenceCategory pc = (PreferenceCategory) findPreference("bt.list");
-
+        Set<BluetoothDevice> bonded = serviceHelper.getBondedDevices();
         Map<String, ?> map = prefs.getAll();
         for (Map.Entry<String, ?> entry : map.entrySet()) {
-            //Log.i("MAIN", entry.getKey());
             if (entry.getKey().startsWith("bt.devices.")) {
+                String deviceName = String.valueOf(entry.getValue());
+                boolean found = false;
+                for (BluetoothDevice bd : bonded) {
+                    if (bd.getName().equals(deviceName)) {
+                        found = true;
+                        break;
+                    }
+                }
                 Preference ps = new CheckBoxPreference(getApplicationContext());
-                ps.setTitle(String.valueOf(entry.getValue()));
+                ps.setTitle(deviceName);
                 if (ps.getTitle() != null) {
-                    //Log.i("MAIN2", String.valueOf(ps.getTitle()));
                     pc.addPreference(ps);
+                }
+                if (!found) {
+                    Toast.makeText(getApplicationContext(), "Device " + deviceName + " is no longer paired.\nActivation on this device won't work.\nPlease pair devices again", Toast.LENGTH_LONG);
                 }
             }
         }

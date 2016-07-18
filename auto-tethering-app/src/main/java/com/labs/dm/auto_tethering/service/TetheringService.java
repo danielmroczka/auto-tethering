@@ -389,10 +389,11 @@ public class TetheringService extends IntentService {
     /**
      * Class triggers only by MyBroadcastReceiver every xx seconds.
      */
-    private class FindAvailableBluetoothDevicesAsyncTask extends AsyncTask<BluetoothDevice, Void, Void> {
+    private class FindAvailableBluetoothDevicesAsyncTask implements Runnable {
+    //extends AsyncTask<BluetoothDevice, Void, Void> {
 
         @Override
-        protected Void doInBackground(BluetoothDevice... devices) {
+        public void run() {
             /**
              * Make sure that BT is enabled.
              */
@@ -420,7 +421,6 @@ public class TetheringService extends IntentService {
                 }
 
                 Intent btIntent = null;
-
                 try {
                     Method method = device.getClass().getMethod("getUuids");
                     method.setAccessible(true);
@@ -439,7 +439,7 @@ public class TetheringService extends IntentService {
                         }
                     }
                 } catch (Exception e) {
-                    Log.e(TAG, device.getName() + " Device is not in range");
+                    Log.e(TAG, device.getName() + " Device is not in range.");
                     if (connectedDeviceName != null && connectedDeviceName.equals(device.getName())) {
                         Log.i(TAG, device.getName() + " device has been disconnected");
                         btIntent = new Intent(BT_DISCONNECTED);
@@ -462,7 +462,6 @@ public class TetheringService extends IntentService {
             if (prefs.getBoolean("bt.internet.auto.off", false)) {
                 serviceHelper.setBlockingBluetoothStatus(false);
             }
-            return null;
         }
     }
 
@@ -646,7 +645,7 @@ public class TetheringService extends IntentService {
             }
 
             if (TetherInvent.BT_RESTORE.equals(intent.getAction())) {
-                if (!initialBluetoothStatus && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                if (!initialBluetoothStatus) {
                     BluetoothAdapter.getDefaultAdapter().disable();
                 }
                 status = Status.DEFAULT;
@@ -668,7 +667,7 @@ public class TetheringService extends IntentService {
             }
 
             if (TetherInvent.BT_SEARCH.equals(intent.getAction())) {
-                new FindAvailableBluetoothDevicesAsyncTask().doInBackground();
+                new Thread(new FindAvailableBluetoothDevicesAsyncTask()).start();//st  doInBackground();
             }
 
             if (EXIT.equals(intent.getAction())) {
