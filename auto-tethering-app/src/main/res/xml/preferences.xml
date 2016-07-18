@@ -200,13 +200,8 @@
             <CheckBoxPreference
                     android:defaultValue="false"
                     android:key="bt.start.discovery"
-                    android:summary="Periodically scan if preferred devices are in range"
+                    android:summary="Scan if preferred devices are in range"
                     android:title="Find Bluetooth devices"/>
-            <CheckBoxPreference
-                    android:defaultValue="false"
-                    android:key="bt.internet.restore.to.initial"
-                    android:summary="When device is no longer in range disconnect internet"
-                    android:title="Restore internet state"/>
             <PreferenceCategory
                     android:key="bt.list"
                     android:title="Bluetooth devices whitelist">
@@ -218,6 +213,18 @@
                         android:icon="@drawable/ic_remove"
                         android:key="bt.remove.device"
                         android:title="Remove selected"/>
+            </PreferenceCategory>
+            <PreferenceCategory android:title="Other bluetooth settings">
+                <CheckBoxPreference
+                        android:defaultValue="false"
+                        android:key="bt.internet.restore.to.initial"
+                        android:summary="When device is no longer in range disconnect internet"
+                        android:title="Restore internet state"/>
+                <CheckBoxPreference
+                        android:defaultValue="false"
+                        android:key="bt.internet.auto.off"
+                        android:summary="Switch on BT connection only periodically"
+                        android:title="BT on only periodically"/>
             </PreferenceCategory>
         </PreferenceScreen>
         <PreferenceScreen

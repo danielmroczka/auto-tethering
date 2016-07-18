@@ -2,7 +2,6 @@ package com.labs.dm.auto_tethering.activity;
 
 import android.app.AlertDialog;
 import android.app.NotificationManager;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.*;
 import android.content.pm.PackageManager;
@@ -24,7 +23,6 @@ import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
 import com.labs.dm.auto_tethering.db.SimCard;
-import com.labs.dm.auto_tethering.receiver.BluetoothBroadcastReceiver;
 import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
@@ -74,7 +72,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     Format dateFormat = android.text.format.DateFormat.getDateFormat(getApplicationContext());
                     Format timeFormat = android.text.format.DateFormat.getTimeFormat(getApplicationContext());
                     Date date = new Date(prefs.getLong("data.usage.reset.timestamp", 0));
-                    dataUsage.setSummary(String.format("%.2f MB from %s %s", intent.getLongExtra("value", 0) / 1048576f,  dateFormat.format(date), timeFormat.format(date)));
+                    dataUsage.setSummary(String.format("%.2f MB from %s %s", intent.getLongExtra("value", 0) / 1048576f, dateFormat.format(date), timeFormat.format(date)));
                 } else if (TetherInvent.UNLOCK.equals(intent.getAction())) {
                     NotificationManager nMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     nMgr.cancel(1234);
@@ -270,18 +268,11 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         dataLimit.setOnPreferenceChangeListener(changeListener);
 
         final CheckBoxPreference btCheckBox = (CheckBoxPreference) findPreference("bt.start.discovery");
-        final ComponentName btBroadcastReceiver = new ComponentName(MainActivity.this, BluetoothBroadcastReceiver.class);
         btCheckBox.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                if (btCheckBox.isChecked()) {
-                    if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                        BluetoothAdapter.getDefaultAdapter().enable();
-                    }
-                    //getPackageManager().setComponentEnabledSetting(btBroadcastReceiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-                } else {
+                if (!btCheckBox.isChecked()) {
                     sendBroadcast(new Intent(TetherInvent.BT_RESTORE));
-                    //getPackageManager().setComponentEnabledSetting(btBroadcastReceiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
                 }
 
                 return true;

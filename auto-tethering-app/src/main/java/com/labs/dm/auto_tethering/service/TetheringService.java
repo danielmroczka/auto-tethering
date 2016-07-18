@@ -394,6 +394,11 @@ public class TetheringService extends IntentService {
         @Override
         protected Void doInBackground(BluetoothDevice... devices) {
             /**
+             * Make sure that BT is enabled.
+             */
+            serviceHelper.setBlockingBluetoothStatus(true);
+
+            /**
              * Prepare a list with BluetoothDevice items
              */
             List<BluetoothDevice> devicesToCheck = new ArrayList<>();
@@ -417,29 +422,22 @@ public class TetheringService extends IntentService {
                 Intent btIntent = null;
 
                 try {
-                    //BluetoothDevice btDevice = mBluetoothAdapter.getRemoteDevice(btTargetAddress);
-                    //BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-                    //Method m = device.getClass().getMethod("createInsecureRfcommSocket", new Class[]{int.class});
-                    //BluetoothSocket socket = (BluetoothSocket) m.invoke(device, 1);
-
                     Method method = device.getClass().getMethod("getUuids");
                     method.setAccessible(true);
                     ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
                     BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
-                    //try {
                     Log.d("BT Socket", "Connecting to " + device.getName());
                     socket.connect();
                     Log.d("BT Socket", "Connected  to " + device.getName());
+                    String previousConnectedDeviceName = connectedDeviceName;
                     connectedDeviceName = device.getName();
-                    // } finally {
                     socket.close();
-                    // }
 
-                    if (connectedDeviceName != null && !connectedDeviceName.equals(device.getName())) {
-                        btIntent = new Intent(BT_CONNECTED);
+                    if (connectedDeviceName != null) {
+                        if (previousConnectedDeviceName == null || !connectedDeviceName.equals(previousConnectedDeviceName)) {
+                            btIntent = new Intent(BT_CONNECTED);
+                        }
                     }
-
-                    break;
                 } catch (Exception e) {
                     Log.e(TAG, device.getName() + " Device is not in range");
                     if (connectedDeviceName != null && connectedDeviceName.equals(device.getName())) {
@@ -447,7 +445,6 @@ public class TetheringService extends IntentService {
                         btIntent = new Intent(BT_DISCONNECTED);
                     }
                     connectedDeviceName = null;
-
                 }
 
                 if (btIntent != null) {
@@ -458,9 +455,13 @@ public class TetheringService extends IntentService {
                     } catch (PendingIntent.CanceledException e) {
                         Log.e(TAG, e.getMessage());
                     }
+                    break;
                 }
             }
 
+            if (prefs.getBoolean("bt.internet.auto.off", false)) {
+                serviceHelper.setBlockingBluetoothStatus(false);
+            }
             return null;
         }
     }
@@ -667,9 +668,7 @@ public class TetheringService extends IntentService {
             }
 
             if (TetherInvent.BT_SEARCH.equals(intent.getAction())) {
-                // if (connectedDeviceName == null) {
                 new FindAvailableBluetoothDevicesAsyncTask().doInBackground();
-                // }
             }
 
             if (EXIT.equals(intent.getAction())) {

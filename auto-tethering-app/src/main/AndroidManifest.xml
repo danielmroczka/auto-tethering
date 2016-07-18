@@ -106,17 +106,6 @@
                 <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
             </intent-filter>
         </receiver>
-        <!--<receiver
-                android:name=".receiver.BluetoothBroadcastReceiver"
-                android:enabled="true"
-                android:exported="true">
-            <intent-filter>
-                <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED"/>
-                <action android:name="android.bluetooth.device.action.ACL_CONNECTED"/>
-                <action android:name="android.bluetooth.device.action.ACL_DISCONNECT_REQUESTED"/>
-                ACTION_ACL_CONNECTED
-            </intent-filter>
-        </receiver>-->
         <!-- Services -->
         <service
                 android:name=".service.TetheringService"

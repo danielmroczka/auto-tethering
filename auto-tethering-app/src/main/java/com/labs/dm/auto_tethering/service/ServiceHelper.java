@@ -246,6 +246,15 @@ public class ServiceHelper {
         }
     }
 
+    public void setBlockingBluetoothStatus(boolean bluetoothStatus) {
+        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        setBluetoothStatus(bluetoothStatus);
+        long time = SystemClock.currentThreadTimeMillis();
+        while (adapter.isEnabled() != bluetoothStatus && SystemClock.currentThreadTimeMillis() - time < 3000) {
+
+        }
+    }
+
     /**
      * Retrieving bonded devices requires switched on Bluetooth connection.
      * In case if BT connection is not active it will turn on read all bonded devices and then restore to initial state.
