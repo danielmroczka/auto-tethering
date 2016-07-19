@@ -70,7 +70,7 @@ class FindAvailableBluetoothDevicesTask implements Runnable {
                 Method method = device.getClass().getMethod("getUuids");
                 method.setAccessible(true);
                 ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
-                BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
+                BluetoothSocket socket = device.createRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
                 Log.d(TAG, "Connecting to " + device.getName());
                 socket.connect();
                 Log.d(TAG, "Connected to " + device.getName());
