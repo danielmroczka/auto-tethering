@@ -3,7 +3,6 @@ package com.labs.dm.auto_tethering;
 import android.content.Intent;
 import android.test.ServiceTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
-
 import com.labs.dm.auto_tethering.service.TetheringService;
 
 /**

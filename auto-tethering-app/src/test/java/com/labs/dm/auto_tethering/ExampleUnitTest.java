@@ -2,16 +2,12 @@ package com.labs.dm.auto_tethering;
 
 import android.content.Context;
 import android.content.Intent;
-
 import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.service.TetheringService;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
  * To work on unit tests, switch the Test Artifact in the Build Variants view.

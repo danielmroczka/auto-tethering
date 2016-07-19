@@ -7,7 +7,7 @@ import com.labs.dm.auto_tethering.service.TetheringService;
 
 /**
  * Main responsibility of this receiver is to start TetheringService instance just after boot has been completed
- *
+ * <p>
  * Created by Daniel Mroczka
  */
 public class BootCompletedReceiver extends BroadcastReceiver {

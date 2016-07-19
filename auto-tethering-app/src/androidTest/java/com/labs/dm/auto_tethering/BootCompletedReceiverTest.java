@@ -3,7 +3,6 @@ package com.labs.dm.auto_tethering;
 import android.content.Intent;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
-
 import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 
 import static org.mockito.Mockito.mock;

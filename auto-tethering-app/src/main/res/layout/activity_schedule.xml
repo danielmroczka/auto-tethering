@@ -1,151 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="8dp"
-    tools:context="com.labs.dm.auto_tethering.activity.ScheduleActivity">
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            tools:context="com.labs.dm.auto_tethering.activity.ScheduleActivity">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="4dp"
-        android:paddingTop="4dp">
-
-        <CheckBox
-            android:id="@+id/chkScheduleOff"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:labelFor="@+id/scheduleTimeOff"
-            android:text="@string/scheduled_switch_off"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TimePicker
-            android:id="@+id/scheduleTimeOff"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp" />
-
-        <CheckBox
-            android:id="@+id/chkScheduleOn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:labelFor="@+id/scheduleTimeOn"
-            android:text="@string/scheduled_switch_on"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TimePicker
-            android:id="@+id/scheduleTimeOn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/repeat_weekly_on"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            android:weightSum="7">
+            android:paddingTop="4dp">
 
-            <ToggleButton
-                android:id="@+id/btnMonday"
+        <CheckBox
+                android:id="@+id/chkScheduleOff"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:checked="true"
-                android:textOff="M"
-                android:textOn="M" />
+                android:labelFor="@+id/scheduleTimeOff"
+                android:text="@string/scheduled_switch_off"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
 
-            <ToggleButton
-                android:id="@+id/btnTuesday"
+        <TimePicker
+                android:id="@+id/scheduleTimeOff"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:checked="true"
-                android:textOff="T"
-                android:textOn="T" />
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp"/>
 
-            <ToggleButton
-                android:id="@+id/btnWednesday"
+        <CheckBox
+                android:id="@+id/chkScheduleOn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:checked="true"
-                android:textOff="W"
-                android:textOn="W" />
+                android:labelFor="@+id/scheduleTimeOn"
+                android:text="@string/scheduled_switch_on"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
 
-            <ToggleButton
-                android:id="@+id/btnThursday"
+        <TimePicker
+                android:id="@+id/scheduleTimeOn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:checked="true"
-                android:textOff="T"
-                android:textOn="T" />
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp"/>
 
-            <ToggleButton
-                android:id="@+id/btnFriday"
+        <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:checked="true"
-                android:textOff="F"
-                android:textOn="F" />
+                android:text="@string/repeat_weekly_on"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp"
+                android:weightSum="7">
 
             <ToggleButton
-                android:id="@+id/btnSaturday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:checked="true"
-                android:textColor="@color/indicator"
-                android:textOff="S"
-                android:textOn="S" />
+                    android:id="@+id/btnMonday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:textOff="M"
+                    android:textOn="M"/>
 
             <ToggleButton
-                android:id="@+id/btnSunday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:checked="true"
-                android:textColor="@color/indicator"
-                android:textOff="S"
-                android:textOn="S" />
+                    android:id="@+id/btnTuesday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:textOff="T"
+                    android:textOn="T"/>
+
+            <ToggleButton
+                    android:id="@+id/btnWednesday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:textOff="W"
+                    android:textOn="W"/>
+
+            <ToggleButton
+                    android:id="@+id/btnThursday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:textOff="T"
+                    android:textOn="T"/>
+
+            <ToggleButton
+                    android:id="@+id/btnFriday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:textOff="F"
+                    android:textOn="F"/>
+
+            <ToggleButton
+                    android:id="@+id/btnSaturday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:textColor="@color/indicator"
+                    android:textOff="S"
+                    android:textOn="S"/>
+
+            <ToggleButton
+                    android:id="@+id/btnSunday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:textColor="@color/indicator"
+                    android:textOff="S"
+                    android:textOn="S"/>
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
 
             <Button
-                android:id="@+id/btnCancel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/cancel" />
+                    android:id="@+id/btnCancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/cancel"/>
 
             <Button
-                android:id="@+id/btnOk"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/save" />
+                    android:id="@+id/btnOk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/save"/>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

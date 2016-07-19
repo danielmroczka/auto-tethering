@@ -2,7 +2,6 @@ package com.labs.dm.auto_tethering;
 
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
-
 import com.labs.dm.auto_tethering.activity.MainActivity;
 
 /**

@@ -68,14 +68,14 @@ public class ServiceHelper {
     public boolean isPluggedToPower() {
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, ifilter);
-        int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        int chargePlug = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1) : 0;
         return chargePlug == BATTERY_PLUGGED_USB || chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
     }
 
     public float batteryLevel() {
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, ifilter);
-        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int level = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) : 0;
         int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
         return level / (float) scale;
     }
@@ -195,7 +195,7 @@ public class ServiceHelper {
         for (Method method : wmMethods) {
             if (method.getName().equals("tether")) {
                 try {
-                    code = (Integer) method.invoke(cm, available[0]);
+                    code = (Integer) method.invoke(cm, available != null ? available[0] : null);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                     return;
