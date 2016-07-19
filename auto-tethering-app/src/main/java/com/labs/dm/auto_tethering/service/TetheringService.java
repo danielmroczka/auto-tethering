@@ -5,11 +5,8 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.*;
 import android.os.AsyncTask;
-import android.os.ParcelUuid;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -22,8 +19,10 @@ import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.Cron.STATUS;
 import com.labs.dm.auto_tethering.db.DBManager;
 
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import static android.os.Build.VERSION;
@@ -386,85 +385,6 @@ public class TetheringService extends IntentService {
         }
     }
 
-    /**
-     * Class triggers only by MyBroadcastReceiver every xx seconds.
-     */
-    private class FindAvailableBluetoothDevicesAsyncTask implements Runnable {
-    //extends AsyncTask<BluetoothDevice, Void, Void> {
-
-        @Override
-        public void run() {
-            /**
-             * Make sure that BT is enabled.
-             */
-            serviceHelper.setBlockingBluetoothStatus(true);
-
-            /**
-             * Prepare a list with BluetoothDevice items
-             */
-            List<BluetoothDevice> devicesToCheck = new ArrayList<>();
-            List<String> preferredDevices = findPreferredDevices();
-            for (BluetoothDevice device : serviceHelper.getBondedDevices()) {
-                for (String pref : preferredDevices) {
-                    if (device.getName().equals(pref)) {
-                        devicesToCheck.add(device);
-                    }
-                }
-            }
-
-            for (BluetoothDevice device : devicesToCheck) {
-                /**
-                 * If device is currently connected just only check this one without checking others.
-                 */
-                if (connectedDeviceName != null && !connectedDeviceName.equals(device.getName())) {
-                    continue;
-                }
-
-                Intent btIntent = null;
-                try {
-                    Method method = device.getClass().getMethod("getUuids");
-                    method.setAccessible(true);
-                    ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
-                    BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
-                    Log.d("BT Socket", "Connecting to " + device.getName());
-                    socket.connect();
-                    Log.d("BT Socket", "Connected  to " + device.getName());
-                    String previousConnectedDeviceName = connectedDeviceName;
-                    connectedDeviceName = device.getName();
-                    socket.close();
-
-                    if (connectedDeviceName != null) {
-                        if (previousConnectedDeviceName == null || !connectedDeviceName.equals(previousConnectedDeviceName)) {
-                            btIntent = new Intent(BT_CONNECTED);
-                        }
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, device.getName() + " Device is not in range.");
-                    if (connectedDeviceName != null && connectedDeviceName.equals(device.getName())) {
-                        Log.i(TAG, device.getName() + " device has been disconnected");
-                        btIntent = new Intent(BT_DISCONNECTED);
-                    }
-                    connectedDeviceName = null;
-                }
-
-                if (btIntent != null) {
-                    btIntent.putExtra("name", device.getName());
-                    PendingIntent onPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, btIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    try {
-                        onPendingIntent.send();
-                    } catch (PendingIntent.CanceledException e) {
-                        Log.e(TAG, e.getMessage());
-                    }
-                    break;
-                }
-            }
-
-            if (prefs.getBoolean("bt.internet.auto.off", false)) {
-                serviceHelper.setBlockingBluetoothStatus(false);
-            }
-        }
-    }
-
     private class TurnOn3GAsyncTask extends AsyncTask<Boolean, Void, Void> {
         @Override
         protected Void doInBackground(Boolean... params) {
@@ -663,11 +583,11 @@ public class TetheringService extends IntentService {
                 if (connectedDeviceName != null && connectedDeviceName.equals(deviceName)) {
                     connectedDeviceName = null;
                 }
-                execute(TETHER_OFF); //Change to Bluetooth off
+                execute(BLUETOOTH_INTERNET_TETHERING_OFF);
             }
 
             if (TetherInvent.BT_SEARCH.equals(intent.getAction())) {
-                new Thread(new FindAvailableBluetoothDevicesAsyncTask()).start();//st  doInBackground();
+                new Thread(new FindAvailableBluetoothDevicesTask(getApplicationContext(), prefs, connectedDeviceName)).start();
             }
 
             if (EXIT.equals(intent.getAction())) {
@@ -688,17 +608,6 @@ public class TetheringService extends IntentService {
                 }
             }
         }
-    }
-
-    private List<String> findPreferredDevices() {
-        Map<String, ?> map = prefs.getAll();
-        List<String> list = new ArrayList<>();
-        for (Map.Entry<String, ?> entry : map.entrySet()) {
-            if (entry.getKey().startsWith("bt.devices.")) {
-                list.add(String.valueOf(entry.getValue()));
-            }
-        }
-        return list;
     }
 
     private void execute(ServiceAction serviceAction) {

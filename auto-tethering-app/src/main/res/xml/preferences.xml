@@ -253,6 +253,7 @@
                     android:summary="Reset will be triggered just after midnight everyday"
                     android:title="Reset counter every day" />
         </PreferenceScreen>
+<!--
         <PreferenceScreen
                 android:enabled="false"
                 android:icon="@drawable/ic_usb"
@@ -261,6 +262,7 @@
                 android:key="usb.tethering"
                 android:summary="Turn on USB tethering" />
         </PreferenceScreen>
+-->
 
     </PreferenceScreen>
 

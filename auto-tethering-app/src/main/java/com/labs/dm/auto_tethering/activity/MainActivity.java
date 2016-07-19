@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.*;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -227,14 +228,14 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
-        PreferenceScreen usbTethering = (PreferenceScreen) findPreference("usb.tethering");
+        /*PreferenceScreen usbTethering = (PreferenceScreen) findPreference("usb.tethering");
         usbTethering.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 serviceHelper.usbTethering(true);
                 return false;
             }
-        });
+        });*/
 
         PreferenceScreen resetDataUsage = (PreferenceScreen) findPreference("data.limit.reset");
         resetDataUsage.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -405,14 +406,20 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                                                    arrayAdapter.add(device.getName());
                                                }
 
-                                               builderSingle.setNegativeButton(
-                                                       "Cancel",
-                                                       new DialogInterface.OnClickListener() {
-                                                           @Override
-                                                           public void onClick(DialogInterface dialog, int which) {
-                                                               dialog.dismiss();
-                                                           }
-                                                       });
+                                               builderSingle.setPositiveButton("Open pair dialog", new DialogInterface.OnClickListener() {
+                                                   @Override
+                                                   public void onClick(DialogInterface dialog, int which) {
+                                                       Intent intent = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
+                                                       startActivity(intent);
+                                                   }
+                                               });
+
+                                               builderSingle.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                                   @Override
+                                                   public void onClick(DialogInterface dialog, int which) {
+                                                       dialog.dismiss();
+                                                   }
+                                               });
 
                                                builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
                                                            @Override
@@ -587,10 +594,14 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 Preference ps = new CheckBoxPreference(getApplicationContext());
                 ps.setTitle(deviceName);
                 if (ps.getTitle() != null) {
-                    pc.addPreference(ps);
-                }
-                if (!found) {
                     Toast.makeText(getApplicationContext(), "Device " + deviceName + " is no longer paired.\nActivation on this device won't work.\nPlease pair devices again", Toast.LENGTH_LONG);
+                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                        if (!found) {
+                            ps.setSummary("Device is no longer paired!");
+                        }
+                    }
+
+                    pc.addPreference(ps);
                 }
             }
         }
