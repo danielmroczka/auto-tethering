@@ -19,6 +19,8 @@ import static com.labs.dm.auto_tethering.TetherInvent.BT_DISCONNECTED;
 
 /**
  * Class triggers only by MyBroadcastReceiver every xx seconds.
+ *
+ * Created by Daniel Mroczka
  */
 class FindAvailableBluetoothDevicesTask implements Runnable {
 

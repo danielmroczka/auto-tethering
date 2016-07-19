@@ -11,6 +11,9 @@ import com.labs.dm.auto_tethering.TetherInvent;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
+/**
+ * Created by Daniel Mroczka
+ */
 public class ChargeBroadcastReceiver extends BroadcastReceiver {
 
     private final String TAG = "USB Broadcast Receiver";

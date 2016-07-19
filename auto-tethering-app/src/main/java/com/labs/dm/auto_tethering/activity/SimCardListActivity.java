@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.os.Bundle;
 import com.labs.dm.auto_tethering.R;
 
+/**
+ * Created by Daniel Mroczka
+ */
 public class SimCardListActivity extends Activity {
 
     @Override

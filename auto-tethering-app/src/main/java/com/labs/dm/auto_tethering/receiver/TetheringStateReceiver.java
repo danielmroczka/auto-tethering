@@ -15,6 +15,9 @@ import com.labs.dm.auto_tethering.service.WidgetService;
 
 import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
 
+/**
+ * Created by Daniel Mroczka
+ */
 public class TetheringStateReceiver extends BroadcastReceiver {
 
     private final String TAG = "TetheringStateChange";

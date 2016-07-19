@@ -12,6 +12,9 @@ import java.util.concurrent.TimeUnit;
 
 import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
 
+/**
+ * Created by Daniel Mroczka
+ */
 public class WidgetService extends IntentService {
 
     private ServiceHelper serviceHelper;

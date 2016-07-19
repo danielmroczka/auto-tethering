@@ -6,19 +6,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.TimePicker;
-import android.widget.Toast;
-import android.widget.ToggleButton;
-
+import android.widget.*;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
 
 import java.util.Calendar;
 
+/**
+ * Created by Daniel Mroczka
+ */
 public class ScheduleActivity extends Activity {
     private final int[] buttons = {R.id.btnMonday, R.id.btnTuesday, R.id.btnWednesday, R.id.btnThursday, R.id.btnFriday, R.id.btnSaturday, R.id.btnSunday};
     private DBManager db;
