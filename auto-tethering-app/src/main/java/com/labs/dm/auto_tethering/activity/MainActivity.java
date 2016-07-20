@@ -132,23 +132,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 connectedClients.setTitle("Connected clients: " + Utils.connectedClients());
-                /*final ProgressDialog dialog = new ProgressDialog(MainActivity.this);//, "aaa", "Detecting...", true);
-
-                dialog.show();
-                class A extends Thread {
-                    @Override
-                    public void run() {
-                        connectedClients.setTitle("Connected clients: " + Utils.connectedClients());
-                        try {
-                            TimeUnit.SECONDS.sleep(5);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        dialog.dismiss();
-
-                    }
-                    }
-                new A().start();*/
                 return false;
             }
         });
@@ -617,7 +600,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         }
     }
 
-    private void displayPromptAtStartup() {
+    private void onStartup() {
         int version = Integer.parseInt(prefs.getString(LATEST_VERSION, "0"));
 
         if (version == 0) {
@@ -724,8 +707,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     protected void onResume() {
         super.onResume();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("android.net.wifi.WIFI_AP_STATE_CHANGED");
+        //IntentFilter filter = new IntentFilter();
+        //filter.addAction("android.net.wifi.WIFI_AP_STATE_CHANGED");
     }
 
     @Override
@@ -744,7 +727,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     protected void onStart() {
         super.onStart();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
-        displayPromptAtStartup();
+        onStartup();
     }
 
     @Override
