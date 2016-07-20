@@ -274,6 +274,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             public boolean onPreferenceClick(Preference preference) {
                 if (!btCheckBox.isChecked()) {
                     sendBroadcast(new Intent(TetherInvent.BT_RESTORE));
+                } else {
+                    Toast.makeText(getApplicationContext(), "You might be asked to approve Bluetooth connection on some preferred devices.", Toast.LENGTH_LONG).show();
                 }
 
                 return true;

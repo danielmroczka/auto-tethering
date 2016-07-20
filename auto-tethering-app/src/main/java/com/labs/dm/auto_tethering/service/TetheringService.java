@@ -568,6 +568,7 @@ public class TetheringService extends IntentService {
                 if (!initialBluetoothStatus) {
                     BluetoothAdapter.getDefaultAdapter().disable();
                 }
+                connectedDeviceName = null;
                 status = Status.DEFAULT;
             }
 

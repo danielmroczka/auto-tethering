@@ -253,7 +253,7 @@
                     android:title="Reset data usage counter"/>
             <CheckBoxPreference
                     android:key="data.limit.daily.reset"
-                    android:summary="Reset will be triggered just after midnight everyday"
+                    android:summary="Reset counter just after the midnight every day"
                     android:title="Reset counter every day"/>
         </PreferenceScreen>
         <!--

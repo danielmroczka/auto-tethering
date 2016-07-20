@@ -1,14 +1,16 @@
 package com.labs.dm.auto_tethering.service;
 
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.ParcelUuid;
 import android.util.Log;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,15 +49,7 @@ class FindAvailableBluetoothDevicesTask implements Runnable {
         /**
          * Prepare a list with BluetoothDevice items
          */
-        List<BluetoothDevice> devicesToCheck = new ArrayList<>();
-        List<String> preferredDevices = findPreferredDevices();
-        for (BluetoothDevice device : serviceHelper.getBondedDevices()) {
-            for (String pref : preferredDevices) {
-                if (device.getName().equals(pref)) {
-                    devicesToCheck.add(device);
-                }
-            }
-        }
+        List<BluetoothDevice> devicesToCheck = getBluetoothDevices();
 
         for (BluetoothDevice device : devicesToCheck) {
             /**
@@ -67,16 +61,9 @@ class FindAvailableBluetoothDevicesTask implements Runnable {
 
             Intent btIntent = null;
             try {
-                Method method = device.getClass().getMethod("getUuids");
-                method.setAccessible(true);
-                ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
-                BluetoothSocket socket = device.createRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
-                Log.d(TAG, "Connecting to " + device.getName());
-                socket.connect();
-                Log.d(TAG, "Connected to " + device.getName());
+                connect(device);
                 String previousConnectedDeviceName = connectedDeviceName;
                 connectedDeviceName = device.getName();
-                socket.close();
 
                 if (connectedDeviceName != null) {
                     if (previousConnectedDeviceName == null || !connectedDeviceName.equals(previousConnectedDeviceName)) {
@@ -108,6 +95,40 @@ class FindAvailableBluetoothDevicesTask implements Runnable {
         if (prefs.getBoolean("bt.internet.auto.off", false)) {
             serviceHelper.setBlockingBluetoothStatus(false);
         }
+    }
+
+    private List<BluetoothDevice> getBluetoothDevices() {
+        List<BluetoothDevice> devicesToCheck = new ArrayList<>();
+        List<String> preferredDevices = findPreferredDevices();
+        for (BluetoothDevice device : serviceHelper.getBondedDevices()) {
+            for (String pref : preferredDevices) {
+                if (device.getName().equals(pref)) {
+                    devicesToCheck.add(device);
+                }
+            }
+        }
+        return devicesToCheck;
+    }
+
+    private void connect(BluetoothDevice device) throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+//        Method method = device.getClass().getMethod("getUuids");
+//        method.setAccessible(true);
+//        ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
+//        BluetoothSocket socket = device.createRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
+//        Log.d(TAG, "Connecting to " + device.getName());
+//        socket.connect();
+//        Log.d(TAG, "Connected to " + device.getName());
+//        socket.close();
+//
+//
+//
+        BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+        Method method = device.getClass().getMethod("createRfcommSocket", int.class);
+        BluetoothSocket socket = (BluetoothSocket) method.invoke(device, 1);
+        Log.d(TAG, "Connecting to " + device.getName());
+        socket.connect();
+        Log.d(TAG, "Connected to " + device.getName());
+        socket.close();
     }
 
     private List<String> findPreferredDevices() {
