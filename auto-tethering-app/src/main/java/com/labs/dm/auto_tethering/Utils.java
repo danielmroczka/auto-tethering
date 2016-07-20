@@ -1,5 +1,9 @@
 package com.labs.dm.auto_tethering;
 
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.util.SparseIntArray;
 
 import java.io.BufferedReader;
@@ -84,5 +88,16 @@ public class Utils {
         map.put(6, 4);
         map.put(7, 5);
         return map.get(day);
+    }
+
+    public static void broadcast(Context context, Intent intent) {
+        if (intent != null && context != null) {
+            PendingIntent onPendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            try {
+                onPendingIntent.send();
+            } catch (PendingIntent.CanceledException e) {
+                Log.e("Util", e.getMessage());
+            }
+        }
     }
 }

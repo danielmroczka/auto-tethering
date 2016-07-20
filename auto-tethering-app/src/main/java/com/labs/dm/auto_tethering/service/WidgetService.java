@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import com.labs.dm.auto_tethering.TetherInvent;
+import com.labs.dm.auto_tethering.TetherIntents;
 
 import java.util.concurrent.TimeUnit;
 
@@ -39,11 +39,11 @@ public class WidgetService extends IntentService {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            Intent onIntent = new Intent(TetherInvent.WIDGET);
+            Intent onIntent = new Intent(TetherIntents.WIDGET);
             onIntent.putExtra("changeMobileState", prefs.getBoolean(key(widgetId, "mobile"), false));
             sendBroadcast(onIntent);
         } else if (serviceHelper.isServiceRunning(TetheringService.class)) {
-            Intent onIntent = new Intent(TetherInvent.WIDGET);
+            Intent onIntent = new Intent(TetherIntents.WIDGET);
             onIntent.putExtra("changeMobileState", prefs.getBoolean(key(widgetId, "mobile"), false));
             sendBroadcast(onIntent);
         } else {

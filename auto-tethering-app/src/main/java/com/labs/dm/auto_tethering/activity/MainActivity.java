@@ -19,7 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
-import com.labs.dm.auto_tethering.TetherInvent;
+import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
@@ -63,18 +63,18 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (TetherInvent.EXIT.equals(intent.getAction())) {
+                if (TetherIntents.EXIT.equals(intent.getAction())) {
                     exitApp();
-                } else if (TetherInvent.CLIENTS.equals(intent.getAction())) {
+                } else if (TetherIntents.CLIENTS.equals(intent.getAction())) {
                     final PreferenceScreen connectedClients = (PreferenceScreen) findPreference("idle.connected.clients");
                     connectedClients.setTitle("Connected clients: " + intent.getIntExtra("value", 0));
-                } else if (TetherInvent.DATA_USAGE.equals(intent.getAction())) {
+                } else if (TetherIntents.DATA_USAGE.equals(intent.getAction())) {
                     final PreferenceScreen dataUsage = (PreferenceScreen) findPreference("data.limit.counter");
                     Format dateFormat = android.text.format.DateFormat.getDateFormat(getApplicationContext());
                     Format timeFormat = android.text.format.DateFormat.getTimeFormat(getApplicationContext());
                     Date date = new Date(prefs.getLong("data.usage.reset.timestamp", 0));
                     dataUsage.setSummary(String.format("%.2f MB from %s %s", intent.getLongExtra("value", 0) / 1048576f, dateFormat.format(date), timeFormat.format(date)));
-                } else if (TetherInvent.UNLOCK.equals(intent.getAction())) {
+                } else if (TetherIntents.UNLOCK.equals(intent.getAction())) {
                     NotificationManager nMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     nMgr.cancel(1234);
                     PreferenceScreen screen = (PreferenceScreen) findPreference("experimental");
@@ -84,10 +84,10 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         };
         IntentFilter filter = new IntentFilter();
-        filter.addAction(TetherInvent.EXIT);
-        filter.addAction(TetherInvent.CLIENTS);
-        filter.addAction(TetherInvent.DATA_USAGE);
-        filter.addAction(TetherInvent.UNLOCK);
+        filter.addAction(TetherIntents.EXIT);
+        filter.addAction(TetherIntents.CLIENTS);
+        filter.addAction(TetherIntents.DATA_USAGE);
+        filter.addAction(TetherIntents.UNLOCK);
         registerReceiver(receiver, filter);
     }
 
@@ -254,7 +254,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                                 prefs.edit().putLong("data.usage.last.value", dataUsage).apply();
                                 prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
 
-                                Intent intent = new Intent(TetherInvent.DATA_USAGE);
+                                Intent intent = new Intent(TetherIntents.DATA_USAGE);
                                 sendBroadcast(intent);
                             }
                         })
@@ -273,7 +273,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 if (!btCheckBox.isChecked()) {
-                    sendBroadcast(new Intent(TetherInvent.BT_RESTORE));
+                    sendBroadcast(new Intent(TetherIntents.BT_RESTORE));
                 } else {
                     Toast.makeText(getApplicationContext(), "You might be asked to approve Bluetooth connection on some preferred devices.", Toast.LENGTH_LONG).show();
                 }

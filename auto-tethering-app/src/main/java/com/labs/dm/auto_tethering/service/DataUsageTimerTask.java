@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.os.SystemClock;
 import android.text.format.DateUtils;
 import android.util.Log;
-import com.labs.dm.auto_tethering.TetherInvent;
+import com.labs.dm.auto_tethering.TetherIntents;
 
 import java.util.TimerTask;
 
@@ -58,7 +58,7 @@ public class DataUsageTimerTask extends TimerTask {
 
         prefs.edit().putLong("data.usage.last.value", ServiceHelper.getDataUsage()).apply();
         long usage = ServiceHelper.getDataUsage() - prefs.getLong("data.usage.reset.value", 0);
-        Intent onIntent = new Intent(TetherInvent.DATA_USAGE);
+        Intent onIntent = new Intent(TetherIntents.DATA_USAGE);
         onIntent.putExtra("value", usage);
         context.sendBroadcast(onIntent);
     }

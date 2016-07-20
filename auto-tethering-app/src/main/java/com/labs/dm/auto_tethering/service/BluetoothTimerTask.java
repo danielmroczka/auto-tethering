@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 
 import java.util.TimerTask;
 
-import static com.labs.dm.auto_tethering.TetherInvent.BT_SEARCH;
+import static com.labs.dm.auto_tethering.TetherIntents.BT_SEARCH;
 
 /**
  * Created by Daniel Mroczka on 6/3/2016.

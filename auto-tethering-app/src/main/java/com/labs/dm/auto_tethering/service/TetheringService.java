@@ -12,7 +12,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
-import com.labs.dm.auto_tethering.TetherInvent;
+import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cron;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 import static android.os.Build.VERSION;
 import static android.os.Build.VERSION_CODES;
 import static com.labs.dm.auto_tethering.AppProperties.*;
-import static com.labs.dm.auto_tethering.TetherInvent.*;
+import static com.labs.dm.auto_tethering.TetherIntents.*;
 import static com.labs.dm.auto_tethering.Utils.adapterDayOfWeek;
 import static com.labs.dm.auto_tethering.service.ServiceAction.*;
 
@@ -96,8 +96,8 @@ public class TetheringService extends IntentService {
         timer.schedule(bluetoothTask, 5000, 30000);
     }
 
-    private String[] invents = {TetherInvent.TETHERING, TetherInvent.WIDGET, TetherInvent.RESUME, EXIT, TetherInvent.USB_ON, TetherInvent.USB_OFF,
-            TetherInvent.BT_RESTORE, TetherInvent.BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH};
+    private String[] invents = {TetherIntents.TETHERING, TetherIntents.WIDGET, TetherIntents.RESUME, EXIT, TetherIntents.USB_ON, TetherIntents.USB_OFF,
+            TetherIntents.BT_RESTORE, TetherIntents.BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH};
 
     private void registerReceivers() {
         IntentFilter filter = new IntentFilter();
@@ -131,7 +131,7 @@ public class TetheringService extends IntentService {
             execute(TETHER_ON);
         }
         if (intent.getBooleanExtra("usb.on", false)) {
-            sendBroadcast(new Intent(TetherInvent.USB_ON));
+            sendBroadcast(new Intent(TetherIntents.USB_ON));
         }
 
         return super.onStartCommand(intent, flags, startId);
@@ -306,7 +306,7 @@ public class TetheringService extends IntentService {
      * @return
      */
     private boolean checkIdle() {
-        Intent onIntent = new Intent(TetherInvent.CLIENTS);
+        Intent onIntent = new Intent(TetherIntents.CLIENTS);
         onIntent.putExtra("value", Utils.connectedClients());
         sendBroadcast(onIntent);
         if (prefs.getBoolean(IDLE_3G_OFF, false) || prefs.getBoolean(IDLE_TETHERING_OFF, false)) {
@@ -430,7 +430,7 @@ public class TetheringService extends IntentService {
                     .setPriority(Notification.PRIORITY_MAX)
                     .setStyle(new Notification.BigTextStyle().bigText(caption));
 
-            Intent onIntent = new Intent(TetherInvent.TETHERING);
+            Intent onIntent = new Intent(TetherIntents.TETHERING);
             PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             int drawable = R.drawable.ic_service24;
@@ -447,11 +447,11 @@ public class TetheringService extends IntentService {
             builder.addAction(drawable, ticker, onPendingIntent);
 
             if (status == Status.DEACTIVATED_ON_IDLE) {
-                Intent onResumeIntent = new Intent(TetherInvent.RESUME);
+                Intent onResumeIntent = new Intent(TetherIntents.RESUME);
                 PendingIntent onResumePendingIntent = PendingIntent.getBroadcast(this, 0, onResumeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 builder.addAction(R.drawable.ic_resume24, "Resume", onResumePendingIntent);
             } else if (status == Status.DATA_USAGE_LIMIT_EXCEED) {
-                Intent onLimitIntent = new Intent(TetherInvent.UNLOCK);
+                Intent onLimitIntent = new Intent(TetherIntents.UNLOCK);
                 PendingIntent onLimitPendingIntent = PendingIntent.getBroadcast(this, 0, onLimitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 builder.addAction(R.drawable.ic_unlocked, "Unlock", onLimitPendingIntent);
             }
@@ -498,7 +498,7 @@ public class TetheringService extends IntentService {
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, intent.getAction());
             switch (intent.getAction()) {
-                case TetherInvent.TETHERING:
+                case TetherIntents.TETHERING:
                     if (forceOn && !forceOff) {
                         forceOff = true;
                         forceOn = false;
@@ -517,13 +517,13 @@ public class TetheringService extends IntentService {
                     }
                     break;
 
-                case TetherInvent.RESUME:
+                case TetherIntents.RESUME:
                     updateLastAccess();
                     status = Status.DEFAULT;
                     break;
 
 
-                case TetherInvent.WIDGET:
+                case TetherIntents.WIDGET:
                     changeMobileState = intent.getExtras().getBoolean("changeMobileState", false);
 
                     if (serviceHelper.isTetheringWiFi()) {
@@ -542,7 +542,7 @@ public class TetheringService extends IntentService {
                     }
                     break;
 
-                case TetherInvent.USB_ON:
+                case TetherIntents.USB_ON:
                     if (prefs.getBoolean("usb.activate.on.connect", false)) {
                         execute(TETHER_ON, R.string.activate_tethering_usb_on);
                     }
@@ -551,7 +551,7 @@ public class TetheringService extends IntentService {
                     }
                     status = Status.USB_ON;
                     break;
-                case TetherInvent.USB_OFF:
+                case TetherIntents.USB_OFF:
                     if (prefs.getBoolean("usb.activate.off.connect", false)) {
                         execute(TETHER_OFF, R.string.activate_tethering_usb_off);
                     }
@@ -560,14 +560,14 @@ public class TetheringService extends IntentService {
                     }
                     status = Status.DEFAULT;
                     break;
-                case TetherInvent.BT_RESTORE:
+                case TetherIntents.BT_RESTORE:
                     if (!initialBluetoothStatus) {
                         BluetoothAdapter.getDefaultAdapter().disable();
                     }
                     connectedDeviceName = null;
                     status = Status.DEFAULT;
                     break;
-                case TetherInvent.BT_CONNECTED:
+                case TetherIntents.BT_CONNECTED:
                     String deviceName = intent.getStringExtra("name");
                     connectedDeviceName = deviceName;
                     status = Status.BT;

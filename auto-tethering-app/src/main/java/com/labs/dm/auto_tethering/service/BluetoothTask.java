@@ -1,6 +1,5 @@
 package com.labs.dm.auto_tethering.service;
 
-import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -8,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
+import com.labs.dm.auto_tethering.Utils;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.labs.dm.auto_tethering.TetherInvent.BT_CONNECTED;
-import static com.labs.dm.auto_tethering.TetherInvent.BT_DISCONNECTED;
+import static com.labs.dm.auto_tethering.TetherIntents.BT_CONNECTED;
+import static com.labs.dm.auto_tethering.TetherIntents.BT_DISCONNECTED;
 
 /**
  * Class triggers only by MyBroadcastReceiver every xx seconds.
@@ -84,12 +84,7 @@ class BluetoothTask implements Runnable {
 
             if (btIntent != null) {
                 btIntent.putExtra("name", device.getName());
-                PendingIntent onPendingIntent = PendingIntent.getBroadcast(context, 0, btIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                try {
-                    onPendingIntent.send();
-                } catch (PendingIntent.CanceledException e) {
-                    Log.e(TAG, e.getMessage());
-                }
+                Utils.broadcast(context, btIntent);
                 break;
             }
         }
@@ -125,12 +120,17 @@ class BluetoothTask implements Runnable {
 //
 //
         BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-        Method method = device.getClass().getMethod("createRfcommSocket", int.class);
+        Method method = BluetoothDevice.class.getMethod("createRfcommSocket", int.class);
         BluetoothSocket socket = (BluetoothSocket) method.invoke(device, 1);
         Log.d(TAG, "Connecting to " + device.getName());
-        socket.connect();
-        Log.d(TAG, "Connected to " + device.getName());
-        socket.close();
+        try {
+            socket.connect();
+            Log.d(TAG, "Connected to " + device.getName());
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            socket.close();
+        }
     }
 
     private List<String> findPreferredDevices() {
