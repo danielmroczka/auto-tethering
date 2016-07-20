@@ -24,19 +24,21 @@ import static com.labs.dm.auto_tethering.TetherInvent.BT_DISCONNECTED;
  * <p>
  * Created by Daniel Mroczka
  */
-class FindAvailableBluetoothDevicesTask implements Runnable {
+class BluetoothTask implements Runnable {
 
     private final ServiceHelper serviceHelper;
     private final Context context;
     private final SharedPreferences prefs;
     private final String TAG = "FindBT";
     private String connectedDeviceName;
+    private final boolean initialBluetoothStatus;
 
-    public FindAvailableBluetoothDevicesTask(Context context, SharedPreferences prefs, String connectedDeviceName) {
+    public BluetoothTask(Context context, SharedPreferences prefs, String connectedDeviceName, boolean initialBluetoothStatus) {
         this.serviceHelper = new ServiceHelper(context);
         this.context = context;
         this.prefs = prefs;
         this.connectedDeviceName = connectedDeviceName;
+        this.initialBluetoothStatus = initialBluetoothStatus;
     }
 
     @Override
@@ -92,7 +94,7 @@ class FindAvailableBluetoothDevicesTask implements Runnable {
             }
         }
 
-        if (prefs.getBoolean("bt.internet.auto.off", false)) {
+        if (prefs.getBoolean("bt.internet.auto.off", false) && !initialBluetoothStatus) {
             serviceHelper.setBlockingBluetoothStatus(false);
         }
     }
