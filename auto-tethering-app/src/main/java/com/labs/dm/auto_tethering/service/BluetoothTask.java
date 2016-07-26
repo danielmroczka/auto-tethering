@@ -6,7 +6,9 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.ParcelUuid;
 import android.util.Log;
+
 import com.labs.dm.auto_tethering.Utils;
 
 import java.io.IOException;
@@ -52,6 +54,14 @@ class BluetoothTask implements Runnable {
          * Prepare a list with BluetoothDevice items
          */
         List<BluetoothDevice> devicesToCheck = getBluetoothDevices();
+        Intent btIntent = null;
+
+        if (devicesToCheck.isEmpty() && connectedDeviceName != null) {
+            btIntent = new Intent(BT_DISCONNECTED);
+            btIntent.putExtra("name", connectedDeviceName);
+            Utils.broadcast(context, btIntent);
+            connectedDeviceName = null;
+        }
 
         for (BluetoothDevice device : devicesToCheck) {
             /**
@@ -61,7 +71,6 @@ class BluetoothTask implements Runnable {
                 continue;
             }
 
-            Intent btIntent = null;
             try {
                 connect(device);
                 String previousConnectedDeviceName = connectedDeviceName;
@@ -108,20 +117,10 @@ class BluetoothTask implements Runnable {
     }
 
     private void connect(BluetoothDevice device) throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-//        Method method = device.getClass().getMethod("getUuids");
-//        method.setAccessible(true);
-//        ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
-//        BluetoothSocket socket = device.createRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
-//        Log.d(TAG, "Connecting to " + device.getName());
-//        socket.connect();
-//        Log.d(TAG, "Connected to " + device.getName());
-//        socket.close();
-//
-//
-//
+        Method method = device.getClass().getMethod("getUuids");
+        ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
         BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-        Method method = BluetoothDevice.class.getMethod("createRfcommSocket", int.class);
-        BluetoothSocket socket = (BluetoothSocket) method.invoke(device, 1);
+        BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
         Log.d(TAG, "Connecting to " + device.getName());
         try {
             socket.connect();
@@ -144,3 +143,4 @@ class BluetoothTask implements Runnable {
         return list;
     }
 }
+
