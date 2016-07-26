@@ -3,20 +3,37 @@ package com.labs.dm.auto_tethering.activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.bluetooth.BluetoothDevice;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.*;
+import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.InputFilter;
 import android.text.Spanned;
-import android.view.*;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
@@ -30,9 +47,22 @@ import com.labs.dm.auto_tethering.service.TetheringService;
 import com.labs.dm.auto_tethering.ui.SchedulePreference;
 
 import java.text.Format;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
-import static com.labs.dm.auto_tethering.AppProperties.*;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
+import static com.labs.dm.auto_tethering.AppProperties.MAX_BT_DEVICES;
+import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
+import static com.labs.dm.auto_tethering.AppProperties.SSID;
 
 /**
  * Created by Daniel Mroczka
@@ -424,15 +454,15 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                                                                        }
                                                                    }
 
-                                                                   if (counter >= 5) {
-                                                                       Toast.makeText(getApplicationContext(), "Exceeded the limit of max. 5 devices!", Toast.LENGTH_LONG).show();
-                                                                   } else if (!found) {
+                                                                   if (found) {
+                                                                       Toast.makeText(getApplicationContext(), "Device already added!", Toast.LENGTH_LONG).show();
+                                                                   } else if (counter >= MAX_BT_DEVICES) {
+                                                                       Toast.makeText(getApplicationContext(), "Exceeded the limit of max. " + MAX_BT_DEVICES + " devices!", Toast.LENGTH_LONG).show();
+                                                                   } else {
                                                                        prefs.edit().putString("bt.devices." + name, name).apply();
                                                                        Preference ps = new CheckBoxPreference(getApplicationContext());
                                                                        ps.setTitle(name);
                                                                        category.addPreference(ps);
-                                                                   } else {
-                                                                       Toast.makeText(getApplicationContext(), "Device already added!", Toast.LENGTH_LONG).show();
                                                                    }
                                                                }
                                                                dialog.dismiss();

@@ -5,6 +5,8 @@ package com.labs.dm.auto_tethering;
  */
 public class AppProperties {
 
+    public static final int MAX_BT_DEVICES = 3;
+
     public static final String ACTIVATE_ON_STARTUP = "activate.on.startup";
     public static final String ACTIVATE_KEEP_SERVICE = "activate.keep.service";
     public static final String ACTIVATE_3G = "activate.3g";

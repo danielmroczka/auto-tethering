@@ -46,11 +46,6 @@ class BluetoothTask implements Runnable {
     @Override
     public void run() {
         /**
-         * Make sure that BT is enabled.
-         */
-        serviceHelper.setBlockingBluetoothStatus(true);
-
-        /**
          * Prepare a list with BluetoothDevice items
          */
         List<BluetoothDevice> devicesToCheck = getBluetoothDevices();
@@ -61,6 +56,13 @@ class BluetoothTask implements Runnable {
             btIntent.putExtra("name", connectedDeviceName);
             Utils.broadcast(context, btIntent);
             connectedDeviceName = null;
+        }
+
+        if (!devicesToCheck.isEmpty()) {
+            /**
+             * Make sure that BT is enabled.
+             */
+            serviceHelper.setBlockingBluetoothStatus(true);
         }
 
         for (BluetoothDevice device : devicesToCheck) {
