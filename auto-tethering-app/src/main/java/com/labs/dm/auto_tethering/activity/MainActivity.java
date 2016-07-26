@@ -3,37 +3,20 @@ package com.labs.dm.auto_tethering.activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
+import android.preference.*;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.InputFilter;
 import android.text.Spanned;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
@@ -47,22 +30,9 @@ import com.labs.dm.auto_tethering.service.TetheringService;
 import com.labs.dm.auto_tethering.ui.SchedulePreference;
 
 import java.text.Format;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
-import static com.labs.dm.auto_tethering.AppProperties.MAX_BT_DEVICES;
-import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
-import static com.labs.dm.auto_tethering.AppProperties.SSID;
+import static com.labs.dm.auto_tethering.AppProperties.*;
 
 /**
  * Created by Daniel Mroczka
@@ -404,7 +374,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void registerBTListener() {
-        PreferenceScreen p = (PreferenceScreen) findPreference("bt.add.device");
+        final PreferenceScreen p = (PreferenceScreen) findPreference("bt.add.device");
         p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                                            @Override
                                            public boolean onPreferenceClick(Preference preference) {
@@ -471,13 +441,15 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
                                                );
                                                builderSingle.show();
+
+                                               (findPreference("bt.remove.device")).setEnabled(p.getPreferenceCount() > 0);
                                                return false;
                                            }
                                        }
 
         );
 
-        PreferenceScreen p2 = (PreferenceScreen) findPreference("bt.remove.device");
+        final PreferenceScreen p2 = (PreferenceScreen) findPreference("bt.remove.device");
         p2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                                             @Override
                                             public boolean onPreferenceClick(Preference preference) {
@@ -495,6 +467,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                                                         }
                                                     }
                                                 }
+
+                                                p2.setEnabled(p.getPreferenceCount() > 0);
 
                                                 if (!changed) {
                                                     Toast.makeText(getApplicationContext(), "Please select any item", Toast.LENGTH_LONG).show();
@@ -620,6 +594,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 }
             }
         }
+        findPreference("bt.remove.device").setEnabled(pc.getPreferenceCount() > 0);
     }
 
     private void startService() {

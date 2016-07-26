@@ -680,6 +680,10 @@ public class TetheringService extends IntentService {
                 id = R.string.bluetooth;
                 status = Status.BT;
                 break;
+            case BLUETOOTH_INTERNET_TETHERING_OFF:
+                id = R.string.bluetooth_off;
+                status = Status.DEFAULT;
+                break;
         }
         if (msg != 0) {
             id = msg;
