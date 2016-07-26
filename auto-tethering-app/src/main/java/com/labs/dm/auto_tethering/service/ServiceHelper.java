@@ -12,6 +12,7 @@ import android.net.TrafficStats;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
@@ -128,6 +129,10 @@ public class ServiceHelper {
      * @param enabled
      */
     public void setMobileDataEnabled(boolean enabled) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Log.e(TAG, "Unimplemented setMobileDataEnabled on Android 5.0!");
+            return;
+        }
         final ConnectivityManager conman = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         try {
             final Class conmanClass = Class.forName(conman.getClass().getName());

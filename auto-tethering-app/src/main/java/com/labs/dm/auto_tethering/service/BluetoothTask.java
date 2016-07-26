@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.ParcelUuid;
 import android.util.Log;
+
 import com.labs.dm.auto_tethering.Utils;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_CONNECTED;
@@ -125,10 +127,10 @@ class BluetoothTask implements Runnable {
         BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
         BluetoothSocket socket;
         if (Build.VERSION.SDK_INT <= JELLY_BEAN) {
-            //sdk 4.2.2?? java.io.IOException: Connection refused
             socket = device.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
         } else {
-            socket = device.createRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
+            UUID uuid = parcelUuids.length >= 8 ? parcelUuids[7].getUuid() : parcelUuids[0].getUuid();
+            socket = device.createRfcommSocketToServiceRecord(uuid);
         }
 
         Log.d(TAG, "Connecting to " + device.getName());
