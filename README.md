@@ -17,7 +17,7 @@ Some of implemented features:
 - [x] option to disable when roaming 
 - [x] change notifications
 Still under development features:
-- [x] tethering activation on Bluetooth connection (possibility to configure up to 5 devices)
+- [x] tethering activation on Bluetooth connection (possibility to configure up to 3 devices)
 - [x] tethering activation on USB or AC charger connection
 - [x] control data usage and deactivates tethering once the limit is exceeded
 
