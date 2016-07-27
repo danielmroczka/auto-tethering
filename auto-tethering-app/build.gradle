@@ -32,12 +32,13 @@ android {
             zipAlignEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
-            buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + getDateAsMillis() + "L)"
         }
         debug {
             debuggable true
+        }
+        coverage {
+            debuggable true
             testCoverageEnabled = true
-            buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + getDateAsMillis() + "L)"
         }
     }
 
@@ -51,6 +52,8 @@ android {
         versionCode 37
         versionName "0.0.37"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + getDateAsMillis() + "L)"
+
     }
 
     testOptions {
