@@ -36,7 +36,7 @@ android {
         }
         debug {
             debuggable true
-            testCoverageEnabled = true
+            testCoverageEnabled = false
             buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + getDateAsMillis() + "L)"
         }
     }

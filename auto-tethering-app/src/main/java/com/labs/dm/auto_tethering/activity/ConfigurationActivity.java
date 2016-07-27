@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -40,6 +41,11 @@ public class ConfigurationActivity extends Activity {
                 handleOkButton();
             }
         });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            CheckBox mobile = (CheckBox) findViewById(R.id.chkWidget3G);
+            mobile.setChecked(false);
+            mobile.setEnabled(false);
+        }
     }
 
     private void handleOkButton() {
