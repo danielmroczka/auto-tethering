@@ -3,6 +3,7 @@ package com.labs.dm.auto_tethering;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.provider.Settings;
 import android.util.Log;
 import android.util.SparseIntArray;
 
@@ -99,5 +100,9 @@ public class Utils {
                 Log.e("Util", e.getMessage());
             }
         }
+    }
+
+    public static boolean isAirplaneModeOn(Context context) {
+        return Settings.System.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
     }
 }

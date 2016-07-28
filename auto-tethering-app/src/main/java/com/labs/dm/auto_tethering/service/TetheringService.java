@@ -7,9 +7,11 @@ import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.*;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.Toast;
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
@@ -232,14 +234,27 @@ public class TetheringService extends IntentService {
         return prefs.getBoolean(AppProperties.ACTIVATE_KEEP_SERVICE, true);
     }
 
-    private void tetheringAsyncTask(boolean state) {
+    /**
+     * Turns tethering in separate thread.
+     *
+     * @param state
+     * @return true if changed the state or false if not
+     */
+    private boolean tetheringAsyncTask(boolean state) {
         if (serviceHelper.isTetheringWiFi() == state) {
-            return;
+            return false;
+        }
+
+        if (Utils.isAirplaneModeOn(getApplicationContext())) {
+            return false;
         }
 
         if (!state || status != Status.DEACTIVATED_ON_IDLE) {
             new TurnOnTetheringAsyncTask().doInBackground(state);
+            return true;
         }
+
+        return false;
     }
 
     private boolean isServiceActivated() {
@@ -352,14 +367,27 @@ public class TetheringService extends IntentService {
         crons = DBManager.getInstance(getApplicationContext()).getCrons();
     }
 
-    private void internetAsyncTask(boolean state) {
+    /**
+     * Turns mobile data in separate thread.
+     *
+     * @param state
+     * @return true if changed the state or false if not
+     */
+    private boolean internetAsyncTask(boolean state) {
         if (serviceHelper.isConnectedToInternet() == state) {
-            return;
+            return false;
+        }
+
+        if (state && Utils.isAirplaneModeOn(getApplicationContext())) {
+            return false;
         }
 
         if (!state || status != Status.DEACTIVATED_ON_IDLE) {
             new TurnOn3GAsyncTask().doInBackground(state);
+            return true;
         }
+
+        return false;
     }
 
     private boolean isActivatedTethering() {
@@ -618,11 +646,15 @@ public class TetheringService extends IntentService {
         Status oldStatus = status;
         boolean showNotify = false;
         if (serviceAction.isInternet() && serviceHelper.isConnectedToInternet() != action) {
-            internetAsyncTask(action);
+            if (!internetAsyncTask(action)) {
+                return;
+            }
             showNotify = true;
         }
         if (serviceAction.isTethering() && serviceHelper.isTetheringWiFi() != action) {
-            tetheringAsyncTask(action);
+            if (!tetheringAsyncTask(action)) {
+                return;
+            }
             showNotify = true;
         }
 
@@ -692,5 +724,16 @@ public class TetheringService extends IntentService {
         if (showNotify || status != oldStatus) {
             showNotification(getString(id));
         }
+    }
+
+    private void showToast(final String text) {
+        Handler h = new Handler(getApplication().getMainLooper());
+
+        h.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplication(), text, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
