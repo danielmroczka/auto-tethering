@@ -16,7 +16,8 @@ Some of implemented features:
 - [x] checks permanently if your internet connection is active and reconnect if it has been lost
 - [x] option to disable when roaming 
 - [x] change notifications
-Still under development features:
+
+Features still under development:
 - [x] tethering activation on Bluetooth connection (possibility to configure up to 3 devices)
 - [x] tethering activation on USB or AC charger connection
 - [x] control data usage and deactivates tethering once the limit is exceeded
