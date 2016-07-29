@@ -11,9 +11,6 @@ import android.util.Log;
 import android.widget.RemoteViews;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
-import com.labs.dm.auto_tethering.service.WidgetService;
-
-import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
 
 /**
  * Created by Daniel Mroczka
@@ -33,11 +30,21 @@ public class TetheringStateReceiver extends BroadcastReceiver {
         for (int widgetId : allWidgetIds) {
             Log.i(TAG, "widget id=" + widgetId);
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), getLayout(intent));
-            Intent intent2 = new Intent(context, WidgetService.class);
-            intent2.putExtra(EXTRA_APPWIDGET_ID, widgetId);
-            PendingIntent pendingIntent = PendingIntent.getService(context, widgetId, intent2, PendingIntent.FLAG_ONE_SHOT);
-            remoteViews.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
+//            Intent intent2 = new Intent(context, TetheringWidgetProvider.class);
+//            intent2.putExtra(EXTRA_APPWIDGET_ID, widgetId);
+//            PendingIntent pendingIntent = PendingIntent.getService(context, widgetId, intent2, PendingIntent.FLAG_ONE_SHOT);
+//            remoteViews.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
+//            appWidgetManager.updateAppWidget(widgetId, remoteViews);
+//
+
+
+            Intent intent3 = new Intent(context, getClass());
+            intent3.setAction("Click");
+            PendingIntent pendingIntent2 = PendingIntent.getBroadcast(context, 0, intent, 0);
+            remoteViews.setOnClickPendingIntent(R.id.widget_layout, pendingIntent2);
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
+            context.getSharedPreferences("widget", 0).edit().putInt("clicks", 0).commit();
+
         }
     }
 
