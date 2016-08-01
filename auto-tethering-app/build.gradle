@@ -39,7 +39,6 @@ android {
         coverage {
             debuggable true
             testCoverageEnabled = true
-            buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + getDateAsMillis() + "L)"
         }
     }
 
