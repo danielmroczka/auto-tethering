@@ -1,8 +1,10 @@
 package com.labs.dm.auto_tethering;
 
 import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseIntArray;
 
@@ -99,5 +101,14 @@ public class Utils {
                 Log.e("Util", e.getMessage());
             }
         }
+    }
+
+    public static int getWidgetId(Intent intent) {
+        Bundle extras = intent.getExtras();
+        int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+        if (extras != null) {
+            appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+        }
+        return appWidgetId;
     }
 }
