@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.ParcelUuid;
 import android.util.Log;
-
 import com.labs.dm.auto_tethering.Utils;
 
 import java.io.IOException;
@@ -134,13 +133,22 @@ class BluetoothTask implements Runnable {
         }
 
         Log.d(TAG, "Connecting to " + device.getName());
+        boolean alreadyConnected = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH && socket.isConnected()) {
+            alreadyConnected = true;
+            Log.d(TAG, "Already connected to " + device.getName());
+        }
         try {
-            socket.connect();
-            Log.d(TAG, "Connected to " + device.getName());
+            if (!alreadyConnected) {
+                socket.connect();
+                Log.d(TAG, "Connected to " + device.getName());
+            }
         } catch (IOException e) {
             throw e;
         } finally {
-            socket.close();
+            if (!alreadyConnected) {
+                socket.close();
+            }
         }
     }
 
