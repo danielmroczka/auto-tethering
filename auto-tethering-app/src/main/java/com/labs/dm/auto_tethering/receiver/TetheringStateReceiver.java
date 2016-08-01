@@ -38,8 +38,8 @@ public class TetheringStateReceiver extends BroadcastReceiver {
             PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, widgetIntent, 0);
             remoteViews.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
-            context.getSharedPreferences("widget", 0).edit().putInt("clicks", 0).commit();
         }
+        context.getSharedPreferences("widget", 0).edit().putInt("clicks", 0).commit();
     }
 
     private int getLayout(Intent intent) {
