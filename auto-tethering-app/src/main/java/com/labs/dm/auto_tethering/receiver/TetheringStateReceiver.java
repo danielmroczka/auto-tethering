@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 import android.widget.RemoteViews;
+
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
@@ -34,8 +35,8 @@ public class TetheringStateReceiver extends BroadcastReceiver {
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), getLayout(intent));
             Intent widgetIntent = new Intent(context, TetheringWidgetProvider.class);
             widgetIntent.putExtra(EXTRA_APPWIDGET_ID, widgetId);
-            widgetIntent.setAction("Click");
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, widgetIntent, 0);
+            widgetIntent.setAction("widget.click");
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, widgetId, widgetIntent, 0);
             remoteViews.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }

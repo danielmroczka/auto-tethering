@@ -6,25 +6,26 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.activity.ConfigurationActivity;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.WidgetService;
 
 import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
+import static com.labs.dm.auto_tethering.Utils.getWidgetId;
 
 /**
  * Created by Daniel Mroczka on 2015-12-23.
  */
 public class TetheringWidgetProvider extends AppWidgetProvider {
 
-    private static final int DOUBLE_CLICK_DELAY = 500;
+    private static final int DOUBLE_CLICK_DELAY = 800;
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -35,28 +36,19 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
         for (int widgetId : allWidgetIds) {
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), helper.isTetheringWiFi() ? R.layout.widget_layout_on : R.layout.widget_layout_off);
             Intent intent = new Intent(context, getClass());
-            intent.setAction("Click");
+            intent.setAction("widget.click");
             intent.putExtra(EXTRA_APPWIDGET_ID, widgetId);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, widgetId, intent, 0);
             remoteViews.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }
         context.getSharedPreferences("widget", 0).edit().putInt("clicks", 0).commit();
     }
 
-    private int getWidgetId(Intent intent) {
-        Bundle extras = intent.getExtras();
-        int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
-        if (extras != null) {
-            appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
-        }
-        return appWidgetId;
-    }
-
     @Override
     public void onReceive(final Context context, final Intent intent) {
 
-        if (intent.getAction().equals("Click")) {
+        if (intent.getAction().equals("widget.click")) {
 
             int clickCount = context.getSharedPreferences("widget", Context.MODE_PRIVATE).getInt("clicks", 0);
             context.getSharedPreferences("widget", Context.MODE_PRIVATE).edit().putInt("clicks", ++clickCount).commit();

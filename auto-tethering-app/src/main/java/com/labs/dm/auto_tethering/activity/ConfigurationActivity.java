@@ -10,7 +10,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+
 import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.receiver.TetheringWidgetProvider;
 
 import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
@@ -22,40 +24,39 @@ import static android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID;
 public class ConfigurationActivity extends Activity {
 
     private int mAppWidgetId;
+    private boolean editMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_configuration);
         setResult(RESULT_CANCELED);
-        initListViews();
         loadData();
+        initListViews();
     }
 
     private void loadData() {
-        mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
-        Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
-        if (extras != null) {
-            mAppWidgetId = extras.getInt(EXTRA_APPWIDGET_ID, INVALID_APPWIDGET_ID);
-            if (mAppWidgetId == INVALID_APPWIDGET_ID) {
-                Log.w("WidgetAdd", "Cannot continue. Widget ID incorrect");
-                return;
-            }
-
-            CheckBox mobile = (CheckBox) findViewById(R.id.chkWidget3G);
-            CheckBox tethering = (CheckBox) findViewById(R.id.chkWidgetWifi);
-            CheckBox startService = (CheckBox) findViewById(R.id.chkStartService);
-
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            mobile.setChecked(prefs.getBoolean(key("mobile"), false));
-            tethering.setChecked(prefs.getBoolean(key("tethering"), false));
-            startService.setChecked(prefs.getBoolean(key("start.service"), false));
+        mAppWidgetId = Utils.getWidgetId(getIntent());
+        if (mAppWidgetId == INVALID_APPWIDGET_ID) {
+            Log.w("WidgetAdd", "Cannot continue. Widget ID incorrect");
+            return;
+        } else if (mAppWidgetId > 0) {
+            editMode = true;
         }
+
+        CheckBox mobile = (CheckBox) findViewById(R.id.chkWidget3G);
+        CheckBox tethering = (CheckBox) findViewById(R.id.chkWidgetWifi);
+        CheckBox startService = (CheckBox) findViewById(R.id.chkStartService);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        mobile.setChecked(prefs.getBoolean(key("mobile"), false));
+        tethering.setChecked(prefs.getBoolean(key("tethering"), true));
+        startService.setChecked(prefs.getBoolean(key("start.service"), false));
     }
 
     public void initListViews() {
         Button okButton = (Button) findViewById(R.id.okButton);
+        okButton.setText(editMode ? "MODIFY WIDGET" : "ADD WIDGET");
         okButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
