@@ -3,6 +3,7 @@ package com.labs.dm.auto_tethering.receiver;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,24 +24,27 @@ import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
  */
 public class TetheringWidgetProvider extends AppWidgetProvider {
 
-    private static final int DOUBLE_CLICK_DELAY = 250;
+    private static final int DOUBLE_CLICK_DELAY = 500;
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 
         ServiceHelper helper = new ServiceHelper(context);
-
-        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), helper.isTetheringWiFi() ? R.layout.widget_layout_on : R.layout.widget_layout_off);
-        Intent intent = new Intent(context, getClass());
-        intent.setAction("Click");
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
-        remoteViews.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
-        appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
+        ComponentName thisWidget = new ComponentName(context, TetheringWidgetProvider.class);
+        int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
+        for (int widgetId : allWidgetIds) {
+            RemoteViews remoteViews = new RemoteViews(context.getPackageName(), helper.isTetheringWiFi() ? R.layout.widget_layout_on : R.layout.widget_layout_off);
+            Intent intent = new Intent(context, getClass());
+            intent.setAction("Click");
+            intent.putExtra(EXTRA_APPWIDGET_ID, widgetId);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+            remoteViews.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
+            appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
+        }
         context.getSharedPreferences("widget", 0).edit().putInt("clicks", 0).commit();
-
     }
 
-    public static int getWidgetId(Intent intent) {
+    private int getWidgetId(Intent intent) {
         Bundle extras = intent.getExtras();
         int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
         if (extras != null) {
@@ -65,6 +69,7 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
                     if (clickCount > 1) {
                         Intent i = new Intent(context, ConfigurationActivity.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        i.putExtra(EXTRA_APPWIDGET_ID, getWidgetId(intent));
                         context.startActivity(i);
                         Log.i("Widget", "Count>1");
 
@@ -72,24 +77,7 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
                     } else {
                         Intent i = new Intent(context, WidgetService.class);
                         i.putExtra(EXTRA_APPWIDGET_ID, getWidgetId(intent));
-                        // i.setFlags (Intent.FLAG_ACTIVITY_NEW_TASK);
                         context.startService(i);
-
-//                        Log.i(TAG, "onUpdate");
-//                        ComponentName thisWidget = new ComponentName(context, TetheringWidgetProvider.class);
-//                        ServiceHelper helper = new ServiceHelper(context);
-//                        int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
-//                        for (int widgetId : allWidgetIds) {
-//                            RemoteViews remoteViews = new RemoteViews(context.getPackageName(), helper.isTetheringWiFi() ? R.layout.widget_layout_on : R.layout.widget_layout_off);
-//
-//                            Intent intent = new Intent(context, WidgetService.class);
-//                            intent.putExtra(EXTRA_APPWIDGET_ID, widgetId);
-//                            PendingIntent pendingIntent = PendingIntent.getService(context, widgetId, intent, PendingIntent.FLAG_ONE_SHOT);
-//                            remoteViews.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
-//                            appWidgetManager.updateAppWidget(widgetId, remoteViews);
-//                        }
-
-
                         Log.i("Widget", "Count==1");
                         Toast.makeText(context, "singleClick", Toast.LENGTH_SHORT).show();
                     }

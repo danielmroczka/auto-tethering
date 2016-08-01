@@ -29,6 +29,29 @@ public class ConfigurationActivity extends Activity {
         setContentView(R.layout.activity_configuration);
         setResult(RESULT_CANCELED);
         initListViews();
+        loadData();
+    }
+
+    private void loadData() {
+        mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            mAppWidgetId = extras.getInt(EXTRA_APPWIDGET_ID, INVALID_APPWIDGET_ID);
+            if (mAppWidgetId == INVALID_APPWIDGET_ID) {
+                Log.w("WidgetAdd", "Cannot continue. Widget ID incorrect");
+                return;
+            }
+
+            CheckBox mobile = (CheckBox) findViewById(R.id.chkWidget3G);
+            CheckBox tethering = (CheckBox) findViewById(R.id.chkWidgetWifi);
+            CheckBox startService = (CheckBox) findViewById(R.id.chkStartService);
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            mobile.setChecked(prefs.getBoolean(key("mobile"), false));
+            tethering.setChecked(prefs.getBoolean(key("tethering"), false));
+            startService.setChecked(prefs.getBoolean(key("start.service"), false));
+        }
     }
 
     public void initListViews() {
