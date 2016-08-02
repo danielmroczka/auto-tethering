@@ -10,14 +10,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.activity.ConfigurationActivity;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.WidgetService;
 
 import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
+import static android.content.Context.MODE_PRIVATE;
 import static com.labs.dm.auto_tethering.Utils.getWidgetId;
 
 /**
@@ -26,6 +25,7 @@ import static com.labs.dm.auto_tethering.Utils.getWidgetId;
 public class TetheringWidgetProvider extends AppWidgetProvider {
 
     private static final int DOUBLE_CLICK_DELAY = 800;
+    private static final String TAG = "WidgetProvider";
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -47,34 +47,28 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
-
         if (intent.getAction().equals("widget.click")) {
-
-            int clickCount = context.getSharedPreferences("widget", Context.MODE_PRIVATE).getInt("clicks", 0);
-            context.getSharedPreferences("widget", Context.MODE_PRIVATE).edit().putInt("clicks", ++clickCount).commit();
+            int clickCount = context.getSharedPreferences("widget", MODE_PRIVATE).getInt("clicks", 0);
+            context.getSharedPreferences("widget", MODE_PRIVATE).edit().putInt("clicks", ++clickCount).commit();
 
             final Handler handler = new Handler() {
                 public void handleMessage(Message msg) {
-
-                    int clickCount = context.getSharedPreferences("widget", Context.MODE_PRIVATE).getInt("clicks", 0);
+                    int clickCount = context.getSharedPreferences("widget", MODE_PRIVATE).getInt("clicks", 0);
+                    Log.i(TAG, "ClickCount: " + clickCount);
 
                     if (clickCount > 1) {
                         Intent i = new Intent(context, ConfigurationActivity.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         i.putExtra(EXTRA_APPWIDGET_ID, getWidgetId(intent));
+                        i.putExtra("editMode", true);
                         context.startActivity(i);
-                        Log.i("Widget", "Count>1");
-
-                        Toast.makeText(context, "doubleClick", Toast.LENGTH_SHORT).show();
                     } else {
                         Intent i = new Intent(context, WidgetService.class);
                         i.putExtra(EXTRA_APPWIDGET_ID, getWidgetId(intent));
                         context.startService(i);
-                        Log.i("Widget", "Count==1");
-                        Toast.makeText(context, "singleClick", Toast.LENGTH_SHORT).show();
                     }
 
-                    context.getSharedPreferences("widget", Context.MODE_PRIVATE).edit().putInt("clicks", 0).commit();
+                    context.getSharedPreferences("widget", MODE_PRIVATE).edit().putInt("clicks", 0).commit();
                 }
             };
 
@@ -87,12 +81,11 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
                         }
                         handler.sendEmptyMessage(0);
                     } catch (InterruptedException ex) {
+                        Log.e(TAG, ex.getMessage());
                     }
                 }
             }.start();
         }
-
         super.onReceive(context, intent);
-
     }
 }

@@ -91,9 +91,9 @@
     <string name="summary">Summary</string>
     <string name="widget.conf.title">Widget Configuration</string>
     <!-- RELEASE NOTES -->
-    <string name="release_notes">New experimental features:\n\n[x] Tethering activation on Bluetooth connection
-        (possibility to configure up to 5 devices)\n\n[x] Tethering activation on USB or AC charger connection\n\n[x]
-        control data usage and deactivates tethering once the limit is exceeded.
+    <string name="release_notes">[x] Disable option to set mobile data on Lollipop and newer devices :(\n\n[x] Double
+        tap on widget opens configuration dialog\n\n [x] Already connected BT device won't be disconnected (Android
+        4.1+)
     </string>
     <string name="activate_tethering_usb_on">Tethering activated on USB connection</string>
     <string name="activate_internet_usb_on">Internet activated on USB connection</string>

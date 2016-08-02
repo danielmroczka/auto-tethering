@@ -1,7 +1,6 @@
 package com.labs.dm.auto_tethering.activity;
 
 import android.app.Activity;
-import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -11,7 +10,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.receiver.TetheringWidgetProvider;
@@ -40,10 +38,8 @@ public class ConfigurationActivity extends Activity {
         mAppWidgetId = Utils.getWidgetId(getIntent());
         if (mAppWidgetId == INVALID_APPWIDGET_ID) {
             Log.w("WidgetAdd", "Cannot continue. Widget ID incorrect");
-            return;
-        } else if (mAppWidgetId > 0) {
-            editMode = true;
         }
+        editMode = getIntent().getExtras() != null && getIntent().getExtras().getBoolean("editMode", false);
 
         CheckBox mobile = (CheckBox) findViewById(R.id.chkWidget3G);
         CheckBox tethering = (CheckBox) findViewById(R.id.chkWidgetWifi);
@@ -77,39 +73,20 @@ public class ConfigurationActivity extends Activity {
     }
 
     private void showAppWidget() {
+        CheckBox mobile = (CheckBox) findViewById(R.id.chkWidget3G);
+        CheckBox tethering = (CheckBox) findViewById(R.id.chkWidgetWifi);
+        CheckBox startService = (CheckBox) findViewById(R.id.chkStartService);
 
-        mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
-        Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
-        if (extras != null) {
-            mAppWidgetId = extras.getInt(EXTRA_APPWIDGET_ID, INVALID_APPWIDGET_ID);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        prefs.edit().putBoolean(key("mobile"), mobile.isChecked()).apply();
+        prefs.edit().putBoolean(key("tethering"), tethering.isChecked()).apply();
+        prefs.edit().putBoolean(key("start.service"), startService.isChecked()).apply();
 
-            if (mAppWidgetId == INVALID_APPWIDGET_ID) {
-                Log.w("WidgetAdd", "Cannot continue. Widget ID incorrect");
-                return;
-            }
-
-            CheckBox mobile = (CheckBox) findViewById(R.id.chkWidget3G);
-            CheckBox tethering = (CheckBox) findViewById(R.id.chkWidgetWifi);
-            CheckBox startService = (CheckBox) findViewById(R.id.chkStartService);
-
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            prefs.edit().putBoolean(key("mobile"), mobile.isChecked()).apply();
-            prefs.edit().putBoolean(key("tethering"), tethering.isChecked()).apply();
-            prefs.edit().putBoolean(key("start.service"), startService.isChecked()).apply();
-
-            Intent serviceIntent = new Intent(ConfigurationActivity.this, TetheringWidgetProvider.class);
-            serviceIntent.putExtra(EXTRA_APPWIDGET_ID, mAppWidgetId);
-            setResult(RESULT_OK, serviceIntent);
-            startService(serviceIntent);
-            finish();
-        }
-
-        if (mAppWidgetId == INVALID_APPWIDGET_ID) {
-            Log.e("WidgetAdd", "Invalid app widget id");
-            finish();
-        }
-
+        Intent serviceIntent = new Intent(ConfigurationActivity.this, TetheringWidgetProvider.class);
+        serviceIntent.putExtra(EXTRA_APPWIDGET_ID, mAppWidgetId);
+        setResult(RESULT_OK, serviceIntent);
+        startService(serviceIntent);
+        finish();
     }
 
     private String key(String key) {

@@ -1,7 +1,6 @@
 package com.labs.dm.auto_tethering;
 
 import android.app.PendingIntent;
-import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +14,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
+import static android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID;
 
 /**
  * Created by Daniel Mroczka
@@ -106,9 +108,9 @@ public class Utils {
 
     public static int getWidgetId(Intent intent) {
         Bundle extras = intent.getExtras();
-        int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+        int appWidgetId = INVALID_APPWIDGET_ID;
         if (extras != null) {
-            appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+            appWidgetId = extras.getInt(EXTRA_APPWIDGET_ID, INVALID_APPWIDGET_ID);
         }
         return appWidgetId;
     }
