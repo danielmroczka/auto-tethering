@@ -705,7 +705,7 @@ public class TetheringService extends IntentService {
                 status = Status.DEACTIVATED_ON_IDLE;
                 break;
             case DATA_USAGE_EXCEED_LIMIT:
-                id = R.string.notification_data_execced_limit;
+                id = R.string.notification_data_exceed_limit;
                 status = Status.DATA_USAGE_LIMIT_EXCEED;
                 break;
             case BLUETOOTH_INTERNET_TETHERING_ON:
