@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.Toast;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.receiver.TetheringWidgetProvider;
@@ -69,10 +70,10 @@ public class ConfigurationActivity extends Activity {
     }
 
     private void handleOkButton() {
-        showAppWidget();
+        saveWidget();
     }
 
-    private void showAppWidget() {
+    private void saveWidget() {
         CheckBox mobile = (CheckBox) findViewById(R.id.chkWidget3G);
         CheckBox tethering = (CheckBox) findViewById(R.id.chkWidgetWifi);
         CheckBox startService = (CheckBox) findViewById(R.id.chkStartService);
@@ -81,6 +82,10 @@ public class ConfigurationActivity extends Activity {
         prefs.edit().putBoolean(key("mobile"), mobile.isChecked()).apply();
         prefs.edit().putBoolean(key("tethering"), tethering.isChecked()).apply();
         prefs.edit().putBoolean(key("start.service"), startService.isChecked()).apply();
+
+        if (!editMode) {
+            Toast.makeText(this, "Double tap on widget to modify settings", Toast.LENGTH_LONG).show();
+        }
 
         Intent serviceIntent = new Intent(ConfigurationActivity.this, TetheringWidgetProvider.class);
         serviceIntent.putExtra(EXTRA_APPWIDGET_ID, mAppWidgetId);
