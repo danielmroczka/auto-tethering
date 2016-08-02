@@ -1,4 +1,4 @@
-#Auto WIFI Tethering [![Travis Build Status](https://travis-ci.org/danielmroczka/auto-tethering.png?branch=master)](https://travis-ci.org/danielmroczka/auto-tethering)
+#Auto WiFi Tethering [![Travis Build Status](https://travis-ci.org/danielmroczka/auto-tethering.png?branch=master)](https://travis-ci.org/danielmroczka/auto-tethering)
 ![App Logo](https://lh3.googleusercontent.com/GwGTGX5OuwMvOlg10Vemwk6x_Pd8EKsbpy-x9pV-t-EI29FCdFXzUH5PV64b2HRVtNCh=h80) 
 
 The intention to create this project is a need to use android phone as a 3G Router. 
@@ -16,6 +16,8 @@ Some of implemented features:
 - [x] checks permanently if your internet connection is active and reconnect if it has been lost
 - [x] option to disable when roaming 
 - [x] change notifications
+- [x] android widget 
+- [x] notification status informs about current working mode and enables buttons to change it
 
 Features still under development:
 - [x] tethering activation on Bluetooth connection (possibility to configure up to 3 devices)
@@ -34,7 +36,7 @@ Build app: gradle build
 
 Example of [gradle.properties] (https://gist.github.com/danielmroczka/b93eb61e4583c21da2a3) and [local.properties] (https://gist.github.com/danielmroczka/246afe588f1841f6ffef) templates.
 
-[More about signing apk files you may find] (http://developer.android.com/tools/publishing/app-signing.html)
+More about signing apk files you may find [here] (http://developer.android.com/tools/publishing/app-signing.html)
 
 ## Google Play app
-Built application you may install here: [Auto Wifi Tethering] (https://play.google.com/store/apps/details?id=com.labs.dm.auto_tethering)
+Built application you may install here: [Auto WiFi Tethering] (https://play.google.com/store/apps/details?id=com.labs.dm.auto_tethering)
