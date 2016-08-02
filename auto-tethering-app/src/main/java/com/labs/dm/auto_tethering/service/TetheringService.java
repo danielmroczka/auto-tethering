@@ -42,7 +42,7 @@ public class TetheringService extends IntentService {
     private boolean forceOff = false, forceOn = false;
     private boolean changeMobileState;
     private BroadcastReceiver receiver;
-    private String lastNotifcationTickerText;
+    private String lastNotificationTickerText;
     private String connectedDeviceName;
 
     private enum ScheduleResult {
@@ -438,7 +438,7 @@ public class TetheringService extends IntentService {
     }
 
     private Notification buildNotification(String caption) {
-        lastNotifcationTickerText = caption;
+        lastNotificationTickerText = caption;
         Notification notify;
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -537,7 +537,7 @@ public class TetheringService extends IntentService {
                     } else {
                         forceOff = false;
                         forceOn = false;
-                        showNotification(lastNotifcationTickerText);
+                        showNotification(lastNotificationTickerText);
                     }
 
                     if (prefs.getBoolean(FORCE_NET_FROM_NOTIFY, true)) {

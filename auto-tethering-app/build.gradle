@@ -69,7 +69,7 @@ def coverageSourceDirs = [
         '../app/src/main/java'
 ]
 
-def getDateAsMillis() {
+static def getDateAsMillis() {
     def Calendar cal = Calendar.getInstance();
     return cal.getTimeInMillis().toString()
 }

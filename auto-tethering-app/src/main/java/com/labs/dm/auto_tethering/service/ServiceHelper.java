@@ -77,7 +77,7 @@ public class ServiceHelper {
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, ifilter);
         int level = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) : 0;
-        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        int scale = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1) : 0;
         return level / (float) scale;
     }
 
@@ -152,10 +152,10 @@ public class ServiceHelper {
 
     private WifiConfiguration getWifiApConfiguration(final Context ctx) {
         final WifiManager wifiManager = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
-        final Method m = getWifiManagerMethod("getWifiApConfiguration", wifiManager);
-        if (m != null) {
+        final Method method = getWifiManagerMethod("getWifiApConfiguration", wifiManager);
+        if (method != null) {
             try {
-                return (WifiConfiguration) m.invoke(wifiManager);
+                return (WifiConfiguration) method.invoke(wifiManager);
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
             }

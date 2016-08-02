@@ -537,8 +537,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 return true;
             }
         });
-
-
     }
 
     @Override
@@ -730,8 +728,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     protected void onResume() {
         super.onResume();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
-        //IntentFilter filter = new IntentFilter();
-        //filter.addAction("android.net.wifi.WIFI_AP_STATE_CHANGED");
     }
 
     @Override
