@@ -125,10 +125,11 @@ class BluetoothTask {
         }
 
         private List<BluetoothDevice> getBluetoothDevices() {
+            Set<BluetoothDevice> allBondedDevices = serviceHelper.getBondedDevices();
             List<BluetoothDevice> devicesToCheck = new ArrayList<>();
             List<String> preferredDevices = findPreferredDevices();
             for (String pref : preferredDevices) {
-                for (BluetoothDevice device : serviceHelper.getBondedDevices()) {
+                for (BluetoothDevice device : allBondedDevices) {
                     if (device.getName().equals(pref)) {
                         devicesToCheck.add(device);
                         break;
