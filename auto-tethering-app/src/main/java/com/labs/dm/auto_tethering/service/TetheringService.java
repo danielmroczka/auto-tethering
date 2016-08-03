@@ -611,7 +611,7 @@ public class TetheringService extends IntentService {
                     break;
 
                 case BT_SEARCH:
-                    new Thread(new BluetoothTask(getApplicationContext(), prefs, connectedDeviceName, initialBluetoothStatus)).start();
+                    new BluetoothTask(getApplicationContext(), prefs, connectedDeviceName, initialBluetoothStatus).execute();
                     break;
 
                 case EXIT:
