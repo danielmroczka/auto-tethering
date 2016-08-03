@@ -31,16 +31,15 @@ public class ConfigurationActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_configuration);
         setResult(RESULT_CANCELED);
-        loadData();
-        initListViews();
+        init();
     }
 
-    private void loadData() {
+    private void init() {
+        editMode = getIntent().getExtras() != null && getIntent().getExtras().getBoolean("editMode", false);
         mAppWidgetId = Utils.getWidgetId(getIntent());
         if (mAppWidgetId == INVALID_APPWIDGET_ID) {
-            Log.w("WidgetAdd", "Cannot continue. Widget ID incorrect");
+            Log.e("WidgetAdd", "Cannot continue. Widget ID incorrect");
         }
-        editMode = getIntent().getExtras() != null && getIntent().getExtras().getBoolean("editMode", false);
 
         CheckBox mobile = (CheckBox) findViewById(R.id.chkWidget3G);
         CheckBox tethering = (CheckBox) findViewById(R.id.chkWidgetWifi);
@@ -50,9 +49,7 @@ public class ConfigurationActivity extends Activity {
         mobile.setChecked(prefs.getBoolean(key("mobile"), false));
         tethering.setChecked(prefs.getBoolean(key("tethering"), true));
         startService.setChecked(prefs.getBoolean(key("start.service"), false));
-    }
 
-    public void initListViews() {
         Button okButton = (Button) findViewById(R.id.okButton);
         okButton.setText(editMode ? "MODIFY WIDGET" : "ADD WIDGET");
         okButton.setOnClickListener(new View.OnClickListener() {
@@ -63,7 +60,6 @@ public class ConfigurationActivity extends Activity {
             }
         });
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            CheckBox mobile = (CheckBox) findViewById(R.id.chkWidget3G);
             mobile.setChecked(false);
             mobile.setEnabled(false);
         }

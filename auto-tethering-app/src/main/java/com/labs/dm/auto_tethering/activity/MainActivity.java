@@ -45,6 +45,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     private ServiceHelper serviceHelper;
     private BroadcastReceiver receiver;
     private DBManager db;
+    private final int NOTIFICATION_ID = 1234;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,16 +63,16 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     private void adjustSettingForOS() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            switchPreference("activate.3g");
-            switchPreference("idle.3g.off");
-            switchPreference("force.net.from.notify");
-            switchPreference("usb.internet.force.off");
-            switchPreference("usb.internet.force.on");
-            switchPreference("bt.internet.restore.to.initial");
+            switchOffPreference("activate.3g");
+            switchOffPreference("idle.3g.off");
+            switchOffPreference("force.net.from.notify");
+            switchOffPreference("usb.internet.force.off");
+            switchOffPreference("usb.internet.force.on");
+            switchOffPreference("bt.internet.restore.to.initial");
         }
     }
 
-    private void switchPreference(String name) {
+    private void switchOffPreference(String name) {
         findPreference(name).setEnabled(false);
         ((CheckBoxPreference) findPreference(name)).setChecked(false);
     }
@@ -93,7 +94,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     dataUsage.setSummary(String.format("%.2f MB from %s %s", intent.getLongExtra("value", 0) / 1048576f, dateFormat.format(date), timeFormat.format(date)));
                 } else if (TetherIntents.UNLOCK.equals(intent.getAction())) {
                     NotificationManager nMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                    nMgr.cancel(1234);
+                    nMgr.cancel(NOTIFICATION_ID);
                     PreferenceScreen screen = (PreferenceScreen) findPreference("experimental");
                     int pos = findPreference("data.limit").getOrder();
                     screen.onItemClick(null, null, pos, 0);

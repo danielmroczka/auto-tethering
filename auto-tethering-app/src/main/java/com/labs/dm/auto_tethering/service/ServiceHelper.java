@@ -125,6 +125,7 @@ public class ServiceHelper {
 
     /**
      * Connecting to internet through mobile phone
+     * Works only for Android < 5.0
      *
      * @param enabled
      */
