@@ -1,19 +1,21 @@
 package com.labs.dm.auto_tethering;
 
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.SparseIntArray;
+import com.labs.dm.auto_tethering.service.ServiceHelper;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -107,4 +109,45 @@ public class Utils {
     public static boolean isAirplaneModeOn(Context context) {
         return Settings.System.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
     }
+
+    public static List<BluetoothDevice> getBluetoothDevices(Context context, SharedPreferences prefs) {
+        ServiceHelper serviceHelper = new ServiceHelper(context);
+        Set<BluetoothDevice> allBondedDevices = serviceHelper.getBondedDevices();
+        List<BluetoothDevice> devicesToCheck = new ArrayList<>();
+        List<String> preferredDevices = findPreferredDevices(prefs);
+        for (String pref : preferredDevices) {
+            for (BluetoothDevice device : allBondedDevices) {
+                if (device.getName().equals(pref)) {
+                    devicesToCheck.add(device);
+                    break;
+                }
+            }
+        }
+        return devicesToCheck;
+    }
+
+    /**
+     * Returns the list of preferred devices ordered by the last time connection
+     *
+     * @return
+     */
+    public static List<String> findPreferredDevices(final SharedPreferences prefs) {
+        Map<String, ?> map = prefs.getAll();
+        List<String> list = new ArrayList<>();
+        for (Map.Entry<String, ?> entry : map.entrySet()) {
+            if (entry.getKey().startsWith("bt.devices.")) {
+                list.add(String.valueOf(entry.getValue()));
+            }
+        }
+        Collections.sort(list, new Comparator<String>() {
+            @Override
+            public int compare(String deviceName1, String deviceName2) {
+                long lastConnectTime1 = prefs.getLong("bt.last.connect." + deviceName1, 0);
+                long lastConnectTime2 = prefs.getLong("bt.last.connect." + deviceName2, 0);
+                return (int) (lastConnectTime2 - lastConnectTime1);
+            }
+        });
+        return list;
+    }
+
 }

@@ -15,7 +15,8 @@ import com.labs.dm.auto_tethering.Utils;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_CONNECTED;
@@ -67,7 +68,7 @@ class BluetoothTask {
             /**
              * Prepare a list with BluetoothDevice items
              */
-            List<BluetoothDevice> devicesToCheck = getBluetoothDevices();
+            List<BluetoothDevice> devicesToCheck = Utils.getBluetoothDevices(context, prefs);
             Intent btIntent = null;
 
             if (devicesToCheck.isEmpty() && connectedDeviceName != null) {
@@ -124,21 +125,6 @@ class BluetoothTask {
             }
         }
 
-        private List<BluetoothDevice> getBluetoothDevices() {
-            Set<BluetoothDevice> allBondedDevices = serviceHelper.getBondedDevices();
-            List<BluetoothDevice> devicesToCheck = new ArrayList<>();
-            List<String> preferredDevices = findPreferredDevices();
-            for (String pref : preferredDevices) {
-                for (BluetoothDevice device : allBondedDevices) {
-                    if (device.getName().equals(pref)) {
-                        devicesToCheck.add(device);
-                        break;
-                    }
-                }
-            }
-            return devicesToCheck;
-        }
-
         private void connect(BluetoothDevice device) throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
             Method method = device.getClass().getMethod("getUuids");
             ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
@@ -171,30 +157,6 @@ class BluetoothTask {
                     socket.close();
                 }
             }
-        }
-
-        /**
-         * Returns the list of preferred devices ordered by the last time connection
-         *
-         * @return
-         */
-        private List<String> findPreferredDevices() {
-            Map<String, ?> map = prefs.getAll();
-            List<String> list = new ArrayList<>();
-            for (Map.Entry<String, ?> entry : map.entrySet()) {
-                if (entry.getKey().startsWith("bt.devices.")) {
-                    list.add(String.valueOf(entry.getValue()));
-                }
-            }
-            Collections.sort(list, new Comparator<String>() {
-                @Override
-                public int compare(String deviceName1, String deviceName2) {
-                    long lastConnectTime1 = prefs.getLong("bt.last.connect." + deviceName1, 0);
-                    long lastConnectTime2 = prefs.getLong("bt.last.connect." + deviceName2, 0);
-                    return (int) (lastConnectTime2 - lastConnectTime1);
-                }
-            });
-            return list;
         }
     }
 }
