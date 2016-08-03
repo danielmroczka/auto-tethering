@@ -14,10 +14,7 @@ import com.labs.dm.auto_tethering.Utils;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_CONNECTED;
@@ -135,11 +132,13 @@ class BluetoothTask implements Runnable {
         Log.d(TAG, "Connecting to " + device.getName());
         boolean alreadyConnected = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH && socket.isConnected()) {
+            prefs.edit().putLong("bt.last.connect." + device.getName(), System.currentTimeMillis()).apply();
             alreadyConnected = true;
             Log.d(TAG, "Already connected to " + device.getName());
         }
         try {
             if (!alreadyConnected) {
+                prefs.edit().putLong("bt.last.connect." + device.getName(), System.currentTimeMillis()).apply();
                 socket.connect();
                 Log.d(TAG, "Connected to " + device.getName());
             }
@@ -160,6 +159,14 @@ class BluetoothTask implements Runnable {
                 list.add(String.valueOf(entry.getValue()));
             }
         }
+        Collections.sort(list, new Comparator<String>() {
+            @Override
+            public int compare(String deviceName1, String deviceName2) {
+                long lastConnectTime1 = prefs.getLong("bt.last.connect." + deviceName1, 0);
+                long lastConnectTime2 = prefs.getLong("bt.last.connect." + deviceName2, 0);
+                return (int) (lastConnectTime2 - lastConnectTime1);
+            }
+        });
         return list;
     }
 }
