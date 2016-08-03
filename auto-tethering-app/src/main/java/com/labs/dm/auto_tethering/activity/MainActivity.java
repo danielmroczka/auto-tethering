@@ -17,10 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.labs.dm.auto_tethering.BuildConfig;
-import com.labs.dm.auto_tethering.R;
-import com.labs.dm.auto_tethering.TetherIntents;
-import com.labs.dm.auto_tethering.Utils;
+import com.labs.dm.auto_tethering.*;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
 import com.labs.dm.auto_tethering.db.SimCard;
@@ -665,6 +662,9 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_log:
+                startActivity(new Intent(this, LogActivity.class));
+                return true;
             case R.id.action_info:
                 startActivity(new Intent(this, AboutActivity.class));
                 return true;
