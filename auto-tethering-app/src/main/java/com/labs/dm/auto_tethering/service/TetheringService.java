@@ -432,7 +432,7 @@ public class TetheringService extends IntentService {
     private void runAsForeground() {
         if (notification == null) {
             this.notification = buildNotification(getString(R.string.service_started));
-            showNotification(getString(R.string.service_started));
+            //showNotification(getString(R.string.service_started));
             startForeground(NOTIFICATION_ID, notification);
         }
     }

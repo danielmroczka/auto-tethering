@@ -1,8 +1,15 @@
 package com.labs.dm.auto_tethering;
 
+import android.content.SharedPreferences;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by Daniel Mroczka
@@ -25,5 +32,23 @@ public class UtilsTest {
         assertEquals("Mon, Tue", Utils.maskToDays(3));
         assertEquals("Mon, Tue, Wed", Utils.maskToDays(7));
         assertEquals("Sun", Utils.maskToDays(64));
+    }
+
+    @Test
+    public void testFindPreferredDevices() throws Exception {
+        SharedPreferences preferences = mock(SharedPreferences.class);
+        Map map = new HashMap<>();
+        map.put("bt.devices.ITEM1", "ITEM1");
+        map.put("bt.devices.ITEM2", "ITEM2");
+        map.put("bt.devices.ITEM3", "ITEM3");
+
+        when(preferences.getAll()).thenReturn(map);
+        when(preferences.getLong("bt.last.connect.ITEM1", 0)).thenReturn(100L);
+        when(preferences.getLong("bt.last.connect.ITEM2", 0)).thenReturn(0L);
+        when(preferences.getLong("bt.last.connect.ITEM3", 0)).thenReturn(10000L);
+        List<String> list = Utils.findPreferredDevices(preferences);
+        assertEquals("ITEM3", list.get(0));
+        assertEquals("ITEM1", list.get(1));
+        assertEquals("ITEM2", list.get(2));
     }
 }
