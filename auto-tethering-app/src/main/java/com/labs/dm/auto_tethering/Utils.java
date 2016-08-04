@@ -4,9 +4,11 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.SparseIntArray;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -106,5 +108,16 @@ public class Utils {
 
     public static boolean isAirplaneModeOn(Context context) {
         return Settings.System.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
+    }
+
+    private void showToast(final Context context, final String text) {
+        Handler h = new Handler(context.getMainLooper());
+
+        h.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
