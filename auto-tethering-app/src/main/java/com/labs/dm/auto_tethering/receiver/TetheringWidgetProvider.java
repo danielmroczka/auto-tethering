@@ -6,14 +6,18 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.activity.ConfigurationActivity;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.WidgetService;
+
+import java.util.Arrays;
 
 import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
 import static android.content.Context.MODE_PRIVATE;
@@ -87,5 +91,19 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
             }.start();
         }
         super.onReceive(context, intent);
+    }
+
+    @Override
+    public void onDeleted(Context context, int[] appWidgetIds) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        for (String key : prefs.getAll().keySet()) {
+            for (int id : appWidgetIds) {
+                if (key.startsWith("widget." + id)) {
+                    prefs.edit().remove(key).apply();
+                }
+            }
+        }
+        Log.i(TAG, "Remove widget ids: " + Arrays.toString(appWidgetIds));
+        super.onDeleted(context, appWidgetIds);
     }
 }
