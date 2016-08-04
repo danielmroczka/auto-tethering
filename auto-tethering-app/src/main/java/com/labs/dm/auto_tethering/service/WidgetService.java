@@ -11,6 +11,7 @@ import com.labs.dm.auto_tethering.TetherIntents;
 import java.util.concurrent.TimeUnit;
 
 import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
+import static android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID;
 
 /**
  * Created by Daniel Mroczka
@@ -28,7 +29,7 @@ public class WidgetService extends IntentService {
         boolean state = serviceHelper.isTetheringWiFi();
         Log.i("WidgetService", "onHandleIntent, state=" + state + ", extras=" + intent.getExtras().toString());
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        int widgetId = intent.getIntExtra(EXTRA_APPWIDGET_ID, -1);
+        int widgetId = intent.getIntExtra(EXTRA_APPWIDGET_ID, INVALID_APPWIDGET_ID);
 
         if (!serviceHelper.isServiceRunning(TetheringService.class) && prefs.getBoolean(key(widgetId, "start.service"), false)) {
             Intent serviceIntent = new Intent(this, TetheringService.class);
