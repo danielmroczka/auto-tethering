@@ -91,9 +91,8 @@
     <string name="summary">Summary</string>
     <string name="widget.conf.title">Widget Configuration</string>
     <!-- RELEASE NOTES -->
-    <string name="release_notes">[x] Disable option to set mobile data on Lollipop and newer devices :(\n\n[x] Double
-        tap on widget opens configuration dialog\n\n [x] Already connected BT device won\'t be disconnected (Android
-        4.1+)
+    <string name="release_notes">[x] Bluetooth performance improvement - looking for available devices starts from
+        recent used\n\n[x] [Tech] Removed widget from home screen cleans its properties
     </string>
     <string name="activate_tethering_usb_on">Tethering activated on USB connection</string>
     <string name="activate_internet_usb_on">Internet activated on USB connection</string>
