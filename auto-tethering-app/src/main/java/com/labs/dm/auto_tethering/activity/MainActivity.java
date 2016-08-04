@@ -652,9 +652,13 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             new AlertDialog.Builder(this)
                     .setTitle("Release notes " + BuildConfig.VERSION_NAME)
                     .setMessage(getString(R.string.release_notes))
-                    .setPositiveButton("Close", null)
+                    .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
+                        }
+                    })
                     .show();
-            prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
         } else if (version == BuildConfig.VERSION_CODE) {
             /** Another execution **/
         }
