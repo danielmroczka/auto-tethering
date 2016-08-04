@@ -585,32 +585,30 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     private void prepareBTList() {
         PreferenceCategory pc = (PreferenceCategory) findPreference("bt.list");
-        Set<BluetoothDevice> bonded = serviceHelper.getBondedDevices();
-        Map<String, ?> map = prefs.getAll();
-        for (Map.Entry<String, ?> entry : map.entrySet()) {
-            if (entry.getKey().startsWith("bt.devices.")) {
-                String deviceName = String.valueOf(entry.getValue());
-                boolean found = false;
-                for (BluetoothDevice bd : bonded) {
-                    if (bd.getName().equals(deviceName)) {
-                        found = true;
-                        break;
-                    }
-                }
-                Preference ps = new CheckBoxPreference(getApplicationContext());
-                ps.setTitle(deviceName);
-                if (ps.getTitle() != null) {
-                    Toast.makeText(getApplicationContext(), "Device " + deviceName + " is no longer paired.\nActivation on this device won't work.\nPlease pair devices again", Toast.LENGTH_LONG);
-                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                        if (!found) {
-                            ps.setSummary("Device is no longer paired!");
+        Set<BluetoothDevice> bondedDevices = serviceHelper.getBondedDevices();
+        List<String> preferredDevices = Utils.findPreferredDevices(prefs);
+        for (String deviceName : preferredDevices) {
+            Preference ps = new CheckBoxPreference(getApplicationContext());
+            ps.setTitle(deviceName);
+            if (ps.getTitle() != null) {
+                Toast.makeText(getApplicationContext(), "Device " + deviceName + " is no longer paired.\nActivation on this device won't work.\nPlease pair devices again", Toast.LENGTH_LONG);
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    boolean found = false;
+                    for (BluetoothDevice bd : bondedDevices) {
+                        if (bd.getName().equals(deviceName)) {
+                            found = true;
+                            break;
                         }
                     }
-
-                    pc.addPreference(ps);
+                    if (!found) {
+                        ps.setSummary("Device is no longer paired!");
+                    }
                 }
+
+                pc.addPreference(ps);
             }
         }
+
         findPreference("bt.remove.device").setEnabled(pc.getPreferenceCount() > 2);
     }
 

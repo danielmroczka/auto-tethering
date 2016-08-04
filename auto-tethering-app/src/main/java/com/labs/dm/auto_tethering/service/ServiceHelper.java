@@ -245,9 +245,9 @@ public class ServiceHelper {
 
     public void setBluetoothStatus(boolean bluetoothStatus) {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothStatus) {
+        if (bluetoothStatus && !mBluetoothAdapter.isEnabled()) {
             mBluetoothAdapter.enable();
-        } else {
+        } else if (!bluetoothStatus && mBluetoothAdapter.isEnabled()) {
             mBluetoothAdapter.disable();
         }
     }
