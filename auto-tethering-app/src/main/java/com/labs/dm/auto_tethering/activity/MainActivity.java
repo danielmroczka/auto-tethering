@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.bluetooth.BluetoothDevice;
 import android.content.*;
 import android.content.pm.PackageManager;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.*;
@@ -32,6 +33,7 @@ import com.labs.dm.auto_tethering.ui.SchedulePreference;
 import java.text.Format;
 import java.util.*;
 
+import static android.content.Intent.ACTION_BATTERY_CHANGED;
 import static com.labs.dm.auto_tethering.AppProperties.*;
 
 /**
@@ -46,6 +48,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     private BroadcastReceiver receiver;
     private DBManager db;
     private final int NOTIFICATION_ID = 1234;
+    private int batteryLevel = 100;
+    private long batteryLevelTimestamp = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +102,18 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     PreferenceScreen screen = (PreferenceScreen) findPreference("experimental");
                     int pos = findPreference("data.limit").getOrder();
                     screen.onItemClick(null, null, pos, 0);
+                } else if (ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
+                    if (serviceHelper.isTetheringWiFi()) {
+                        int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+                        if (batteryLevel > level) {
+                            if (batteryLevelTimestamp != 0) {
+                                long timeElapsedInMinutes = batteryLevel * ((System.currentTimeMillis() - batteryLevelTimestamp) / (60000 * (batteryLevel - level)));
+                                Toast.makeText(getApplicationContext(), "Minutes to end:" + (timeElapsedInMinutes), Toast.LENGTH_LONG).show();
+                            }
+                            batteryLevel = level;
+                            batteryLevelTimestamp = System.currentTimeMillis();
+                        }
+                    }
                 }
             }
         };
@@ -106,6 +122,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         filter.addAction(TetherIntents.CLIENTS);
         filter.addAction(TetherIntents.DATA_USAGE);
         filter.addAction(TetherIntents.UNLOCK);
+        filter.addAction(ACTION_BATTERY_CHANGED);
         registerReceiver(receiver, filter);
     }
 
