@@ -120,11 +120,18 @@
             </PreferenceCategory>
         </PreferenceScreen>
         <CheckBoxPreference
-                android:defaultValue="false"
+                android:defaultValue="true"
+                android:key="activate.on.roaming.home.country"
                 android:icon="@drawable/ic_roaming"
+                android:summary="Tether while roaming only within the Home Country"
+                android:title="Home Country roaming"/>
+        <CheckBoxPreference
+                android:defaultValue="false"
                 android:key="activate.on.roaming"
-                android:summary=""
-                android:title="Activate on roaming"/>
+                android:icon="@drawable/ic_roaming"
+                android:dependency="activate.on.roaming.home.country"
+                android:summary="Tether while roaming outside the Home Country"
+                android:title="Roaming abroad"/>
         <CheckBoxPreference
                 android:defaultValue="false"
                 android:icon="@drawable/ic_cancel"

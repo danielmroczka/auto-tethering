@@ -149,7 +149,7 @@ public class TetheringService extends IntentService {
                 execute(SIMCARD_BLOCK);
             }
 
-            if (!checkForRoaming()) {
+            if (!allowRoaming()) {
                 showNotification(getString(R.string.roaming_service_disabled));
             }
         }
@@ -217,7 +217,7 @@ public class TetheringService extends IntentService {
     }
 
     private boolean enabled() {
-        return isCorrectSimCard() && checkForRoaming();
+        return isCorrectSimCard() && allowRoaming();
     }
 
     private boolean batteryLevel() {
@@ -398,8 +398,13 @@ public class TetheringService extends IntentService {
         return prefs.getBoolean(ACTIVATE_3G, false) && usb();
     }
 
-    private boolean checkForRoaming() {
-        return !(!prefs.getBoolean(ACTIVATE_ON_ROAMING, false) && ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).isNetworkRoaming());
+    private boolean allowRoaming() {
+        TelephonyManager manager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        boolean isRoaming = manager.isNetworkRoaming();
+        boolean withinHomeCountry = manager.getNetworkCountryIso() != null && manager.getNetworkCountryIso().equals(manager.getSimCountryIso());
+        boolean allowRoaming = prefs.getBoolean(ACTIVATE_ON_ROAMING, false);
+        boolean allowRoamingHomeCountry = prefs.getBoolean(ACTIVATE_ON_ROAMING_HC, false);
+        return (!isRoaming || (withinHomeCountry && allowRoamingHomeCountry) || allowRoaming);
     }
 
     private boolean isCorrectSimCard() {
@@ -624,7 +629,7 @@ public class TetheringService extends IntentService {
             if (forceOff) {
                 execute(INTERNET_OFF);
             } else if (forceOn) {
-                if (!checkForRoaming()) {
+                if (!allowRoaming()) {
                     showNotification(getString(R.string.roaming_service_disabled));
                     forceOff = true;
                     forceOn = false;

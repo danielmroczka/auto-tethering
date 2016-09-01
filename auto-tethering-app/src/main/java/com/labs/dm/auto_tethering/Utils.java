@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -148,6 +149,18 @@ public class Utils {
             }
         });
         return list;
+    }
+
+    public static final Boolean isDataRoamingEnabled(final Context APPLICATION_CONTEXT) {
+        try {
+            if (Build.VERSION.SDK_INT < 17) {
+                return (Settings.System.getInt(APPLICATION_CONTEXT.getContentResolver(), Settings.Secure.DATA_ROAMING, 0) == 1);
+            } else {
+                return (Settings.Global.getInt(APPLICATION_CONTEXT.getContentResolver(), Settings.Global.DATA_ROAMING, 0) == 1);
+            }
+        } catch (Exception exception) {
+            return false;
+        }
     }
 
 }

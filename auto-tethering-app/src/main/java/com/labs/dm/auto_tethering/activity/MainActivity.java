@@ -188,6 +188,17 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
+        CheckBoxPreference roamingCheckBox = (CheckBoxPreference) findPreference("activate.on.roaming");
+        roamingCheckBox.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if ((Boolean) newValue && Utils.isDataRoamingEnabled(getApplicationContext())) {
+                    Toast.makeText(getApplicationContext(), "Current system settings disabled data roaming. You must also enable it!", Toast.LENGTH_LONG).show();
+                }
+                return true;
+            }
+        });
+
         EditTextPreference batteryLevelValue = (EditTextPreference) findPreference("usb.off.battery.lvl.value");
         batteryLevelValue.setOnPreferenceChangeListener(changeListener);
         batteryLevelValue.getEditText().setFilters(new InputFilter[]{
