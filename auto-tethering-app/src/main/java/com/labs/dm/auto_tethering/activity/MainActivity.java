@@ -192,8 +192,23 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         roamingCheckBox.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if ((Boolean) newValue && Utils.isDataRoamingEnabled(getApplicationContext())) {
-                    Toast.makeText(getApplicationContext(), "Current system settings disabled data roaming. You must also enable it!", Toast.LENGTH_LONG).show();
+                if ((Boolean) newValue && !Utils.isDataRoamingEnabled(getApplicationContext())) {
+
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle(R.string.warning)
+                            .setMessage("Current system setting disables Data Roaming.\nYou must also enable it!\n\nDo you want to do it now?")
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent = new Intent();
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    intent.setAction(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS);
+                                    startActivity(intent);
+                                }
+                            })
+                            .setNegativeButton(R.string.no, null
+                            ).show();
                 }
                 return true;
             }

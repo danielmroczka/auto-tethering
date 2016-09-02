@@ -124,14 +124,13 @@
                 android:key="activate.on.roaming.home.country"
                 android:icon="@drawable/ic_roaming"
                 android:summary="Tether while roaming only within the Home Country"
-                android:title="Home Country roaming"/>
+                android:title="National roaming"/>
         <CheckBoxPreference
                 android:defaultValue="false"
                 android:key="activate.on.roaming"
                 android:icon="@drawable/ic_roaming"
-                android:dependency="activate.on.roaming.home.country"
                 android:summary="Tether while roaming outside the Home Country"
-                android:title="Roaming abroad"/>
+                android:title="International roaming"/>
         <CheckBoxPreference
                 android:defaultValue="false"
                 android:icon="@drawable/ic_cancel"

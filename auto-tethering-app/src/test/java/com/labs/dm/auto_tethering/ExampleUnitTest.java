@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.service.TetheringService;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -20,11 +21,11 @@ public class ExampleUnitTest {
     }
 
     @Test
+    @Ignore
     public void testStartActivity() {
         BootCompletedReceiver receiver = mock(BootCompletedReceiver.class);
         Context context = mock(Context.class);
         TetheringService service = mock(TetheringService.class);
-
         Intent intent = new Intent(Intent.ACTION_BOOT_COMPLETED);
         receiver.onReceive(context, intent);
         verify(service, atLeastOnce());
