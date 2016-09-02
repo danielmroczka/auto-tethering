@@ -159,7 +159,7 @@ public class Utils {
      */
     public static final Boolean isDataRoamingEnabled(final Context context) {
         if (Build.VERSION.SDK_INT < 17) {
-            return (Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.DATA_ROAMING, 0) == 1);
+            return (Settings.System.getInt(context.getContentResolver(), Settings.Secure.DATA_ROAMING, 0) == 1);
         } else {
             return (Settings.Global.getInt(context.getContentResolver(), Settings.Global.DATA_ROAMING, 0) == 1);
         }
