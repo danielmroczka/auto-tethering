@@ -28,10 +28,10 @@ import static com.labs.dm.auto_tethering.TetherIntents.BT_DISCONNECTED;
  * Created by Daniel Mroczka
  */
 class BluetoothTask {
-    private SharedPreferences prefs;
+    private final SharedPreferences prefs;
     private String TAG = "FindBT";
-    private String connectedDeviceName;
-    private boolean initialBluetoothStatus;
+    private final String connectedDeviceName;
+    private final boolean initialBluetoothStatus;
     private Context context;
 
     public BluetoothTask(Context context, SharedPreferences prefs, String connectedDeviceName, boolean initialBluetoothStatus) {
@@ -150,8 +150,6 @@ class BluetoothTask {
                     socket.connect();
                     Log.d(TAG, "Connected to " + device.getName());
                 }
-            } catch (IOException e) {
-                throw e;
             } finally {
                 if (!alreadyConnected) {
                     socket.close();

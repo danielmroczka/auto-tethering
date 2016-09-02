@@ -10,7 +10,7 @@ public class Cron {
     public enum STATUS {
         DEFAULT(0), SCHED_OFF_ENABLED(1), SCHED_OFF_DISABLED(2), SCHED_ON_ENABLED(3), SCHED_ON_DISABLED(4);
 
-        int value;
+        final int value;
 
         STATUS(int v) {
             value = v;
@@ -23,11 +23,11 @@ public class Cron {
     }
 
     private int id;
-    private int hourOff;
-    private int minOff;
-    private int hourOn;
-    private int minOn;
-    private int mask;
+    private final int hourOff;
+    private final int minOff;
+    private final int hourOn;
+    private final int minOn;
+    private final int mask;
     private int status;
 
     public Cron(int hourOff, int minOff, int hourOn, int minOn, int mask, int status) {

@@ -98,7 +98,7 @@ public class TetheringService extends IntentService {
         timer.schedule(bluetoothTask, 5000, 30000);
     }
 
-    private String[] invents = {TetherIntents.TETHERING, TetherIntents.WIDGET, TetherIntents.RESUME, EXIT, TetherIntents.USB_ON, TetherIntents.USB_OFF,
+    private final String[] invents = {TetherIntents.TETHERING, TetherIntents.WIDGET, TetherIntents.RESUME, EXIT, TetherIntents.USB_ON, TetherIntents.USB_OFF,
             TetherIntents.BT_RESTORE, TetherIntents.BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH};
 
     private void registerReceivers() {
@@ -222,12 +222,12 @@ public class TetheringService extends IntentService {
 
     private boolean batteryLevel() {
         boolean batteryLevel = prefs.getBoolean("usb.off.battery.lvl", false);
-        return !batteryLevel || (batteryLevel && 100f * serviceHelper.batteryLevel() >= Integer.valueOf(prefs.getString("usb.off.battery.lvl.value", "15")));
+        return !batteryLevel || 100f * serviceHelper.batteryLevel() >= Integer.valueOf(prefs.getString("usb.off.battery.lvl.value", "15"));
     }
 
     private boolean usb() {
         boolean flag = prefs.getBoolean("usb.only.when.connected", false);
-        return (!flag || (flag && serviceHelper.isPluggedToPower())) && batteryLevel();
+        return (!flag || serviceHelper.isPluggedToPower()) && batteryLevel();
     }
 
     private boolean keepService() {
@@ -733,7 +733,6 @@ public class TetheringService extends IntentService {
 
     private void showToast(final String text) {
         Handler h = new Handler(getApplication().getMainLooper());
-
         h.post(new Runnable() {
             @Override
             public void run() {

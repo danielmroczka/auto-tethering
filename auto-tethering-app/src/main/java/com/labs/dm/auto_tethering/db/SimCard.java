@@ -8,9 +8,9 @@ public class SimCard {
     public final static String NAME = "SIMCARD";
 
     private int id;
-    private String ssn;
-    private String number;
-    private int status;
+    private final String ssn;
+    private final String number;
+    private final int status;
 
     public SimCard(String ssn, String number, int status) {
         this.ssn = ssn;

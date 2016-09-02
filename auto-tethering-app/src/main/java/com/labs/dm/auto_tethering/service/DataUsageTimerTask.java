@@ -15,8 +15,8 @@ import java.util.TimerTask;
  */
 public class DataUsageTimerTask extends TimerTask {
     private static final String TAG = "DataUsageTimerTask";
-    private Context context;
-    private SharedPreferences prefs;
+    private final Context context;
+    private final SharedPreferences prefs;
 
     public DataUsageTimerTask(Context context, SharedPreferences prefs) {
         this.context = context;
