@@ -91,7 +91,7 @@
     <string name="summary">Summary</string>
     <string name="widget.conf.title">Widget Configuration</string>
     <!-- RELEASE NOTES -->
-    <string name="release_notes">[x] Extend option for allowing Data Roaming to National and International Roaming
+    <string name="release_notes">[x] Some bug fixes for Data Roaming \n\n[x] Tethering On reconnects tethering or internet connection if user accidentally switch them off
     </string>
     <string name="activate_tethering_usb_on">Tethering activated on USB connection</string>
     <string name="activate_internet_usb_on">Internet activated on USB connection</string>

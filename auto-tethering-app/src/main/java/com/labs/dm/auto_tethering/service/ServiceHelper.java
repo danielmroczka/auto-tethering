@@ -88,7 +88,7 @@ public class ServiceHelper {
      */
     public String getTetheringSSID() {
         WifiConfiguration cfg = getWifiApConfiguration(context);
-        return (cfg != null ? cfg.SSID : "");
+        return cfg != null ? cfg.SSID : "";
     }
 
     /**

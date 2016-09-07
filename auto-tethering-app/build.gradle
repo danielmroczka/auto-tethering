@@ -49,8 +49,8 @@ android {
         minSdkVersion 10
         maxSdkVersion 22
         targetSdkVersion 21
-        versionCode 40
-        versionName "0.0.40"
+        versionCode 41
+        versionName "0.0.41"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + getDateAsMillis() + "L)"
 
