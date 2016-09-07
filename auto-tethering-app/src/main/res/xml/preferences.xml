@@ -262,6 +262,29 @@
                     android:summary="Reset counter just after the midnight every day"
                     android:title="Reset counter every day"/>
         </PreferenceScreen>
+        <PreferenceScreen
+                android:icon="@drawable/ic_stats"
+                android:key="wifi.settings"
+                android:title="WiFi settings"
+                android:summary="Controls tethering if specified WiFi networks are in neighborhood">
+            <CheckBoxPreference
+                    android:key="wifi.disable.disconnect"
+                    android:summary="Once device is connected to WiFi don't allow to start tethering"
+                    android:title="Disable WiFi off"/>
+            <PreferenceCategory
+                    android:key="wifi.list"
+                    android:title="Edit WiFi whitelist">
+                <PreferenceScreen
+                        android:icon="@drawable/ic_add"
+                        android:key="add.current.simcard"
+                        android:title="Add current SIM card"/>
+                <PreferenceScreen
+                        android:icon="@drawable/ic_remove"
+                        android:key="remove.simcard"
+                        android:title="Remove selected"/>
+            </PreferenceCategory>
+
+        </PreferenceScreen>
         <!--
                 <PreferenceScreen
                         android:enabled="false"

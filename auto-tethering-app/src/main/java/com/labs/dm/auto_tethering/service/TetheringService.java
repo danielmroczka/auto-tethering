@@ -64,7 +64,7 @@ public class TetheringService extends IntentService {
     private List<Cron> crons;
     private SharedPreferences prefs;
     private long lastAccess = getTime().getTimeInMillis();
-    private boolean initial3GStatus, initialTetheredStatus, initialBluetoothStatus;
+    private boolean initial3GStatus, initialTetheredStatus, initialBluetoothStatus, initialWiFiStatus;
     private ServiceHelper serviceHelper;
     private boolean runFromActivity;
     private boolean flag = true;
@@ -120,6 +120,7 @@ public class TetheringService extends IntentService {
         initial3GStatus = serviceHelper.isConnectedToInternet();
         initialTetheredStatus = serviceHelper.isTetheringWiFi();
         initialBluetoothStatus = serviceHelper.isBluetoothActive();
+        initialWiFiStatus = serviceHelper.isWiFiEnabled();
     }
 
     @Override
@@ -177,6 +178,11 @@ public class TetheringService extends IntentService {
                             }
                             if (checkWifiIdle()) {
                                 execute(TETHER_OFF_IDLE);
+                            }
+                        } else if (status == Status.DEACTIVATED_ON_IDLE && !idle) {
+                            if (isActivated3G() && !connected3G) {
+                                status = Status.DEFAULT;
+                                execute(INTERNET_ON);
                             }
                         }
 
@@ -668,6 +674,10 @@ public class TetheringService extends IntentService {
             showNotify = true;
         }
         if (serviceAction.isTethering() && serviceHelper.isTetheringWiFi() != action) {
+            if (action && serviceHelper.isWiFiEnabled()) {
+                initialWiFiStatus = serviceHelper.isWiFiEnabled();
+                serviceHelper.setWifiStatus(false);
+            }
             if (!tetheringAsyncTask(action)) {
                 return;
             }
@@ -684,6 +694,9 @@ public class TetheringService extends IntentService {
                 status = Status.DEFAULT;
                 break;
             case TETHER_OFF:
+                if (!serviceHelper.isTetheringWiFi() && initialWiFiStatus && !serviceHelper.isWiFiEnabled()) {
+                    serviceHelper.setWifiStatus(true);
+                }
                 id = R.string.notification_tethering_off;
                 break;
             case INTERNET_ON:
@@ -740,6 +753,7 @@ public class TetheringService extends IntentService {
         if (showNotify || status != oldStatus) {
             showNotification(getString(id));
         }
+
     }
 
     private void showToast(final String text) {

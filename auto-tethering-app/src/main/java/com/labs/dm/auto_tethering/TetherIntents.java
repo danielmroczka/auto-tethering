@@ -20,4 +20,5 @@ public class TetherIntents {
     public static final String CLIENTS = "clients";
     public static final String DATA_USAGE = "data.usage";
     public static final String UNLOCK = "unlock";
+    public static final String WIFI_SCAN_RESULTS = "wifi.scan.result";
 }
