@@ -9,6 +9,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.*;
 import android.provider.Settings;
+import android.telephony.CellLocation;
+import android.telephony.PhoneStateListener;
+import android.telephony.ServiceState;
 import android.telephony.TelephonyManager;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -55,8 +58,59 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         checkIfNotlocked();
         registerListeners();
         registerReceievers();
+        registerCellListener();
         adjustSettingForOS();
     }
+
+    private void registerCellListener() {
+        final TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        tMgr.getNeighboringCellInfo();
+        PreferenceScreen p = (PreferenceScreen) findPreference("cell.activate.add");
+        tMgr.listen(phoneStateListener,
+                PhoneStateListener.LISTEN_CALL_FORWARDING_INDICATOR |
+                        PhoneStateListener.LISTEN_CALL_STATE |
+                        PhoneStateListener.LISTEN_CELL_LOCATION |
+                        PhoneStateListener.LISTEN_DATA_ACTIVITY |
+                        PhoneStateListener.LISTEN_DATA_CONNECTION_STATE |
+                        PhoneStateListener.LISTEN_MESSAGE_WAITING_INDICATOR |
+                        PhoneStateListener.LISTEN_SERVICE_STATE |
+                        PhoneStateListener.LISTEN_SIGNAL_STRENGTH);
+        p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                return true;
+            }
+        });
+    }
+
+    PhoneStateListener phoneStateListener = new PhoneStateListener() {
+        public void onCallForwardingIndicatorChanged(boolean cfi) {
+        }
+
+        public void onCallStateChanged(int state, String incomingNumber) {
+        }
+
+        public void onCellLocationChanged(CellLocation location) {
+            System.out.println(location);
+        }
+
+        public void onDataActivity(int direction) {
+        }
+
+        public void onDataConnectionStateChanged(int state) {
+        }
+
+        public void onMessageWaitingIndicatorChanged(boolean mwi) {
+        }
+
+        public void onServiceStateChanged(ServiceState serviceState) {
+            System.out.println(serviceState);
+        }
+
+
+        public void onSignalStrengthChanged(int asu) {
+        }
+    };
 
     private void adjustSettingForOS() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

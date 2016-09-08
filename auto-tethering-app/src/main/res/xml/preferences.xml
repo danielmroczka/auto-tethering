@@ -262,6 +262,36 @@
                     android:summary="Reset counter just after the midnight every day"
                     android:title="Reset counter every day"/>
         </PreferenceScreen>
+        <PreferenceScreen android:title="Activation on Cell Network">
+            <PreferenceCategory>
+                <CheckBoxPreference
+                        android:defaultValue="false"
+                        android:key="cell.activate"
+                        android:title="Activation on Cell Network"/>
+            </PreferenceCategory>
+            <PreferenceCategory>
+                <PreferenceScreen
+                        android:key="cell.activate.add"
+                        android:icon="@drawable/ic_add"
+                        android:title="Add cell"/>
+                <PreferenceScreen
+                        android:title="Modify cells"/>
+            </PreferenceCategory>
+            <PreferenceCategory>
+                <CheckBoxPreference
+                        android:defaultValue="false"
+                        android:key="cell.deactivate"
+                        android:title="Deactivate on Cell Network"/>
+            </PreferenceCategory>
+            <PreferenceCategory>
+                <PreferenceScreen
+                        android:key="cell.deactivate.add"
+                        android:icon="@drawable/ic_add"
+                        android:title="Add cell"/>
+                <PreferenceScreen
+                        android:title="Modify cells"/>
+            </PreferenceCategory>
+        </PreferenceScreen>
         <!--
                 <PreferenceScreen
                         android:enabled="false"
