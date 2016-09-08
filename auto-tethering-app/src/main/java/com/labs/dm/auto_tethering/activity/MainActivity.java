@@ -547,6 +547,14 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         return true;
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.action_log);
+        item.setEnabled(BuildConfig.DEBUG);
+        item.getIcon().setAlpha(128);
+        return true;
+    }
+
     private void loadPrefs() {
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     }
