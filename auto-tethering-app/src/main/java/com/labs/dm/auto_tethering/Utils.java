@@ -7,9 +7,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.SparseIntArray;
+import android.widget.Toast;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
 import java.io.BufferedReader;
@@ -165,4 +167,15 @@ public class Utils {
         }
     }
 
+
+    private void showToast(final Context context, final String text) {
+        Handler h = new Handler(context.getMainLooper());
+
+        h.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
 }
