@@ -173,10 +173,10 @@ public class TetheringService extends IntentService {
                             }
                             execute(SCHEDULED_TETHER_ON);
                         } else if (idle && serviceHelper.isTetheringWiFi()) {
-                            if (check3GIdle()) {
+                            if (check3GIdle() && serviceHelper.isConnectedToInternet()) {
                                 execute(INTERNET_OFF_IDLE);
                             }
-                            if (checkWifiIdle()) {
+                            if (checkWifiIdle() && serviceHelper.isTetheringWiFi()) {
                                 execute(TETHER_OFF_IDLE);
                             }
                         } else if (status == Status.DEACTIVATED_ON_IDLE && !idle) {
@@ -673,7 +673,9 @@ public class TetheringService extends IntentService {
             }
             showNotify = true;
         }
-        if (serviceAction.isTethering() && serviceHelper.isTetheringWiFi() != action) {
+        if (serviceAction.isTethering() && prefs.getBoolean("wifi.disable.disconnect", false) && serviceHelper.isWiFiConnected()) {
+            showNotification("Tethering disabled because connected to WiFi network");
+        } else if (serviceAction.isTethering() && serviceHelper.isTetheringWiFi() != action) {
             if (action && serviceHelper.isWiFiEnabled()) {
                 initialWiFiStatus = serviceHelper.isWiFiEnabled();
                 serviceHelper.setWifiStatus(false);
