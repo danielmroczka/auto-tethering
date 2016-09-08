@@ -551,7 +551,9 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem item = menu.findItem(R.id.action_log);
         item.setEnabled(BuildConfig.DEBUG);
-        item.getIcon().setAlpha(128);
+        if (!BuildConfig.DEBUG) {
+            item.getIcon().setAlpha(128);
+        }
         return true;
     }
 
