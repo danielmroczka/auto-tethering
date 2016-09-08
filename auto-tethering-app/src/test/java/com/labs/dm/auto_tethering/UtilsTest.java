@@ -34,6 +34,13 @@ public class UtilsTest {
         assertEquals("Sun", Utils.maskToDays(64));
     }
 
+  /*  @Test
+    public void testFindPreferredDevices() {
+        SharedPreferences prefs = mock(SharedPreferences.class);
+        Map<String, ?> map = new HashMap<>();
+       // List<String> devices = Utils.findPreferredDevices(prefs);
+    }*/
+
     @Test
     public void testFindPreferredDevices() throws Exception {
         SharedPreferences preferences = mock(SharedPreferences.class);
