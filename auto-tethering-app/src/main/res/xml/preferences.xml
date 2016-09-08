@@ -274,6 +274,10 @@
             <PreferenceCategory
                     android:key="wifi.list"
                     android:title="Edit WiFi whitelist">
+                <CheckBoxPreference
+                        android:key="wifi.whitelist.disable"
+                        android:summary="Do not tether if at least one network is available"
+                        android:title="Disable WiFi off"/>
                 <PreferenceScreen
                         android:icon="@drawable/ic_add"
                         android:key="add.current.simcard"
