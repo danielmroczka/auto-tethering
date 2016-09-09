@@ -158,6 +158,7 @@ public class TetheringService extends IntentService {
             try {
                 boolean connected3G = serviceHelper.isConnectedToInternet();
                 boolean tethered = serviceHelper.isTetheringWiFi();
+                checkCellular();
 
                 if (!(forceOff || forceOn) && (isServiceActivated() || keepService())) {
                     if (enabled()) {
@@ -226,6 +227,27 @@ public class TetheringService extends IntentService {
                 Log.e(TAG, e.getMessage());
             }
         }
+    }
+
+    private void checkCellular() {
+        int cid = Utils.getCid(getApplicationContext());
+
+        if (prefs.getBoolean("cell.activate.enable", false) && !serviceHelper.isTetheringWiFi()) {
+            String[] cids = prefs.getString("cell.activate.cids", "").split(",");
+            for (String item : cids) {
+                if (Integer.parseInt(item) == cid) {
+                    showNotification("Activate on cell");
+                }
+            }
+        } else if (prefs.getBoolean("cell.deactivate.enable", false) && serviceHelper.isTetheringWiFi()) {
+            String[] cids = prefs.getString("cell.deactivate.cids", "").split(",");
+            for (String item : cids) {
+                if (Integer.parseInt(item) == cid) {
+                    showNotification("Deactivate on cell");
+                }
+            }
+        }
+
     }
 
     private boolean enabled() {

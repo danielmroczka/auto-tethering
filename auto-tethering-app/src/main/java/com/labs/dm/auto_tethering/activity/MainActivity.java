@@ -58,14 +58,13 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         checkIfNotlocked();
         registerListeners();
         registerReceievers();
-        registerCellListener();
+        // registerCellListener();
         adjustSettingForOS();
     }
 
     private void registerCellListener() {
         final TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         tMgr.getNeighboringCellInfo();
-        PreferenceScreen p = (PreferenceScreen) findPreference("cell.activate.add");
         tMgr.listen(phoneStateListener,
                 PhoneStateListener.LISTEN_CALL_FORWARDING_INDICATOR |
                         PhoneStateListener.LISTEN_CALL_STATE |
@@ -75,12 +74,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                         PhoneStateListener.LISTEN_MESSAGE_WAITING_INDICATOR |
                         PhoneStateListener.LISTEN_SERVICE_STATE |
                         PhoneStateListener.LISTEN_SIGNAL_STRENGTH);
-        p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                return true;
-            }
-        });
     }
 
     PhoneStateListener phoneStateListener = new PhoneStateListener() {
@@ -91,6 +84,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         }
 
         public void onCellLocationChanged(CellLocation location) {
+
             System.out.println(location);
         }
 
@@ -575,6 +569,37 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         );
     }
 
+    private void registerCellularNetworkListener() {
+        final PreferenceScreen activate = (PreferenceScreen) findPreference("cell.activate.add");
+        final PreferenceScreen deactivate = (PreferenceScreen) findPreference("cell.deactivate.add");
+        final PreferenceCategory activateList = (PreferenceCategory) findPreference("cell.activate.list");
+        final PreferenceCategory deactivateList = (PreferenceCategory) findPreference("cell.deactivate.list");
+
+        activate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Preference ps = new CheckBoxPreference(getApplicationContext());
+                ps.setTitle(String.valueOf(Utils.getCid(getApplicationContext())));
+                activateList.addPreference(ps);
+                prefs.edit().putString("cell.activate.cids", String.valueOf(Utils.getCid(getApplicationContext())) + ",");
+                return false;
+            }
+        });
+
+        deactivate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Preference ps = new CheckBoxPreference(getApplicationContext());
+                ps.setTitle(String.valueOf(Utils.getCid(getApplicationContext())));
+                deactivateList.addPreference(ps);
+                prefs.edit().putString("cell.deactivate.cids", String.valueOf(Utils.getCid(getApplicationContext())) + ",");
+                return false;
+            }
+        });
+
+
+    }
+
     private void registerAddSimCardListener() {
         final TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         final String ssn = tMgr.getSimSerialNumber();
@@ -663,6 +688,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         prefs.edit().putString(SSID, serviceHelper.getTetheringSSID()).apply();
         loadPrefs();
         registerAddSimCardListener();
+        registerCellularNetworkListener();
+        registerCellListener();
         registerAddSchedule();
         registerBTListener();
         prepareSimCardWhiteList();

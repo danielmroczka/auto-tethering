@@ -9,6 +9,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.telephony.TelephonyManager;
+import android.telephony.cdma.CdmaCellLocation;
+import android.telephony.gsm.GsmCellLocation;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.widget.Toast;
@@ -177,5 +180,17 @@ public class Utils {
                 Toast.makeText(context, text, Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    public static int getCid(Context context) {
+        int cid = -1;
+        final TelephonyManager tel = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        if (tel.getCellLocation() instanceof GsmCellLocation) {
+            cid = ((GsmCellLocation) tel.getCellLocation()).getCid();
+        } else if (tel.getCellLocation() instanceof CdmaCellLocation) {
+            //cid = ((CdmaCellLocation)tel.getCellLocation()).getSystemId();
+        }
+
+        return cid;
     }
 }

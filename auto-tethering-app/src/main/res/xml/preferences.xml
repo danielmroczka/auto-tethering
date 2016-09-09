@@ -201,6 +201,7 @@
                 />
             </PreferenceCategory>
         </PreferenceScreen>
+
         <PreferenceScreen
                 android:icon="@drawable/ic_bluetooth"
                 android:title="Bluetooth activation"
@@ -235,6 +236,7 @@
                         android:title="BT on only periodically"/>
             </PreferenceCategory>
         </PreferenceScreen>
+
         <PreferenceScreen
                 android:icon="@drawable/ic_stats"
                 android:key="data.limit"
@@ -262,35 +264,43 @@
                     android:summary="Reset counter just after the midnight every day"
                     android:title="Reset counter every day"/>
         </PreferenceScreen>
-        <PreferenceScreen android:title="Activation on Cell Network">
-            <PreferenceCategory>
+
+        <PreferenceScreen
+                android:title="Activation on Cell Network"
+                android:icon="@drawable/ic_signal">
+            <PreferenceCategory
+                    android:key="cell.activate.list"
+                    android:title="Activate on Cell Network">
                 <CheckBoxPreference
                         android:defaultValue="false"
                         android:key="cell.activate"
-                        android:title="Activation on Cell Network"/>
-            </PreferenceCategory>
-            <PreferenceCategory>
+                        android:title="Enable"/>
                 <PreferenceScreen
                         android:key="cell.activate.add"
                         android:icon="@drawable/ic_add"
                         android:title="Add cell"/>
                 <PreferenceScreen
-                        android:title="Modify cells"/>
+                        android:icon="@drawable/ic_remove"
+                        android:key="cell.activate.remove"
+                        android:title="Remove selected"/>
             </PreferenceCategory>
-            <PreferenceCategory>
+            <PreferenceCategory
+                    android:key="cell.deactivate.list"
+                    android:title="Deactivate on Cell Network">
                 <CheckBoxPreference
                         android:defaultValue="false"
                         android:key="cell.deactivate"
-                        android:title="Deactivate on Cell Network"/>
-            </PreferenceCategory>
-            <PreferenceCategory>
+                        android:title="Enable"/>
                 <PreferenceScreen
                         android:key="cell.deactivate.add"
                         android:icon="@drawable/ic_add"
                         android:title="Add cell"/>
                 <PreferenceScreen
-                        android:title="Modify cells"/>
+                        android:icon="@drawable/ic_remove"
+                        android:key="cell.deactivate.remove"
+                        android:title="Remove selected"/>
             </PreferenceCategory>
+
         </PreferenceScreen>
         <!--
                 <PreferenceScreen
@@ -302,9 +312,7 @@
                         android:summary="Turn on USB tethering" />
                 </PreferenceScreen>
         -->
-
     </PreferenceScreen>
-
     <PreferenceCategory
             android:icon="@drawable/ic_wifi"
             android:key="ssid.screen"
@@ -319,5 +327,6 @@
                     android:targetPackage="com.android.settings"/>
         </PreferenceScreen>
     </PreferenceCategory>
+
 
 </PreferenceScreen>
