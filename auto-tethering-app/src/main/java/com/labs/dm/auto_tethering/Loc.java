@@ -24,20 +24,18 @@ public class Loc {
 
     public Loc(String loc) {
         if (loc != null && !loc.isEmpty()) {
-            cid = Integer.parseInt(loc.substring(loc.indexOf("CID:") + 5, loc.indexOf(" LOC:")));
-            lac = Integer.parseInt(loc.substring(loc.indexOf("LOC:") + 5, loc.length()));
+            cid = Integer.parseInt(loc.substring(loc.indexOf("CID:") + 5, loc.indexOf(" LAC:")));
+            lac = Integer.parseInt(loc.substring(loc.indexOf("LAC:") + 5, loc.length()));
         }
     }
 
     @Override
     public String toString() {
-        return "CID: " + String.valueOf(cid) + " LOC: " + String.valueOf(lac);
-    }
-
-    public String getLoc() {
         if (isValid()) {
-            return toString();
-        } else return "";
+            return "CID: " + String.valueOf(cid) + " LAC: " + String.valueOf(lac);
+        } else {
+            return "";
+        }
     }
 
     public boolean isValid() {

@@ -94,25 +94,25 @@ public class RegisterCellularListenerHelper {
         }
 
         for (String c : getCidsActivate()) {
-            if (!c.isEmpty() && c.equals(loc.getLoc())) {
-                Toast.makeText(activity, "Current cellular network (" + loc.getLoc() + ") is already on the activation list", Toast.LENGTH_LONG).show();
+            if (!c.isEmpty() && c.equals(loc.toString())) {
+                Toast.makeText(activity, "Cellular network (" + loc.toString() + ") is already on the activation list", Toast.LENGTH_LONG).show();
                 return false;
             }
         }
         for (String c : getCidsDeactivate()) {
-            if (!c.isEmpty() && c.equals(loc.getLoc())) {
-                Toast.makeText(activity, "Current cellular network (" + loc.getLoc() + ") is already on the deactivation list", Toast.LENGTH_LONG).show();
+            if (!c.isEmpty() && c.equals(loc.toString())) {
+                Toast.makeText(activity, "Cellular network (" + loc.toString() + ") is already on the deactivation list", Toast.LENGTH_LONG).show();
                 return false;
             }
         }
 
         Preference ps = new CheckBoxPreference(activity);
-        ps.setTitle(loc.getLoc());
+        ps.setTitle(loc.toString());
+        ps.setSummary("Liechtensteinstrasse 123/12, Wien");
         list.addPreference(ps);
-        prefs.edit().putString(key, loc.getLoc() + ",").apply();
+        prefs.edit().putString(key, loc.toString() + ",").apply();
         remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
         return false;
-
     }
 
     private boolean remove(PreferenceCategory list, PreferenceScreen remove, String key) {
@@ -122,7 +122,7 @@ public class RegisterCellularListenerHelper {
             Preference pref = list.getPreference(idx);
             if (pref instanceof CheckBoxPreference) {
                 boolean status = ((CheckBoxPreference) pref).isChecked();
-                if (status) {
+                if (status && pref.getKey() == null) {
                     String cids = prefs.getString(key, "");
                     cids = cids.replace(pref.getTitle() + ",", "");
                     prefs.edit().putString(key, cids).apply();

@@ -33,7 +33,6 @@ public enum ServiceAction {
         this.tethering = name().contains("TETHER");
     }
 
-
     ServiceAction(boolean tethering, boolean internet, boolean on) {
         this.tethering = tethering;
         this.internet = internet;

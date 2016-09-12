@@ -53,7 +53,7 @@ public class TetheringService extends IntentService {
         USB_ON,
         DATA_USAGE_LIMIT_EXCEED,
         BT,
-        DEFAULT
+        ACTIVATED_ON_CELL, DEACTIVATED_ON_CELL, DEFAULT
     }
 
     private static final String TAG = "TetheringService";
@@ -243,9 +243,13 @@ public class TetheringService extends IntentService {
             for (String item : cids) {
                 Loc loc = new Loc(item);
                 if (!item.isEmpty() && loc.getCid() == cid && loc.getLac() == lac) {
-                    showNotification("Deactivate on cell"); //TODO
+                    execute(CELL_INTERNET_TETHERING_OFF);
                 }
             }
+        } else if (!prefs.getBoolean("cell.activate.enable", false) && status == Status.ACTIVATED_ON_CELL) {
+            status = Status.DEFAULT;
+        } else if (!prefs.getBoolean("cell.deactivate.enable", false) && status == Status.DEACTIVATED_ON_CELL) {
+            status = Status.DEFAULT;
         }
 
     }
@@ -756,11 +760,11 @@ public class TetheringService extends IntentService {
                 break;
             case CELL_INTERNET_TETHERING_ON:
                 id = R.string.cell_on;
-                status = Status.DEFAULT;
+                status = Status.ACTIVATED_ON_CELL;
                 break;
             case CELL_INTERNET_TETHERING_OFF:
                 id = R.string.cell_off;
-                status = Status.DEFAULT;
+                status = Status.DEACTIVATED_ON_CELL;
                 break;
         }
         if (msg != 0) {

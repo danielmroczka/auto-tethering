@@ -266,15 +266,16 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-                android:title="Activation on Cell Network"
+                android:title="Cellular Network"
+                android:summary="Activate/deactivate if device is in range of preferred cellular networks"
                 android:icon="@drawable/ic_signal">
             <PreferenceCategory
                     android:key="cell.activate.list"
-                    android:title="Activate on Cell Network">
+                    android:title="Activate on Cellular Network">
                 <CheckBoxPreference
                         android:defaultValue="false"
                         android:key="cell.activate.enable"
-                        android:title="Enable activation on cell"/>
+                        android:title="Enable activation"/>
                 <PreferenceScreen
                         android:key="cell.activate.add"
                         android:icon="@drawable/ic_add"
@@ -286,11 +287,11 @@
             </PreferenceCategory>
             <PreferenceCategory
                     android:key="cell.deactivate.list"
-                    android:title="Deactivate on Cell Network">
+                    android:title="Deactivate on Cellular Network">
                 <CheckBoxPreference
                         android:defaultValue="false"
                         android:key="cell.deactivate.enable"
-                        android:title="Enable deactivation on cell"/>
+                        android:title="Enable deactivation"/>
                 <PreferenceScreen
                         android:key="cell.deactivate.add"
                         android:icon="@drawable/ic_add"
