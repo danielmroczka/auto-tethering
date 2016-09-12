@@ -3,7 +3,7 @@ package com.labs.dm.auto_tethering;
 import org.junit.Test;
 
 /**
- * Created by lrxmrod on 9/12/2016.
+ * Created by Daniel Mroczka on 9/12/2016.
  */
 public class LocTest {
 
