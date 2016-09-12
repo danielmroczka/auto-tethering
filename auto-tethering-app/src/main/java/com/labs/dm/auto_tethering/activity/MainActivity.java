@@ -577,71 +577,74 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         return prefs.getString("cell.deactivate.cids", "").split(",");
     }
 
+
     private void registerCellularNetworkListener() {
-        final PreferenceScreen activate = (PreferenceScreen) findPreference("cell.activate.add");
-        final PreferenceScreen deactivate = (PreferenceScreen) findPreference("cell.deactivate.add");
+        final PreferenceScreen activateAdd = (PreferenceScreen) findPreference("cell.activate.add");
+        final PreferenceScreen deactivateAdd = (PreferenceScreen) findPreference("cell.deactivate.add");
         final PreferenceScreen activateRemove = (PreferenceScreen) findPreference("cell.activate.remove");
         final PreferenceScreen deactivateRemove = (PreferenceScreen) findPreference("cell.deactivate.remove");
         final PreferenceCategory activateList = (PreferenceCategory) findPreference("cell.activate.list");
         final PreferenceCategory deactivateList = (PreferenceCategory) findPreference("cell.deactivate.list");
 
-        activate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        activateAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                int cid = Utils.getCid(getApplicationContext());
+                Loc loc = new Loc(Utils.getCid(getApplicationContext()), Utils.getLac(getApplicationContext()));
 
-                if (cid < 0) {
+                if (!loc.isValid()) {
                     return false;
                 }
 
                 for (String c : getCidsActivate()) {
-                    if (!c.isEmpty() && c.equals(String.valueOf(cid))) {
+                    if (!c.isEmpty() && c.equals(loc.getLoc())) {
                         Toast.makeText(MainActivity.this, "Current Cellular Network is already on the activation list", Toast.LENGTH_LONG).show();
                         return false;
                     }
                 }
                 for (String c : getCidsDeactivate()) {
-                    if (!c.isEmpty() && c.equals(String.valueOf(cid))) {
+                    if (!c.isEmpty() && c.equals(loc.getLoc())) {
                         Toast.makeText(MainActivity.this, "Current Cellular Network is already on the deactivation list", Toast.LENGTH_LONG).show();
                         return false;
                     }
                 }
 
                 Preference ps = new CheckBoxPreference(getApplicationContext());
-                ps.setTitle(String.valueOf(cid));
+                ps.setTitle(loc.getLoc());
                 activateList.addPreference(ps);
-                prefs.edit().putString("cell.activate.cids", String.valueOf(Utils.getCid(getApplicationContext())) + ",").apply();
+                prefs.edit().putString("cell.activate.cids", loc.getLoc() + ",").apply();
+
+                activateRemove.setEnabled(activateList.getPreferenceCount() > 3);
                 return false;
             }
         });
 
-        deactivate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        deactivateAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                int cid = Utils.getCid(getApplicationContext());
+                Loc loc = new Loc(Utils.getCid(getApplicationContext()), Utils.getLac(getApplicationContext()));
 
-                if (cid < 0) {
+                if (!loc.isValid()) {
                     return false;
                 }
 
                 for (String c : getCidsActivate()) {
-                    if (!c.isEmpty() && c.equals(String.valueOf(cid))) {
+                    if (!c.isEmpty() && c.equals(loc.getLoc())) {
                         Toast.makeText(MainActivity.this, "Current Cellular Network is already on the activation list", Toast.LENGTH_LONG).show();
                         return false;
                     }
                 }
                 for (String c : getCidsDeactivate()) {
-                    if (!c.isEmpty() && c.equals(String.valueOf(cid))) {
+                    if (!c.isEmpty() && c.equals(loc.getLoc())) {
                         Toast.makeText(MainActivity.this, "Current Cellular Network is already on the deactivation list", Toast.LENGTH_LONG).show();
                         return false;
                     }
                 }
 
-
                 Preference ps = new CheckBoxPreference(getApplicationContext());
-                ps.setTitle(String.valueOf(cid));
+                ps.setTitle(loc.getLoc());
                 deactivateList.addPreference(ps);
-                prefs.edit().putString("cell.deactivate.cids", String.valueOf(Utils.getCid(getApplicationContext())) + ",").apply();
+                prefs.edit().putString("cell.deactivate.cids", loc.getLoc() + ",").apply();
+                deactivateRemove.setEnabled(deactivateList.getPreferenceCount() > 3);
                 return false;
             }
         });
@@ -668,6 +671,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 if (!changed) {
                     Toast.makeText(getApplicationContext(), "Please select any item", Toast.LENGTH_LONG).show();
                 }
+                activateRemove.setEnabled(activateList.getPreferenceCount() > 3);
                 return true;
             }
         });
@@ -694,6 +698,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 if (!changed) {
                     Toast.makeText(getApplicationContext(), "Please select any item", Toast.LENGTH_LONG).show();
                 }
+                deactivateRemove.setEnabled(deactivateList.getPreferenceCount() > 3);
                 return true;
             }
         });
@@ -715,6 +720,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         }
 
+        activateRemove.setEnabled(activateList.getPreferenceCount() > 3);
+        deactivateRemove.setEnabled(deactivateList.getPreferenceCount() > 3);
     }
 
     private void registerAddSimCardListener() {
@@ -991,4 +998,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         super.onStop();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
     }
+
+
 }
+
+

@@ -19,7 +19,9 @@ public enum ServiceAction {
     ROAMING_OFF(true, true, false),
     SIMCARD_BLOCK(true, true, false),
     BLUETOOTH_INTERNET_TETHERING_ON,
-    BLUETOOTH_INTERNET_TETHERING_OFF;
+    BLUETOOTH_INTERNET_TETHERING_OFF,
+    CELL_INTERNET_TETHERING_ON,
+    CELL_INTERNET_TETHERING_OFF;
 
     private final boolean on;
     private final boolean tethering;

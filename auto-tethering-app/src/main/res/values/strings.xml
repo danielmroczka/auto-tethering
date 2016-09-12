@@ -102,5 +102,7 @@
     <string name="activate_internet_bt_on">Internet activated on BT connection</string>
     <string name="bluetooth">Bluetooth activation</string>
     <string name="bluetooth_off">Bluetooth deactivation</string>
+    <string name="cell_on">Activated on Cellular Network</string>
+    <string name="cell_off">Deactivated on Cellular Network</string>
 </resources>
 

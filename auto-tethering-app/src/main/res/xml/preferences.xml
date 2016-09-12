@@ -273,32 +273,32 @@
                     android:title="Activate on Cell Network">
                 <CheckBoxPreference
                         android:defaultValue="false"
-                        android:key="cell.activate"
-                        android:title="Enable"/>
+                        android:key="cell.activate.enable"
+                        android:title="Enable activation on cell"/>
                 <PreferenceScreen
                         android:key="cell.activate.add"
                         android:icon="@drawable/ic_add"
-                        android:title="Add cell"/>
+                        android:title="Add current cell"/>
                 <PreferenceScreen
                         android:icon="@drawable/ic_remove"
                         android:key="cell.activate.remove"
-                        android:title="Remove selected"/>
+                        android:title="Remove selected cell"/>
             </PreferenceCategory>
             <PreferenceCategory
                     android:key="cell.deactivate.list"
                     android:title="Deactivate on Cell Network">
                 <CheckBoxPreference
                         android:defaultValue="false"
-                        android:key="cell.deactivate"
-                        android:title="Enable"/>
+                        android:key="cell.deactivate.enable"
+                        android:title="Enable deactivation on cell"/>
                 <PreferenceScreen
                         android:key="cell.deactivate.add"
                         android:icon="@drawable/ic_add"
-                        android:title="Add cell"/>
+                        android:title="Add current cell"/>
                 <PreferenceScreen
                         android:icon="@drawable/ic_remove"
                         android:key="cell.deactivate.remove"
-                        android:title="Remove selected"/>
+                        android:title="Remove selected cell"/>
             </PreferenceCategory>
 
         </PreferenceScreen>

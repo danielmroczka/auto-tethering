@@ -12,10 +12,7 @@ import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
-import com.labs.dm.auto_tethering.AppProperties;
-import com.labs.dm.auto_tethering.R;
-import com.labs.dm.auto_tethering.TetherIntents;
-import com.labs.dm.auto_tethering.Utils;
+import com.labs.dm.auto_tethering.*;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.Cron.STATUS;
@@ -231,19 +228,22 @@ public class TetheringService extends IntentService {
 
     private void checkCellular() {
         int cid = Utils.getCid(getApplicationContext());
+        int lac = Utils.getLac(getApplicationContext());
 
         if (prefs.getBoolean("cell.activate.enable", false) && !serviceHelper.isTetheringWiFi()) {
             String[] cids = prefs.getString("cell.activate.cids", "").split(",");
             for (String item : cids) {
-                if (Integer.parseInt(item) == cid) {
-                    showNotification("Activate on cell");
+                Loc loc = new Loc(item);
+                if (!item.isEmpty() && loc.getCid() == cid && loc.getLac() == lac) {
+                    execute(CELL_INTERNET_TETHERING_ON);
                 }
             }
         } else if (prefs.getBoolean("cell.deactivate.enable", false) && serviceHelper.isTetheringWiFi()) {
             String[] cids = prefs.getString("cell.deactivate.cids", "").split(",");
             for (String item : cids) {
-                if (Integer.parseInt(item) == cid) {
-                    showNotification("Deactivate on cell");
+                Loc loc = new Loc(item);
+                if (!item.isEmpty() && loc.getCid() == cid && loc.getLac() == lac) {
+                    showNotification("Deactivate on cell"); //TODO
                 }
             }
         }
@@ -752,6 +752,14 @@ public class TetheringService extends IntentService {
                 break;
             case BLUETOOTH_INTERNET_TETHERING_OFF:
                 id = R.string.bluetooth_off;
+                status = Status.DEFAULT;
+                break;
+            case CELL_INTERNET_TETHERING_ON:
+                id = R.string.cell_on;
+                status = Status.DEFAULT;
+                break;
+            case CELL_INTERNET_TETHERING_OFF:
+                id = R.string.cell_off;
                 status = Status.DEFAULT;
                 break;
         }

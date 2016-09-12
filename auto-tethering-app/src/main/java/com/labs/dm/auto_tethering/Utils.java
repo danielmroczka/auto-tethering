@@ -193,4 +193,16 @@ public class Utils {
 
         return cid;
     }
+
+    public static int getLac(Context context) {
+        int lac = -1;
+        final TelephonyManager tel = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        if (tel.getCellLocation() instanceof GsmCellLocation) {
+            lac = ((GsmCellLocation) tel.getCellLocation()).getLac();
+        } else if (tel.getCellLocation() instanceof CdmaCellLocation) {
+            //cid = ((CdmaCellLocation)tel.getCellLocation()).getSystemId();
+        }
+
+        return lac;
+    }
 }
