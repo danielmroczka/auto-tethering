@@ -17,6 +17,7 @@ public class RegisterCellularListenerHelper {
 
     private final MainActivity activity;
     private final SharedPreferences prefs;
+    private final static int ITEM_COUNT = 3;
 
     public RegisterCellularListenerHelper(MainActivity activity, SharedPreferences prefs) {
         this.activity = activity;
@@ -42,138 +43,99 @@ public class RegisterCellularListenerHelper {
         activateAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                Loc loc = new Loc(Utils.getCid(activity), Utils.getLac(activity));
-
-                if (!loc.isValid()) {
-                    return false;
-                }
-
-                for (String c : getCidsActivate()) {
-                    if (!c.isEmpty() && c.equals(loc.getLoc())) {
-                        Toast.makeText(activity, "Current Cellular Network is already on the activation list", Toast.LENGTH_LONG).show();
-                        return false;
-                    }
-                }
-                for (String c : getCidsDeactivate()) {
-                    if (!c.isEmpty() && c.equals(loc.getLoc())) {
-                        Toast.makeText(activity, "Current Cellular Network is already on the deactivation list", Toast.LENGTH_LONG).show();
-                        return false;
-                    }
-                }
-
-                Preference ps = new CheckBoxPreference(activity);
-                ps.setTitle(loc.getLoc());
-                activateList.addPreference(ps);
-                prefs.edit().putString("cell.activate.cids", loc.getLoc() + ",").apply();
-
-                activateRemove.setEnabled(activateList.getPreferenceCount() > 3);
-                return false;
+                return add(activateList, activateRemove, "cell.activate.cids");
             }
         });
 
         deactivateAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                Loc loc = new Loc(Utils.getCid(activity), Utils.getLac(activity));
-
-                if (!loc.isValid()) {
-                    return false;
-                }
-
-                for (String c : getCidsActivate()) {
-                    if (!c.isEmpty() && c.equals(loc.getLoc())) {
-                        Toast.makeText(activity, "Current Cellular Network is already on the activation list", Toast.LENGTH_LONG).show();
-                        return false;
-                    }
-                }
-                for (String c : getCidsDeactivate()) {
-                    if (!c.isEmpty() && c.equals(loc.getLoc())) {
-                        Toast.makeText(activity, "Current Cellular Network is already on the deactivation list", Toast.LENGTH_LONG).show();
-                        return false;
-                    }
-                }
-
-                Preference ps = new CheckBoxPreference(activity);
-                ps.setTitle(loc.getLoc());
-                deactivateList.addPreference(ps);
-                prefs.edit().putString("cell.deactivate.cids", loc.getLoc() + ",").apply();
-                deactivateRemove.setEnabled(deactivateList.getPreferenceCount() > 3);
-                return false;
+                return add(deactivateList, deactivateRemove, "cell.deactivate.cids");
             }
         });
 
         activateRemove.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                boolean changed = false;
+                return remove(activateList, activateRemove, "cell.activate.cids");
 
-                for (int idx = activateList.getPreferenceCount() - 1; idx >= 0; idx--) {
-                    Preference pref = activateList.getPreference(idx);
-                    if (pref instanceof CheckBoxPreference) {
-                        boolean status = ((CheckBoxPreference) pref).isChecked();
-                        if (status) {
-                            String cids = prefs.getString("cell.activate.cids", "");
-                            cids = cids.replace(pref.getTitle() + ",", "");
-                            prefs.edit().putString("cell.activate.cids", cids).apply();
-                            activateList.removePreference(pref);
-                            changed = true;
-                        }
-                    }
-                }
-
-                if (!changed) {
-                    Toast.makeText(activity, "Please select any item", Toast.LENGTH_LONG).show();
-                }
-                activateRemove.setEnabled(activateList.getPreferenceCount() > 3);
-                return true;
             }
         });
 
         deactivateRemove.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                boolean changed = false;
-
-                for (int idx = deactivateList.getPreferenceCount() - 1; idx >= 0; idx--) {
-                    Preference pref = deactivateList.getPreference(idx);
-                    if (pref instanceof CheckBoxPreference) {
-                        boolean status = ((CheckBoxPreference) pref).isChecked();
-                        if (status) {
-                            String cids = prefs.getString("cell.deactivate.cids", "");
-                            cids = cids.replace(pref.getTitle() + ",", "");
-                            prefs.edit().putString("cell.deactivate.cids", cids).apply();
-                            deactivateList.removePreference(pref);
-                            changed = true;
-                        }
-                    }
-                }
-
-                if (!changed) {
-                    Toast.makeText(activity, "Please select any item", Toast.LENGTH_LONG).show();
-                }
-                deactivateRemove.setEnabled(deactivateList.getPreferenceCount() > 3);
-                return true;
+                return remove(deactivateList, deactivateRemove, "cell.deactivate.cids");
             }
         });
 
+        list(getCidsActivate(), activateList);
+        list(getCidsDeactivate(), deactivateList);
 
-        for (String item : getCidsActivate()) {
+        activateRemove.setEnabled(activateList.getPreferenceCount() > ITEM_COUNT);
+        deactivateRemove.setEnabled(deactivateList.getPreferenceCount() > ITEM_COUNT);
+    }
+
+    private void list(String[] items, PreferenceCategory list) {
+        for (String item : items) {
             if (!item.isEmpty()) {
                 CheckBoxPreference checkbox = new CheckBoxPreference(activity);
                 checkbox.setTitle(item);
-                activateList.addPreference(checkbox);
+                list.addPreference(checkbox);
+            }
+        }
+    }
+
+    private boolean add(PreferenceCategory list, PreferenceScreen remove, String key) {
+        Loc loc = new Loc(Utils.getCid(activity), Utils.getLac(activity));
+
+        if (!loc.isValid()) {
+            return false;
+        }
+
+        for (String c : getCidsActivate()) {
+            if (!c.isEmpty() && c.equals(loc.getLoc())) {
+                Toast.makeText(activity, "Current cellular network (" + loc.getLoc() + ") is already on the activation list", Toast.LENGTH_LONG).show();
+                return false;
+            }
+        }
+        for (String c : getCidsDeactivate()) {
+            if (!c.isEmpty() && c.equals(loc.getLoc())) {
+                Toast.makeText(activity, "Current cellular network (" + loc.getLoc() + ") is already on the deactivation list", Toast.LENGTH_LONG).show();
+                return false;
             }
         }
 
-        for (String item : getCidsDeactivate()) {
-            if (!item.isEmpty()) {
-                CheckBoxPreference checkbox = new CheckBoxPreference(activity);
-                checkbox.setTitle(item);
-                deactivateList.addPreference(checkbox);
+        Preference ps = new CheckBoxPreference(activity);
+        ps.setTitle(loc.getLoc());
+        list.addPreference(ps);
+        prefs.edit().putString(key, loc.getLoc() + ",").apply();
+        remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
+        return false;
+
+    }
+
+    private boolean remove(PreferenceCategory list, PreferenceScreen remove, String key) {
+        boolean changed = false;
+
+        for (int idx = list.getPreferenceCount() - 1; idx >= 0; idx--) {
+            Preference pref = list.getPreference(idx);
+            if (pref instanceof CheckBoxPreference) {
+                boolean status = ((CheckBoxPreference) pref).isChecked();
+                if (status) {
+                    String cids = prefs.getString(key, "");
+                    cids = cids.replace(pref.getTitle() + ",", "");
+                    prefs.edit().putString(key, cids).apply();
+                    list.removePreference(pref);
+                    changed = true;
+                }
             }
         }
 
-        activateRemove.setEnabled(activateList.getPreferenceCount() > 3);
-        deactivateRemove.setEnabled(deactivateList.getPreferenceCount() > 3);
+        if (!changed) {
+            Toast.makeText(activity, "Please select any item", Toast.LENGTH_LONG).show();
+        }
+        remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
+        return true;
     }
 }
