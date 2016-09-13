@@ -6,8 +6,7 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.widget.Toast;
-
-import com.labs.dm.auto_tethering.Loc;
+import com.labs.dm.auto_tethering.CellInfo;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 
@@ -89,30 +88,30 @@ public class RegisterCellularListenerHelper {
     }
 
     private boolean add(PreferenceCategory list, PreferenceScreen remove, String key) {
-        Loc loc = new Loc(Utils.getCid(activity), Utils.getLac(activity));
+        CellInfo cellInfo = new CellInfo(Utils.getCid(activity), Utils.getLac(activity));
 
-        if (!loc.isValid()) {
+        if (!cellInfo.isValid()) {
             return false;
         }
 
         for (String c : getCidsActivate()) {
-            if (!c.isEmpty() && c.equals(loc.toString())) {
-                Toast.makeText(activity, "Cellular network (" + loc.toString() + ") is already on the activation list", Toast.LENGTH_LONG).show();
+            if (!c.isEmpty() && c.equals(cellInfo.toString())) {
+                Toast.makeText(activity, "Cellular network (" + cellInfo.toString() + ") is already on the activation list", Toast.LENGTH_LONG).show();
                 return false;
             }
         }
         for (String c : getCidsDeactivate()) {
-            if (!c.isEmpty() && c.equals(loc.toString())) {
-                Toast.makeText(activity, "Cellular network (" + loc.toString() + ") is already on the deactivation list", Toast.LENGTH_LONG).show();
+            if (!c.isEmpty() && c.equals(cellInfo.toString())) {
+                Toast.makeText(activity, "Cellular network (" + cellInfo.toString() + ") is already on the deactivation list", Toast.LENGTH_LONG).show();
                 return false;
             }
         }
 
         Preference ps = new CheckBoxPreference(activity);
-        ps.setTitle(loc.toString());
+        ps.setTitle(cellInfo.toString());
         list.addPreference(ps);
         String location = prefs.getString(key, "");
-        location = location + loc.toString() + ",";
+        location = location + cellInfo.toString() + ",";
         prefs.edit().putString(key, location + ",").apply();
         remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
         return false;
