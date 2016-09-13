@@ -66,8 +66,12 @@ public class DBManager extends SQLiteOpenHelper {
             db.execSQL("drop table IF EXISTS CRON");
             db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
             db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
-            Log.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
+        } else if (oldVersion < 5) {
+            db.execSQL("drop table IF EXISTS CELLULAR");
+            db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, type , status INTEGER)");
+            db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
         }
+        Log.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
     }
 
     public List<SimCard> readSimCard() {

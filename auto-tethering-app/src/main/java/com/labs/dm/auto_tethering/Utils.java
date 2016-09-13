@@ -12,16 +12,24 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.telephony.cdma.CdmaCellLocation;
 import android.telephony.gsm.GsmCellLocation;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -200,6 +208,12 @@ public class Utils {
         final TelephonyManager tel = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         if (tel.getCellLocation() instanceof GsmCellLocation) {
             loc = new Loc(((GsmCellLocation) tel.getCellLocation()).getCid(), ((GsmCellLocation) tel.getCellLocation()).getLac());
+            String networkOperator = tel.getNetworkOperator();
+
+            if (TextUtils.isEmpty(networkOperator) == false) {
+                int mcc = Integer.parseInt(networkOperator.substring(0, 3));
+                int mnc = Integer.parseInt(networkOperator.substring(3));
+            }
         } else if (tel.getCellLocation() instanceof CdmaCellLocation) {
             //cid = ((CdmaCellLocation)tel.getCellLocation()).getSystemId();
         }

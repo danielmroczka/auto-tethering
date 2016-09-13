@@ -6,6 +6,7 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.Loc;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
@@ -81,6 +82,7 @@ public class RegisterCellularListenerHelper {
             if (!item.isEmpty()) {
                 CheckBoxPreference checkbox = new CheckBoxPreference(activity);
                 checkbox.setTitle(item);
+                checkbox.setSummary("Liechtensteinstrasse 123/12, Wien");
                 list.addPreference(checkbox);
             }
         }
@@ -108,9 +110,10 @@ public class RegisterCellularListenerHelper {
 
         Preference ps = new CheckBoxPreference(activity);
         ps.setTitle(loc.toString());
-        ps.setSummary("Liechtensteinstrasse 123/12, Wien");
         list.addPreference(ps);
-        prefs.edit().putString(key, loc.toString() + ",").apply();
+        String location = prefs.getString(key, "");
+        location = location + loc.toString() + ",";
+        prefs.edit().putString(key, location + ",").apply();
         remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
         return false;
     }
