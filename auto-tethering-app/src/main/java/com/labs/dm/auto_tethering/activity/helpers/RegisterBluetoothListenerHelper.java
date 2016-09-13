@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
@@ -13,9 +14,11 @@ import android.provider.Settings;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -140,4 +143,32 @@ public class RegisterBluetoothListenerHelper {
         );
     }
 
+    public void prepareBTList() {
+        PreferenceCategory pc = (PreferenceCategory) activity.findPreference("bt.list");
+        Set<BluetoothDevice> bondedDevices = new ServiceHelper(activity).getBondedDevices();
+        List<String> preferredDevices = Utils.findPreferredDevices(prefs);
+        for (String deviceName : preferredDevices) {
+            Preference ps = new CheckBoxPreference(activity);
+            ps.setTitle(deviceName);
+            if (ps.getTitle() != null) {
+                Toast.makeText(activity, "Device " + deviceName + " is no longer paired.\nActivation on this device won't work.\nPlease pair devices again", Toast.LENGTH_LONG);
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    boolean found = false;
+                    for (BluetoothDevice bd : bondedDevices) {
+                        if (bd.getName().equals(deviceName)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        ps.setSummary("Device is no longer paired!");
+                    }
+                }
+
+                pc.addPreference(ps);
+            }
+        }
+
+        activity.findPreference("bt.remove.device").setEnabled(pc.getPreferenceCount() > 2);
+    }
 }
