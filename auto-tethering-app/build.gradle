@@ -164,7 +164,7 @@ def getMyApiKey(String property) {
         return "\"" + properties.getProperty(property) + "\""
     } else {
         println 'the file: api.key not found'
-        return ""
+        return "\"\""
     }
 }
 
