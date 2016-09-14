@@ -157,9 +157,15 @@ if (propFile.canRead()) {
 }
 
 def getMyApiKey(String property) {
-    Properties properties = new Properties()
-    properties.load(new FileInputStream("$project.rootDir/api.key"))
-    return "\"" + properties.getProperty(property) + "\""
+    def keyFile = new File("$project.rootDir/api.key")
+    if (keyFile.canRead()) {
+        Properties properties = new Properties()
+        properties.load(new FileInputStream(keyFile))
+        return "\"" + properties.getProperty(property) + "\""
+    } else {
+        println 'the file: api.key not found'
+        return ""
+    }
 }
 
 ext {

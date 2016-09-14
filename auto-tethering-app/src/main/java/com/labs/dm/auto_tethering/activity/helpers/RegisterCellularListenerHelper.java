@@ -89,86 +89,87 @@ public class RegisterCellularListenerHelper {
             }
         });
 
-        list(getCidsActivate(), activateList);
-        list(getCidsDeactivate(), deactivateList);
-
-        activateRemove.setEnabled(activateList.getPreferenceCount() > ITEM_COUNT);
-        deactivateRemove.setEnabled(deactivateList.getPreferenceCount() > ITEM_COUNT);
+        list(getCidsActivate(), activateList, activateRemove);
+        list(getCidsDeactivate(), deactivateList, deactivateRemove);
     }
 
-    private void list(String[] items, PreferenceCategory list) {
-        for (String item : items) {
-            if (!item.isEmpty()) {
-                Thread th = new Thread(new Run(list, item));
-                th.start();
-            }
-        }
+    private void list(String[] items, PreferenceCategory list, PreferenceScreen remove) {
+        Thread th = new Thread(new Run(list, remove, items));
+        th.start();
     }
 
     private class Run implements Runnable {
 
-        private String item;
+        private String[] items;
         private PreferenceCategory list;
+        private PreferenceScreen remove;
 
-        public Run(PreferenceCategory list, String item) {
-            this.item = item;
+        public Run(PreferenceCategory list, PreferenceScreen remove, String[] items) {
+            this.items = items;
             this.list = list;
+            this.remove = remove;
         }
 
         @Override
         public void run() {
-            CellInfo cellInfo = new CellInfo(item);
-            TelephonyManager manager = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
-            String networkOperator = manager.getNetworkOperator();
-            int mcc = 0;
-            int mnc = 0;
-            if (TextUtils.isEmpty(networkOperator) == false) {
-                mcc = Integer.parseInt(networkOperator.substring(0, 3));
-                mnc = Integer.parseInt(networkOperator.substring(3));
-            }
+            for (String item : items) {
+                if (!item.isEmpty()) {
+                    CellInfo cellInfo = new CellInfo(item);
+                    TelephonyManager manager = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
+                    String networkOperator = manager.getNetworkOperator();
+                    int mcc = 0;
+                    int mnc = 0;
+                    if (TextUtils.isEmpty(networkOperator) == false) {
+                        mcc = Integer.parseInt(networkOperator.substring(0, 3));
+                        mnc = Integer.parseInt(networkOperator.substring(3));
+                    }
 
-            String url = String.format("http://opencellid.org/cell/get?key=%s&mcc=%d&mnc=%d&lac=%d&cellid=%d&format=json", BuildConfig.OPENCELLID_KEY, mcc, mnc, cellInfo.getLac(), cellInfo.getCid());
+                    String url = String.format("http://opencellid.org/cell/get?key=%s&mcc=%d&mnc=%d&lac=%d&cellid=%d&format=json", BuildConfig.OPENCELLID_KEY, mcc, mnc, cellInfo.getLac(), cellInfo.getCid());
 
-            HttpClient httpclient = new DefaultHttpClient();
-            double lon = 0, lat = 0;
-            HttpGet httpget = new HttpGet(url);
-            HttpResponse response;
-            try {
-                response = httpclient.execute(httpget);
-                HttpEntity entity = response.getEntity();
-                if (entity != null) {
-                    InputStream instream = entity.getContent();
-                    String result = convertStreamToString(instream);
-                    JSONObject json = new JSONObject(result);
-                    lon = json.getDouble("lon");
-                    lat = json.getDouble("lat");
-                    instream.close();
+                    HttpClient httpclient = new DefaultHttpClient();
+                    double lon = 0, lat = 0;
+                    HttpGet httpget = new HttpGet(url);
+                    HttpResponse response;
+                    try {
+                        response = httpclient.execute(httpget);
+                        HttpEntity entity = response.getEntity();
+                        if (entity != null) {
+                            InputStream instream = entity.getContent();
+                            String result = convertStreamToString(instream);
+                            JSONObject json = new JSONObject(result);
+                            lon = json.getDouble("lon");
+                            lat = json.getDouble("lat");
+                            instream.close();
+                        }
+                    } catch (Exception e) {
+                        Log.e("HttpRequest", e.getMessage());
+                    }
+
+                    CheckBoxPreference checkbox = new CheckBoxPreference(activity);
+                    checkbox.setTitle(item);
+
+                    LocationManager locationManager = (LocationManager) activity.getSystemService(LOCATION_SERVICE);
+                    Criteria criteria = new Criteria();
+                    criteria.setAccuracy(Criteria.ACCURACY_FINE);
+                    criteria.setAltitudeRequired(false);
+                    criteria.setBearingRequired(false);
+                    criteria.setCostAllowed(false);
+                    criteria.setPowerRequirement(Criteria.POWER_LOW);
+                    String provider = locationManager.getBestProvider(criteria, true);
+
+                    Location location = locationManager.getLastKnownLocation(provider);
+                    if (lat > 0 && lon > 0) {
+                        double distance = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), lat, lon);
+                        checkbox.setSummary(String.format("Distance: %.0f m ± %.0f m", distance, location.getAccuracy()));
+                    } else {
+                        checkbox.setSummary("Distance: n/a");
+                    }
+
+                    list.addPreference(checkbox);
                 }
-            } catch (Exception e) {
-                Log.e("HttpRequest", e.getMessage());
             }
 
-            CheckBoxPreference checkbox = new CheckBoxPreference(activity);
-            checkbox.setTitle(item);
-
-            LocationManager locationManager = (LocationManager) activity.getSystemService(LOCATION_SERVICE);
-            Criteria criteria = new Criteria();
-            criteria.setAccuracy(Criteria.ACCURACY_FINE);
-            criteria.setAltitudeRequired(false);
-            criteria.setBearingRequired(false);
-            criteria.setCostAllowed(false);
-            criteria.setPowerRequirement(Criteria.POWER_LOW);
-            String provider = locationManager.getBestProvider(criteria, true);
-
-            Location location = locationManager.getLastKnownLocation(provider);
-            if (lat > 0 && lon > 0) {
-                double distance = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), lat, lon);
-                checkbox.setSummary(String.format("Distance: %.0f m ± %.0f m", distance, location.getAccuracy()));
-            } else {
-                checkbox.setSummary("Distance: n/a");
-            }
-
-            list.addPreference(checkbox);
+            remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
         }
     }
 
