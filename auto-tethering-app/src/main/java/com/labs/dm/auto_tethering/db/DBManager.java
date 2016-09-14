@@ -199,4 +199,36 @@ public class DBManager extends SQLiteOpenHelper {
         getWritableDatabase().delete(SimCard.NAME, null, null);
         getWritableDatabase().delete(Cron.NAME, null, null);
     }
+
+    public long addCellular(Cellular cellular) {
+        ContentValues content = new ContentValues();
+        content.put("cid", cellular.getCid());
+        content.put("lac", cellular.getLac());
+        content.put("mcc", cellular.getMcc());
+        content.put("mnc", cellular.getMnc());
+        content.put("status", cellular.getStatus());
+        return writableDatabase.insert(Cellular.NAME, null, content);
+    }
+
+    public List<Cellular> readCellular() {
+        List<Cellular> list;
+        Cursor cursor = null;
+        try {
+            cursor = readableDatabase.rawQuery("SELECT id, cid, lac, status FROM CELLULAR", null);
+            list = new ArrayList<>(cursor.getCount());
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                do {
+                    Cellular p = new Cellular(0, 0, cursor.getInt(1), cursor.getInt(2), 'A', 0, 0, "", 0);//SimCard(cursor.getString(1), cursor.getString(2), cursor.getInt(3));
+                    list.add(p);
+                }
+                while (cursor.moveToNext());
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return list;
+    }
 }
