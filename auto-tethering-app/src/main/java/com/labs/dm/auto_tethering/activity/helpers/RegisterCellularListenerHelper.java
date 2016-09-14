@@ -213,7 +213,7 @@ public class RegisterCellularListenerHelper {
 
             }
 
-            //remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
+            remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
         }
     }
 

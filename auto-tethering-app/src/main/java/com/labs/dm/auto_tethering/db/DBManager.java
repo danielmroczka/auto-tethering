@@ -206,8 +206,6 @@ public class DBManager extends SQLiteOpenHelper {
         content.put("lac", cellular.getLac());
         content.put("mcc", cellular.getMcc());
         content.put("mnc", cellular.getMnc());
-
-        content.put("id", cellular.getId());
         content.put("type", String.valueOf(cellular.getType()));
         content.put("lat", cellular.getLat());
         content.put("lon", cellular.getLon());
