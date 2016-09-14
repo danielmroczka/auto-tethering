@@ -16,13 +16,20 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,6 +40,8 @@ import static android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID;
  * Created by Daniel Mroczka
  */
 public class Utils {
+
+    private static final int MEAN_EARTH_RADIUS = 6371000;
 
     public static boolean validateTime(final String time) {
         final String TIME24HOURS_PATTERN = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
@@ -225,4 +234,23 @@ public class Utils {
 
         return lac;
     }
+
+    /**
+     * @return distance in meters
+     */
+    public static double calculateDistance(double srcLat, double srcLong, double destLat, double destLong) {
+
+        double latDistance = Math.toRadians(srcLat - destLat);
+        double lngDistance = Math.toRadians(srcLong - destLong);
+
+        double a = (Math.sin(latDistance / 2) * Math.sin(latDistance / 2))
+                + (Math.cos(Math.toRadians(srcLat)))
+                * (Math.cos(Math.toRadians(destLat))
+                * (Math.sin(lngDistance / 2))
+                * (Math.sin(lngDistance / 2)));
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return MEAN_EARTH_RADIUS * c;
+    }
+
 }

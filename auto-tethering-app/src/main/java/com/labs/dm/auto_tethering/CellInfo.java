@@ -8,6 +8,15 @@ public class CellInfo {
 
     private int cid;
     private int lac;
+    private int mcc;
+    private int mnc;
+
+    public CellInfo(int cid, int lac, int mcc, int mnc) {
+        this.cid = cid;
+        this.lac = lac;
+        this.mcc = mcc;
+        this.mnc = mnc;
+    }
 
     public CellInfo(int cid, int lac) {
         this.cid = cid;
@@ -20,6 +29,14 @@ public class CellInfo {
 
     public int getCid() {
         return cid;
+    }
+
+    public int getMcc() {
+        return mcc;
+    }
+
+    public int getMnc() {
+        return mnc;
     }
 
     public CellInfo(String loc) {
