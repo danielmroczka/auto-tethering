@@ -38,5 +38,9 @@ Example of [gradle.properties] (https://gist.github.com/danielmroczka/b93eb61e45
 
 More about signing apk files you may find [here] (http://developer.android.com/tools/publishing/app-signing.html)
 
+Application is using [OpenCellID API] (http://opencellid.org/) and therefore it requires to create account and provide API_KEY.
+Once you get a key you need create a file in root folder of project api.key and add line OPEN_CELL_ID_API_KEY=<your key>
+Otherwise application cannot retrieve cellular towers location.
+
 ## Google Play app
 Built application you may install here: [Auto WiFi Tethering] (https://play.google.com/store/apps/details?id=com.labs.dm.auto_tethering)
