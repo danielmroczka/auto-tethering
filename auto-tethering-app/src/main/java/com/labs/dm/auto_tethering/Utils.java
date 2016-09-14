@@ -5,6 +5,9 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,16 +19,29 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
 import static android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID;
+import static android.content.Context.LOCATION_SERVICE;
 
 /**
  * Created by Daniel Mroczka
@@ -171,40 +187,14 @@ public class Utils {
         }
     }
 
-
-    private void showToast(final Context context, final String text) {
+    public static void showToast(final Context context, final String text) {
         Handler h = new Handler(context.getMainLooper());
-
         h.post(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(context, text, Toast.LENGTH_LONG).show();
             }
         });
-    }
-
-    public static int getCid(Context context) {
-        int cid = -1;
-        final TelephonyManager tel = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        if (tel.getCellLocation() instanceof GsmCellLocation) {
-            cid = ((GsmCellLocation) tel.getCellLocation()).getCid();
-        } else if (tel.getCellLocation() instanceof CdmaCellLocation) {
-            //cid = ((CdmaCellLocation)tel.getCellLocation()).getSystemId();
-        }
-
-        return cid;
-    }
-
-    public static int getLac(Context context) {
-        int lac = -1;
-        final TelephonyManager tel = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        if (tel.getCellLocation() instanceof GsmCellLocation) {
-            lac = ((GsmCellLocation) tel.getCellLocation()).getLac();
-        } else if (tel.getCellLocation() instanceof CdmaCellLocation) {
-            //cid = ((CdmaCellLocation)tel.getCellLocation()).getSystemId();
-        }
-
-        return lac;
     }
 
     public static Cellular getCellInfo(Context context) {
@@ -218,7 +208,7 @@ public class Utils {
                 mcc = Integer.parseInt(networkOperator.substring(0, 3));
                 mnc = Integer.parseInt(networkOperator.substring(3));
             }
-            cellInfo = new Cellular(mcc, mnc, ((GsmCellLocation) tel.getCellLocation()).getCid(), ((GsmCellLocation) tel.getCellLocation()).getLac());
+            cellInfo = new Cellular(mcc, mnc, ((GsmCellLocation) tel.getCellLocation()).getLac(), ((GsmCellLocation) tel.getCellLocation()).getCid());
         } else if (tel.getCellLocation() instanceof CdmaCellLocation) {
             //cid = ((CdmaCellLocation)tel.getCellLocation()).getSystemId();
         }
@@ -263,6 +253,20 @@ public class Utils {
             }
         }
         return sb.toString();
+    }
+
+    public static Location getLastKnownLocation(Context context) {
+        LocationManager locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        criteria.setAltitudeRequired(false);
+        criteria.setBearingRequired(false);
+        criteria.setCostAllowed(false);
+        criteria.setPowerRequirement(Criteria.POWER_LOW);
+        String provider = locationManager.getBestProvider(criteria, true);
+
+        Location location = locationManager.getLastKnownLocation(provider);
+        return location;
     }
 
 }

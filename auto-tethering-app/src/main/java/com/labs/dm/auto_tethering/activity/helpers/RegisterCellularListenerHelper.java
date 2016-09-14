@@ -1,20 +1,22 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.db.DBManager;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -24,8 +26,6 @@ import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.util.List;
-
-import static android.content.Context.LOCATION_SERVICE;
 
 /**
  * Created by Daniel Mroczka on 9/12/2016.
@@ -46,8 +46,8 @@ public class RegisterCellularListenerHelper {
         final PreferenceScreen deactivateAdd = (PreferenceScreen) activity.findPreference("cell.deactivate.add");
         final PreferenceScreen activateRemove = (PreferenceScreen) activity.findPreference("cell.activate.remove");
         final PreferenceScreen deactivateRemove = (PreferenceScreen) activity.findPreference("cell.deactivate.remove");
-        final PreferenceCategory activateList = (PreferenceCategory) activity.findPreference("cell.activate.load");
-        final PreferenceCategory deactivateList = (PreferenceCategory) activity.findPreference("cell.deactivate.load");
+        final PreferenceCategory activateList = (PreferenceCategory) activity.findPreference("cell.activate.list");
+        final PreferenceCategory deactivateList = (PreferenceCategory) activity.findPreference("cell.deactivate.list");
 
         activateAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -82,13 +82,12 @@ public class RegisterCellularListenerHelper {
     }
 
     private boolean add(PreferenceCategory list, PreferenceScreen remove, char type) {
-        Thread th = new Thread(new AddThread(list, remove, type));
-        th.start();
+        new AddTask(list, remove, type).execute();
         return true;
     }
 
     private void load(PreferenceCategory list, PreferenceScreen remove, char type) {
-        Thread th = new Thread(new LoadThread(list, remove, type));
+        Thread th = new Thread(new LoadTask(list, remove, type));
         th.start();
     }
 
@@ -96,7 +95,7 @@ public class RegisterCellularListenerHelper {
         JSONObject json;
         String url = String.format("http://opencellid.org/cell/get?key=%s&mcc=%d&mnc=%d&lac=%d&cellid=%d&format=json", BuildConfig.OPENCELLID_KEY, item.getMcc(), item.getMnc(), item.getLac(), item.getCid());
 
-        if (item.getLat() == 0 || item.getLon() == 0) {
+        if (!item.hasLocation()) {
             HttpClient httpclient = new DefaultHttpClient();
 
             HttpGet httpget = new HttpGet(url);
@@ -105,12 +104,13 @@ public class RegisterCellularListenerHelper {
                 response = httpclient.execute(httpget);
                 HttpEntity entity = response.getEntity();
                 if (entity != null) {
-                    InputStream instream = entity.getContent();
-                    String result = Utils.convertStreamToString(instream);
+                    InputStream inputStream = entity.getContent();
+                    String result = Utils.convertStreamToString(inputStream);
+                    Log.d("Load JSON", result);
                     json = new JSONObject(result);
                     item.setLon(json.getDouble("lon"));
                     item.setLat(json.getDouble("lat"));
-                    instream.close();
+                    inputStream.close();
                 }
             } catch (Exception e) {
                 Log.e("HttpRequest", e.getMessage());
@@ -118,64 +118,92 @@ public class RegisterCellularListenerHelper {
         }
     }
 
-    private class AddThread implements Runnable {
+    private class AddTask extends AsyncTask<Void, Void, Long> {
 
         private PreferenceCategory list;
         private PreferenceScreen remove;
         private char type;
 
-        public AddThread(PreferenceCategory list, PreferenceScreen remove, char type) {
+        public AddTask(PreferenceCategory list, PreferenceScreen remove, char type) {
             this.list = list;
             this.remove = remove;
             this.type = type;
         }
 
         @Override
-        public void run() {
+        protected Long doInBackground(Void... params) {
+
             Cellular current = Utils.getCellInfo(activity);
 
             List<Cellular> activeList = DBManager.getInstance(activity).readCellular('A');
 
             for (Cellular c : activeList) {
                 if (current.theSame(c)) {
-                    Toast.makeText(activity, "Cellular network (" + current.toString() + ") is already on the activation load", Toast.LENGTH_LONG).show();
-                    return;
+                    Utils.showToast(activity, "Cellular network (" + current.toString() + ") is already on the activation list!");
+                    return 0L;
                 }
             }
 
             List<Cellular> deactiveList = DBManager.getInstance(activity).readCellular('D');
             for (Cellular c : deactiveList) {
                 if (current.theSame(c)) {
-                    Toast.makeText(activity, "Cellular network (" + current.toString() + ") is already on the deactivation load", Toast.LENGTH_LONG).show();
-                    return;
+                    Utils.showToast(activity, "Cellular network (" + current.toString() + ") is already on the deactivation list!");
+                    return 0L;
                 }
             }
 
             loadLocationFromService(current);
-
             current.setType(type);
-            current.setLat(0);
-            current.setLon(0);
             current.setName("");
             long id = DBManager.getInstance(activity).addCellular(current);
 
             if (id > 0) {
-                Preference ps = new CheckBoxPreference(activity);
-                ps.setTitle(current.toString());
-                ps.setKey(String.valueOf(id));
-                list.addPreference(ps);
-                remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
+                final CheckBoxPreference checkBox = new CheckBoxPreference(activity);
+                checkBox.setTitle(current.toString());
+                checkBox.setKey(String.valueOf(id));
+                checkBox.setChecked(false);
+                if (current.hasLocation()) {
+                    Location location = Utils.getLastKnownLocation(activity);
+                    double distance = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), current.getLat(), current.getLon());
+                    checkBox.setSummary(String.format("Distance: %.0f m ± %.0f m", distance, location.getAccuracy()));
+                } else {
+                    checkBox.setSummary("Distance: n/a");
+                }
+
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        list.addPreference(checkBox);
+                        remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
+                    }
+                });
+                return id;
             }
-            return;
+            return null;
+        }
+
+        private ProgressDialog progress;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progress = new ProgressDialog(activity);
+            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progress.show();
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            progress.dismiss();
         }
     }
 
-    private class LoadThread implements Runnable {
+    private class LoadTask implements Runnable {
         private final PreferenceCategory list;
         private final PreferenceScreen remove;
         private final char type;
 
-        public LoadThread(final PreferenceCategory list, final PreferenceScreen remove, final char type) {
+        public LoadTask(final PreferenceCategory list, final PreferenceScreen remove, final char type) {
             this.list = list;
             this.remove = remove;
             this.type = type;
@@ -187,22 +215,13 @@ public class RegisterCellularListenerHelper {
 
             for (Cellular item : col) {
                 loadLocationFromService(item);
-
                 CheckBoxPreference checkbox = new CheckBoxPreference(activity);
                 checkbox.setKey(String.valueOf(item.getId()));
-                checkbox.setTitle(String.valueOf(item.getCid()));
+                checkbox.setTitle(item.toString());
+                checkbox.setChecked(false);
 
-                LocationManager locationManager = (LocationManager) activity.getSystemService(LOCATION_SERVICE);
-                Criteria criteria = new Criteria();
-                criteria.setAccuracy(Criteria.ACCURACY_FINE);
-                criteria.setAltitudeRequired(false);
-                criteria.setBearingRequired(false);
-                criteria.setCostAllowed(false);
-                criteria.setPowerRequirement(Criteria.POWER_LOW);
-                String provider = locationManager.getBestProvider(criteria, true);
-
-                Location location = locationManager.getLastKnownLocation(provider);
-                if (item.getLat() > 0 && item.getLon() > 0) {
+                if (item.hasLocation()) {
+                    Location location = Utils.getLastKnownLocation(activity);
                     double distance = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), item.getLat(), item.getLon());
                     checkbox.setSummary(String.format("Distance: %.0f m ± %.0f m", distance, location.getAccuracy()));
                 } else {
@@ -224,10 +243,11 @@ public class RegisterCellularListenerHelper {
             Preference pref = list.getPreference(idx);
             if (pref instanceof CheckBoxPreference) {
                 boolean status = ((CheckBoxPreference) pref).isChecked();
-                if (status && pref.getKey() == null) {
-                    DBManager.getInstance(activity).removeCellular(pref.getKey());
-                    list.removePreference(pref);
-                    changed = true;
+                if (status && !pref.getKey().startsWith("cell")) {
+                    if (DBManager.getInstance(activity).removeCellular(pref.getKey()) > 0) {
+                        list.removePreference(pref);
+                        changed = true;
+                    }
                 }
             }
         }

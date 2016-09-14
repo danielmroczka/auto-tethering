@@ -90,7 +90,7 @@ public class Cellular {
     }
 
     public boolean theSame(Cellular other) {
-        return other != null && other.getLat() == getLac() && other.getLon() == getLon() && other.getMcc() == getMcc() && other.getMnc() == getMnc();
+        return other != null && other.getLac() == getLac() && other.getCid() == getCid() && other.getMcc() == getMcc() && other.getMnc() == getMnc();
     }
 
     public void setType(char type) {
@@ -99,5 +99,14 @@ public class Cellular {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return cid + "/" + lac;
+    }
+
+    public boolean hasLocation() {
+        return lon != 0 && lat != 0;
     }
 }
