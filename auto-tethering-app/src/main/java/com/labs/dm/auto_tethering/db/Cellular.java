@@ -13,8 +13,8 @@ public class Cellular {
     private final int lac;
     private final int cid;
     private final char type;
-    private final String lat;
-    private final String lon;
+    private final float lat;
+    private final float lon;
     private final String name;
     private int status;
 
@@ -46,11 +46,11 @@ public class Cellular {
         return type;
     }
 
-    public String getLat() {
+    public float getLat() {
         return lat;
     }
 
-    public String getLon() {
+    public float getLon() {
         return lon;
     }
 
@@ -62,7 +62,7 @@ public class Cellular {
         return status;
     }
 
-    public Cellular(int mcc, int mnc, int lac, int cid, char type, String lat, String lon, String name, int status) {
+    public Cellular(int mcc, int mnc, int lac, int cid, char type, float lat, float lon, String name, int status) {
         this.mcc = mcc;
         this.mnc = mnc;
         this.lac = lac;

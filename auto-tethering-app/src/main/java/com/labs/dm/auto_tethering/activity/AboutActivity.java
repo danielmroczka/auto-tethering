@@ -28,7 +28,7 @@ public class AboutActivity extends Activity {
 
         TextView textView = (TextView) findViewById(R.id.versionTextView);
         String buildTime = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ENGLISH).format(BuildConfig.buildTime);
-        textView.setText(String.format("version: %s\n", pInfo != null ? pInfo.versionName : null));
+        textView.setText(String.format("version: %s.%s\n", pInfo != null ? pInfo.versionName : null, BuildConfig.BUILD_TYPE.toUpperCase()));
         textView.append(String.format("build: %s", buildTime));
     }
 

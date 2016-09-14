@@ -20,7 +20,7 @@ public class DBManager extends SQLiteOpenHelper {
     private final SQLiteDatabase writableDatabase;
     private final SQLiteDatabase readableDatabase;
     public final static String DB_NAME = "autowifi.db";
-    private static final int DB_VERSION = 4;
+    private static final int DB_VERSION = 5;
 
     private static DBManager instance;
 
@@ -68,8 +68,7 @@ public class DBManager extends SQLiteOpenHelper {
             db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
         } else if (oldVersion < 5) {
             db.execSQL("drop table IF EXISTS CELLULAR");
-            db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, type , status INTEGER)");
-            db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
+            db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, type TEXT, lat REAL, lon REAL, name TEXT, status INTEGER)");
         }
         Log.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
     }

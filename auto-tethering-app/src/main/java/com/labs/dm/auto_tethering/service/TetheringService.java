@@ -713,7 +713,6 @@ public class TetheringService extends IntentService {
         } else if (serviceAction.name().contains("OFF")) {
             icon = R.drawable.app_off;
         }
-
         switch (serviceAction) {
             case TETHER_ON:
                 updateLastAccess();
