@@ -79,7 +79,6 @@ public class RegisterCellularListenerHelper {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 return remove(activateList, activateRemove, "cell.activate.cids");
-
             }
         });
 
