@@ -206,20 +206,27 @@ public class DBManager extends SQLiteOpenHelper {
         content.put("lac", cellular.getLac());
         content.put("mcc", cellular.getMcc());
         content.put("mnc", cellular.getMnc());
+
+        content.put("id", cellular.getId());
+        content.put("type", String.valueOf(cellular.getType()));
+        content.put("lat", cellular.getLat());
+        content.put("lon", cellular.getLon());
+        content.put("name", cellular.getName());
         content.put("status", cellular.getStatus());
         return writableDatabase.insert(Cellular.NAME, null, content);
     }
 
-    public List<Cellular> readCellular() {
+    public List<Cellular> readCellular(char type) {
         List<Cellular> list;
         Cursor cursor = null;
         try {
-            cursor = readableDatabase.rawQuery("SELECT id, cid, lac, status FROM CELLULAR", null);
+            cursor = readableDatabase.rawQuery("SELECT id, mcc, mnc, lac, cid, type, lat, lon, name, status FROM CELLULAR where type='" + type + "'", null);
             list = new ArrayList<>(cursor.getCount());
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {
-                    Cellular p = new Cellular(0, 0, cursor.getInt(1), cursor.getInt(2), 'A', 0, 0, "", 0);//SimCard(cursor.getString(1), cursor.getString(2), cursor.getInt(3));
+                    Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), (char) cursor.getInt(5), cursor.getDouble(6), cursor.getDouble(7), cursor.getString(8), cursor.getInt(9));
+                    p.setId(cursor.getInt(0));
                     list.add(p);
                 }
                 while (cursor.moveToNext());
@@ -230,5 +237,9 @@ public class DBManager extends SQLiteOpenHelper {
             }
         }
         return list;
+    }
+
+    public int removeCellular(final String id) {
+        return writableDatabase.delete(Cellular.NAME, "id=" + Integer.valueOf(id), null);
     }
 }

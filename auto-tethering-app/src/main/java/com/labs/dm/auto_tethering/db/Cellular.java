@@ -12,10 +12,10 @@ public class Cellular {
     private final int mnc;
     private final int lac;
     private final int cid;
-    private final char type;
-    private final float lat;
-    private final float lon;
-    private final String name;
+    private char type;
+    private double lat;
+    private double lon;
+    private String name;
     private int status;
 
     public void setId(int id) {
@@ -46,11 +46,11 @@ public class Cellular {
         return type;
     }
 
-    public float getLat() {
+    public double getLat() {
         return lat;
     }
 
-    public float getLon() {
+    public double getLon() {
         return lon;
     }
 
@@ -62,7 +62,14 @@ public class Cellular {
         return status;
     }
 
-    public Cellular(int mcc, int mnc, int lac, int cid, char type, float lat, float lon, String name, int status) {
+    public Cellular(int mcc, int mnc, int lac, int cid) {
+        this.mcc = mcc;
+        this.mnc = mnc;
+        this.lac = lac;
+        this.cid = cid;
+    }
+
+    public Cellular(int mcc, int mnc, int lac, int cid, char type, double lat, double lon, String name, int status) {
         this.mcc = mcc;
         this.mnc = mnc;
         this.lac = lac;
@@ -72,5 +79,25 @@ public class Cellular {
         this.lon = lon;
         this.name = name;
         this.status = status;
+    }
+
+    public void setLon(double lon) {
+        this.lon = lon;
+    }
+
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
+    public boolean theSame(Cellular other) {
+        return other != null && other.getLat() == getLac() && other.getLon() == getLon() && other.getMcc() == getMcc() && other.getMnc() == getMnc();
+    }
+
+    public void setType(char type) {
+        this.type = type;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

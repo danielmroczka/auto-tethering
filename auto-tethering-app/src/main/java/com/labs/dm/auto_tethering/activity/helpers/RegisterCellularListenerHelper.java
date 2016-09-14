@@ -1,6 +1,5 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Criteria;
 import android.location.Location;
@@ -9,14 +8,13 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
-import android.telephony.TelephonyManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 import com.labs.dm.auto_tethering.BuildConfig;
-import com.labs.dm.auto_tethering.CellInfo;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
+import com.labs.dm.auto_tethering.db.Cellular;
+import com.labs.dm.auto_tethering.db.DBManager;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -24,10 +22,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.List;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -45,186 +41,183 @@ public class RegisterCellularListenerHelper {
         this.prefs = prefs;
     }
 
-    private String[] getCidsActivate() {
-        return prefs.getString("cell.activate.cids", "").split(",");
-    }
-
-    private String[] getCidsDeactivate() {
-        return prefs.getString("cell.deactivate.cids", "").split(",");
-    }
-
     public void registerCellularNetworkListener() {
         final PreferenceScreen activateAdd = (PreferenceScreen) activity.findPreference("cell.activate.add");
         final PreferenceScreen deactivateAdd = (PreferenceScreen) activity.findPreference("cell.deactivate.add");
         final PreferenceScreen activateRemove = (PreferenceScreen) activity.findPreference("cell.activate.remove");
         final PreferenceScreen deactivateRemove = (PreferenceScreen) activity.findPreference("cell.deactivate.remove");
-        final PreferenceCategory activateList = (PreferenceCategory) activity.findPreference("cell.activate.list");
-        final PreferenceCategory deactivateList = (PreferenceCategory) activity.findPreference("cell.deactivate.list");
+        final PreferenceCategory activateList = (PreferenceCategory) activity.findPreference("cell.activate.load");
+        final PreferenceCategory deactivateList = (PreferenceCategory) activity.findPreference("cell.deactivate.load");
 
         activateAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                return add(activateList, activateRemove, "cell.activate.cids");
+                return add(activateList, activateRemove, 'A');
             }
         });
 
         deactivateAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                return add(deactivateList, deactivateRemove, "cell.deactivate.cids");
+                return add(deactivateList, deactivateRemove, 'D');
             }
         });
 
         activateRemove.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                return remove(activateList, activateRemove, "cell.activate.cids");
+                return remove(activateList, activateRemove);
             }
         });
 
         deactivateRemove.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                return remove(deactivateList, deactivateRemove, "cell.deactivate.cids");
+                return remove(deactivateList, deactivateRemove);
             }
         });
 
-        list(getCidsActivate(), activateList, activateRemove);
-        list(getCidsDeactivate(), deactivateList, deactivateRemove);
+        load(activateList, activateRemove, 'A');
+        load(deactivateList, deactivateRemove, 'D');
     }
 
-    private void list(String[] items, PreferenceCategory list, PreferenceScreen remove) {
-        Thread th = new Thread(new Run(list, remove, items));
+    private boolean add(PreferenceCategory list, PreferenceScreen remove, char type) {
+        Thread th = new Thread(new AddThread(list, remove, type));
+        th.start();
+        return true;
+    }
+
+    private void load(PreferenceCategory list, PreferenceScreen remove, char type) {
+        Thread th = new Thread(new LoadThread(list, remove, type));
         th.start();
     }
 
-    private class Run implements Runnable {
+    private void loadLocationFromService(Cellular item) {
+        JSONObject json;
+        String url = String.format("http://opencellid.org/cell/get?key=%s&mcc=%d&mnc=%d&lac=%d&cellid=%d&format=json", BuildConfig.OPENCELLID_KEY, item.getMcc(), item.getMnc(), item.getLac(), item.getCid());
 
-        private String[] items;
+        if (item.getLat() == 0 || item.getLon() == 0) {
+            HttpClient httpclient = new DefaultHttpClient();
+
+            HttpGet httpget = new HttpGet(url);
+            HttpResponse response;
+            try {
+                response = httpclient.execute(httpget);
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    InputStream instream = entity.getContent();
+                    String result = Utils.convertStreamToString(instream);
+                    json = new JSONObject(result);
+                    item.setLon(json.getDouble("lon"));
+                    item.setLat(json.getDouble("lat"));
+                    instream.close();
+                }
+            } catch (Exception e) {
+                Log.e("HttpRequest", e.getMessage());
+            }
+        }
+    }
+
+    private class AddThread implements Runnable {
+
         private PreferenceCategory list;
         private PreferenceScreen remove;
+        private char type;
 
-        public Run(PreferenceCategory list, PreferenceScreen remove, String[] items) {
-            this.items = items;
+        public AddThread(PreferenceCategory list, PreferenceScreen remove, char type) {
             this.list = list;
             this.remove = remove;
+            this.type = type;
         }
 
         @Override
         public void run() {
-            for (String item : items) {
-                if (!item.isEmpty()) {
-                    CellInfo cellInfo = new CellInfo(item);
-                    TelephonyManager manager = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
-                    String networkOperator = manager.getNetworkOperator();
-                    int mcc = 0;
-                    int mnc = 0;
-                    if (TextUtils.isEmpty(networkOperator) == false) {
-                        mcc = Integer.parseInt(networkOperator.substring(0, 3));
-                        mnc = Integer.parseInt(networkOperator.substring(3));
-                    }
+            Cellular current = Utils.getCellInfo(activity);
 
-                    String url = String.format("http://opencellid.org/cell/get?key=%s&mcc=%d&mnc=%d&lac=%d&cellid=%d&format=json", BuildConfig.OPENCELLID_KEY, mcc, mnc, cellInfo.getLac(), cellInfo.getCid());
+            List<Cellular> activeList = DBManager.getInstance(activity).readCellular('A');
 
-                    HttpClient httpclient = new DefaultHttpClient();
-                    double lon = 0, lat = 0;
-                    HttpGet httpget = new HttpGet(url);
-                    HttpResponse response;
-                    try {
-                        response = httpclient.execute(httpget);
-                        HttpEntity entity = response.getEntity();
-                        if (entity != null) {
-                            InputStream instream = entity.getContent();
-                            String result = convertStreamToString(instream);
-                            JSONObject json = new JSONObject(result);
-                            lon = json.getDouble("lon");
-                            lat = json.getDouble("lat");
-                            instream.close();
-                        }
-                    } catch (Exception e) {
-                        Log.e("HttpRequest", e.getMessage());
-                    }
-
-                    CheckBoxPreference checkbox = new CheckBoxPreference(activity);
-                    checkbox.setTitle(item);
-
-                    LocationManager locationManager = (LocationManager) activity.getSystemService(LOCATION_SERVICE);
-                    Criteria criteria = new Criteria();
-                    criteria.setAccuracy(Criteria.ACCURACY_FINE);
-                    criteria.setAltitudeRequired(false);
-                    criteria.setBearingRequired(false);
-                    criteria.setCostAllowed(false);
-                    criteria.setPowerRequirement(Criteria.POWER_LOW);
-                    String provider = locationManager.getBestProvider(criteria, true);
-
-                    Location location = locationManager.getLastKnownLocation(provider);
-                    if (lat > 0 && lon > 0) {
-                        double distance = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), lat, lon);
-                        checkbox.setSummary(String.format("Distance: %.0f m ± %.0f m", distance, location.getAccuracy()));
-                    } else {
-                        checkbox.setSummary("Distance: n/a");
-                    }
-
-                    list.addPreference(checkbox);
+            for (Cellular c : activeList) {
+                if (current.theSame(c)) {
+                    Toast.makeText(activity, "Cellular network (" + current.toString() + ") is already on the activation load", Toast.LENGTH_LONG).show();
+                    return;
                 }
             }
 
-            remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
+            List<Cellular> deactiveList = DBManager.getInstance(activity).readCellular('D');
+            for (Cellular c : deactiveList) {
+                if (current.theSame(c)) {
+                    Toast.makeText(activity, "Cellular network (" + current.toString() + ") is already on the deactivation load", Toast.LENGTH_LONG).show();
+                    return;
+                }
+            }
+
+            loadLocationFromService(current);
+
+            current.setType(type);
+            current.setLat(0);
+            current.setLon(0);
+            current.setName("");
+            long id = DBManager.getInstance(activity).addCellular(current);
+
+            if (id > 0) {
+                Preference ps = new CheckBoxPreference(activity);
+                ps.setTitle(current.toString());
+                ps.setKey(String.valueOf(id));
+                list.addPreference(ps);
+                remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
+            }
+            return;
         }
     }
 
-    private static String convertStreamToString(InputStream is) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
+    private class LoadThread implements Runnable {
+        private final PreferenceCategory list;
+        private final PreferenceScreen remove;
+        private final char type;
 
-        String line;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        public LoadThread(final PreferenceCategory list, final PreferenceScreen remove, final char type) {
+            this.list = list;
+            this.remove = remove;
+            this.type = type;
         }
-        return sb.toString();
+
+        @Override
+        public void run() {
+            List<Cellular> col = DBManager.getInstance(activity).readCellular(type);
+
+            for (Cellular item : col) {
+                loadLocationFromService(item);
+
+                CheckBoxPreference checkbox = new CheckBoxPreference(activity);
+                checkbox.setKey(String.valueOf(item.getId()));
+                checkbox.setTitle(String.valueOf(item.getCid()));
+
+                LocationManager locationManager = (LocationManager) activity.getSystemService(LOCATION_SERVICE);
+                Criteria criteria = new Criteria();
+                criteria.setAccuracy(Criteria.ACCURACY_FINE);
+                criteria.setAltitudeRequired(false);
+                criteria.setBearingRequired(false);
+                criteria.setCostAllowed(false);
+                criteria.setPowerRequirement(Criteria.POWER_LOW);
+                String provider = locationManager.getBestProvider(criteria, true);
+
+                Location location = locationManager.getLastKnownLocation(provider);
+                if (item.getLat() > 0 && item.getLon() > 0) {
+                    double distance = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), item.getLat(), item.getLon());
+                    checkbox.setSummary(String.format("Distance: %.0f m ± %.0f m", distance, location.getAccuracy()));
+                } else {
+                    checkbox.setSummary("Distance: n/a");
+                }
+
+                list.addPreference(checkbox);
+
+            }
+
+            //remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
+        }
     }
 
-    private boolean add(PreferenceCategory list, PreferenceScreen remove, String key) {
-        CellInfo cellInfo = new CellInfo(Utils.getCid(activity), Utils.getLac(activity));
-
-        if (!cellInfo.isValid()) {
-            return false;
-        }
-
-        for (String c : getCidsActivate()) {
-            if (!c.isEmpty() && c.equals(cellInfo.toString())) {
-                Toast.makeText(activity, "Cellular network (" + cellInfo.toString() + ") is already on the activation list", Toast.LENGTH_LONG).show();
-                return false;
-            }
-        }
-        for (String c : getCidsDeactivate()) {
-            if (!c.isEmpty() && c.equals(cellInfo.toString())) {
-                Toast.makeText(activity, "Cellular network (" + cellInfo.toString() + ") is already on the deactivation list", Toast.LENGTH_LONG).show();
-                return false;
-            }
-        }
-
-        Preference ps = new CheckBoxPreference(activity);
-        ps.setTitle(cellInfo.toString());
-        list.addPreference(ps);
-        String location = prefs.getString(key, "");
-        location = location + cellInfo.toString() + ",";
-        prefs.edit().putString(key, location + ",").apply();
-        remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
-        return false;
-    }
-
-    private boolean remove(PreferenceCategory list, PreferenceScreen remove, String key) {
+    private boolean remove(PreferenceCategory list, PreferenceScreen remove) {
         boolean changed = false;
 
         for (int idx = list.getPreferenceCount() - 1; idx >= 0; idx--) {
@@ -232,9 +225,7 @@ public class RegisterCellularListenerHelper {
             if (pref instanceof CheckBoxPreference) {
                 boolean status = ((CheckBoxPreference) pref).isChecked();
                 if (status && pref.getKey() == null) {
-                    String cids = prefs.getString(key, "");
-                    cids = cids.replace(pref.getTitle() + ",", "");
-                    prefs.edit().putString(key, cids).apply();
+                    DBManager.getInstance(activity).removeCellular(pref.getKey());
                     list.removePreference(pref);
                     changed = true;
                 }

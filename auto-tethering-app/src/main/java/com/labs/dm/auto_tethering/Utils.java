@@ -16,20 +16,11 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.widget.Toast;
-
+import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -204,25 +195,6 @@ public class Utils {
         return cid;
     }
 
-
-    public static CellInfo getCellInfo(Context context) {
-        CellInfo cellInfo = null;
-        final TelephonyManager tel = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        if (tel.getCellLocation() instanceof GsmCellLocation) {
-            cellInfo = new CellInfo(((GsmCellLocation) tel.getCellLocation()).getCid(), ((GsmCellLocation) tel.getCellLocation()).getLac());
-            String networkOperator = tel.getNetworkOperator();
-
-            if (TextUtils.isEmpty(networkOperator) == false) {
-                int mcc = Integer.parseInt(networkOperator.substring(0, 3));
-                int mnc = Integer.parseInt(networkOperator.substring(3));
-            }
-        } else if (tel.getCellLocation() instanceof CdmaCellLocation) {
-            //cid = ((CdmaCellLocation)tel.getCellLocation()).getSystemId();
-        }
-
-        return cellInfo;
-    }
-
     public static int getLac(Context context) {
         int lac = -1;
         final TelephonyManager tel = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -233,6 +205,25 @@ public class Utils {
         }
 
         return lac;
+    }
+
+    public static Cellular getCellInfo(Context context) {
+        Cellular cellInfo = null;
+        final TelephonyManager tel = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        if (tel.getCellLocation() instanceof GsmCellLocation) {
+            String networkOperator = tel.getNetworkOperator();
+
+            int mnc = 0, mcc = 0;
+            if (TextUtils.isEmpty(networkOperator) == false) {
+                mcc = Integer.parseInt(networkOperator.substring(0, 3));
+                mnc = Integer.parseInt(networkOperator.substring(3));
+            }
+            cellInfo = new Cellular(mcc, mnc, ((GsmCellLocation) tel.getCellLocation()).getCid(), ((GsmCellLocation) tel.getCellLocation()).getLac());
+        } else if (tel.getCellLocation() instanceof CdmaCellLocation) {
+            //cid = ((CdmaCellLocation)tel.getCellLocation()).getSystemId();
+        }
+
+        return cellInfo;
     }
 
     /**
@@ -251,6 +242,27 @@ public class Utils {
 
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return MEAN_EARTH_RADIUS * c;
+    }
+
+    public static String convertStreamToString(InputStream is) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return sb.toString();
     }
 
 }
