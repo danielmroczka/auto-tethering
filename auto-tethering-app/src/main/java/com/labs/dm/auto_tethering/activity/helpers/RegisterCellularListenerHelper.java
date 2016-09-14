@@ -2,6 +2,7 @@ package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.preference.CheckBoxPreference;
@@ -12,11 +13,10 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
-
+import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.CellInfo;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -127,7 +127,7 @@ public class RegisterCellularListenerHelper {
                 mnc = Integer.parseInt(networkOperator.substring(3));
             }
 
-            String url = String.format("http://opencellid.org/cell/get?key=%s&mcc=%d&mnc=%d&lac=%d&cellid=%d&format=json", "49a8c55e-90f1-4733-8419-416f61951ba9", mcc, mnc, cellInfo.getLac(), cellInfo.getCid());
+            String url = String.format("http://opencellid.org/cell/get?key=%s&mcc=%d&mnc=%d&lac=%d&cellid=%d&format=json", BuildConfig.OPENCELLID_KEY, mcc, mnc, cellInfo.getLac(), cellInfo.getCid());
 
             HttpClient httpclient = new DefaultHttpClient();
             double lon = 0, lat = 0;
@@ -152,10 +152,18 @@ public class RegisterCellularListenerHelper {
             checkbox.setTitle(item);
 
             LocationManager locationManager = (LocationManager) activity.getSystemService(LOCATION_SERVICE);
-            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            Criteria criteria = new Criteria();
+            criteria.setAccuracy(Criteria.ACCURACY_FINE);
+            criteria.setAltitudeRequired(false);
+            criteria.setBearingRequired(false);
+            criteria.setCostAllowed(false);
+            criteria.setPowerRequirement(Criteria.POWER_LOW);
+            String provider = locationManager.getBestProvider(criteria, true);
+
+            Location location = locationManager.getLastKnownLocation(provider);
             if (lat > 0 && lon > 0) {
                 double distance = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), lat, lon);
-                checkbox.setSummary(String.format("Distance: %.0f m", distance));
+                checkbox.setSummary(String.format("Distance: %.0f m ± %.0f m", distance, location.getAccuracy()));
             } else {
                 checkbox.setSummary("Distance: n/a");
             }

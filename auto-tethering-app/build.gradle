@@ -53,7 +53,7 @@ android {
         versionName "0.0.41"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + getDateAsMillis() + "L)"
-
+        buildConfigField "String", "OPENCELLID_KEY", getMyApiKey("OPEN_CELL_ID_API_KEY")
     }
 
     testOptions {
@@ -154,6 +154,12 @@ if (propFile.canRead()) {
 } else {
     println 'gradle.properties not found'
     android.buildTypes.release.signingConfig = null
+}
+
+def getMyApiKey(String property) {
+    Properties properties = new Properties()
+    properties.load(new FileInputStream("$project.rootDir/api.key"))
+    return "\"" + properties.getProperty(property) + "\""
 }
 
 ext {
