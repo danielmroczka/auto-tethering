@@ -104,5 +104,7 @@
     <string name="bluetooth_off">Bluetooth deactivation</string>
     <string name="cell_on">Activated on Cellular Network</string>
     <string name="cell_off">Deactivated on Cellular Network</string>
+    <string name="temp_off">Tethering switched off due to Temperature</string>
+    <string name="temp_on">Tethering switched on due to Temperature</string>
 </resources>
 

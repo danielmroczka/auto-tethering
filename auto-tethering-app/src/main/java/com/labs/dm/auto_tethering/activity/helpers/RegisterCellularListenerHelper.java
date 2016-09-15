@@ -1,6 +1,7 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -8,6 +9,9 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
+import android.telephony.CellLocation;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -39,6 +43,10 @@ public class RegisterCellularListenerHelper {
     public RegisterCellularListenerHelper(MainActivity activity, SharedPreferences prefs) {
         this.activity = activity;
         this.prefs = prefs;
+        final TelephonyManager telm = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
+
+        int events = PhoneStateListener.LISTEN_CELL_LOCATION;
+        telm.listen(new MyPhoneStateListener(), events);
     }
 
     public void registerCellularNetworkListener() {
@@ -258,4 +266,15 @@ public class RegisterCellularListenerHelper {
         remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
         return true;
     }
+
+    private class MyPhoneStateListener extends PhoneStateListener {
+
+        @Override
+        public void onCellLocationChanged(CellLocation location) {
+            super.onCellLocationChanged(location);
+            final PreferenceScreen current = (PreferenceScreen) activity.findPreference("cell.current");
+            current.setTitle(Utils.getCellInfo(activity).toString());
+        }
+    }
+
 }

@@ -21,7 +21,9 @@ public enum ServiceAction {
     BLUETOOTH_INTERNET_TETHERING_ON,
     BLUETOOTH_INTERNET_TETHERING_OFF,
     CELL_INTERNET_TETHERING_ON,
-    CELL_INTERNET_TETHERING_OFF;
+    CELL_INTERNET_TETHERING_OFF,
+    TEMP_TETHERING_OFF,
+    TEMP_TETHERING_ON;
 
     private final boolean on;
     private final boolean tethering;

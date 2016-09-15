@@ -15,6 +15,8 @@ public class TetherIntents {
     public static final String BT_CONNECTED = "bt.connected";
     public static final String BT_DISCONNECTED = "bt.disconnected";
     public static final String BT_SEARCH = "bt.search";
+    public static final String TEMP_OVER = "temp.overheat.start";
+    public static final String TEMP_BELOW = "temp.overheat.stop";
 
     //Invents registered in MainActivity
     public static final String CLIENTS = "clients";

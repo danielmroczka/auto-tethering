@@ -1,20 +1,26 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.BatteryManager;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
 import android.text.InputFilter;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
@@ -25,7 +31,13 @@ import com.labs.dm.auto_tethering.service.TetheringService;
 
 import java.util.Map;
 
-import static com.labs.dm.auto_tethering.AppProperties.*;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
+import static com.labs.dm.auto_tethering.AppProperties.SSID;
+import static com.labs.dm.auto_tethering.TetherIntents.TEMP_BELOW;
+import static com.labs.dm.auto_tethering.TetherIntents.TEMP_OVER;
 import static com.labs.dm.auto_tethering.activity.MainActivity.ON_CHANGE_SSID;
 
 /**
@@ -40,6 +52,7 @@ public class RegisterGeneralListenerHelper {
         this.activity = activity;
         this.prefs = prefs;
         this.serviceHelper = new ServiceHelper(activity);
+        activity.registerReceiver(new BatteryReceiver(), new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
     }
 
     public void registerListeners() {
@@ -249,6 +262,37 @@ public class RegisterGeneralListenerHelper {
             Intent serviceIntent = new Intent(activity, TetheringService.class);
             serviceIntent.putExtra("runFromActivity", true);
             activity.startService(serviceIntent);
+        }
+    }
+
+    float lastTemperature;
+
+    private class BatteryReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            float temperature = (float) (intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) / 10);
+            String sign = "→";
+            if (lastTemperature > temperature) {
+                sign = "↓";
+            } else if (lastTemperature < temperature) {
+                sign = "↑";
+            }
+            final PreferenceScreen current = (PreferenceScreen) activity.findPreference("temp.current");
+            current.setTitle(String.format("Current temperture: %.1fC %s", temperature, sign));
+            if (prefs.getBoolean("temp.monitoring.enable", false)) {
+                int start = Integer.parseInt(prefs.getString("temp.value.start", "50"));
+                int stop = Integer.parseInt(prefs.getString("temp.value.stop", "40"));
+
+                if (temperature >= start) {
+                    //trigger stop tethering
+                    activity.sendBroadcast(new Intent(TEMP_OVER));
+                } else if (temperature <= stop) {
+                    //continue tethering
+                    activity.sendBroadcast(new Intent(TEMP_BELOW));
+                }
+                Log.d("Temp. monitor", temperature + sign);
+            }
+            lastTemperature = temperature;
         }
     }
 }
