@@ -180,6 +180,8 @@ public class RegisterGeneralListenerHelper {
             switch (entry.getKey()) {
                 case IDLE_3G_OFF_TIME:
                 case IDLE_TETHERING_OFF_TIME:
+                case "temp.value.stop":
+                case "temp.value.start":
                 case "usb.off.battery.lvl.value":
                 case "data.limit.value":
                     p.setSummary((CharSequence) entry.getValue());
@@ -255,6 +257,11 @@ public class RegisterGeneralListenerHelper {
             }
         });
         btCheckBox.setChecked(prefs.getBoolean("bt.start.discovery", false));
+
+        EditTextPreference tempStart = (EditTextPreference) activity.findPreference("temp.value.start");
+        tempStart.setOnPreferenceChangeListener(changeListener);
+        EditTextPreference tempStop = (EditTextPreference) activity.findPreference("temp.value.stop");
+        tempStop.setOnPreferenceChangeListener(changeListener);
     }
 
     private void startService() {
@@ -265,7 +272,7 @@ public class RegisterGeneralListenerHelper {
         }
     }
 
-    float lastTemperature;
+    private float lastTemperature;
 
     private class BatteryReceiver extends BroadcastReceiver {
         @Override
@@ -278,7 +285,7 @@ public class RegisterGeneralListenerHelper {
                 sign = "↑";
             }
             final PreferenceScreen current = (PreferenceScreen) activity.findPreference("temp.current");
-            current.setTitle(String.format("Current temperture: %.1fC %s", temperature, sign));
+            current.setSummary(String.format("%.1f°C %s", temperature, sign));
             if (prefs.getBoolean("temp.monitoring.enable", false)) {
                 int start = Integer.parseInt(prefs.getString("temp.value.start", "50"));
                 int stop = Integer.parseInt(prefs.getString("temp.value.stop", "40"));

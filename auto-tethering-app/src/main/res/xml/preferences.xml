@@ -308,7 +308,7 @@
             android:title="Battery temperature">
             <PreferenceScreen
                 android:key="temp.current"
-                android:title="n/a" />
+                android:title="Battery temperature:" />
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:key="temp.monitoring.enable"
@@ -318,12 +318,12 @@
                 android:defaultValue="50"
                 android:inputType="number"
                 android:key="temp.value.stop"
-                android:title="Stop tethering"></EditTextPreference>
+                android:title="Stop tethering at: [°C]"></EditTextPreference>
             <EditTextPreference
                 android:defaultValue="40"
                 android:inputType="number"
                 android:key="temp.value.start"
-                android:title="Continue tethering"></EditTextPreference>
+                android:title="Continue when temp. below: [°C]"></EditTextPreference>
         </PreferenceScreen>
 
         <!--
