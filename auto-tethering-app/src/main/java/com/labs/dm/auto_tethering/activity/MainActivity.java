@@ -6,6 +6,7 @@ import android.content.*;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.*;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
@@ -55,6 +56,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         registerReceievers();
         // registerCellListener();
         adjustSettingForOS();
+        onStartup();
     }
 
     private void registerCellListener() {
@@ -282,42 +284,49 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void onStartup() {
-        int version = Integer.parseInt(prefs.getString(LATEST_VERSION, "0"));
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                int version = Integer.parseInt(prefs.getString(LATEST_VERSION, "0"));
 
-        if (version == 0) {
-            /** First start after installation **/
-            prefs.edit().putBoolean(ACTIVATE_3G, false).apply();
-            prefs.edit().putBoolean(ACTIVATE_TETHERING, false).apply();
+                if (version == 0) {
+                    /** First start after installation **/
+                    prefs.edit().putBoolean(ACTIVATE_3G, false).apply();
+                    prefs.edit().putBoolean(ACTIVATE_TETHERING, false).apply();
 
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.warning)
-                    .setMessage(getString(R.string.initial_prompt))
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            prefs.edit().putBoolean(ACTIVATE_3G, true).apply();
-                            prefs.edit().putBoolean(ACTIVATE_TETHERING, true).apply();
-                        }
-                    })
-                    .setNegativeButton(R.string.no, null)
-                    .show();
-            prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
-        } else if (version < BuildConfig.VERSION_CODE) {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle(R.string.warning)
+                            .setMessage(getString(R.string.initial_prompt))
+                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    prefs.edit().putBoolean(ACTIVATE_3G, true).apply();
+                                    prefs.edit().putBoolean(ACTIVATE_TETHERING, true).apply();
+                                }
+                            })
+                            .setNegativeButton(R.string.no, null)
+                            .show();
+                    prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
+                } else if (version < BuildConfig.VERSION_CODE) {
 
-            /** First start after update **/
-            new AlertDialog.Builder(this)
-                    .setTitle("Release notes " + BuildConfig.VERSION_NAME)
-                    .setMessage(getString(R.string.release_notes))
-                    .setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
-                        }
-                    })
-                    .show();
-        } else if (version == BuildConfig.VERSION_CODE) {
-            /** Another execution **/
-        }
+                    /** First start after update **/
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Release notes " + BuildConfig.VERSION_NAME)
+                            .setMessage(getString(R.string.release_notes))
+                            .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
+                                    dialog.dismiss();
+                                }
+                            })
+                            .show();
+                } else if (version == BuildConfig.VERSION_CODE) {
+                    /** Another execution **/
+                }
+            }
+        };
+        new Handler().post(runnable);
     }
 
     @Override
@@ -408,7 +417,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     protected void onStart() {
         super.onStart();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
-        onStartup();
     }
 
     @Override
