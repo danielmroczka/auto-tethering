@@ -200,7 +200,7 @@ public class DBManager extends SQLiteOpenHelper {
         getWritableDatabase().delete(Cron.NAME, null, null);
     }
 
-    public long addCellular(Cellular cellular) {
+    public long addOrUpdateCellular(Cellular cellular) {
         ContentValues content = new ContentValues();
         content.put("cid", cellular.getCid());
         content.put("lac", cellular.getLac());
@@ -211,7 +211,12 @@ public class DBManager extends SQLiteOpenHelper {
         content.put("lon", cellular.getLon());
         content.put("name", cellular.getName());
         content.put("status", cellular.getStatus());
-        return writableDatabase.insert(Cellular.NAME, null, content);
+
+        if (cellular.getId() > 0) {
+            return writableDatabase.update(Cellular.NAME, content, "id=" + cellular.getId(), null);
+        } else {
+            return writableDatabase.insert(Cellular.NAME, null, content);
+        }
     }
 
     public List<Cellular> readCellular(char type) {

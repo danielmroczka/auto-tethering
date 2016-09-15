@@ -14,20 +14,20 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.db.DBManager;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -43,10 +43,9 @@ public class RegisterCellularListenerHelper {
     public RegisterCellularListenerHelper(MainActivity activity, SharedPreferences prefs) {
         this.activity = activity;
         this.prefs = prefs;
-        final TelephonyManager telm = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
-
+        final TelephonyManager telManager = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
         int events = PhoneStateListener.LISTEN_CELL_LOCATION;
-        telm.listen(new MyPhoneStateListener(), events);
+        telManager.listen(new MyPhoneStateListener(), events);
     }
 
     public void registerCellularNetworkListener() {
@@ -105,7 +104,6 @@ public class RegisterCellularListenerHelper {
 
         if (!item.hasLocation()) {
             HttpClient httpclient = new DefaultHttpClient();
-
             HttpGet httpget = new HttpGet(url);
             HttpResponse response;
             try {
@@ -120,8 +118,10 @@ public class RegisterCellularListenerHelper {
                     item.setLat(json.getDouble("lat"));
                     inputStream.close();
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
                 Log.e("HttpRequest", e.getMessage());
+            } catch (JSONException e) {
+                Log.e("JSONException", e.getMessage());
             }
         }
     }
@@ -163,7 +163,7 @@ public class RegisterCellularListenerHelper {
             loadLocationFromService(current);
             current.setType(type);
             current.setName("");
-            long id = DBManager.getInstance(activity).addCellular(current);
+            long id = DBManager.getInstance(activity).addOrUpdateCellular(current);
 
             if (id > 0) {
                 final CheckBoxPreference checkBox = new CheckBoxPreference(activity);
@@ -273,7 +273,8 @@ public class RegisterCellularListenerHelper {
         public void onCellLocationChanged(CellLocation location) {
             super.onCellLocationChanged(location);
             final PreferenceScreen current = (PreferenceScreen) activity.findPreference("cell.current");
-            current.setTitle(Utils.getCellInfo(activity).toString());
+            current.setTitle("Current Cellular Network:");
+            current.setSummary(Utils.getCellInfo(activity).toString());
         }
     }
 
