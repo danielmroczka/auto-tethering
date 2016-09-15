@@ -299,12 +299,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                             prefs.edit().putBoolean(ACTIVATE_TETHERING, true).apply();
                         }
                     })
-                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    })
+                    .setNegativeButton(R.string.no, null)
                     .show();
             prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
         } else if (version < BuildConfig.VERSION_CODE) {

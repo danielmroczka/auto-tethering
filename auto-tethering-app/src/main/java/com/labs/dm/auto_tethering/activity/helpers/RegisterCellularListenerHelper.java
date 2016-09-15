@@ -169,7 +169,8 @@ public class RegisterCellularListenerHelper {
                 final CheckBoxPreference checkBox = new CheckBoxPreference(activity);
                 checkBox.setTitle(current.toString());
                 checkBox.setKey(String.valueOf(id));
-                checkBox.setChecked(false);
+                checkBox.setPersistent(false);
+
                 if (current.hasLocation()) {
                     Location location = Utils.getLastKnownLocation(activity);
                     double distance = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), current.getLat(), current.getLon());
@@ -223,20 +224,20 @@ public class RegisterCellularListenerHelper {
 
             for (Cellular item : col) {
                 loadLocationFromService(item);
-                CheckBoxPreference checkbox = new CheckBoxPreference(activity);
-                checkbox.setKey(String.valueOf(item.getId()));
-                checkbox.setTitle(item.toString());
-                checkbox.setChecked(false);
+                CheckBoxPreference checkBox = new CheckBoxPreference(activity);
+                checkBox.setKey(String.valueOf(item.getId()));
+                checkBox.setTitle(item.toString());
+                checkBox.setPersistent(false);
 
                 if (item.hasLocation()) {
                     Location location = Utils.getLastKnownLocation(activity);
                     double distance = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), item.getLat(), item.getLon());
-                    checkbox.setSummary(String.format("Distance: %.0f m ± %.0f m", distance, location.getAccuracy()));
+                    checkBox.setSummary(String.format("Distance: %.0f m ± %.0f m", distance, location.getAccuracy()));
                 } else {
-                    checkbox.setSummary("Distance: n/a");
+                    checkBox.setSummary("Distance: n/a");
                 }
 
-                list.addPreference(checkbox);
+                list.addPreference(checkBox);
 
             }
 
