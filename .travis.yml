@@ -3,8 +3,8 @@ install: true
 script: gradle clean assemble
 android:
   components:
-    - build-tools-22.0.1
-    - android-22
+    - build-tools-23.0.2
+    - android-21
     - extra
 jdk:
   - oraclejdk8
