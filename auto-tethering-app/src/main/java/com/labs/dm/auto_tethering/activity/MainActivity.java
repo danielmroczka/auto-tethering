@@ -152,7 +152,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void registerListeners() {
-        new RegisterGeneralListenerHelper(this, prefs).registerListeners();
+        RegisterGeneralListenerHelper.getInstance(this, prefs).registerListeners();
     }
 
     /**
@@ -410,6 +410,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     protected void onDestroy() {
         unregisterReceiver(receiver);
+        RegisterGeneralListenerHelper.getInstance(this, prefs).unregisterListener();
         super.onDestroy();
     }
 

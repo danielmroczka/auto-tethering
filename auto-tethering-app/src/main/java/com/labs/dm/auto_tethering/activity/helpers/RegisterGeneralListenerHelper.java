@@ -1,13 +1,7 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.os.BatteryManager;
 import android.preference.CheckBoxPreference;
@@ -20,7 +14,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
@@ -31,11 +24,7 @@ import com.labs.dm.auto_tethering.service.TetheringService;
 
 import java.util.Map;
 
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
-import static com.labs.dm.auto_tethering.AppProperties.SSID;
+import static com.labs.dm.auto_tethering.AppProperties.*;
 import static com.labs.dm.auto_tethering.TetherIntents.TEMP_BELOW;
 import static com.labs.dm.auto_tethering.TetherIntents.TEMP_OVER;
 import static com.labs.dm.auto_tethering.activity.MainActivity.ON_CHANGE_SSID;
@@ -48,11 +37,21 @@ public class RegisterGeneralListenerHelper {
     private final SharedPreferences prefs;
     private final ServiceHelper serviceHelper;
 
-    public RegisterGeneralListenerHelper(MainActivity activity, SharedPreferences prefs) {
+    private static RegisterGeneralListenerHelper instance;
+
+    public synchronized static RegisterGeneralListenerHelper getInstance(MainActivity activity, SharedPreferences prefs) {
+        if (instance == null) {
+            instance = new RegisterGeneralListenerHelper(activity, prefs);
+        }
+
+        return instance;
+    }
+
+    private RegisterGeneralListenerHelper(MainActivity activity, SharedPreferences prefs) {
         this.activity = activity;
         this.prefs = prefs;
         this.serviceHelper = new ServiceHelper(activity);
-        activity.registerReceiver(new BatteryReceiver(), new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        activity.registerReceiver(batteryReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
     }
 
     public void registerListeners() {
@@ -162,17 +161,7 @@ public class RegisterGeneralListenerHelper {
 
         EditTextPreference batteryLevelValue = (EditTextPreference) activity.findPreference("usb.off.battery.lvl.value");
         batteryLevelValue.setOnPreferenceChangeListener(changeListener);
-        batteryLevelValue.getEditText().setFilters(new InputFilter[]{
-                new InputFilter() {
-                    @Override
-                    public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-                        int input = Integer.parseInt(dest.toString() + source.toString());
-                        if (0 < input && input <= 100) {
-                            return null;
-                        }
-                        return "";
-                    }
-                }});
+        batteryLevelValue.getEditText().setFilters(new InputFilter[]{new InputFilterMinMax("0", "100")});
 
         for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
             Preference p = activity.findPreference(entry.getKey());
@@ -260,8 +249,10 @@ public class RegisterGeneralListenerHelper {
 
         EditTextPreference tempStart = (EditTextPreference) activity.findPreference("temp.value.start");
         tempStart.setOnPreferenceChangeListener(changeListener);
+        tempStart.getEditText().setFilters(new InputFilter[]{new InputFilterMinMax(/*prefs.getString("temp.value.stop", "40")*/ "0", "100")});
         EditTextPreference tempStop = (EditTextPreference) activity.findPreference("temp.value.stop");
         tempStop.setOnPreferenceChangeListener(changeListener);
+        tempStop.getEditText().setFilters(new InputFilter[]{new InputFilterMinMax(/*"20", prefs.getString("temp.value.start"*/ "0", "100")});
     }
 
     private void startService() {
@@ -273,6 +264,39 @@ public class RegisterGeneralListenerHelper {
     }
 
     private float lastTemperature;
+
+    private BatteryReceiver batteryReceiver = new BatteryReceiver();
+
+    public void unregisterListener() {
+        activity.unregisterReceiver(batteryReceiver);
+    }
+
+    private class InputFilterMinMax implements InputFilter {
+
+        private int min, max;
+
+        public InputFilterMinMax(String min, String max) {
+            this.min = Integer.parseInt(min);
+            this.max = Integer.parseInt(max);
+        }
+
+        @Override
+        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+            try {
+                int input = Integer.parseInt(dest.toString() + source.toString());
+                if (isInRange(min, max, input)) {
+                    return null;
+                }
+            } catch (NumberFormatException nfe) {
+                Log.e("InputFilterMinMax", nfe.getMessage());
+            }
+            return "";
+        }
+
+        private boolean isInRange(int a, int b, int c) {
+            return b > a ? c >= a && c <= b : c >= b && c <= a;
+        }
+    }
 
     private class BatteryReceiver extends BroadcastReceiver {
         @Override
@@ -286,15 +310,14 @@ public class RegisterGeneralListenerHelper {
             }
             final PreferenceScreen current = (PreferenceScreen) activity.findPreference("temp.current");
             current.setSummary(String.format("%.1f°C %s", temperature, sign));
+
             if (prefs.getBoolean("temp.monitoring.enable", false)) {
                 int start = Integer.parseInt(prefs.getString("temp.value.start", "50"));
                 int stop = Integer.parseInt(prefs.getString("temp.value.stop", "40"));
 
                 if (temperature >= start) {
-                    //trigger stop tethering
                     activity.sendBroadcast(new Intent(TEMP_OVER));
                 } else if (temperature <= stop) {
-                    //continue tethering
                     activity.sendBroadcast(new Intent(TEMP_BELOW));
                 }
                 Log.d("Temp. monitor", temperature + sign);

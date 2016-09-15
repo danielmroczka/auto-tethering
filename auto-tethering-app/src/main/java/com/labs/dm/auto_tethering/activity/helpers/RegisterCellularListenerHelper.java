@@ -231,8 +231,10 @@ public class RegisterCellularListenerHelper {
 
                 if (item.hasLocation()) {
                     Location location = Utils.getLastKnownLocation(activity);
-                    double distance = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), item.getLat(), item.getLon());
-                    checkBox.setSummary(String.format("Distance: %.0f m ± %.0f m", distance, location.getAccuracy()));
+                    if (location != null) {
+                        double distance = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), item.getLat(), item.getLon());
+                        checkBox.setSummary(String.format("Distance: %.0f m ± %.0f m", distance, location.getAccuracy()));
+                    }
                 } else {
                     checkBox.setSummary("Distance: n/a");
                 }
