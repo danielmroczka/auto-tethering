@@ -140,7 +140,6 @@ public class RegisterCellularListenerHelper {
 
         @Override
         protected Long doInBackground(Void... params) {
-
             Cellular current = Utils.getCellInfo(activity);
 
             List<Cellular> activeList = DBManager.getInstance(activity).readCellular('A');
@@ -166,18 +165,7 @@ public class RegisterCellularListenerHelper {
             long id = DBManager.getInstance(activity).addOrUpdateCellular(current);
 
             if (id > 0) {
-                final CheckBoxPreference checkBox = new CheckBoxPreference(activity);
-                checkBox.setTitle(current.toString());
-                checkBox.setKey(String.valueOf(id));
-                checkBox.setPersistent(false);
-
-                if (current.hasLocation()) {
-                    Location location = Utils.getLastKnownLocation(activity);
-                    double distance = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), current.getLat(), current.getLon());
-                    checkBox.setSummary(String.format("Distance: %.0f m ± %.0f m", distance, location.getAccuracy()));
-                } else {
-                    checkBox.setSummary("Distance: n/a");
-                }
+                final CheckBoxPreference checkBox = createCheckBox(current, id);
 
                 activity.runOnUiThread(new Runnable() {
                     @Override
@@ -207,6 +195,22 @@ public class RegisterCellularListenerHelper {
         }
     }
 
+    private CheckBoxPreference createCheckBox(Cellular current, long id) {
+        final CheckBoxPreference checkBox = new CheckBoxPreference(activity);
+        checkBox.setTitle(current.toString());
+        checkBox.setKey(String.valueOf(id));
+        checkBox.setPersistent(false);
+
+        if (current.hasLocation()) {
+            Location location = Utils.getLastKnownLocation(activity);
+            double distance = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), current.getLat(), current.getLon());
+            checkBox.setSummary(String.format("Distance: %.0f±%.0fm", distance, location.getAccuracy()));
+        } else {
+            checkBox.setSummary("Distance: n/a");
+        }
+        return checkBox;
+    }
+
     private class LoadTask implements Runnable {
         private final PreferenceCategory list;
         private final PreferenceScreen remove;
@@ -223,24 +227,15 @@ public class RegisterCellularListenerHelper {
             List<Cellular> col = DBManager.getInstance(activity).readCellular(type);
 
             for (Cellular item : col) {
-                loadLocationFromService(item);
-                CheckBoxPreference checkBox = new CheckBoxPreference(activity);
-                checkBox.setKey(String.valueOf(item.getId()));
-                checkBox.setTitle(item.toString());
-                checkBox.setPersistent(false);
-
-                if (item.hasLocation()) {
-                    Location location = Utils.getLastKnownLocation(activity);
-                    if (location != null) {
-                        double distance = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), item.getLat(), item.getLon());
-                        checkBox.setSummary(String.format("Distance: %.0f m ± %.0f m", distance, location.getAccuracy()));
+                if (!item.hasLocation()) {
+                    loadLocationFromService(item);
+                    if (item.hasLocation()) {
+                        DBManager.getInstance(activity).addOrUpdateCellular(item);
                     }
-                } else {
-                    checkBox.setSummary("Distance: n/a");
                 }
 
+                CheckBoxPreference checkBox = createCheckBox(item, item.getId());
                 list.addPreference(checkBox);
-
             }
 
             remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);

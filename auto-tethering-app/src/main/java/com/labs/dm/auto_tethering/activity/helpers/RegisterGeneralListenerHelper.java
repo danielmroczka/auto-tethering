@@ -3,13 +3,17 @@ package com.labs.dm.auto_tethering.activity.helpers;
 import android.app.AlertDialog;
 import android.content.*;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.BatteryManager;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
 import android.text.InputFilter;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.TextView;
@@ -51,7 +55,7 @@ public class RegisterGeneralListenerHelper {
         this.activity = activity;
         this.prefs = prefs;
         this.serviceHelper = new ServiceHelper(activity);
-        activity.registerReceiver(batteryReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        batteryReceiver.register(activity, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
     }
 
     public void registerListeners() {
@@ -268,7 +272,7 @@ public class RegisterGeneralListenerHelper {
     private BatteryReceiver batteryReceiver = new BatteryReceiver();
 
     public void unregisterListener() {
-        activity.unregisterReceiver(batteryReceiver);
+        batteryReceiver.unregister(activity);
     }
 
     private class InputFilterMinMax implements InputFilter {
@@ -299,6 +303,23 @@ public class RegisterGeneralListenerHelper {
     }
 
     private class BatteryReceiver extends BroadcastReceiver {
+
+        public boolean isRegistered;
+
+        public Intent register(Context context, IntentFilter filter) {
+            isRegistered = true;
+            return context.registerReceiver(this, filter);
+        }
+
+        public boolean unregister(Context context) {
+            if (isRegistered) {
+                context.unregisterReceiver(this);
+                isRegistered = false;
+                return true;
+            }
+            return false;
+        }
+
         @Override
         public void onReceive(Context context, Intent intent) {
             float temperature = (float) (intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) / 10);
@@ -309,7 +330,10 @@ public class RegisterGeneralListenerHelper {
                 sign = "↑";
             }
             final PreferenceScreen current = (PreferenceScreen) activity.findPreference("temp.current");
-            current.setSummary(String.format("%.1f°C %s", temperature, sign));
+
+            Spannable summary = new SpannableString(String.format("%.1f°C %s", temperature, sign));
+            summary.setSpan(new ForegroundColorSpan(temperature > 40 ? Color.RED : Color.GREEN), 0, summary.length(), 0);
+            current.setSummary(summary);
 
             if (prefs.getBoolean("temp.monitoring.enable", false)) {
                 int start = Integer.parseInt(prefs.getString("temp.value.start", "50"));
