@@ -3,7 +3,7 @@ install: true
 script: gradle clean assemble
 android:
   components:
-    - build-tools-24.0.0
+    - build-tools-24.0.2
     - android-21
     - extra
 jdk:
