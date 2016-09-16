@@ -53,6 +53,7 @@ public class DBManager extends SQLiteOpenHelper {
         // CREATE TABLE
         db.execSQL("create table SIMCARD(id INTEGER PRIMARY KEY, ssn VARCHAR(20), number VARCHAR(20), status INTEGER)");
         db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
+        db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, type TEXT, lat REAL, lon REAL, name TEXT, status INTEGER)");
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
         db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
@@ -195,9 +196,10 @@ public class DBManager extends SQLiteOpenHelper {
         return addOrUpdateCron(writableDatabase, cron);
     }
 
-    public void reset() {
+    public void removeAllData() {
         getWritableDatabase().delete(SimCard.NAME, null, null);
         getWritableDatabase().delete(Cron.NAME, null, null);
+        getWritableDatabase().delete(Cellular.NAME, null, null);
     }
 
     public long addOrUpdateCellular(Cellular cellular) {
@@ -228,7 +230,7 @@ public class DBManager extends SQLiteOpenHelper {
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {
-                    Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), (char) cursor.getInt(5), cursor.getDouble(6), cursor.getDouble(7), cursor.getString(8), cursor.getInt(9));
+                    Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), type, cursor.getDouble(6), cursor.getDouble(7), cursor.getString(8), cursor.getInt(9));
                     p.setId(cursor.getInt(0));
                     list.add(p);
                 }

@@ -199,8 +199,7 @@ public class Utils {
 
     public static Cellular getCellInfo(Context context) {
         final TelephonyManager tel = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        Cellular cellInfo = null;
-        int mnc = 0, mcc = 0;
+        int mnc = 0, mcc = 0, lac = 0, cid = 0;
         String networkOperator = tel.getNetworkOperator();
         if (!TextUtils.isEmpty(networkOperator)) {
             mcc = Integer.parseInt(networkOperator.substring(0, 3));
@@ -208,12 +207,14 @@ public class Utils {
         }
 
         if (tel.getCellLocation() instanceof GsmCellLocation) {
-            cellInfo = new Cellular(mcc, mnc, ((GsmCellLocation) tel.getCellLocation()).getLac(), ((GsmCellLocation) tel.getCellLocation()).getCid());
+            lac = ((GsmCellLocation) tel.getCellLocation()).getLac();
+            cid = ((GsmCellLocation) tel.getCellLocation()).getCid();
         } else if (tel.getCellLocation() instanceof CdmaCellLocation) {
-            cellInfo = new Cellular(mcc, mnc, ((CdmaCellLocation) tel.getCellLocation()).getSystemId(), ((CdmaCellLocation) tel.getCellLocation()).getBaseStationId());
+            lac = ((CdmaCellLocation) tel.getCellLocation()).getSystemId();
+            cid = ((CdmaCellLocation) tel.getCellLocation()).getBaseStationId();
         }
 
-        return cellInfo;
+        return new Cellular(mcc, mnc, lac, cid);
     }
 
     /**

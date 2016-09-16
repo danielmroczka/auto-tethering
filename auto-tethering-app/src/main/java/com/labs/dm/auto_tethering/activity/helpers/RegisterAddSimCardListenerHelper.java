@@ -22,7 +22,7 @@ import java.util.List;
 import static android.content.Context.TELEPHONY_SERVICE;
 
 /**
- * Created by daniel on 2016-09-13.
+ * Created by Daniel Mroczka on 2016-09-13.
  */
 
 public class RegisterAddSimCardListenerHelper {

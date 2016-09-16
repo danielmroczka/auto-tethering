@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.SystemClock;
 import android.text.format.DateUtils;
 import android.util.Log;
+
 import com.labs.dm.auto_tethering.TetherIntents;
 
 import java.util.TimerTask;
@@ -25,7 +26,7 @@ public class DataUsageTimerTask extends TimerTask {
 
     @Override
     public void run() {
-        long lastUpdate = prefs.getLong("data.usage.reset.timestamp", 0);
+        long lastUpdate = prefs.getLong("data.usage.removeAllData.timestamp", 0);
         long lastBootTime = System.currentTimeMillis() - SystemClock.elapsedRealtime();
 
         /**
@@ -33,17 +34,17 @@ public class DataUsageTimerTask extends TimerTask {
          */
         if (lastUpdate == 0) {
             Log.i(TAG, "Init data usage " + ServiceHelper.getDataUsage());
-            prefs.edit().putLong("data.usage.reset.value", ServiceHelper.getDataUsage()).apply();
+            prefs.edit().putLong("data.usage.removeAllData.value", ServiceHelper.getDataUsage()).apply();
             prefs.edit().putLong("data.usage.last.value", ServiceHelper.getDataUsage()).apply();
-            prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
-            lastUpdate = prefs.getLong("data.usage.reset.timestamp", 0);
+            prefs.edit().putLong("data.usage.removeAllData.timestamp", System.currentTimeMillis()).apply();
+            lastUpdate = prefs.getLong("data.usage.removeAllData.timestamp", 0);
         }
-        if (prefs.getBoolean("data.limit.daily.reset", false) && !DateUtils.isToday(prefs.getLong("data.usage.reset.timestamp", 0))) {
-            Log.i(TAG, "Daily counter reset" + ServiceHelper.getDataUsage());
+        if (prefs.getBoolean("data.limit.daily.removeAllData", false) && !DateUtils.isToday(prefs.getLong("data.usage.removeAllData.timestamp", 0))) {
+            Log.i(TAG, "Daily counter removeAllData" + ServiceHelper.getDataUsage());
             long dataUsage = ServiceHelper.getDataUsage();
-            prefs.edit().putLong("data.usage.reset.value", dataUsage).apply();
+            prefs.edit().putLong("data.usage.removeAllData.value", dataUsage).apply();
             prefs.edit().putLong("data.usage.last.value", dataUsage).apply();
-            prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
+            prefs.edit().putLong("data.usage.removeAllData.timestamp", System.currentTimeMillis()).apply();
         }
 
         /**
@@ -51,13 +52,13 @@ public class DataUsageTimerTask extends TimerTask {
          */
         if (lastBootTime > lastUpdate) {
             Log.i(TAG, "Adjust after the boot " + ServiceHelper.getDataUsage());
-            long offset = prefs.getLong("data.usage.last.value", 0) - Math.abs(prefs.getLong("data.usage.reset.value", 0));
-            prefs.edit().putLong("data.usage.reset.value", -offset).apply();
-            prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
+            long offset = prefs.getLong("data.usage.last.value", 0) - Math.abs(prefs.getLong("data.usage.removeAllData.value", 0));
+            prefs.edit().putLong("data.usage.removeAllData.value", -offset).apply();
+            prefs.edit().putLong("data.usage.removeAllData.timestamp", System.currentTimeMillis()).apply();
         }
 
         prefs.edit().putLong("data.usage.last.value", ServiceHelper.getDataUsage()).apply();
-        long usage = ServiceHelper.getDataUsage() - prefs.getLong("data.usage.reset.value", 0);
+        long usage = ServiceHelper.getDataUsage() - prefs.getLong("data.usage.removeAllData.value", 0);
         Intent onIntent = new Intent(TetherIntents.DATA_USAGE);
         onIntent.putExtra("value", usage);
         context.sendBroadcast(onIntent);

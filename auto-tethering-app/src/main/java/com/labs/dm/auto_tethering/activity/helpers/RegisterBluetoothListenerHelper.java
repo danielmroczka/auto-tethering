@@ -11,8 +11,10 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
@@ -37,8 +39,8 @@ public class RegisterBluetoothListenerHelper {
     }
 
     public void registerBTListener() {
-        final PreferenceScreen p = (PreferenceScreen) activity.findPreference("bt.add.device");
-        p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        final PreferenceScreen add = (PreferenceScreen) activity.findPreference("bt.add.device");
+        add.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                                            @Override
                                            public boolean onPreferenceClick(Preference preference) {
                                                final PreferenceCategory category = (PreferenceCategory) activity.findPreference("bt.list");
@@ -113,8 +115,8 @@ public class RegisterBluetoothListenerHelper {
 
         );
 
-        final PreferenceScreen p2 = (PreferenceScreen) activity.findPreference("bt.remove.device");
-        p2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        final PreferenceScreen remove = (PreferenceScreen) activity.findPreference("bt.remove.device");
+        remove.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                                             @Override
                                             public boolean onPreferenceClick(Preference preference) {
                                                 PreferenceCategory p = (PreferenceCategory) activity.findPreference("bt.list");
@@ -132,7 +134,7 @@ public class RegisterBluetoothListenerHelper {
                                                     }
                                                 }
 
-                                                p2.setEnabled(p.getPreferenceCount() > 2);
+                                                remove.setEnabled(p.getPreferenceCount() > 2);
 
                                                 if (!changed) {
                                                     Toast.makeText(activity, "Please select any item", Toast.LENGTH_LONG).show();
@@ -148,9 +150,9 @@ public class RegisterBluetoothListenerHelper {
         Set<BluetoothDevice> bondedDevices = new ServiceHelper(activity).getBondedDevices();
         List<String> preferredDevices = Utils.findPreferredDevices(prefs);
         for (String deviceName : preferredDevices) {
-            Preference ps = new CheckBoxPreference(activity);
-            ps.setTitle(deviceName);
-            if (ps.getTitle() != null) {
+            if (!TextUtils.isEmpty(deviceName)) {
+                Preference ps = new CheckBoxPreference(activity);
+                ps.setTitle(deviceName);
                 Toast.makeText(activity, "Device " + deviceName + " is no longer paired.\nActivation on this device won't work.\nPlease pair devices again", Toast.LENGTH_LONG);
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                     boolean found = false;

@@ -8,10 +8,10 @@ public class Cellular {
     public final static String NAME = "CELLULAR";
 
     private int id;
-    private final int mcc;
-    private final int mnc;
-    private final int lac;
-    private final int cid;
+    private int mcc;
+    private int mnc;
+    private int lac;
+    private int cid;
     private char type;
     private double lat;
     private double lon;
@@ -62,7 +62,11 @@ public class Cellular {
         return status;
     }
 
+    public Cellular() {
+    }
+
     public Cellular(int mcc, int mnc, int lac, int cid) {
+        this();
         this.mcc = mcc;
         this.mnc = mnc;
         this.lac = lac;
@@ -70,10 +74,7 @@ public class Cellular {
     }
 
     public Cellular(int mcc, int mnc, int lac, int cid, char type, double lat, double lon, String name, int status) {
-        this.mcc = mcc;
-        this.mnc = mnc;
-        this.lac = lac;
-        this.cid = cid;
+        this(mcc, mnc, lac, cid);
         this.type = type;
         this.lat = lat;
         this.lon = lon;
@@ -108,5 +109,9 @@ public class Cellular {
 
     public boolean hasLocation() {
         return lon != 0 && lat != 0;
+    }
+
+    public boolean isValid() {
+        return cid > 0 && lac > 0 && mnc > 0 && mcc > 0;
     }
 }
