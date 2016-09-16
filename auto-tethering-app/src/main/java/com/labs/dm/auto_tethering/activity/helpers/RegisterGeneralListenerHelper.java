@@ -1,13 +1,7 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.BatteryManager;
@@ -24,7 +18,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
@@ -35,11 +28,7 @@ import com.labs.dm.auto_tethering.service.TetheringService;
 
 import java.util.Map;
 
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
-import static com.labs.dm.auto_tethering.AppProperties.SSID;
+import static com.labs.dm.auto_tethering.AppProperties.*;
 import static com.labs.dm.auto_tethering.TetherIntents.TEMP_BELOW;
 import static com.labs.dm.auto_tethering.TetherIntents.TEMP_OVER;
 import static com.labs.dm.auto_tethering.activity.MainActivity.ON_CHANGE_SSID;
@@ -299,7 +288,7 @@ public class RegisterGeneralListenerHelper {
         public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
             try {
                 int input = Integer.parseInt(dest.toString() + source.toString());
-                if (input >= min && input <= max) {
+                if ((min <= input && input <= max) || (end - start < 2)) {
                     return null;
                 }
             } catch (NumberFormatException nfe) {

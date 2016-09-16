@@ -493,12 +493,10 @@ public class TetheringService extends IntentService {
         if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
             Notification.Builder builder = new Notification.Builder(this)
                     .setContentTitle(getText(R.string.app_name))
-                    .setContentText(caption)
                     .setTicker(caption)
                     .setOngoing(true)
                     .setSmallIcon(icon)
                     //.setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.app))
-                    .setAutoCancel(false)
                     .setContentIntent(pendingIntent)
                     .setPriority(Notification.PRIORITY_MAX)
                     .setStyle(new Notification.BigTextStyle().bigText(caption));
@@ -716,9 +714,9 @@ public class TetheringService extends IntentService {
 
         Log.i(TAG, "Execute action: " + serviceAction.toString());
         int id = R.string.service_started;
-        int icon = R.drawable.app;
+        int icon = R.drawable.app_off;
         if (serviceAction.name().contains("IDLE")) {
-            icon = R.drawable.app_yellow;
+            icon = R.drawable.app_off;
         } else if (serviceAction.isOn()) {
             if ((serviceAction.isTethering() && serviceHelper.isConnectedToInternet()) || (serviceAction.isInternet() && serviceHelper.isTetheringWiFi())) {
                 icon = R.drawable.app_on;
@@ -726,11 +724,13 @@ public class TetheringService extends IntentService {
                 icon = R.drawable.app_yellow;
             }
         } else if (!serviceAction.isOn()) {
-            if (serviceAction.isTethering()) {
+            if ((serviceAction.isTethering() && serviceHelper.isConnectedToInternet()) || (serviceAction.isInternet() && serviceHelper.isTetheringWiFi())) {
                 icon = R.drawable.app_off;
             } else {
                 icon = R.drawable.app_yellow;
             }
+        } else if (serviceHelper.isConnectedToInternet() && serviceHelper.isTetheringWiFi()) {
+            icon = R.drawable.app_on;
         }
         switch (serviceAction) {
             case TETHER_ON:
