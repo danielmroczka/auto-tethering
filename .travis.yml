@@ -10,6 +10,8 @@ jdk:
   - oraclejdk8
 before_install:
   # Gradle
+  - echo y | android update sdk --no-ui --all --filter "tools"
+  - echo y | android update sdk --no-ui --all --filter "build-tools-24.0.2"
   - wget http://services.gradle.org/distributions/gradle-2.14.1-bin.zip
   - unzip gradle-2.14.1-bin.zip
   - export GRADLE_HOME=$PWD/gradle-2.14.1
