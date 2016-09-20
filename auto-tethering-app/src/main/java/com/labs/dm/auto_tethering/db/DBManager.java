@@ -225,7 +225,7 @@ public class DBManager extends SQLiteOpenHelper {
         List<Cellular> list;
         Cursor cursor = null;
         try {
-            cursor = readableDatabase.rawQuery("SELECT id, mcc, mnc, lac, cid, type, lat, lon, name, status FROM CELLULAR where type='" + type + "'", null);
+            cursor = readableDatabase.rawQuery("SELECT id, mcc, mnc, lac, cid, type, lat, lon, name, status FROM CELLULAR where type='" + type + "' order by cid, lac", null);
             list = new ArrayList<>(cursor.getCount());
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();

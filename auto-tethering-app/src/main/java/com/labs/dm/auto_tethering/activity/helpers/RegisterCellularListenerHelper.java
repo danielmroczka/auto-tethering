@@ -12,10 +12,12 @@ import android.preference.PreferenceScreen;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.BuildConfig;
+import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cellular;
@@ -211,8 +213,10 @@ public class RegisterCellularListenerHelper {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progress = new ProgressDialog(activity);
-            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progress = new ProgressDialog(activity, R.style.MyTheme);
+            progress.setCancelable(false);
+            progress.setIndeterminateDrawable(activity.getResources().getDrawable(R.drawable.progress));
+            //  progress.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
             progress.show();
         }
 
@@ -224,7 +228,8 @@ public class RegisterCellularListenerHelper {
 
     private CheckBoxPreference createCheckBox(Cellular current, long id) {
         final CheckBoxPreference checkBox = new CheckBoxPreference(activity);
-        checkBox.setTitle(current.toString());
+        String styledText = String.format("<small>CID:</small> %s <small>LAC:</small> %s", current.getCid(), current.getLac());
+        checkBox.setTitle(Html.fromHtml(styledText));
         checkBox.setKey(String.valueOf(id));
         checkBox.setPersistent(false);
 
@@ -310,9 +315,11 @@ public class RegisterCellularListenerHelper {
         @Override
         public void onCellLocationChanged(CellLocation location) {
             super.onCellLocationChanged(location);
-            final PreferenceScreen current = (PreferenceScreen) activity.findPreference("cell.current");
-            current.setTitle("Current Cellular Network:");
-            current.setSummary(Utils.getCellInfo(activity).toString());
+            final PreferenceScreen cell = (PreferenceScreen) activity.findPreference("cell.current");
+            Cellular current = Utils.getCellInfo(activity);
+            String styledText = String.format("<small>CID:</small><font color='#00FF40'>%s</font> <small>LAC:</small><font color='#00FF40'>%s</font>", current.getCid(), current.getLac());
+            cell.setTitle("Current Cellular Network:");
+            cell.setSummary(Html.fromHtml(styledText));
         }
     }
 

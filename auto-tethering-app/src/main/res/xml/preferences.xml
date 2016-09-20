@@ -265,6 +265,7 @@
             android:summary="Activate/deactivate if device is in range of preferred cellular networks"
             android:title="Cellular Network">
             <PreferenceScreen
+                android:icon="@drawable/ic_signal"
                 android:key="cell.current"
                 android:title="n/a" />
             <PreferenceCategory
@@ -306,21 +307,24 @@
             android:icon="@drawable/ic_temperature"
             android:summary="Battery temperature"
             android:title="Battery temperature">
-            <PreferenceScreen
-                android:key="temp.current"
-                android:title="Battery temperature:" />
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:key="temp.monitoring.enable"
                 android:summary="Disable tethering once temperature exceeds the limit"
                 android:title="Temperature monitoring" />
+            <PreferenceScreen
+                android:icon="@drawable/ic_temperature"
+                android:key="temp.current"
+                android:title="Battery temperature:" />
             <EditTextPreference
                 android:defaultValue="50"
+                android:icon="@drawable/ic_red"
                 android:inputType="number"
                 android:key="temp.value.stop"
                 android:title="Stop tethering at: [°C]"></EditTextPreference>
             <EditTextPreference
                 android:defaultValue="40"
+                android:icon="@drawable/ic_green"
                 android:inputType="number"
                 android:key="temp.value.start"
                 android:title="Continue when temp. below: [°C]"></EditTextPreference>
