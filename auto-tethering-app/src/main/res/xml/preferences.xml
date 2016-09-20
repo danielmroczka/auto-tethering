@@ -317,17 +317,18 @@
                 android:key="temp.current"
                 android:title="Battery temperature:" />
             <EditTextPreference
-                android:defaultValue="50"
-                android:icon="@drawable/ic_red"
-                android:inputType="number"
-                android:key="temp.value.stop"
-                android:title="Stop tethering at: [°C]"></EditTextPreference>
+                    android:defaultValue="50"
+                    android:icon="@drawable/ic_red"
+                    android:inputType="number"
+                    android:key="temp.value.stop"
+                    android:title="Stop tethering at: [°C]"/>
             <EditTextPreference
-                android:defaultValue="40"
-                android:icon="@drawable/ic_green"
-                android:inputType="number"
-                android:key="temp.value.start"
-                android:title="Continue when temp. below: [°C]"></EditTextPreference>
+                    android:defaultValue="40"
+                    android:icon="@drawable/ic_green"
+                    android:inputType="number"
+                    android:key="temp.value.start"
+                    android:maxLines="2"
+                    android:title="Resume if temp. at: [°C]"/>
         </PreferenceScreen>
 
         <!--

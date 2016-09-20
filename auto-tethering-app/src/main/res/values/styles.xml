@@ -2,28 +2,6 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="android:Theme.Holo" tools:targetApi="honeycomb">
-        <!--   <item name="android:textColorSecondary">@color/indicator</item>
-                   <item name="android:textColorSecondary">#ffe600</item>
-                   <item name="android:colorForeground">#ffe600</item>
-           -->
-    </style>
-
-    <style name="button" parent="@android:style/Widget.Button">
-        <item name="android:shadowRadius">20</item>
-    </style>
-
-    <style name="MyTextViewStyle" parent="@android:style/TextAppearance.Large">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">#006633</item>
-        <item name="android:typeface">monospace</item>
-        <item name="android:background">#f0f0f0</item>
-        <item name="android:textStyle">italic</item>
-        <item name="android:padding">5dp</item>
-    </style>
-
-    <style name="MyEditTextStyle" parent="@android:style/Widget.EditText">
-        <item name="android:textColor">#ffe600</item>
     </style>
 
     <style name="MyTheme" parent="android:Theme.Holo.Dialog" tools:targetApi="honeycomb">

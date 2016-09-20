@@ -41,10 +41,10 @@ public class RegisterAddSimCardListenerHelper {
         final String ssn = tMgr.getSimSerialNumber();
         boolean status = db.isOnWhiteList(ssn);
 
-        PreferenceScreen p = (PreferenceScreen) activity.findPreference("add.current.simcard");
-        p.setEnabled(!status);
+        PreferenceScreen addSimCard = (PreferenceScreen) activity.findPreference("add.current.simcard");
+        addSimCard.setEnabled(!status);
         final String[] number = {""};
-        p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        addSimCard.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
 
@@ -70,10 +70,29 @@ public class RegisterAddSimCardListenerHelper {
                             .setNegativeButton(R.string.no, null).show();
                     return true;
                 } else {
-
                     addSimCard(number[0]);
                 }
                 return true;
+            }
+        });
+
+        final PreferenceScreen removeSimCard = (PreferenceScreen) activity.findPreference("remove.simcard");
+        removeSimCard.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                PreferenceCategory pc = (PreferenceCategory) activity.findPreference("simcard.list");
+                for (int idx = pc.getPreferenceCount() - 1; idx >= 0; idx--) {
+                    Preference pref = pc.getPreference(idx);
+                    if (pref instanceof CheckBoxPreference) {
+                        boolean status = ((CheckBoxPreference) pref).isChecked();
+                        if (status) {
+                            pc.removePreference(pref);
+                            db.removeSimCard((String) pref.getTitle());
+                            removeSimCard.setEnabled(pc.getPreferenceCount() > 2);
+                        }
+                    }
+                }
+                return false;
             }
         });
     }
@@ -106,6 +125,7 @@ public class RegisterAddSimCardListenerHelper {
         }
 
         PreferenceScreen ps = (PreferenceScreen) activity.findPreference("add.current.simcard");
+        activity.findPreference("remove.simcard").setEnabled(pc.getPreferenceCount() > 2);
         ps.setEnabled(true);
     }
 }

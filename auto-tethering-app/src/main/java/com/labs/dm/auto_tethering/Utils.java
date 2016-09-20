@@ -179,7 +179,7 @@ public class Utils {
      * @param context
      * @return
      */
-    public static final Boolean isDataRoamingEnabled(final Context context) {
+    public static Boolean isDataRoamingEnabled(final Context context) {
         if (Build.VERSION.SDK_INT < 17) {
             return (Settings.System.getInt(context.getContentResolver(), Settings.Secure.DATA_ROAMING, 0) == 1);
         } else {
@@ -242,7 +242,7 @@ public class Utils {
         String line;
         try {
             while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
+                sb.append(line).append("\n");
             }
         } catch (IOException e) {
             e.printStackTrace();
