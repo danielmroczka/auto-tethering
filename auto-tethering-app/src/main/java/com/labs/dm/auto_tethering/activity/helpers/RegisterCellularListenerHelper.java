@@ -49,7 +49,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         telManager.listen(new MyPhoneStateListener(), events);
     }
 
-    public void registerCellularNetworkListener() {
+    public void registerUIListeners() {
         final PreferenceScreen activateAdd = (PreferenceScreen) activity.findPreference("cell.activate.add");
         final PreferenceScreen deactivateAdd = (PreferenceScreen) activity.findPreference("cell.deactivate.add");
         final PreferenceScreen activateRemove = (PreferenceScreen) activity.findPreference("cell.activate.remove");

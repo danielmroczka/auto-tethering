@@ -45,13 +45,7 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
         batteryReceiver = new BatteryReceiver();
     }
 
-    public void registerListener() {
-        Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                preference.setSummary((String) newValue);
-                return true;
-            }
-        };
+    public void registerUIListeners() {
         batteryReceiver.register(activity, new IntentFilter(ACTION_BATTERY_CHANGED));
         EditTextPreference tempStart = (EditTextPreference) activity.findPreference("temp.value.start");
         tempStart.setOnPreferenceChangeListener(changeListener);

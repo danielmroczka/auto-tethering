@@ -29,7 +29,7 @@ public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
         super(activity);
     }
 
-    public void registerAddSimCardListener() {
+    public void registerUIListeners() {
         final TelephonyManager tMgr = (TelephonyManager) activity.getSystemService(TELEPHONY_SERVICE);
         final String ssn = tMgr.getSimSerialNumber();
         boolean status = db.isOnWhiteList(ssn);

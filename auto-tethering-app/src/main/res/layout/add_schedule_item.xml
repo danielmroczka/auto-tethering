@@ -11,7 +11,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:orientation="vertical"
-            android:padding="8dp">
+            android:padding="4dp">
 
         <ImageButton
                 android:id="@+id/btnToggle"
@@ -35,14 +35,14 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/title"
-                android:textSize="28sp"/>
+                android:textSize="26sp"/>
 
         <TextView
                 android:id="@android:id/summary"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/summary"
-                android:textSize="14sp"/>
+                android:textSize="13sp"/>
     </LinearLayout>
 
     <LinearLayout

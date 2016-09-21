@@ -15,6 +15,7 @@ import com.labs.dm.auto_tethering.ui.SchedulePreference;
 import java.util.List;
 import java.util.Locale;
 
+import static com.labs.dm.auto_tethering.AppProperties.MAX_SCHEDULED_ITEMS;
 import static com.labs.dm.auto_tethering.activity.MainActivity.ON_CHANGE_SCHEDULE;
 
 /**
@@ -26,14 +27,14 @@ public class RegisterSchedulerListenerHelper extends AbstractRegisterHelper {
         super(activity);
     }
 
-    public void registerAddSchedule() {
+    public void registerUIListeners() {
         PreferenceScreen p = (PreferenceScreen) activity.findPreference("scheduler.add");
         p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 PreferenceCategory cat = (PreferenceCategory) activity.findPreference("scheduled.shutdown.list");
-                if (cat.getPreferenceCount() >= 10) {
-                    Toast.makeText(activity, "You cannot add more than 10 schedule items!", Toast.LENGTH_LONG).show();
+                if (cat.getPreferenceCount() >= MAX_SCHEDULED_ITEMS) {
+                    Toast.makeText(activity, "You cannot add more than " + MAX_SCHEDULED_ITEMS + " schedule items!", Toast.LENGTH_LONG).show();
                     return false;
                 }
                 activity.startActivityForResult(new Intent(activity, ScheduleActivity.class), ON_CHANGE_SCHEDULE);

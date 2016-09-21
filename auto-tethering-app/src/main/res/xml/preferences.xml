@@ -203,10 +203,10 @@
                 android:key="screen.bluetooth"
                 android:title="Bluetooth activation">
             <CheckBoxPreference
-                android:defaultValue="false"
-                android:key="bt.start.discovery"
-                android:summary="Scan if preferred devices are in range"
-                android:title="Find Bluetooth devices" />
+                    android:defaultValue="false"
+                    android:key="bt.start.discovery"
+                    android:summary="Scan if preferred devices are available"
+                    android:title="Find Bluetooth devices" />
             <PreferenceCategory
                 android:key="bt.list"
                 android:title="Bluetooth devices whitelist">

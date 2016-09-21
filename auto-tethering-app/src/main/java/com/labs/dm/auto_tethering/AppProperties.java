@@ -16,6 +16,10 @@ public class AppProperties {
 
     public static final String DEFAULT_IDLE_TETHERING_OFF_TIME = "60";
 
+    public static final int TEMPERATURE_LIMIT = 40;
+
+    public static final int MAX_SCHEDULED_ITEMS = 10;
+
     public static final String ACTIVATE_ON_STARTUP = "activate.on.startup";
     public static final String ACTIVATE_KEEP_SERVICE = "activate.keep.service";
     public static final String ACTIVATE_3G = "activate.3g";
@@ -35,5 +39,4 @@ public class AppProperties {
     public static final String ACTIVATE_ON_ROAMING_HC = "activate.on.roaming.home.country";
     public static final String RETURN_TO_PREV_STATE = "return.state";
     public static final String FORCE_NET_FROM_NOTIFY = "force.net.from.notify";
-    public static int TEMPERATURE_LIMIT = 40;
 }

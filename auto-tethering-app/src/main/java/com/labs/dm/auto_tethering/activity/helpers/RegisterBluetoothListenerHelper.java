@@ -33,7 +33,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
         super(activity);
     }
 
-    public void registerBTListener() {
+    public void registerUIListeners() {
         final PreferenceScreen mainScreen = (PreferenceScreen) activity.findPreference("screen.bluetooth");
         mainScreen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override

@@ -47,14 +47,7 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
         this.serviceHelper = new ServiceHelper(activity);
     }
 
-    public void registerListeners() {
-        Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                preference.setSummary((String) newValue);
-                return true;
-            }
-        };
-
+    public void registerUIListeners() {
         Preference.OnPreferenceChangeListener revertStateCheckBoxListener = new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 if ((Boolean) newValue) {

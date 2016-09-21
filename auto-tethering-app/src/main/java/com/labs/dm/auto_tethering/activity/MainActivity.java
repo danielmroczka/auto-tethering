@@ -99,8 +99,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void registerListeners() {
-        RegisterGeneralListenerHelper.getInstance(this).registerListeners();
-        RegisterBatteryTemperatureListenerHelper.getInstance(this).registerListener();
+        RegisterGeneralListenerHelper.getInstance(this).registerUIListeners();
+        RegisterBatteryTemperatureListenerHelper.getInstance(this).registerUIListeners();
     }
 
     /**
@@ -149,23 +149,19 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void registerAddSchedule() {
-        new RegisterSchedulerListenerHelper(this).registerAddSchedule();
+        new RegisterSchedulerListenerHelper(this).registerUIListeners();
     }
 
     private void registerBTListener() {
-        new RegisterBluetoothListenerHelper(this).registerBTListener();
+        new RegisterBluetoothListenerHelper(this).registerUIListeners();
     }
 
     private void registerAddSimCardListener() {
-        new RegisterAddSimCardListenerHelper(this).registerAddSimCardListener();
+        new RegisterAddSimCardListenerHelper(this).registerUIListeners();
     }
 
     private void registerCellularNetworkListener() {
-        new RegisterCellularListenerHelper(this).registerCellularNetworkListener();
-    }
-
-    private void prepareBTList() {
-        //new RegisterBluetoothListenerHelper(this).prepareBTList();
+        new RegisterCellularListenerHelper(this).registerUIListeners();
     }
 
     @Override
@@ -218,7 +214,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         registerAddSchedule();
         registerBTListener();
         prepareSimCardWhiteList();
-        prepareBTList();
         prepareScheduleList();
     }
 
@@ -351,7 +346,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     protected void onPause() {
         super.onPause();
-        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
+        prefs.unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -364,12 +359,12 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     protected void onStart() {
         super.onStart();
-        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
+        prefs.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
+        prefs.unregisterOnSharedPreferenceChangeListener(this);
     }
 }
