@@ -2,22 +2,12 @@ package com.labs.dm.auto_tethering.activity;
 
 import android.app.AlertDialog;
 import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
+import android.preference.*;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.ServiceState;
@@ -25,16 +15,11 @@ import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.LogActivity;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
-import com.labs.dm.auto_tethering.activity.helpers.RegisterAddSimCardListenerHelper;
-import com.labs.dm.auto_tethering.activity.helpers.RegisterBluetoothListenerHelper;
-import com.labs.dm.auto_tethering.activity.helpers.RegisterCellularListenerHelper;
-import com.labs.dm.auto_tethering.activity.helpers.RegisterGeneralListenerHelper;
-import com.labs.dm.auto_tethering.activity.helpers.RegisterSchedulerListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.*;
 import com.labs.dm.auto_tethering.db.DBManager;
 import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
@@ -43,12 +28,7 @@ import com.labs.dm.auto_tethering.service.TetheringService;
 import java.text.Format;
 import java.util.Date;
 
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
-import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
-import static com.labs.dm.auto_tethering.AppProperties.SSID;
+import static com.labs.dm.auto_tethering.AppProperties.*;
 
 /**
  * Created by Daniel Mroczka
@@ -173,6 +153,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     private void registerListeners() {
         RegisterGeneralListenerHelper.getInstance(this, prefs).registerListeners();
+        RegisterBatteryTemperatureListenerHelper.getInstance(this, prefs).registerListener();
     }
 
     /**
@@ -213,31 +194,31 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void prepareSimCardWhiteList() {
-        new RegisterAddSimCardListenerHelper(this, prefs).prepareSimCardWhiteList();
+        new RegisterAddSimCardListenerHelper(this).prepareSimCardWhiteList();
     }
 
     private void prepareScheduleList() {
-        new RegisterSchedulerListenerHelper(this, prefs).prepareScheduleList();
+        new RegisterSchedulerListenerHelper(this).prepareScheduleList();
     }
 
     private void registerAddSchedule() {
-        new RegisterSchedulerListenerHelper(this, prefs).registerAddSchedule();
+        new RegisterSchedulerListenerHelper(this).registerAddSchedule();
     }
 
     private void registerBTListener() {
-        new RegisterBluetoothListenerHelper(this, prefs).registerBTListener();
+        new RegisterBluetoothListenerHelper(this).registerBTListener();
     }
 
     private void registerAddSimCardListener() {
-        new RegisterAddSimCardListenerHelper(this, prefs).registerAddSimCardListener();
+        new RegisterAddSimCardListenerHelper(this).registerAddSimCardListener();
     }
 
     private void registerCellularNetworkListener() {
-        new RegisterCellularListenerHelper(this, prefs).registerCellularNetworkListener();
+        new RegisterCellularListenerHelper(this).registerCellularNetworkListener();
     }
 
     private void prepareBTList() {
-        new RegisterBluetoothListenerHelper(this, prefs).prepareBTList();
+        new RegisterBluetoothListenerHelper(this).prepareBTList();
     }
 
     @Override
@@ -430,7 +411,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     protected void onDestroy() {
         unregisterReceiver(receiver);
-        RegisterGeneralListenerHelper.getInstance(this, prefs).unregisterListener();
+        RegisterBatteryTemperatureListenerHelper.getInstance(this, prefs).unregisterListener();
         super.onDestroy();
     }
 

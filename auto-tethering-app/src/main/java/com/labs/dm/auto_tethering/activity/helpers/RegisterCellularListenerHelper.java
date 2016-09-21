@@ -2,7 +2,6 @@ package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.preference.CheckBoxPreference;
@@ -15,14 +14,11 @@ import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cellular;
-import com.labs.dm.auto_tethering.db.DBManager;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -42,21 +38,15 @@ import static com.labs.dm.auto_tethering.AppProperties.MAX_CELLULAR_ITEMS;
 /**
  * Created by Daniel Mroczka on 9/12/2016.
  */
-public class RegisterCellularListenerHelper {
+public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
-    private final MainActivity activity;
-    private final SharedPreferences prefs;
     private final static int ITEM_COUNT = 3;
 
-    private DBManager db;
-
-    public RegisterCellularListenerHelper(MainActivity activity, SharedPreferences prefs) {
-        this.activity = activity;
-        this.prefs = prefs;
+    public RegisterCellularListenerHelper(MainActivity activity) {
+        super(activity);
         final TelephonyManager telManager = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
         int events = PhoneStateListener.LISTEN_CELL_LOCATION;
         telManager.listen(new MyPhoneStateListener(), events);
-        db = DBManager.getInstance(activity);
     }
 
     public void registerCellularNetworkListener() {

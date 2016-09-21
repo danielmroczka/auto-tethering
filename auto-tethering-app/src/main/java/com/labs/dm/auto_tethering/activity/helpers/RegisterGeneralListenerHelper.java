@@ -1,30 +1,19 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.os.BatteryManager;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
 import android.text.InputFilter;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.Gravity;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
@@ -35,38 +24,28 @@ import com.labs.dm.auto_tethering.service.TetheringService;
 
 import java.util.Map;
 
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
-import static com.labs.dm.auto_tethering.AppProperties.SSID;
-import static com.labs.dm.auto_tethering.TetherIntents.TEMP_BELOW;
-import static com.labs.dm.auto_tethering.TetherIntents.TEMP_OVER;
+import static com.labs.dm.auto_tethering.AppProperties.*;
 import static com.labs.dm.auto_tethering.activity.MainActivity.ON_CHANGE_SSID;
 
 /**
  * Created by Daniel Mroczka on 9/13/2016.
  */
-public class RegisterGeneralListenerHelper {
-    private final MainActivity activity;
-    private final SharedPreferences prefs;
+public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
     private final ServiceHelper serviceHelper;
 
     private static RegisterGeneralListenerHelper instance;
 
     public synchronized static RegisterGeneralListenerHelper getInstance(MainActivity activity, SharedPreferences prefs) {
         if (instance == null) {
-            instance = new RegisterGeneralListenerHelper(activity, prefs);
+            instance = new RegisterGeneralListenerHelper(activity);
         }
 
         return instance;
     }
 
-    private RegisterGeneralListenerHelper(MainActivity activity, SharedPreferences prefs) {
-        this.activity = activity;
-        this.prefs = prefs;
+    private RegisterGeneralListenerHelper(MainActivity activity) {
+        super(activity);
         this.serviceHelper = new ServiceHelper(activity);
-        batteryReceiver.register(activity, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
     }
 
     public void registerListeners() {
@@ -207,15 +186,6 @@ public class RegisterGeneralListenerHelper {
             }
         });
 
-        /*PreferenceScreen usbTethering = (PreferenceScreen) activity.findPreference("usb.tethering");
-        usbTethering.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                serviceHelper.usbTethering(true);
-                return false;
-            }
-        });*/
-
         PreferenceScreen resetDataUsage = (PreferenceScreen) activity.findPreference("data.limit.reset");
         resetDataUsage.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -262,23 +232,7 @@ public class RegisterGeneralListenerHelper {
         });
         btCheckBox.setChecked(prefs.getBoolean("bt.start.discovery", false));
 
-        EditTextPreference tempStart = (EditTextPreference) activity.findPreference("temp.value.start");
-        tempStart.setOnPreferenceChangeListener(changeListener);
-        tempStart.getEditText().setFilters(new InputFilter[]{new InputFilterMinMax(0, 100)});
-        EditTextPreference tempStop = (EditTextPreference) activity.findPreference("temp.value.stop");
-        tempStop.setOnPreferenceChangeListener(changeListener);
-        tempStop.getEditText().setFilters(new InputFilter[]{new InputFilterMinMax(0, 100)});
 
-        CheckBoxPreference checkBoxPreference = (CheckBoxPreference) activity.findPreference("temp.monitoring.enable");
-        checkBoxPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if ((Boolean) newValue == false) {
-                    activity.sendBroadcast(new Intent(TEMP_BELOW));
-                }
-                return false;
-            }
-        });
     }
 
     private void startService() {
@@ -289,82 +243,5 @@ public class RegisterGeneralListenerHelper {
         }
     }
 
-    private float lastTemperature;
 
-    private BatteryReceiver batteryReceiver = new BatteryReceiver();
-
-    public void unregisterListener() {
-        batteryReceiver.unregister(activity);
-    }
-
-    private class InputFilterMinMax implements InputFilter {
-
-        private int min, max;
-
-        public InputFilterMinMax(int min, int max) {
-            this.min = min;
-            this.max = max;
-        }
-
-        @Override
-        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-            try {
-                int input = Integer.parseInt(dest.toString() + source.toString());
-                if (min <= input && input <= max || (dest.length() + source.length() < 2)) {
-                    return null;
-                }
-            } catch (NumberFormatException nfe) {
-                Log.e("InputFilterMinMax", nfe.getMessage());
-            }
-            return "";
-        }
-    }
-
-    private class BatteryReceiver extends BroadcastReceiver {
-
-        public boolean isRegistered;
-
-        public Intent register(Context context, IntentFilter filter) {
-            isRegistered = true;
-            return context.registerReceiver(this, filter);
-        }
-
-        public boolean unregister(Context context) {
-            if (isRegistered) {
-                context.unregisterReceiver(this);
-                isRegistered = false;
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            float temperature = (float) (intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) / 10);
-            String sign = "→";
-            if (lastTemperature > temperature) {
-                sign = "↓";
-            } else if (lastTemperature < temperature) {
-                sign = "↑";
-            }
-            final PreferenceScreen current = (PreferenceScreen) activity.findPreference("temp.current");
-
-            Spannable summary = new SpannableString(String.format("%.1f°C %s", temperature, sign));
-            summary.setSpan(new ForegroundColorSpan(temperature > 40 ? Color.RED : Color.GREEN), 0, summary.length(), 0);
-            current.setSummary(summary);
-
-            if (prefs.getBoolean("temp.monitoring.enable", false)) {
-                int start = Integer.parseInt(prefs.getString("temp.value.start", "50"));
-                int stop = Integer.parseInt(prefs.getString("temp.value.stop", "40"));
-
-                if (temperature >= stop) {
-                    activity.sendBroadcast(new Intent(TEMP_OVER));
-                } else if (temperature <= start) {
-                    activity.sendBroadcast(new Intent(TEMP_BELOW));
-                }
-                Log.d("Temp. monitor", temperature + sign);
-            }
-            lastTemperature = temperature;
-        }
-    }
 }

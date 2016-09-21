@@ -1,7 +1,6 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
@@ -21,14 +20,10 @@ import static com.labs.dm.auto_tethering.activity.MainActivity.ON_CHANGE_SCHEDUL
 /**
  * Created by Daniel Mroczka on 9/13/2016.
  */
-public class RegisterSchedulerListenerHelper {
+public class RegisterSchedulerListenerHelper extends AbstractRegisterHelper {
 
-    private final MainActivity activity;
-    private final SharedPreferences prefs;
-
-    public RegisterSchedulerListenerHelper(MainActivity activity, SharedPreferences prefs) {
-        this.activity = activity;
-        this.prefs = prefs;
+    public RegisterSchedulerListenerHelper(MainActivity activity) {
+        super(activity);
     }
 
     public void registerAddSchedule() {

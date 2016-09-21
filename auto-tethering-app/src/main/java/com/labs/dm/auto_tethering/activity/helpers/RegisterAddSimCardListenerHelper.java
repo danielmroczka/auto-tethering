@@ -2,7 +2,6 @@ package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
@@ -12,10 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.activity.MainActivity;
-import com.labs.dm.auto_tethering.db.DBManager;
 import com.labs.dm.auto_tethering.db.SimCard;
 
 import java.util.List;
@@ -26,15 +23,10 @@ import static android.content.Context.TELEPHONY_SERVICE;
  * Created by Daniel Mroczka on 2016-09-13.
  */
 
-public class RegisterAddSimCardListenerHelper {
-    private final MainActivity activity;
-    private final SharedPreferences prefs;
-    private final DBManager db;
+public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
 
-    public RegisterAddSimCardListenerHelper(MainActivity activity, SharedPreferences prefs) {
-        this.activity = activity;
-        this.prefs = prefs;
-        this.db = DBManager.getInstance(activity);
+    public RegisterAddSimCardListenerHelper(MainActivity activity) {
+        super(activity);
     }
 
     public void registerAddSimCardListener() {
