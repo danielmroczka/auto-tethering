@@ -21,8 +21,6 @@ import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
-import java.util.Map;
-
 import static com.labs.dm.auto_tethering.AppProperties.*;
 import static com.labs.dm.auto_tethering.activity.MainActivity.ON_CHANGE_SSID;
 
@@ -148,26 +146,6 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
         EditTextPreference batteryLevelValue = (EditTextPreference) activity.findPreference("usb.off.battery.lvl.value");
         batteryLevelValue.setOnPreferenceChangeListener(changeListener);
         batteryLevelValue.getEditText().setFilters(new InputFilter[]{new InputFilterMinMax(0, 100)});
-
-        for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
-            Preference p = activity.findPreference(entry.getKey());
-
-            switch (entry.getKey()) {
-                case IDLE_3G_OFF_TIME:
-                case IDLE_TETHERING_OFF_TIME:
-                case "temp.value.stop":
-                case "temp.value.start":
-                case "usb.off.battery.lvl.value":
-                case "data.limit.value":
-                    p.setSummary((CharSequence) entry.getValue());
-                    p.getEditor().commit();
-                    break;
-
-                case SSID:
-                    p.setSummary(serviceHelper.getTetheringSSID());
-                    break;
-            }
-        }
 
         Preference p = activity.findPreference(SSID);
         p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

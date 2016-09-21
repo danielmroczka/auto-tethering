@@ -253,8 +253,9 @@
                 android:key="data.limit.counter"
                 android:title="Data usage counter" />
             <PreferenceScreen
-                android:key="data.limit.reset"
-                android:title="Reset data usage counter" />
+                    android:key="data.limit.reset"
+                    android:icon="@drawable/ic_trash"
+                    android:title="Reset data usage counter" />
             <CheckBoxPreference
                 android:key="data.limit.daily.reset"
                 android:summary="Reset counter just after the midnight every day"

@@ -25,6 +25,7 @@ import com.labs.dm.auto_tethering.service.TetheringService;
 
 import java.text.Format;
 import java.util.Date;
+import java.util.Map;
 
 import static com.labs.dm.auto_tethering.AppProperties.*;
 
@@ -103,6 +104,25 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     private void registerListeners() {
         RegisterGeneralListenerHelper.getInstance(this).registerUIListeners();
         RegisterBatteryTemperatureListenerHelper.getInstance(this).registerUIListeners();
+        for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
+            Preference p = findPreference(entry.getKey());
+
+            switch (entry.getKey()) {
+                case IDLE_3G_OFF_TIME:
+                case IDLE_TETHERING_OFF_TIME:
+                case "temp.value.stop":
+                case "temp.value.start":
+                case "usb.off.battery.lvl.value":
+                case "data.limit.value":
+                    p.setSummary((CharSequence) entry.getValue());
+                    p.getEditor().commit();
+                    break;
+
+                case SSID:
+                    p.setSummary(serviceHelper.getTetheringSSID());
+                    break;
+            }
+        }
     }
 
     /**
