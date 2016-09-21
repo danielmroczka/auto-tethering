@@ -55,7 +55,7 @@ public class TetheringService extends IntentService {
         USB_ON,
         DATA_USAGE_LIMIT_EXCEED,
         BT,
-        ACTIVATED_ON_CELL, DEACTIVATED_ON_CELL, TEMP_OFF, DEFAULT
+        ACTIVATED_ON_CELL, DEACTIVATED_ON_CELL, TEMPERATURE_OFF, DEFAULT
     }
 
     private static final String TAG = "TetheringService";
@@ -492,13 +492,11 @@ public class TetheringService extends IntentService {
 
         if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
             Notification.Builder builder = new Notification.Builder(this)
-                    //.setContentTitle(getText(R.string.app_name))
                     .setTicker(caption)
                     .setOngoing(true)
                     .setSmallIcon(icon)
                     .setContentIntent(pendingIntent)
                     .setPriority(Notification.PRIORITY_MAX)
-
                     .setStyle(new Notification.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
 
             Intent onIntent = new Intent(TetherIntents.TETHERING);
@@ -663,7 +661,7 @@ public class TetheringService extends IntentService {
                     break;
 
                 case TEMPEARTURE_BELOW_LIMIT:
-                    if (status == Status.TEMP_OFF && !serviceHelper.isTetheringWiFi()) {
+                    if (status == Status.TEMPERATURE_OFF && !serviceHelper.isTetheringWiFi()) {
                         execute(TEMP_TETHERING_ON);
                     }
                     break;
@@ -797,7 +795,7 @@ public class TetheringService extends IntentService {
                 break;
             case TEMP_TETHERING_OFF:
                 id = R.string.temp_off;
-                status = Status.TEMP_OFF;
+                status = Status.TEMPERATURE_OFF;
                 break;
             case TEMP_TETHERING_ON:
                 id = R.string.temp_on;

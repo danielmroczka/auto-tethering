@@ -36,8 +36,8 @@ public class ServiceHelper {
     private final String TAG = "ServiceHelper";
 
     public ServiceHelper(Context context) {
-        this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         this.context = context;
+        this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
     }
 
     /**

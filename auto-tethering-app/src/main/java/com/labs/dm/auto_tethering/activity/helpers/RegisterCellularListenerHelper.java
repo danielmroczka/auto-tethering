@@ -144,7 +144,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             Cellular current = Utils.getCellInfo(activity);
 
             if (!current.isValid()) {
-                Utils.showToast(activity, "Cannot retrieve Cellular network info.\nPlease check the network range and try again");
+                Utils.showToast(activity, "Cannot retrieve Cellular network info.\nPlease check the network access and try again");
                 return null;
             } else if (list.getPreferenceCount() > ITEM_COUNT + MAX_CELLULAR_ITEMS) {
                 Utils.showToast(activity, "Exceeded the limit of max. " + MAX_CELLULAR_ITEMS + " configured networks!");
@@ -206,7 +206,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     private CheckBoxPreference createCheckBox(Cellular current, long id) {
         final CheckBoxPreference checkBox = new CheckBoxPreference(activity);
-        String styledText = String.format("<small>CID:</small> %s <small>LAC:</small> %s", current.getCid(), current.getLac());
+        String styledText = String.format("<small>CID: </small>%s <small>LAC: </small>%s", current.getCid(), current.getLac());
         checkBox.setTitle(Html.fromHtml(styledText));
         checkBox.setKey(String.valueOf(id));
         checkBox.setPersistent(false);

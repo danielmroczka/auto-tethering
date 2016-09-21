@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
@@ -35,7 +34,7 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
 
     private static RegisterGeneralListenerHelper instance;
 
-    public synchronized static RegisterGeneralListenerHelper getInstance(MainActivity activity, SharedPreferences prefs) {
+    public synchronized static RegisterGeneralListenerHelper getInstance(MainActivity activity) {
         if (instance == null) {
             instance = new RegisterGeneralListenerHelper(activity);
         }

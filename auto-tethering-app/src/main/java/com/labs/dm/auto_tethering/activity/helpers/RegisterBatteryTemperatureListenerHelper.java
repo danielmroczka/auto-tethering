@@ -1,6 +1,9 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.BatteryManager;
 import android.preference.CheckBoxPreference;
@@ -14,6 +17,7 @@ import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 
+import static android.content.Intent.ACTION_BATTERY_CHANGED;
 import static com.labs.dm.auto_tethering.AppProperties.TEMPERATURE_LIMIT;
 import static com.labs.dm.auto_tethering.TetherIntents.TEMPEARTURE_BELOW_LIMIT;
 import static com.labs.dm.auto_tethering.TetherIntents.TEMPERATURE_ABOVE_LIMIT;
@@ -28,7 +32,7 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
 
     private static RegisterBatteryTemperatureListenerHelper instance;
 
-    public synchronized static RegisterBatteryTemperatureListenerHelper getInstance(MainActivity activity, SharedPreferences prefs) {
+    public synchronized static RegisterBatteryTemperatureListenerHelper getInstance(MainActivity activity) {
         if (instance == null) {
             instance = new RegisterBatteryTemperatureListenerHelper(activity);
         }
@@ -48,7 +52,7 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
                 return true;
             }
         };
-        batteryReceiver.register(activity, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        batteryReceiver.register(activity, new IntentFilter(ACTION_BATTERY_CHANGED));
         EditTextPreference tempStart = (EditTextPreference) activity.findPreference("temp.value.start");
         tempStart.setOnPreferenceChangeListener(changeListener);
         tempStart.getEditText().setFilters(new InputFilter[]{new InputFilterMinMax(0, 100)});

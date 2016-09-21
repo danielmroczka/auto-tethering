@@ -1,6 +1,8 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.content.SharedPreferences;
+import android.preference.CheckBoxPreference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -45,5 +47,15 @@ abstract class AbstractRegisterHelper {
             }
             return "";
         }
+    }
+
+    public int getItemsCount(PreferenceCategory pc, String prefix) {
+        int result = 0;
+        for (int i = 0; i < pc.getPreferenceCount(); i++) {
+            if (pc.getPreference(i) instanceof CheckBoxPreference) {
+                result++;
+            }
+        }
+        return result;
     }
 }

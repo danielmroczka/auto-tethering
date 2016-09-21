@@ -8,10 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.*;
-import android.telephony.CellLocation;
-import android.telephony.PhoneStateListener;
-import android.telephony.ServiceState;
-import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -50,73 +46,24 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         addPreferencesFromResource(R.xml.preferences);
         serviceHelper = new ServiceHelper(getApplicationContext());
         loadPrefs();
-
         checkIfNotlocked();
         registerListeners();
         registerReceievers();
-        // registerCellListener();
         adjustSettingForOS();
         onStartup();
     }
 
-    private void registerCellListener() {
-        final TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-        tMgr.getNeighboringCellInfo();
-        tMgr.listen(phoneStateListener,
-                PhoneStateListener.LISTEN_CALL_FORWARDING_INDICATOR |
-                        PhoneStateListener.LISTEN_CALL_STATE |
-                        PhoneStateListener.LISTEN_CELL_LOCATION |
-                        PhoneStateListener.LISTEN_DATA_ACTIVITY |
-                        PhoneStateListener.LISTEN_DATA_CONNECTION_STATE |
-                        PhoneStateListener.LISTEN_MESSAGE_WAITING_INDICATOR |
-                        PhoneStateListener.LISTEN_SERVICE_STATE |
-                        PhoneStateListener.LISTEN_SIGNAL_STRENGTH);
-    }
-
-    PhoneStateListener phoneStateListener = new PhoneStateListener() {
-        public void onCallForwardingIndicatorChanged(boolean cfi) {
-        }
-
-        public void onCallStateChanged(int state, String incomingNumber) {
-        }
-
-        public void onCellLocationChanged(CellLocation location) {
-
-            System.out.println(location);
-        }
-
-        public void onDataActivity(int direction) {
-        }
-
-        public void onDataConnectionStateChanged(int state) {
-        }
-
-        public void onMessageWaitingIndicatorChanged(boolean mwi) {
-        }
-
-        public void onServiceStateChanged(ServiceState serviceState) {
-            System.out.println(serviceState);
-        }
-
-
-        public void onSignalStrengthChanged(int asu) {
-        }
-    };
-
     private void adjustSettingForOS() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            switchOffPreference("activate.3g");
-            switchOffPreference("idle.3g.off");
-            switchOffPreference("force.net.from.notify");
-            switchOffPreference("usb.internet.force.off");
-            switchOffPreference("usb.internet.force.on");
-            switchOffPreference("bt.internet.restore.to.initial");
+            switchOffPreferences("activate.3g", "idle.3g.off", "force.net.from.notify", "usb.internet.force.off", "usb.internet.force.on", "bt.internet.restore.to.initial");
         }
     }
 
-    private void switchOffPreference(String name) {
-        findPreference(name).setEnabled(false);
-        ((CheckBoxPreference) findPreference(name)).setChecked(false);
+    private void switchOffPreferences(String... names) {
+        for (String name : names) {
+            findPreference(name).setEnabled(false);
+            ((CheckBoxPreference) findPreference(name)).setChecked(false);
+        }
     }
 
     private void registerReceievers() {
@@ -152,8 +99,8 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void registerListeners() {
-        RegisterGeneralListenerHelper.getInstance(this, prefs).registerListeners();
-        RegisterBatteryTemperatureListenerHelper.getInstance(this, prefs).registerListener();
+        RegisterGeneralListenerHelper.getInstance(this).registerListeners();
+        RegisterBatteryTemperatureListenerHelper.getInstance(this).registerListener();
     }
 
     /**
@@ -218,7 +165,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void prepareBTList() {
-        new RegisterBluetoothListenerHelper(this).prepareBTList();
+        //new RegisterBluetoothListenerHelper(this).prepareBTList();
     }
 
     @Override
@@ -268,7 +215,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         loadPrefs();
         registerAddSimCardListener();
         registerCellularNetworkListener();
-        registerCellListener();
         registerAddSchedule();
         registerBTListener();
         prepareSimCardWhiteList();
@@ -411,7 +357,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     protected void onDestroy() {
         unregisterReceiver(receiver);
-        RegisterBatteryTemperatureListenerHelper.getInstance(this, prefs).unregisterListener();
+        RegisterBatteryTemperatureListenerHelper.getInstance(this).unregisterListener();
         super.onDestroy();
     }
 
