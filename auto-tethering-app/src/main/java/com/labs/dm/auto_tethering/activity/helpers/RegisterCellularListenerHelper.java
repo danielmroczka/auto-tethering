@@ -12,11 +12,8 @@ import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.Html;
-import android.util.Log;
 import android.widget.Toast;
-import com.labs.dm.auto_tethering.BuildConfig;
-import com.labs.dm.auto_tethering.R;
-import com.labs.dm.auto_tethering.Utils;
+import com.labs.dm.auto_tethering.*;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cellular;
 import org.apache.http.HttpEntity;
@@ -113,16 +110,16 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                 if (entity != null) {
                     InputStream inputStream = entity.getContent();
                     String result = Utils.convertStreamToString(inputStream);
-                    Log.d("Load JSON", result);
+                    MyLog.d("Load JSON", result);
                     json = new JSONObject(result);
                     item.setLon(json.getDouble("lon"));
                     item.setLat(json.getDouble("lat"));
                     inputStream.close();
                 }
             } catch (IOException e) {
-                Log.e("HttpRequest", e.getMessage());
+                MyLog.e("HttpRequest", e.getMessage());
             } catch (JSONException e) {
-                Log.e("JSONException", e.getMessage());
+                MyLog.e("JSONException", e.getMessage());
             }
         }
     }
@@ -214,7 +211,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         if (current.hasLocation()) {
             Location location = Utils.getLastKnownLocation(activity);
             double distance = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), current.getLat(), current.getLon());
-            if (location.getAccuracy() > 10) {
+            if (location.getAccuracy() > AppProperties.GPS_ACCURACY_LIMIT) {
                 checkBox.setSummary(String.format("Distance: %.0f±%.0fm", distance, location.getAccuracy()));
             } else {
                 checkBox.setSummary(String.format("Distance: %.0fm", distance));

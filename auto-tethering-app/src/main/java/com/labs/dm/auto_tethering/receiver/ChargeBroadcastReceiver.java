@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
+import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
@@ -22,7 +22,7 @@ public class ChargeBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         ServiceHelper helper = new ServiceHelper(context);
         Intent usbIntent = null;
-        Log.i(TAG, intent.getAction());
+        MyLog.i(TAG, intent.getAction());
 
         switch (intent.getAction()) {
             case Intent.ACTION_POWER_CONNECTED:

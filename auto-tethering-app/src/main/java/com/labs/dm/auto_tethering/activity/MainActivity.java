@@ -8,8 +8,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.*;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.LogActivity;
@@ -249,11 +251,14 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                             .setNegativeButton(R.string.no, null)
                             .show();
                     prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
-                } else if (version < BuildConfig.VERSION_CODE) {
+                } else if (version <= BuildConfig.VERSION_CODE) {
+                    LayoutInflater li = LayoutInflater.from(getApplicationContext());
+                    final View promptsView = li.inflate(R.layout.release, null);
 
                     /** First start after update **/
                     new AlertDialog.Builder(MainActivity.this)
                             .setTitle("Release notes " + BuildConfig.VERSION_NAME)
+                            .setView(promptsView)
                             .setMessage(getString(R.string.release_notes))
                             .setPositiveButton("Close", new DialogInterface.OnClickListener() {
                                 @Override

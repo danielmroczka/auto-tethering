@@ -9,11 +9,7 @@ import android.content.*;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
-import android.util.Log;
-import com.labs.dm.auto_tethering.AppProperties;
-import com.labs.dm.auto_tethering.R;
-import com.labs.dm.auto_tethering.TetherIntents;
-import com.labs.dm.auto_tethering.Utils;
+import com.labs.dm.auto_tethering.*;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.db.Cron;
@@ -123,7 +119,7 @@ public class TetheringService extends IntentService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "onStartCommand");
+        MyLog.i(TAG, "onStartCommand");
         runFromActivity = intent.getBooleanExtra("runFromActivity", false);
         int state = intent.getIntExtra("state", -1);
         if (state == 1) {
@@ -223,7 +219,7 @@ public class TetheringService extends IntentService {
 
                 TimeUnit.SECONDS.sleep(CHECK_DELAY);
             } catch (InterruptedException e) {
-                Log.e(TAG, e.getMessage());
+                MyLog.e(TAG, e.getMessage());
             }
         }
     }
@@ -538,12 +534,12 @@ public class TetheringService extends IntentService {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         Notification notification = buildNotification(body, icon);
         notificationManager.notify(NOTIFICATION_ID, notification);
-        Log.i(TAG, "Notification: " + body);
+        MyLog.i(TAG, "Notification: " + body);
     }
 
     @Override
     public void onDestroy() {
-        Log.i(TAG, "onDestroy");
+        MyLog.i(TAG, "onDestroy");
         flag = false;
         revertToInitialState();
         stopForeground(true);
@@ -565,7 +561,7 @@ public class TetheringService extends IntentService {
     private class MyBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i(TAG, intent.getAction());
+            MyLog.i(TAG, intent.getAction());
             switch (intent.getAction()) {
                 case TetherIntents.TETHERING:
                     if (forceOn && !forceOff) {
@@ -710,7 +706,7 @@ public class TetheringService extends IntentService {
             showNotify = true;
         }
 
-        Log.i(TAG, "Execute action: " + serviceAction.toString());
+        MyLog.i(TAG, "Execute action: " + serviceAction.toString());
         int id = R.string.service_started;
         int icon = R.drawable.app_off;
         if (serviceAction.name().contains("IDLE")) {

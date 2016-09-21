@@ -14,7 +14,7 @@ import android.text.InputFilter;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
+import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 
 import static android.content.Intent.ACTION_BATTERY_CHANGED;
@@ -112,7 +112,7 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
                 } else if (temperature <= start) {
                     activity.sendBroadcast(new Intent(TEMPEARTURE_BELOW_LIMIT));
                 }
-                Log.d("Temp. monitor", temperature + sign);
+                MyLog.d("Temp. monitor", temperature + sign);
             }
             lastTemperature = temperature;
         }

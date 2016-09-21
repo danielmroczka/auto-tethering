@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
+import com.labs.dm.auto_tethering.MyLog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,12 +57,12 @@ public class DBManager extends SQLiteOpenHelper {
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
         db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
-        Log.i("DBManager", "DB structure created");
+        MyLog.i("DBManager", "DB structure created");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.i("DBManager", "onUpgrade old=" + oldVersion + ", new=" + newVersion);
+        MyLog.i("DBManager", "onUpgrade old=" + oldVersion + ", new=" + newVersion);
         if (oldVersion < 4) {
             db.execSQL("drop table IF EXISTS CRON");
             db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
@@ -71,7 +71,7 @@ public class DBManager extends SQLiteOpenHelper {
             db.execSQL("drop table IF EXISTS CELLULAR");
             db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, type TEXT, lat REAL, lon REAL, name TEXT, status INTEGER)");
         }
-        Log.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
+        MyLog.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
     }
 
     public List<SimCard> readSimCard() {

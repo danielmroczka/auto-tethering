@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.util.Log;
+import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.TetherIntents;
 
 import java.util.concurrent.TimeUnit;
@@ -27,7 +27,7 @@ public class WidgetService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         boolean state = serviceHelper.isTetheringWiFi();
-        Log.i("WidgetService", "onHandleIntent, state=" + state + ", extras=" + intent.getExtras().toString());
+        MyLog.i("WidgetService", "onHandleIntent, state=" + state + ", extras=" + intent.getExtras().toString());
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         int widgetId = intent.getIntExtra(EXTRA_APPWIDGET_ID, INVALID_APPWIDGET_ID);
 

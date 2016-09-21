@@ -15,26 +15,13 @@ import android.telephony.TelephonyManager;
 import android.telephony.cdma.CdmaCellLocation;
 import android.telephony.gsm.GsmCellLocation;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -114,7 +101,7 @@ public class Utils {
             try {
                 onPendingIntent.send();
             } catch (PendingIntent.CanceledException e) {
-                Log.e("Util", e.getMessage());
+                MyLog.e("Util", e.getMessage());
             }
         }
     }

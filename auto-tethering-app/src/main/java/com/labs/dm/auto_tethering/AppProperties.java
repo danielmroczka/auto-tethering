@@ -20,6 +20,8 @@ public class AppProperties {
 
     public static final int MAX_SCHEDULED_ITEMS = 10;
 
+    public static final int GPS_ACCURACY_LIMIT = 10;
+
     public static final String ACTIVATE_ON_STARTUP = "activate.on.startup";
     public static final String ACTIVATE_KEEP_SERVICE = "activate.keep.service";
     public static final String ACTIVATE_3G = "activate.3g";

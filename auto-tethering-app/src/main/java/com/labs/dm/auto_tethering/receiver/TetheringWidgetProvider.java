@@ -10,8 +10,8 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.RemoteViews;
+import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.activity.ConfigurationActivity;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
@@ -58,7 +58,7 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
             final Handler handler = new Handler() {
                 public void handleMessage(Message msg) {
                     int clickCount = context.getSharedPreferences("widget", MODE_PRIVATE).getInt("clicks", 0);
-                    Log.i(TAG, "ClickCount: " + clickCount);
+                    MyLog.i(TAG, "ClickCount: " + clickCount);
 
                     if (clickCount > 1) {
                         Intent i = new Intent(context, ConfigurationActivity.class);
@@ -85,7 +85,7 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
                         }
                         handler.sendEmptyMessage(0);
                     } catch (InterruptedException ex) {
-                        Log.e(TAG, ex.getMessage());
+                        MyLog.e(TAG, ex.getMessage());
                     }
                 }
             }.start();
@@ -103,7 +103,7 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
                 }
             }
         }
-        Log.i(TAG, "Remove widget ids: " + Arrays.toString(appWidgetIds));
+        MyLog.i(TAG, "Remove widget ids: " + Arrays.toString(appWidgetIds));
         super.onDeleted(context, appWidgetIds);
     }
 }

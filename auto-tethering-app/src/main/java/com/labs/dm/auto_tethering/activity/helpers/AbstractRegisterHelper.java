@@ -7,7 +7,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.text.InputFilter;
 import android.text.Spanned;
-import android.util.Log;
+import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.DBManager;
 
@@ -51,7 +51,7 @@ abstract class AbstractRegisterHelper {
                     return null;
                 }
             } catch (NumberFormatException nfe) {
-                Log.e("InputFilterMinMax", nfe.getMessage());
+                MyLog.e("InputFilterMinMax", nfe.getMessage());
             }
             return "";
         }

@@ -7,9 +7,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
-import android.util.Log;
 import android.widget.RemoteViews;
-
+import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
@@ -25,13 +24,13 @@ public class TetheringStateReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         ServiceHelper helper = new ServiceHelper(context);
-        Log.i(TAG, intent.getAction() + " " + String.valueOf(helper.isTetheringWiFi()).toUpperCase());
+        MyLog.i(TAG, intent.getAction() + " " + String.valueOf(helper.isTetheringWiFi()).toUpperCase());
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         ComponentName thisWidget = new ComponentName(context, TetheringWidgetProvider.class);
 
         int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
         for (int widgetId : allWidgetIds) {
-            Log.i(TAG, "widget id=" + widgetId);
+            MyLog.i(TAG, "widget id=" + widgetId);
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), getLayout(intent));
             Intent widgetIntent = new Intent(context, TetheringWidgetProvider.class);
             widgetIntent.putExtra(EXTRA_APPWIDGET_ID, widgetId);

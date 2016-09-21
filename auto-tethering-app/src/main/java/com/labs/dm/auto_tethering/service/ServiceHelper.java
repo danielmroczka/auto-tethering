@@ -14,8 +14,8 @@ import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.SystemClock;
-import android.util.Log;
 import android.widget.Toast;
+import com.labs.dm.auto_tethering.MyLog;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -51,11 +51,11 @@ public class ServiceHelper {
             method.setAccessible(true);
             return (Boolean) method.invoke(wifiManager);
         } catch (IllegalAccessException ex) {
-            Log.e(TAG, ex.getMessage());
+            MyLog.e(TAG, ex.getMessage());
         } catch (InvocationTargetException ex) {
-            Log.e(TAG, ex.getMessage());
+            MyLog.e(TAG, ex.getMessage());
         } catch (NoSuchMethodException ex) {
-            Log.e(TAG, ex.getMessage());
+            MyLog.e(TAG, ex.getMessage());
         }
 
         return false;
@@ -112,10 +112,10 @@ public class ServiceHelper {
         for (Method method : methods) {
             if (method.getName().equals("setWifiApEnabled")) {
                 try {
-                    Log.i(TAG, "setWifiTethering to " + enable);
+                    MyLog.i(TAG, "setWifiTethering to " + enable);
                     method.invoke(wifiManager, null, enable);
                 } catch (Exception ex) {
-                    Log.e(TAG, "Switch on tethering", ex);
+                    MyLog.e(TAG, "Switch on tethering", ex);
                     Toast.makeText(context, ex.getMessage(), Toast.LENGTH_LONG).show();
                 }
                 break;
@@ -131,7 +131,7 @@ public class ServiceHelper {
      */
     public void setMobileDataEnabled(boolean enabled) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Log.e(TAG, "Unimplemented setMobileDataEnabled on Android 5.0!");
+            MyLog.e(TAG, "Unimplemented setMobileDataEnabled on Android 5.0!");
             return;
         }
         final ConnectivityManager conman = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -146,7 +146,7 @@ public class ServiceHelper {
 
             setMobileDataEnabledMethod.invoke(iConnectivityManager, enabled);
         } catch (Exception e) {
-            Log.e(TAG, "Changing mobile connection state", e);
+            MyLog.e(TAG, "Changing mobile connection state", e);
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
@@ -158,7 +158,7 @@ public class ServiceHelper {
             try {
                 return (WifiConfiguration) method.invoke(wifiManager);
             } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
+                MyLog.e(TAG, e.getMessage());
             }
         }
         return null;
@@ -177,7 +177,7 @@ public class ServiceHelper {
     @Deprecated
     public void usbTethering(boolean value) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        Log.d(TAG, "test enable usb tethering");
+        MyLog.d(TAG, "test enable usb tethering");
         String[] available = null;
         int code = -1;
         Method[] wmMethods = cm.getClass().getDeclaredMethods();
@@ -214,9 +214,9 @@ public class ServiceHelper {
         }
 
         if (code == 0)
-            Log.d(TAG, "Enable usb tethering successfully!");
+            MyLog.d(TAG, "Enable usb tethering successfully!");
         else
-            Log.d(TAG, "Enable usb tethering failed!");
+            MyLog.d(TAG, "Enable usb tethering failed!");
     }
 
     public static long getDataUsage() {
