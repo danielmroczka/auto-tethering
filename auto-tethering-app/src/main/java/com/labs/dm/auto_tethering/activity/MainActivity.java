@@ -31,6 +31,7 @@ import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterAddSimCardListenerHelper;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterBatteryTemperatureListenerHelper;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterBluetoothListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterCellularListenerHelper;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterGeneralListenerHelper;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterSchedulerListenerHelper;
 import com.labs.dm.auto_tethering.db.DBManager;
@@ -205,7 +206,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void registerCellularNetworkListener() {
-        //new RegisterCellularListenerHelper(this).registerUIListeners();
+        new RegisterCellularListenerHelper(this).registerUIListeners();
     }
 
     @Override
