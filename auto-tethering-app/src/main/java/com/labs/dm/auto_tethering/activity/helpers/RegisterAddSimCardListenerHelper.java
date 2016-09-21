@@ -11,6 +11,7 @@ import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.activity.MainActivity;
@@ -100,11 +101,15 @@ public class RegisterAddSimCardListenerHelper {
     private void addSimCard(String number) {
         final TelephonyManager tMgr = (TelephonyManager) activity.getSystemService(TELEPHONY_SERVICE);
         final String ssn = tMgr.getSimSerialNumber();
+
+        boolean isAlreadyAdded = db.isOnWhiteList(ssn);
+        if (isAlreadyAdded) {
+            Toast.makeText(activity, "SimCard " + number + " is already added on the whitelist", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         SimCard simcard = new SimCard(tMgr.getSimSerialNumber(), number, 0);
         db.addSimCard(simcard);
-        boolean status = db.isOnWhiteList(ssn);
-        PreferenceScreen p = (PreferenceScreen) activity.findPreference("add.current.simcard");
-        p.setEnabled(!status);
         prepareSimCardWhiteList();
     }
 

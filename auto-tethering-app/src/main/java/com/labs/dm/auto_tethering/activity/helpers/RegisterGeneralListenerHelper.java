@@ -268,6 +268,17 @@ public class RegisterGeneralListenerHelper {
         EditTextPreference tempStop = (EditTextPreference) activity.findPreference("temp.value.stop");
         tempStop.setOnPreferenceChangeListener(changeListener);
         tempStop.getEditText().setFilters(new InputFilter[]{new InputFilterMinMax(0, 100)});
+
+        CheckBoxPreference checkBoxPreference = (CheckBoxPreference) activity.findPreference("temp.monitoring.enable");
+        checkBoxPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if ((Boolean) newValue == false) {
+                    activity.sendBroadcast(new Intent(TEMP_BELOW));
+                }
+                return false;
+            }
+        });
     }
 
     private void startService() {

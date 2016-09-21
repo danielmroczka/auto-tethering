@@ -33,7 +33,11 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+
+import static com.labs.dm.auto_tethering.AppProperties.MAX_CELLULAR_ITEMS;
 
 /**
  * Created by Daniel Mroczka on 9/12/2016.
@@ -43,7 +47,8 @@ public class RegisterCellularListenerHelper {
     private final MainActivity activity;
     private final SharedPreferences prefs;
     private final static int ITEM_COUNT = 3;
-    private final static int MAX_ITEMS = 20;
+
+    private DBManager db;
 
     public RegisterCellularListenerHelper(MainActivity activity, SharedPreferences prefs) {
         this.activity = activity;
@@ -51,6 +56,7 @@ public class RegisterCellularListenerHelper {
         final TelephonyManager telManager = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
         int events = PhoneStateListener.LISTEN_CELL_LOCATION;
         telManager.listen(new MyPhoneStateListener(), events);
+        db = DBManager.getInstance(activity);
     }
 
     public void registerCellularNetworkListener() {
@@ -150,13 +156,12 @@ public class RegisterCellularListenerHelper {
             if (!current.isValid()) {
                 Utils.showToast(activity, "Cannot retrieve Cellular network info.\nPlease check the network range and try again");
                 return null;
-            } else if (list.getPreferenceCount() > ITEM_COUNT + MAX_ITEMS) {
-                Utils.showToast(activity, "Exceeded the limit of max. " + MAX_ITEMS + " configured networks!");
+            } else if (list.getPreferenceCount() > ITEM_COUNT + MAX_CELLULAR_ITEMS) {
+                Utils.showToast(activity, "Exceeded the limit of max. " + MAX_CELLULAR_ITEMS + " configured networks!");
                 return null;
             }
 
-            List<Cellular> activeList = DBManager.getInstance(activity).readCellular('A');
-
+            List<Cellular> activeList = db.readCellular('A');
             for (Cellular c : activeList) {
                 if (current.theSame(c)) {
                     Utils.showToast(activity, "Cellular network (" + current.toString() + ") is already on the activation list!");
@@ -164,7 +169,7 @@ public class RegisterCellularListenerHelper {
                 }
             }
 
-            List<Cellular> deactiveList = DBManager.getInstance(activity).readCellular('D');
+            List<Cellular> deactiveList = db.readCellular('D');
             for (Cellular c : deactiveList) {
                 if (current.theSame(c)) {
                     Utils.showToast(activity, "Cellular network (" + current.toString() + ") is already on the deactivation list!");
@@ -172,27 +177,10 @@ public class RegisterCellularListenerHelper {
                 }
             }
 
-//            String names[] = {"Home", "Work", "School", "Custom 1", "Custom 2", "Custom 3"};
-//            final AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity);
-//            LayoutInflater inflater = activity.getLayoutInflater();
-//            View convertView = (View) inflater.inflate(R.layout.cellular_type, null);
-//            alertDialog.setView(convertView);
-//            alertDialog.setTitle("List");
-//            final ListView lv = (ListView) activity.findViewById(R.id.listView);
-//            final ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_list_item_1, names);
-//            activity.runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    lv.setAdapter(adapter);
-//                    alertDialog.show();
-//                }
-//            });
-
-
             loadLocationFromService(current);
             current.setType(type);
             current.setName("");
-            long id = DBManager.getInstance(activity).addOrUpdateCellular(current);
+            long id = db.addOrUpdateCellular(current);
 
             if (id > 0) {
                 final CheckBoxPreference checkBox = createCheckBox(current, id);
@@ -202,6 +190,7 @@ public class RegisterCellularListenerHelper {
                     public void run() {
                         list.addPreference(checkBox);
                         remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
+                        Toast.makeText(activity, "Cellular network has been added", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -216,7 +205,6 @@ public class RegisterCellularListenerHelper {
             progress = new ProgressDialog(activity, R.style.MyTheme);
             progress.setCancelable(false);
             progress.setIndeterminateDrawable(activity.getResources().getDrawable(R.drawable.progress));
-            //  progress.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
             progress.show();
         }
 
@@ -260,16 +248,35 @@ public class RegisterCellularListenerHelper {
 
         @Override
         public void run() {
-            List<Cellular> col = DBManager.getInstance(activity).readCellular(type);
+            List<Cellular> col = db.readCellular(type);
 
             for (Cellular item : col) {
                 if (!item.hasLocation()) {
                     loadLocationFromService(item);
                     if (item.hasLocation()) {
-                        DBManager.getInstance(activity).addOrUpdateCellular(item);
+                        db.addOrUpdateCellular(item);
                     }
                 }
+            }
 
+            final Location location = Utils.getLastKnownLocation(activity);
+
+            if (location != null) {
+                Collections.sort(col, new Comparator<Cellular>() {
+                    @Override
+                    public int compare(Cellular lhs, Cellular rhs) {
+                        if (lhs.isValid() && rhs.isValid()) {
+                            double distance1 = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), lhs.getLat(), lhs.getLon());
+                            double distance2 = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), rhs.getLat(), rhs.getLon());
+                            return (int) (distance1 - distance2);
+                        } else {
+                            return -1;
+                        }
+                    }
+                });
+            }
+
+            for (Cellular item : col) {
                 final CheckBoxPreference checkBox = createCheckBox(item, item.getId());
                 activity.runOnUiThread(new Runnable() {
                     @Override
@@ -295,7 +302,7 @@ public class RegisterCellularListenerHelper {
             if (pref instanceof CheckBoxPreference) {
                 boolean status = ((CheckBoxPreference) pref).isChecked();
                 if (status && !pref.getKey().startsWith("cell")) {
-                    if (DBManager.getInstance(activity).removeCellular(pref.getKey()) > 0) {
+                    if (db.removeCellular(pref.getKey()) > 0) {
                         list.removePreference(pref);
                         changed = true;
                     }
@@ -303,9 +310,8 @@ public class RegisterCellularListenerHelper {
             }
         }
 
-        if (!changed) {
-            Toast.makeText(activity, "Please select any item", Toast.LENGTH_LONG).show();
-        }
+        String text = changed ? "Cellular network has been removed" : "Please select any item";
+        Toast.makeText(activity, text, Toast.LENGTH_LONG).show();
         remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
         return true;
     }

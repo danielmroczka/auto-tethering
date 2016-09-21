@@ -5,7 +5,6 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
@@ -130,7 +129,10 @@ public class Utils {
     }
 
     public static boolean isAirplaneModeOn(Context context) {
-        return Settings.System.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            return Settings.System.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
+        }
+        return false;
     }
 
     public static List<BluetoothDevice> getBluetoothDevices(Context context, SharedPreferences prefs) {
@@ -181,9 +183,9 @@ public class Utils {
      */
     public static Boolean isDataRoamingEnabled(final Context context) {
         if (Build.VERSION.SDK_INT < 17) {
-            return (Settings.System.getInt(context.getContentResolver(), Settings.Secure.DATA_ROAMING, 0) == 1);
+            return Settings.System.getInt(context.getContentResolver(), Settings.Secure.DATA_ROAMING, 0) == 1;
         } else {
-            return (Settings.Global.getInt(context.getContentResolver(), Settings.Global.DATA_ROAMING, 0) == 1);
+            return Settings.Global.getInt(context.getContentResolver(), Settings.Global.DATA_ROAMING, 0) == 1;
         }
     }
 
@@ -258,15 +260,10 @@ public class Utils {
 
     public static Location getLastKnownLocation(Context context) {
         LocationManager locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        criteria.setAltitudeRequired(false);
-        criteria.setBearingRequired(false);
-        criteria.setCostAllowed(false);
-        criteria.setPowerRequirement(Criteria.POWER_LOW);
-        String provider = locationManager.getBestProvider(criteria, true);
-
-        Location location = locationManager.getLastKnownLocation(provider);
+        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (location == null) {
+            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        }
         return location;
     }
 

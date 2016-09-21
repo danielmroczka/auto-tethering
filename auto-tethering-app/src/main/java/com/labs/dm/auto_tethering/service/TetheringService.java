@@ -332,12 +332,12 @@ public class TetheringService extends IntentService {
             return false;
         }
 
-        if (!state || status != Status.DEACTIVATED_ON_IDLE) {
+        //if (!state || status != Status.DEACTIVATED_ON_IDLE) {
             new TurnOnTetheringAsyncTask().doInBackground(state);
             return true;
-        }
+        //}
 
-        return false;
+        //return false;
     }
 
     private boolean isServiceActivated() {
@@ -465,12 +465,12 @@ public class TetheringService extends IntentService {
             return false;
         }
 
-        if (!state || status != Status.DEACTIVATED_ON_IDLE) {
+        // if (!state || status != Status.DEACTIVATED_ON_IDLE) {
             new TurnOn3GAsyncTask().doInBackground(state);
             return true;
-        }
+        //}
 
-        return false;
+        // return false;
     }
 
     private boolean isActivatedTethering() {
@@ -525,7 +525,7 @@ public class TetheringService extends IntentService {
     }
 
     private Notification buildNotification(String caption) {
-        return buildNotification(caption, serviceHelper.isTetheringWiFi() ? R.drawable.app_on : R.drawable.app_off);
+        return buildNotification(caption, serviceHelper.isTetheringWiFi() ? serviceHelper.isConnectedToInternet() ? R.drawable.app_on : R.drawable.app_yellow : R.drawable.app_off);
     }
 
     private Notification buildNotification(String caption, int icon) {
@@ -826,7 +826,7 @@ public class TetheringService extends IntentService {
                 status = Status.DATA_USAGE_LIMIT_EXCEED;
                 break;
             case BLUETOOTH_INTERNET_TETHERING_ON:
-                id = R.string.bluetooth;
+                id = R.string.bluetooth_on;
                 status = Status.BT;
                 break;
             case BLUETOOTH_INTERNET_TETHERING_OFF:

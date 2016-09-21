@@ -100,11 +100,11 @@
     <string name="notification_data_exceed_limit">Data usage exceed the limit</string>
     <string name="activate_tethering_bt_on">Tethering activated on BT connection</string>
     <string name="activate_internet_bt_on">Internet activated on BT connection</string>
-    <string name="bluetooth">Bluetooth activation</string>
+    <string name="bluetooth_on">Bluetooth activation</string>
     <string name="bluetooth_off">Bluetooth deactivation</string>
-    <string name="cell_on">Activated on Cellular Network</string>
-    <string name="cell_off">Deactivated on Cellular Network</string>
-    <string name="temp_off">Tethering switched off due to Temperature</string>
-    <string name="temp_on">Tethering switched on due to Temperature</string>
+    <string name="cell_on">Activated on cellular network Coverage</string>
+    <string name="cell_off">Deactivated on cellular network coverage</string>
+    <string name="temp_off">Tethering switched off due to high battery temperature</string>
+    <string name="temp_on">Tethering switched on due to return to normal battery temperature</string>
 </resources>
 

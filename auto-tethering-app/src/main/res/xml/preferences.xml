@@ -168,7 +168,7 @@
                 android:defaultValue="15"
                 android:dependency="usb.off.battery.lvl"
                 android:dialogTitle="Enter percentage value from range 1-100"
-                android:icon="@drawable/ic_level"
+                android:icon="@drawable/ic_battery_dead"
                 android:inputType="number"
                 android:key="usb.off.battery.lvl.value"
                 android:summary=""
