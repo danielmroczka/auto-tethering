@@ -2,22 +2,37 @@ package com.labs.dm.auto_tethering.activity;
 
 import android.app.AlertDialog;
 import android.app.NotificationManager;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.*;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.LogActivity;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
-import com.labs.dm.auto_tethering.activity.helpers.*;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterAddSimCardListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterBatteryTemperatureListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterBluetoothListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterGeneralListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterSchedulerListenerHelper;
 import com.labs.dm.auto_tethering.db.DBManager;
 import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
@@ -27,7 +42,14 @@ import java.text.Format;
 import java.util.Date;
 import java.util.Map;
 
-import static com.labs.dm.auto_tethering.AppProperties.*;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
+import static com.labs.dm.auto_tethering.AppProperties.SSID;
 
 /**
  * Created by Daniel Mroczka
@@ -183,7 +205,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void registerCellularNetworkListener() {
-        new RegisterCellularListenerHelper(this).registerUIListeners();
+        //new RegisterCellularListenerHelper(this).registerUIListeners();
     }
 
     @Override

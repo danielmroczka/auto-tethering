@@ -54,28 +54,32 @@ public class MyLog extends Application {
 
     public static void i(String tag, String msg) {
         Log.i(tag, msg);
-        log.add(new Item(1, tag + " " + msg));
+        add(new Item(1, tag + " " + msg));
     }
 
     public static void e(String tag, String msg) {
         Log.e(tag, msg);
-        log.add(new Item(3, tag + " " + msg));
+        add(new Item(3, tag + " " + msg));
     }
 
     public static void e(String tag, String msg, Exception e) {
         Log.e(tag, msg, e);
         String context = tag + " " + msg + "\n" + e.getMessage();
-        log.add(new Item(3, context));
+        add(new Item(3, context));
     }
 
     public static void w(String tag, String msg) {
         Log.w(tag, msg);
-        log.add(new Item(2, tag + " " + msg));
+        add(new Item(2, tag + " " + msg));
     }
 
     public static void d(String tag, String msg) {
         Log.d(tag, msg);
-        log.add(new Item(0, tag + " " + msg));
+        add(new Item(0, tag + " " + msg));
+    }
+
+    private static void add(Item item) {
+        //log.add(item);
     }
 
 }

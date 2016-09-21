@@ -13,9 +13,15 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.widget.Toast;
-import com.labs.dm.auto_tethering.*;
+
+import com.labs.dm.auto_tethering.AppProperties;
+import com.labs.dm.auto_tethering.BuildConfig;
+import com.labs.dm.auto_tethering.MyLog;
+import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cellular;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -210,7 +216,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
         if (current.hasLocation()) {
             Location location = Utils.getLastKnownLocation(activity);
-            double distance = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), current.getLat(), current.getLon());
+            double distance = Utils.calculateDistance(location, current);
             if (location.getAccuracy() > AppProperties.GPS_ACCURACY_LIMIT) {
                 checkBox.setSummary(String.format("Distance: %.0f±%.0fm", distance, location.getAccuracy()));
             } else {
@@ -253,8 +259,8 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                     @Override
                     public int compare(Cellular lhs, Cellular rhs) {
                         if (lhs.isValid() && rhs.isValid()) {
-                            double distance1 = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), lhs.getLat(), lhs.getLon());
-                            double distance2 = Utils.calculateDistance(location.getLatitude(), location.getLongitude(), rhs.getLat(), rhs.getLon());
+                            double distance1 = Utils.calculateDistance(location, lhs);
+                            double distance2 = Utils.calculateDistance(location, rhs);
                             return (int) (distance1 - distance2);
                         } else {
                             return -1;

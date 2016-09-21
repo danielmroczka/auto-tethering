@@ -17,11 +17,23 @@ import android.telephony.gsm.GsmCellLocation;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -222,6 +234,13 @@ public class Utils {
 
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return MEAN_EARTH_RADIUS * c;
+    }
+
+    public static double calculateDistance(Location source, Cellular destination) {
+        Location dest = new Location("");
+        dest.setLatitude(destination.getLat());
+        dest.setLongitude(destination.getLon());
+        return source.distanceTo(dest);
     }
 
     public static String convertStreamToString(InputStream is) {

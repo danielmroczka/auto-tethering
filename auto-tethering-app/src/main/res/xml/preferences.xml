@@ -265,6 +265,7 @@
         <PreferenceScreen
             android:icon="@drawable/ic_signal"
             android:summary="Activate/deactivate if device is in range of preferred cellular networks"
+            android:enabled="false"
             android:title="Cellular Network">
             <PreferenceScreen
                 android:icon="@drawable/ic_signal"

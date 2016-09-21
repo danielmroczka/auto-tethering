@@ -5,11 +5,20 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
-import com.labs.dm.auto_tethering.*;
+
+import com.labs.dm.auto_tethering.AppProperties;
+import com.labs.dm.auto_tethering.MyLog;
+import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.TetherIntents;
+import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.db.Cron;
@@ -24,10 +33,51 @@ import java.util.concurrent.TimeUnit;
 
 import static android.os.Build.VERSION;
 import static android.os.Build.VERSION_CODES;
-import static com.labs.dm.auto_tethering.AppProperties.*;
-import static com.labs.dm.auto_tethering.TetherIntents.*;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING_HC;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
+import static com.labs.dm.auto_tethering.AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.FORCE_NET_FROM_NOTIFY;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
+import static com.labs.dm.auto_tethering.TetherIntents.BT_CONNECTED;
+import static com.labs.dm.auto_tethering.TetherIntents.BT_DISCONNECTED;
+import static com.labs.dm.auto_tethering.TetherIntents.BT_RESTORE;
+import static com.labs.dm.auto_tethering.TetherIntents.BT_SEARCH;
+import static com.labs.dm.auto_tethering.TetherIntents.EXIT;
+import static com.labs.dm.auto_tethering.TetherIntents.RESUME;
+import static com.labs.dm.auto_tethering.TetherIntents.TEMPEARTURE_BELOW_LIMIT;
+import static com.labs.dm.auto_tethering.TetherIntents.TEMPERATURE_ABOVE_LIMIT;
+import static com.labs.dm.auto_tethering.TetherIntents.TETHERING;
+import static com.labs.dm.auto_tethering.TetherIntents.USB_OFF;
+import static com.labs.dm.auto_tethering.TetherIntents.USB_ON;
+import static com.labs.dm.auto_tethering.TetherIntents.WIDGET;
 import static com.labs.dm.auto_tethering.Utils.adapterDayOfWeek;
-import static com.labs.dm.auto_tethering.service.ServiceAction.*;
+import static com.labs.dm.auto_tethering.service.ServiceAction.BLUETOOTH_INTERNET_TETHERING_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.BLUETOOTH_INTERNET_TETHERING_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.CELL_INTERNET_TETHERING_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.CELL_INTERNET_TETHERING_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.DATA_USAGE_EXCEED_LIMIT;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF_IDLE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.ROAMING_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SIMCARD_BLOCK;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TEMP_TETHERING_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TEMP_TETHERING_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF_IDLE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_ON;
 
 /**
  * Created by Daniel Mroczka
@@ -138,7 +188,7 @@ public class TetheringService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         if (isServiceActivated()) {
-            showNotification(getString(R.string.service_started), serviceHelper.isTetheringWiFi() ? R.drawable.app_on : R.drawable.app_off);
+            showNotification(getString(R.string.service_started), serviceHelper.isTetheringWiFi() ? serviceHelper.isConnectedToInternet() ? R.drawable.app_on : R.drawable.app_yellow : R.drawable.app_off);
 
             if (!isCorrectSimCard()) {
                 execute(SIMCARD_BLOCK);
