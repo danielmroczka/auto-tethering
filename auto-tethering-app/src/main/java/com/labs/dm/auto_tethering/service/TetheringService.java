@@ -711,7 +711,7 @@ public class TetheringService extends IntentService {
             showNotify = true;
         }
         if (serviceAction.isTethering() && prefs.getBoolean("wifi.disable.disconnect", false) && serviceHelper.isWiFiConnected()) {
-            showNotification("Tethering disabled because connected to WiFi network");
+            showNotification("Tethering disabled because connected to WiFi network", R.drawable.app_off);
         } else if (serviceAction.isTethering() && serviceHelper.isTetheringWiFi() != action) {
             if (action && serviceHelper.isWiFiEnabled()) {
                 initialWiFiStatus = serviceHelper.isWiFiEnabled();
