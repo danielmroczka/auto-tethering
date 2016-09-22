@@ -1,262 +1,261 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:key="prefs"
-                  android:title="@string/app_name">
+    android:key="prefs"
+    android:title="@string/app_name">
 
     <PreferenceScreen
+        android:icon="@drawable/ic_startup"
+        android:key="startup.screen"
+        android:title="@string/startup.title">
+        <CheckBoxPreference
+            android:defaultValue="true"
             android:icon="@drawable/ic_startup"
-            android:key="startup.screen"
-            android:title="@string/startup.title">
+            android:key="activate.on.startup"
+            android:summary="@string/activate.on.startup.summary"
+            android:title="@string/activate.on.startup.title" />
         <CheckBoxPreference
-                android:defaultValue="true"
-                android:icon="@drawable/ic_startup"
-                android:key="activate.on.startup"
-                android:summary="@string/activate.on.startup.summary"
-                android:title="@string/activate.on.startup.title"/>
+            android:defaultValue="true"
+            android:icon="@drawable/ic_service"
+            android:key="activate.keep.service"
+            android:summary="@string/activate.keep.service.summary"
+            android:title="@string/activate.keep.service.title" />
         <CheckBoxPreference
-                android:defaultValue="true"
-                android:icon="@drawable/ic_service"
-                android:key="activate.keep.service"
-                android:summary="@string/activate.keep.service.summary"
-                android:title="@string/activate.keep.service.title"/>
+            android:defaultValue="false"
+            android:icon="@drawable/ic_signal"
+            android:key="activate.3g"
+            android:summary="@string/activate3g.summary"
+            android:title="@string/activate3g.title" />
         <CheckBoxPreference
-                android:defaultValue="false"
-                android:icon="@drawable/ic_signal"
-                android:key="activate.3g"
-                android:summary="@string/activate3g.summary"
-                android:title="@string/activate3g.title"/>
-        <CheckBoxPreference
-                android:defaultValue="true"
-                android:icon="@drawable/ic_wifi"
-                android:key="activate.tethering"
-                android:summary="@string/activateTethering.summary"
-                android:title="@string/activateTethering.title"/>
+            android:defaultValue="true"
+            android:icon="@drawable/ic_wifi"
+            android:key="activate.tethering"
+            android:summary="@string/activateTethering.summary"
+            android:title="@string/activateTethering.title" />
     </PreferenceScreen>
 
     <PreferenceScreen
-            android:icon="@drawable/ic_clock"
-            android:key="scheduler.screen"
-            android:title="@string/scheduler.title">
+        android:icon="@drawable/ic_clock"
+        android:key="scheduler.screen"
+        android:title="@string/scheduler.title">
         <PreferenceScreen
-                android:icon="@drawable/ic_add"
-                android:key="scheduler.add"
-                android:title="Add schedule"/>
+            android:icon="@drawable/ic_add"
+            android:key="scheduler.add"
+            android:title="Add schedule" />
         <PreferenceCategory
-                android:key="scheduled.shutdown.list"
-                android:title="Scheduled tethering deactivation"/>
+            android:key="scheduled.shutdown.list"
+            android:title="Scheduled tethering deactivation" />
     </PreferenceScreen>
 
     <PreferenceScreen
-            android:icon="@drawable/ic_sleep"
-            android:key="idle.screen"
-            android:title="Deactivate on idle">
+        android:icon="@drawable/ic_sleep"
+        android:key="idle.screen"
+        android:title="Deactivate on idle">
         <CheckBoxPreference
-                android:defaultValue="false"
-                android:icon="@drawable/ic_wifi"
-                android:key="idle.wifi.off"
-                android:summary="@string/switch.off.tethering.idle.summary"
-                android:title="@string/switch.off.tethering.idle.title"/>
+            android:defaultValue="false"
+            android:icon="@drawable/ic_wifi"
+            android:key="idle.wifi.off"
+            android:summary="@string/switch.off.tethering.idle.summary"
+            android:title="@string/switch.off.tethering.idle.title" />
         <EditTextPreference
-                android:defaultValue="60"
-                android:dependency="idle.wifi.off"
-                android:dialogTitle="@string/enter.value.minutes"
-                android:icon="@drawable/ic_clock"
-                android:inputType="number"
-                android:key="idle.wifi.off.time"
-                android:maxLength="5"
-                android:summary=""
-                android:title="@string/idle.time.minutes"/>
+            android:defaultValue="60"
+            android:dependency="idle.wifi.off"
+            android:dialogTitle="@string/enter.value.minutes"
+            android:icon="@drawable/ic_clock"
+            android:inputType="number"
+            android:key="idle.wifi.off.time"
+            android:maxLength="5"
+            android:summary=""
+            android:title="@string/idle.time.minutes" />
         <CheckBoxPreference
-                android:defaultValue="false"
-                android:icon="@drawable/ic_signal"
-                android:key="idle.3g.off"
-                android:summary="@string/switch.off.internet.idle.summary"
-                android:title="@string/switch.off.internet.idle.title"/>
+            android:defaultValue="false"
+            android:icon="@drawable/ic_signal"
+            android:key="idle.3g.off"
+            android:summary="@string/switch.off.internet.idle.summary"
+            android:title="@string/switch.off.internet.idle.title" />
         <EditTextPreference
-                android:defaultValue="60"
-                android:dependency="idle.3g.off"
-                android:dialogTitle="@string/enter.value.minutes"
-                android:icon="@drawable/ic_clock"
-                android:inputType="number"
-                android:key="idle.3g.off.time"
-                android:maxLength="5"
-                android:summary=""
-                android:title="@string/idle.time.minutes"/>
+            android:defaultValue="60"
+            android:dependency="idle.3g.off"
+            android:dialogTitle="@string/enter.value.minutes"
+            android:icon="@drawable/ic_clock"
+            android:inputType="number"
+            android:key="idle.3g.off.time"
+            android:maxLength="5"
+            android:summary=""
+            android:title="@string/idle.time.minutes" />
         <PreferenceScreen
-                android:icon="@drawable/ic_clients"
-                android:key="idle.connected.clients"
-                android:summary="Tap to refresh"
-                android:title="Connected clients: 0"/>
+            android:icon="@drawable/ic_clients"
+            android:key="idle.connected.clients"
+            android:summary="Tap to refresh"
+            android:title="Connected clients: 0" />
     </PreferenceScreen>
 
     <PreferenceScreen
-            android:icon="@drawable/ic_settings"
-            android:key="adv.act.screen"
-            android:title="@string/advanced.settings">
+        android:icon="@drawable/ic_settings"
+        android:key="adv.act.screen"
+        android:title="@string/advanced.settings">
 
         <PreferenceScreen
-                android:icon="@drawable/ic_simcard"
-                android:summary="Activation only on configured SIM card"
-                android:title="SIM Card settings">
+            android:icon="@drawable/ic_simcard"
+            android:summary="Activation only on configured SIM card"
+            android:title="SIM Card settings">
             <PreferenceCategory android:title="SIM Card activation">
                 <CheckBoxPreference
-                        android:defaultValue="false"
-                        android:icon="@drawable/ic_simcard"
-                        android:key="activate.simcard"
-                        android:summary="@string/activate.only.summary"
-                        android:title="@string/activate.only.title"/>
+                    android:defaultValue="false"
+                    android:icon="@drawable/ic_simcard"
+                    android:key="activate.simcard"
+                    android:summary="@string/activate.only.summary"
+                    android:title="@string/activate.only.title" />
             </PreferenceCategory>
             <PreferenceCategory
-                    android:key="simcard.list"
-                    android:title="Edit SIM card whitelist">
+                android:key="simcard.list"
+                android:title="Edit SIM card whitelist">
                 <PreferenceScreen
-                        android:icon="@drawable/ic_add"
-                        android:key="add.current.simcard"
-                        android:title="Add current SIM card"/>
+                    android:icon="@drawable/ic_add"
+                    android:key="add.current.simcard"
+                    android:title="Add current SIM card" />
                 <PreferenceScreen
-                        android:icon="@drawable/ic_remove"
-                        android:key="remove.simcard"
-                        android:title="Remove selected"/>
+                    android:icon="@drawable/ic_remove"
+                    android:key="remove.simcard"
+                    android:title="Remove selected" />
             </PreferenceCategory>
         </PreferenceScreen>
         <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="activate.on.roaming.home.country"
-                android:icon="@drawable/ic_roaming"
-                android:summary="Tether while roaming only within the Home Country"
-                android:title="National roaming"/>
+            android:defaultValue="true"
+            android:icon="@drawable/ic_roaming"
+            android:key="activate.on.roaming.home.country"
+            android:summary="Tether while roaming only within the Home Country"
+            android:title="National roaming" />
         <CheckBoxPreference
-                android:defaultValue="false"
-                android:key="activate.on.roaming"
-                android:icon="@drawable/ic_roaming"
-                android:summary="Tether while roaming outside the Home Country"
-                android:title="International roaming"/>
+            android:defaultValue="false"
+            android:icon="@drawable/ic_roaming"
+            android:key="activate.on.roaming"
+            android:summary="Tether while roaming outside the Home Country"
+            android:title="International roaming" />
         <CheckBoxPreference
-                android:defaultValue="false"
-                android:icon="@drawable/ic_cancel"
-                android:key="return.state"
-                android:summary="@string/revert.state.summary"
-                android:title="Restore connection to initial state"/>
+            android:defaultValue="false"
+            android:icon="@drawable/ic_cancel"
+            android:key="return.state"
+            android:summary="@string/revert.state.summary"
+            android:title="Restore connection to initial state" />
         <CheckBoxPreference
-                android:defaultValue="true"
-                android:icon="@drawable/ic_signal"
-                android:key="force.net.from.notify"
-                android:summary="Connect to internet if tethering triggered from notification"
-                android:title="Activate mobile data"/>
+            android:defaultValue="true"
+            android:icon="@drawable/ic_signal"
+            android:key="force.net.from.notify"
+            android:summary="Connect to internet if tethering triggered from notification"
+            android:title="Activate mobile data" />
     </PreferenceScreen>
 
     <PreferenceScreen
-            android:icon="@drawable/ic_experimental"
-            android:key="experimental"
-            android:summary="Features under development"
-            android:title="Experimental">
+        android:icon="@drawable/ic_experimental"
+        android:key="experimental"
+        android:summary="Features under development"
+        android:title="Experimental">
         <PreferenceScreen
+            android:icon="@drawable/ic_usb"
+            android:summary="Activates tethering on USB/AC connection"
+            android:title="USB/AC activation">
+            <CheckBoxPreference
                 android:icon="@drawable/ic_usb"
-                android:title="USB/AC activation"
-                android:summary="Activates tethering on USB/AC connection">
+                android:key="usb.only.when.connected"
+                android:summary="Tether only when connected to USB port or AC charger"
+                android:title="Only when connected" />
             <CheckBoxPreference
-                    android:icon="@drawable/ic_usb"
-                    android:key="usb.only.when.connected"
-                    android:summary="Tether only when connected to USB port or AC charger"
-                    android:title="Only when connected"/>
-            <CheckBoxPreference
-                    android:icon="@drawable/ic_battery_level"
-                    android:key="usb.off.battery.lvl"
-                    android:summary="Turn off tethering if battery is below the level"
-                    android:title="Battery level"/>
+                android:icon="@drawable/ic_battery_level"
+                android:key="usb.off.battery.lvl"
+                android:summary="Turn off tethering if battery is below the level"
+                android:title="Battery level" />
             <EditTextPreference
-                    android:defaultValue="15"
-                    android:dependency="usb.off.battery.lvl"
-                    android:dialogTitle="Enter percentage value from range 1-100"
-                    android:icon="@drawable/ic_level"
-                    android:inputType="number"
-                    android:key="usb.off.battery.lvl.value"
-                    android:summary=""
-                    android:title="Battery level limit in %"/>
+                android:defaultValue="15"
+                android:dependency="usb.off.battery.lvl"
+                android:dialogTitle="Enter percentage value from range 1-100"
+                android:icon="@drawable/ic_battery_dead"
+                android:inputType="number"
+                android:key="usb.off.battery.lvl.value"
+                android:summary=""
+                android:title="Battery level limit in %" />
             <PreferenceCategory android:title="Activate on USB connection">
                 <CheckBoxPreference
-                        android:defaultValue="false"
-                        android:key="usb.internet.start.service"
-                        android:summary="Start service on power connection"
-                />
+                    android:defaultValue="false"
+                    android:key="usb.internet.start.service"
+                    android:summary="Start service on power connection" />
                 <CheckBoxPreference
-                        android:defaultValue="false"
-                        android:key="usb.activate.on.connect"
-                        android:summary="Activate tethering on power connection"
-                />
+                    android:defaultValue="false"
+                    android:key="usb.activate.on.connect"
+                    android:summary="Activate tethering on power connection" />
                 <CheckBoxPreference
-                        android:defaultValue="false"
-                        android:key="usb.deactivate.on.disconnect"
-                        android:summary="Deactivate tethering once power disconnected"
-                />
+                    android:defaultValue="false"
+                    android:key="usb.deactivate.on.disconnect"
+                    android:summary="Deactivate tethering once power disconnected" />
                 <CheckBoxPreference
-                        android:defaultValue="false"
-                        android:key="usb.internet.force.on"
-                        android:summary="Force internet connection on power connection"
-                />
+                    android:defaultValue="false"
+                    android:key="usb.internet.force.on"
+                    android:summary="Force internet connection on power connection" />
                 <CheckBoxPreference
-                        android:defaultValue="false"
-                        android:key="usb.internet.force.off"
-                        android:summary="Disconnect internet once power disconnected"
-                />
+                    android:defaultValue="false"
+                    android:key="usb.internet.force.off"
+                    android:summary="Disconnect internet once power disconnected" />
             </PreferenceCategory>
         </PreferenceScreen>
+
         <PreferenceScreen
                 android:icon="@drawable/ic_bluetooth"
-                android:title="Bluetooth activation"
-                android:summary="Activates tethering when Bluetooth device is near">
+                android:summary="Activates tethering when Bluetooth device is near"
+                android:key="screen.bluetooth"
+                android:title="Bluetooth activation">
             <CheckBoxPreference
                     android:defaultValue="false"
                     android:key="bt.start.discovery"
-                    android:summary="Scan if preferred devices are in range"
-                    android:title="Find Bluetooth devices"/>
+                    android:summary="Scan if preferred devices are available"
+                    android:title="Find Bluetooth devices" />
             <PreferenceCategory
-                    android:key="bt.list"
-                    android:title="Bluetooth devices whitelist">
+                android:key="bt.list"
+                android:title="Bluetooth devices whitelist">
                 <PreferenceScreen
-                        android:icon="@drawable/ic_add"
-                        android:key="bt.add.device"
-                        android:title="Add Bluetooth device"/>
+                    android:icon="@drawable/ic_add"
+                    android:key="bt.add.device"
+                    android:title="Add Bluetooth device" />
                 <PreferenceScreen
-                        android:icon="@drawable/ic_remove"
-                        android:key="bt.remove.device"
-                        android:title="Remove selected"/>
+                    android:icon="@drawable/ic_remove"
+                    android:key="bt.remove.device"
+                    android:title="Remove selected" />
             </PreferenceCategory>
             <PreferenceCategory android:title="Other bluetooth settings">
                 <CheckBoxPreference
-                        android:defaultValue="false"
-                        android:key="bt.internet.restore.to.initial"
-                        android:summary="When device is no longer in range disconnect internet"
-                        android:title="Restore internet state"/>
+                    android:defaultValue="false"
+                    android:key="bt.internet.restore.to.initial"
+                    android:summary="When device is no longer in range disconnect internet"
+                    android:title="Restore internet state" />
                 <CheckBoxPreference
-                        android:defaultValue="false"
-                        android:key="bt.internet.auto.off"
-                        android:summary="Switch on BT connection only periodically"
-                        android:title="BT on only periodically"/>
+                    android:defaultValue="false"
+                    android:key="bt.internet.auto.off"
+                    android:summary="Switch on BT connection only periodically"
+                    android:title="BT on only periodically" />
             </PreferenceCategory>
         </PreferenceScreen>
+
         <PreferenceScreen
-                android:icon="@drawable/ic_stats"
-                android:key="data.limit"
-                android:title="Data usage"
-                android:summary="Helps to control data usage on tethering">
+            android:icon="@drawable/ic_stats"
+            android:key="data.limit"
+            android:summary="Helps to control data usage on tethering"
+            android:title="Data usage">
             <CheckBoxPreference
-                    android:key="data.limit.on"
-                    android:summary="Turn off tethering once data usage exceed the limit"
-                    android:title="Data usage limit on"/>
+                android:key="data.limit.on"
+                android:summary="Turn off tethering once data usage exceed the limit"
+                android:title="Data usage limit on" />
             <EditTextPreference
-                    android:dependency="data.limit.on"
-                    android:inputType="number"
-                    android:key="data.limit.value"
-                    android:defaultValue="1000"
-                    android:maxLength="6"
-                    android:title="Data usage limit [MB]"/>
+                android:defaultValue="1000"
+                android:dependency="data.limit.on"
+                android:inputType="number"
+                android:key="data.limit.value"
+                android:maxLength="6"
+                android:title="Data usage limit [MB]" />
             <PreferenceScreen
-                    android:key="data.limit.counter"
-                    android:title="Data usage counter"/>
+                android:key="data.limit.counter"
+                android:title="Data usage counter" />
             <PreferenceScreen
                     android:key="data.limit.reset"
-                    android:title="Reset data usage counter"/>
+                    android:icon="@drawable/ic_trash"
+                    android:title="Reset data usage counter" />
             <CheckBoxPreference
                     android:key="data.limit.daily.reset"
                     android:summary="Reset counter just after the midnight every day"
@@ -288,7 +287,83 @@
                         android:title="Remove selected"/>
             </PreferenceCategory>
 
+                android:key="data.limit.daily.reset"
+                android:summary="Reset counter just after the midnight every day"
+                android:title="Reset counter every day" />
         </PreferenceScreen>
+
+        <PreferenceScreen
+            android:icon="@drawable/ic_signal"
+            android:summary="Activate/deactivate if device is in range of preferred cellular networks"
+            android:enabled="false"
+            android:title="Cellular Network">
+            <PreferenceScreen
+                android:icon="@drawable/ic_signal"
+                android:key="cell.current"
+                android:title="n/a" />
+            <PreferenceCategory
+                android:key="cell.activate.list"
+                android:title="Activate on Cellular Network">
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="cell.activate.enable"
+                    android:title="Enable activation" />
+                <PreferenceScreen
+                    android:icon="@drawable/ic_add"
+                    android:key="cell.activate.add"
+                    android:title="Add current cell" />
+                <PreferenceScreen
+                    android:icon="@drawable/ic_remove"
+                    android:key="cell.activate.remove"
+                    android:title="Remove selected cell" />
+            </PreferenceCategory>
+            <PreferenceCategory
+                android:key="cell.deactivate.list"
+                android:title="Deactivate on Cellular Network">
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="cell.deactivate.enable"
+                    android:title="Enable deactivation" />
+                <PreferenceScreen
+                    android:icon="@drawable/ic_add"
+                    android:key="cell.deactivate.add"
+                    android:title="Add current cell" />
+                <PreferenceScreen
+                    android:icon="@drawable/ic_remove"
+                    android:key="cell.deactivate.remove"
+                    android:title="Remove selected cell" />
+            </PreferenceCategory>
+
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:icon="@drawable/ic_temperature"
+            android:summary="Battery temperature"
+            android:title="Battery temperature">
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="temp.monitoring.enable"
+                android:summary="Disable tethering once temperature exceeds the limit"
+                android:title="Temperature monitoring" />
+            <PreferenceScreen
+                android:icon="@drawable/ic_temperature"
+                android:key="temp.current"
+                android:title="Battery temperature:" />
+            <EditTextPreference
+                    android:defaultValue="50"
+                    android:icon="@drawable/ic_red"
+                    android:inputType="number"
+                    android:key="temp.value.stop"
+                    android:title="Stop tethering at: [°C]"/>
+            <EditTextPreference
+                    android:defaultValue="40"
+                    android:icon="@drawable/ic_green"
+                    android:inputType="number"
+                    android:key="temp.value.start"
+                    android:maxLines="2"
+                    android:title="Resume if temp. at: [°C]"/>
+        </PreferenceScreen>
+
         <!--
                 <PreferenceScreen
                         android:enabled="false"
@@ -299,21 +374,19 @@
                         android:summary="Turn on USB tethering" />
                 </PreferenceScreen>
         -->
-
     </PreferenceScreen>
-
     <PreferenceCategory
-            android:icon="@drawable/ic_wifi"
-            android:key="ssid.screen"
-            android:title="@string/ssid.conf">
+        android:icon="@drawable/ic_wifi"
+        android:key="ssid.screen"
+        android:title="@string/ssid.conf">
         <PreferenceScreen
-                android:icon="@drawable/ic_wifi"
-                android:key="ssid"
-                android:summary=""
-                android:title="@string/ssid">
+            android:icon="@drawable/ic_wifi"
+            android:key="ssid"
+            android:summary=""
+            android:title="@string/ssid">
             <intent
-                    android:targetClass="com.android.settings.TetherSettings"
-                    android:targetPackage="com.android.settings"/>
+                android:targetClass="com.android.settings.TetherSettings"
+                android:targetPackage="com.android.settings" />
         </PreferenceScreen>
     </PreferenceCategory>
 

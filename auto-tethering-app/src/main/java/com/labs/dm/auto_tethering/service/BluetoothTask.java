@@ -9,7 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelUuid;
-import android.util.Log;
+import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.Utils;
 
 import java.io.IOException;
@@ -100,14 +100,14 @@ class BluetoothTask {
 
                     if (connectedDeviceName != null) {
                         if (previousConnectedDeviceName == null || !connectedDeviceName.equals(previousConnectedDeviceName)) {
-                            Log.i(TAG, "Connected to " + device.getName());
+                            MyLog.i(TAG, "Connected to " + device.getName());
                             btIntent = new Intent(BT_CONNECTED);
                         }
                     }
                 } catch (Exception e) {
-                    Log.e(TAG, device.getName() + " Device is not in range.");
+                    MyLog.e(TAG, device.getName() + " Device is not in range.");
                     if (connectedDeviceName != null && connectedDeviceName.equals(device.getName())) {
-                        Log.i(TAG, device.getName() + " device has been disconnected");
+                        MyLog.i(TAG, device.getName() + " device has been disconnected");
                         btIntent = new Intent(BT_DISCONNECTED);
                     }
                     connectedDeviceName = null;
@@ -137,18 +137,18 @@ class BluetoothTask {
                 socket = device.createRfcommSocketToServiceRecord(uuid);
             }
 
-            Log.d(TAG, "Connecting to " + device.getName());
+            MyLog.d(TAG, "Connecting to " + device.getName());
             boolean alreadyConnected = false;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH && socket.isConnected()) {
                 prefs.edit().putLong("bt.last.connect." + device.getName(), System.currentTimeMillis()).apply();
                 alreadyConnected = true;
-                Log.d(TAG, "Already connected to " + device.getName());
+                MyLog.d(TAG, "Already connected to " + device.getName());
             }
             try {
                 if (!alreadyConnected) {
                     prefs.edit().putLong("bt.last.connect." + device.getName(), System.currentTimeMillis()).apply();
                     socket.connect();
-                    Log.d(TAG, "Connected to " + device.getName());
+                    MyLog.d(TAG, "Connected to " + device.getName());
                 }
             } finally {
                 if (!alreadyConnected) {

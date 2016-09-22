@@ -2,34 +2,54 @@ package com.labs.dm.auto_tethering.activity;
 
 import android.app.AlertDialog;
 import android.app.NotificationManager;
-import android.bluetooth.BluetoothDevice;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.*;
-import android.provider.Settings;
-import android.telephony.TelephonyManager;
-import android.text.InputFilter;
-import android.text.Spanned;
-import android.view.*;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.os.Handler;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
-import com.labs.dm.auto_tethering.*;
-import com.labs.dm.auto_tethering.db.Cron;
+
+import com.labs.dm.auto_tethering.BuildConfig;
+import com.labs.dm.auto_tethering.LogActivity;
+import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.TetherIntents;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterAddSimCardListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterBatteryTemperatureListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterBluetoothListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterGeneralListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterSchedulerListenerHelper;
 import com.labs.dm.auto_tethering.db.DBManager;
-import com.labs.dm.auto_tethering.db.SimCard;
 import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
-import com.labs.dm.auto_tethering.ui.SchedulePreference;
 
 import java.text.Format;
-import java.util.*;
+import java.util.Date;
+import java.util.Map;
 
-import static com.labs.dm.auto_tethering.AppProperties.*;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
+import static com.labs.dm.auto_tethering.AppProperties.SSID;
 
 /**
  * Created by Daniel Mroczka
@@ -51,27 +71,24 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         addPreferencesFromResource(R.xml.preferences);
         serviceHelper = new ServiceHelper(getApplicationContext());
         loadPrefs();
-
         checkIfNotlocked();
         registerListeners();
         registerReceievers();
         adjustSettingForOS();
+        onStartup();
     }
 
     private void adjustSettingForOS() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            switchOffPreference("activate.3g");
-            switchOffPreference("idle.3g.off");
-            switchOffPreference("force.net.from.notify");
-            switchOffPreference("usb.internet.force.off");
-            switchOffPreference("usb.internet.force.on");
-            switchOffPreference("bt.internet.restore.to.initial");
+            switchOffPreferences("activate.3g", "idle.3g.off", "force.net.from.notify", "usb.internet.force.off", "usb.internet.force.on", "bt.internet.restore.to.initial");
         }
     }
 
-    private void switchOffPreference(String name) {
-        findPreference(name).setEnabled(false);
-        ((CheckBoxPreference) findPreference(name)).setChecked(false);
+    private void switchOffPreferences(String... names) {
+        for (String name : names) {
+            findPreference(name).setEnabled(false);
+            ((CheckBoxPreference) findPreference(name)).setChecked(false);
+        }
     }
 
     private void registerReceievers() {
@@ -87,7 +104,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     final PreferenceScreen dataUsage = (PreferenceScreen) findPreference("data.limit.counter");
                     Format dateFormat = android.text.format.DateFormat.getDateFormat(getApplicationContext());
                     Format timeFormat = android.text.format.DateFormat.getTimeFormat(getApplicationContext());
-                    Date date = new Date(prefs.getLong("data.usage.reset.timestamp", 0));
+                    Date date = new Date(prefs.getLong("data.usage.removeAllData.timestamp", 0));
                     dataUsage.setSummary(String.format("%.2f MB from %s %s", intent.getLongExtra("value", 0) / 1048576f, dateFormat.format(date), timeFormat.format(date)));
                 } else if (TetherIntents.UNLOCK.equals(intent.getAction())) {
                     NotificationManager nMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -107,130 +124,16 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void registerListeners() {
-        Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                preference.setSummary((String) newValue);
-                return true;
-            }
-        };
-
-        Preference.OnPreferenceChangeListener revertStateCheckBoxListener = new Preference.OnPreferenceChangeListener() {
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if ((Boolean) newValue) {
-
-                    Toast toast = Toast.makeText(getApplicationContext(), "Once application has been closed tethering and internet connection state will be restored to state before open this application", Toast.LENGTH_LONG);
-                    TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
-                    if (v != null) {
-                        v.setGravity(Gravity.CENTER);
-                        v.setPadding(12, 12, 12, 12);
-                    }
-                    toast.show();
-                }
-                return true;
-            }
-        };
-
-        PreferenceScreen editSSID = (PreferenceScreen) findPreference(SSID);
-        editSSID.setOnPreferenceChangeListener(changeListener);
-
-        EditTextPreference tetheringIdleTime = (EditTextPreference) findPreference(IDLE_TETHERING_OFF_TIME);
-        tetheringIdleTime.setOnPreferenceChangeListener(changeListener);
-        EditTextPreference internetIdleTime = (EditTextPreference) findPreference(IDLE_3G_OFF_TIME);
-        internetIdleTime.setOnPreferenceChangeListener(changeListener);
-
-        CheckBoxPreference revertStateCheckBox = (CheckBoxPreference) findPreference(RETURN_TO_PREV_STATE);
-        revertStateCheckBox.setOnPreferenceChangeListener(revertStateCheckBoxListener);
-
-        final PreferenceScreen connectedClients = (PreferenceScreen) findPreference("idle.connected.clients");
-
-        connectedClients.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                connectedClients.setTitle("Connected clients: " + Utils.connectedClients());
-                return false;
-            }
-        });
-
-        final CheckBoxPreference activationStartup = (CheckBoxPreference) findPreference("activate.on.startup");
-        final ComponentName componentName = new ComponentName(MainActivity.this, BootCompletedReceiver.class);
-        int state = getPackageManager().getComponentEnabledSetting(componentName);
-
-        activationStartup.setChecked(state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED || state == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT);
-
-        activationStartup.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                int state = getPackageManager().getComponentEnabledSetting(componentName);
-
-                if (state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
-                    getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-                    Toast.makeText(getApplicationContext(), R.string.on_startup_enable, Toast.LENGTH_LONG).show();
-                } else {
-                    getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-                    Toast.makeText(getApplicationContext(), R.string.on_startup_disable, Toast.LENGTH_LONG).show();
-                }
-
-                return true;
-            }
-        });
-
-        CheckBoxPreference keepServiceCheckBox = (CheckBoxPreference) findPreference(ACTIVATE_KEEP_SERVICE);
-        keepServiceCheckBox.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if ((Boolean) newValue) {
-                    startService();
-                }
-                return true;
-            }
-        });
-
-        CheckBoxPreference roamingCheckBox = (CheckBoxPreference) findPreference("activate.on.roaming");
-        roamingCheckBox.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if ((Boolean) newValue && !Utils.isDataRoamingEnabled(getApplicationContext())) {
-
-                    new AlertDialog.Builder(MainActivity.this)
-                            .setTitle(R.string.warning)
-                            .setMessage("Current system setting disables Data Roaming.\nYou must also enable it!\n\nDo you want to do it now?")
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Intent intent = new Intent();
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    intent.setAction(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS);
-                                    startActivity(intent);
-                                }
-                            })
-                            .setNegativeButton(R.string.no, null
-                            ).show();
-                }
-                return true;
-            }
-        });
-
-        EditTextPreference batteryLevelValue = (EditTextPreference) findPreference("usb.off.battery.lvl.value");
-        batteryLevelValue.setOnPreferenceChangeListener(changeListener);
-        batteryLevelValue.getEditText().setFilters(new InputFilter[]{
-                new InputFilter() {
-                    @Override
-                    public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-                        int input = Integer.parseInt(dest.toString() + source.toString());
-                        if (0 < input && input <= 100) {
-                            return null;
-                        }
-                        return "";
-                    }
-                }});
-
+        RegisterGeneralListenerHelper.getInstance(this).registerUIListeners();
+        RegisterBatteryTemperatureListenerHelper.getInstance(this).registerUIListeners();
         for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
             Preference p = findPreference(entry.getKey());
 
             switch (entry.getKey()) {
                 case IDLE_3G_OFF_TIME:
                 case IDLE_TETHERING_OFF_TIME:
+                case "temp.value.stop":
+                case "temp.value.start":
                 case "usb.off.battery.lvl.value":
                 case "data.limit.value":
                     p.setSummary((CharSequence) entry.getValue());
@@ -242,70 +145,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     break;
             }
         }
-
-        Preference p = findPreference(SSID);
-        p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                startActivityForResult(preference.getIntent(), ON_CHANGE_SSID);
-                return true;
-            }
-        });
-
-        /*PreferenceScreen usbTethering = (PreferenceScreen) findPreference("usb.tethering");
-        usbTethering.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                serviceHelper.usbTethering(true);
-                return false;
-            }
-        });*/
-
-        PreferenceScreen resetDataUsage = (PreferenceScreen) findPreference("data.limit.reset");
-        resetDataUsage.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                new AlertDialog.Builder(MainActivity.this)
-                        .setTitle(R.string.warning)
-                        .setMessage("Do you want to reset data usage counter?")
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                long dataUsage = ServiceHelper.getDataUsage();
-                                prefs.edit().putLong("data.usage.reset.value", dataUsage).apply();
-                                prefs.edit().putLong("data.usage.last.value", dataUsage).apply();
-                                prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
-
-                                Intent intent = new Intent(TetherIntents.DATA_USAGE);
-                                sendBroadcast(intent);
-                            }
-                        })
-                        .setNegativeButton(R.string.no, null
-                        ).show();
-
-                return true;
-            }
-        });
-
-        EditTextPreference dataLimit = (EditTextPreference) findPreference("data.limit.value");
-        dataLimit.setOnPreferenceChangeListener(changeListener);
-
-        final CheckBoxPreference btCheckBox = (CheckBoxPreference) findPreference("bt.start.discovery");
-        btCheckBox.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                if (!btCheckBox.isChecked()) {
-                    sendBroadcast(new Intent(TetherIntents.BT_RESTORE));
-                } else {
-                    Toast.makeText(getApplicationContext(), "You might be asked to approve Bluetooth connection on some preferred devices.", Toast.LENGTH_LONG).show();
-                }
-
-                return true;
-            }
-        });
-        btCheckBox.setChecked(prefs.getBoolean("bt.start.discovery", false));
     }
 
     /**
@@ -346,221 +185,27 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void prepareSimCardWhiteList() {
-        PreferenceCategory pc = (PreferenceCategory) findPreference("simcard.list");
-        List<SimCard> list = db.readSimCard();
-        for (int idx = 0; idx < pc.getPreferenceCount(); idx++) {
-            Object object = pc.getPreference(idx);
-            if (object instanceof CheckBoxPreference) {
-                pc.removePreference((CheckBoxPreference) object);
-            }
-        }
-        for (SimCard item : list) {
-            Preference ps = new CheckBoxPreference(getApplicationContext());
-            ps.setTitle(item.getNumber());
-            ps.setSummary("SSN: " + item.getSsn());
-            pc.addPreference(ps);
-        }
-
-        PreferenceScreen ps = (PreferenceScreen) findPreference("add.current.simcard");
-        ps.setEnabled(true);
+        new RegisterAddSimCardListenerHelper(this).prepareSimCardWhiteList();
     }
 
     private void prepareScheduleList() {
-        final PreferenceCategory p = (PreferenceCategory) findPreference("scheduled.shutdown.list");
-        List<Cron> list = db.getCrons();
-
-        p.removeAll();
-        for (final Cron cron : list) {
-            final SchedulePreference ps = new SchedulePreference(p, cron, this);
-            String title;
-            if (cron.getHourOff() == -1) {
-                title = String.format(Locale.ENGLISH, "ON at %02d:%02d", cron.getHourOn(), cron.getMinOn());
-            } else if (cron.getHourOn() == -1) {
-                title = String.format(Locale.ENGLISH, "OFF at %02d:%02d", cron.getHourOff(), cron.getMinOff());
-            } else {
-                title = String.format(Locale.ENGLISH, "%02d:%02d - %02d:%02d", cron.getHourOff(), cron.getMinOff(), cron.getHourOn(), cron.getMinOn());
-            }
-            ps.setTitle(title);
-            ps.setSummary(Utils.maskToDays(cron.getMask()));
-            p.addPreference(ps);
-
-        }
-    }
-
-    private void addSimCard(String number) {
-        final TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-        final String ssn = tMgr.getSimSerialNumber();
-        SimCard simcard = new SimCard(tMgr.getSimSerialNumber(), number, 0);
-        db.addSimCard(simcard);
-        boolean status = db.isOnWhiteList(ssn);
-        PreferenceScreen p = (PreferenceScreen) findPreference("add.current.simcard");
-        p.setEnabled(!status);
-        prepareSimCardWhiteList();
+        new RegisterSchedulerListenerHelper(this).prepareScheduleList();
     }
 
     private void registerAddSchedule() {
-        PreferenceScreen p = (PreferenceScreen) findPreference("scheduler.add");
-        p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                PreferenceCategory cat = (PreferenceCategory) findPreference("scheduled.shutdown.list");
-                if (cat.getPreferenceCount() >= 10) {
-                    Toast.makeText(getApplicationContext(), "You cannot add more than 10 schedule items!", Toast.LENGTH_LONG).show();
-                    return false;
-                }
-                startActivityForResult(new Intent(MainActivity.this, ScheduleActivity.class), ON_CHANGE_SCHEDULE);
-                return true;
-            }
-        });
+        new RegisterSchedulerListenerHelper(this).registerUIListeners();
     }
 
     private void registerBTListener() {
-        final PreferenceScreen p = (PreferenceScreen) findPreference("bt.add.device");
-        p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                                           @Override
-                                           public boolean onPreferenceClick(Preference preference) {
-                                               final PreferenceCategory category = (PreferenceCategory) findPreference("bt.list");
-
-                                               AlertDialog.Builder builderSingle = new AlertDialog.Builder(MainActivity.this);
-                                               builderSingle.setIcon(R.drawable.ic_bluetooth);
-                                               builderSingle.setTitle("Select One Item");
-
-                                               final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.select_dialog_singlechoice);
-
-                                               Set<BluetoothDevice> pairedDevices = serviceHelper.getBondedDevices();
-                                               for (BluetoothDevice device : pairedDevices) {
-                                                   arrayAdapter.add(device.getName());
-                                               }
-
-                                               builderSingle.setPositiveButton("Open pair dialog", new DialogInterface.OnClickListener() {
-                                                   @Override
-                                                   public void onClick(DialogInterface dialog, int which) {
-                                                       Intent intent = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
-                                                       startActivity(intent);
-                                                   }
-                                               });
-
-                                               builderSingle.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                                   @Override
-                                                   public void onClick(DialogInterface dialog, int which) {
-                                                       dialog.dismiss();
-                                                   }
-                                               });
-
-                                               builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-                                                           @Override
-                                                           public void onClick(DialogInterface dialog, int which) {
-                                                               if (which >= 0) {
-                                                                   String name = arrayAdapter.getItem(which);
-
-                                                                   boolean found = false;
-                                                                   int counter = 0;
-                                                                   Map<String, ?> map = prefs.getAll();
-                                                                   for (Map.Entry<String, ?> entry : map.entrySet()) {
-                                                                       if (entry.getKey().startsWith("bt.devices.")) {
-                                                                           counter++;
-                                                                           if (entry.getValue().equals(name)) {
-                                                                               found = true;
-                                                                           }
-                                                                       }
-                                                                   }
-
-                                                                   if (found) {
-                                                                       Toast.makeText(getApplicationContext(), "Device already added!", Toast.LENGTH_LONG).show();
-                                                                   } else if (counter >= MAX_BT_DEVICES) {
-                                                                       Toast.makeText(getApplicationContext(), "Exceeded the limit of max. " + MAX_BT_DEVICES + " devices!", Toast.LENGTH_LONG).show();
-                                                                   } else {
-                                                                       prefs.edit().putString("bt.devices." + name, name).apply();
-                                                                       Preference ps = new CheckBoxPreference(getApplicationContext());
-                                                                       ps.setTitle(name);
-                                                                       category.addPreference(ps);
-                                                                       (findPreference("bt.remove.device")).setEnabled(category.getPreferenceCount() > 2);
-                                                                   }
-                                                               }
-                                                               dialog.dismiss();
-                                                           }
-                                                       }
-
-                                               );
-                                               builderSingle.show();
-
-
-                                               return false;
-                                           }
-                                       }
-
-        );
-
-        final PreferenceScreen p2 = (PreferenceScreen) findPreference("bt.remove.device");
-        p2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                                            @Override
-                                            public boolean onPreferenceClick(Preference preference) {
-                                                PreferenceCategory p = (PreferenceCategory) findPreference("bt.list");
-                                                boolean changed = false;
-
-                                                for (int idx = p.getPreferenceCount() - 1; idx >= 0; idx--) {
-                                                    Preference pref = p.getPreference(idx);
-                                                    if (pref instanceof CheckBoxPreference) {
-                                                        boolean status = ((CheckBoxPreference) pref).isChecked();
-                                                        if (status) {
-                                                            p.removePreference(pref);
-                                                            prefs.edit().remove("bt.devices." + pref.getTitle()).apply();
-                                                            changed = true;
-                                                        }
-                                                    }
-                                                }
-
-                                                p2.setEnabled(p.getPreferenceCount() > 2);
-
-                                                if (!changed) {
-                                                    Toast.makeText(getApplicationContext(), "Please select any item", Toast.LENGTH_LONG).show();
-                                                }
-                                                return true;
-                                            }
-                                        }
-        );
+        new RegisterBluetoothListenerHelper(this).registerUIListeners();
     }
 
     private void registerAddSimCardListener() {
-        final TelephonyManager tMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-        final String ssn = tMgr.getSimSerialNumber();
-        boolean status = db.isOnWhiteList(ssn);
+        new RegisterAddSimCardListenerHelper(this).registerUIListeners();
+    }
 
-        PreferenceScreen p = (PreferenceScreen) findPreference("add.current.simcard");
-        p.setEnabled(!status);
-        final String[] number = {""};
-        p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-
-                number[0] = tMgr.getLine1Number();
-                // TODO:
-                if (number[0] == null || number[0].isEmpty()) {
-                    LayoutInflater li = LayoutInflater.from(MainActivity.this);
-                    final View promptsView = li.inflate(R.layout.add_simcard_prompt, null);
-                    new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("Add phone number")
-                            .setMessage("Cannot retrieve telephone number. Please provide it manually")
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setView(promptsView)
-                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    final EditText userInput = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput);
-                                    number[0] = userInput.getText().toString();
-                                    addSimCard(number[0]);
-                                }
-                            })
-                            .setNegativeButton(R.string.no, null).show();
-                    return true;
-                } else {
-
-                    addSimCard(number[0]);
-                }
-                return true;
-            }
-        });
+    private void registerCellularNetworkListener() {
+        //new RegisterCellularListenerHelper(this).registerUIListeners();
     }
 
     @Override
@@ -609,40 +254,11 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         prefs.edit().putString(SSID, serviceHelper.getTetheringSSID()).apply();
         loadPrefs();
         registerAddSimCardListener();
+        registerCellularNetworkListener();
         registerAddSchedule();
         registerBTListener();
         prepareSimCardWhiteList();
-        prepareBTList();
         prepareScheduleList();
-    }
-
-    private void prepareBTList() {
-        PreferenceCategory pc = (PreferenceCategory) findPreference("bt.list");
-        Set<BluetoothDevice> bondedDevices = serviceHelper.getBondedDevices();
-        List<String> preferredDevices = Utils.findPreferredDevices(prefs);
-        for (String deviceName : preferredDevices) {
-            Preference ps = new CheckBoxPreference(getApplicationContext());
-            ps.setTitle(deviceName);
-            if (ps.getTitle() != null) {
-                Toast.makeText(getApplicationContext(), "Device " + deviceName + " is no longer paired.\nActivation on this device won't work.\nPlease pair devices again", Toast.LENGTH_LONG);
-                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    boolean found = false;
-                    for (BluetoothDevice bd : bondedDevices) {
-                        if (bd.getName().equals(deviceName)) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        ps.setSummary("Device is no longer paired!");
-                    }
-                }
-
-                pc.addPreference(ps);
-            }
-        }
-
-        findPreference("bt.remove.device").setEnabled(pc.getPreferenceCount() > 2);
     }
 
     private void startService() {
@@ -654,47 +270,52 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void onStartup() {
-        int version = Integer.parseInt(prefs.getString(LATEST_VERSION, "0"));
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                int version = Integer.parseInt(prefs.getString(LATEST_VERSION, "0"));
 
-        if (version == 0) {
-            /** First start after installation **/
-            prefs.edit().putBoolean(ACTIVATE_3G, false).apply();
-            prefs.edit().putBoolean(ACTIVATE_TETHERING, false).apply();
+                if (version == 0) {
+                    /** First start after installation **/
+                    prefs.edit().putBoolean(ACTIVATE_3G, false).apply();
+                    prefs.edit().putBoolean(ACTIVATE_TETHERING, false).apply();
 
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.warning)
-                    .setMessage(getString(R.string.initial_prompt))
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            prefs.edit().putBoolean(ACTIVATE_3G, true).apply();
-                            prefs.edit().putBoolean(ACTIVATE_TETHERING, true).apply();
-                        }
-                    })
-                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle(R.string.warning)
+                            .setMessage(getString(R.string.initial_prompt))
+                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    prefs.edit().putBoolean(ACTIVATE_3G, true).apply();
+                                    prefs.edit().putBoolean(ACTIVATE_TETHERING, true).apply();
+                                }
+                            })
+                            .setNegativeButton(R.string.no, null)
+                            .show();
+                    prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
+                } else if (version < BuildConfig.VERSION_CODE) {
+                    LayoutInflater li = LayoutInflater.from(getApplicationContext());
+                    final View promptsView = li.inflate(R.layout.release, null);
 
-                        }
-                    })
-                    .show();
-            prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
-        } else if (version < BuildConfig.VERSION_CODE) {
-
-            /** First start after update **/
-            new AlertDialog.Builder(this)
-                    .setTitle("Release notes " + BuildConfig.VERSION_NAME)
-                    .setMessage(getString(R.string.release_notes))
-                    .setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
-                        }
-                    })
-                    .show();
-        } else if (version == BuildConfig.VERSION_CODE) {
-            /** Another execution **/
-        }
+                    /** First start after update **/
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Release notes " + BuildConfig.VERSION_NAME)
+                            //.setView(promptsView)
+                            .setMessage(getString(R.string.release_notes))
+                            .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
+                                    dialog.dismiss();
+                                }
+                            })
+                            .show();
+                } else if (version == BuildConfig.VERSION_CODE) {
+                    /** Another execution **/
+                }
+            }
+        };
+        new Handler().post(runnable);
     }
 
     @Override
@@ -715,7 +336,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 prefs.edit().clear().apply();
-                                db.reset();
+                                db.removeAllData();
                                 prepareSimCardWhiteList();
                                 prepareScheduleList();
                             }
@@ -772,25 +393,25 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     protected void onPause() {
         super.onPause();
-        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
+        prefs.unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     protected void onDestroy() {
         unregisterReceiver(receiver);
+        RegisterBatteryTemperatureListenerHelper.getInstance(this).unregisterListener();
         super.onDestroy();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
-        onStartup();
+        prefs.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
+        prefs.unregisterOnSharedPreferenceChangeListener(this);
     }
 }

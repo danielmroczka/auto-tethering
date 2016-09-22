@@ -6,11 +6,11 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
+import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.receiver.TetheringWidgetProvider;
@@ -38,7 +38,7 @@ public class ConfigurationActivity extends Activity {
         editMode = getIntent().getExtras() != null && getIntent().getExtras().getBoolean("editMode", false);
         mAppWidgetId = Utils.getWidgetId(getIntent());
         if (mAppWidgetId == INVALID_APPWIDGET_ID) {
-            Log.e("WidgetAdd", "Cannot continue. Widget ID incorrect");
+            MyLog.e("WidgetAdd", "Cannot continue. Widget ID incorrect");
         }
 
         CheckBox mobile = (CheckBox) findViewById(R.id.chkWidget3G);

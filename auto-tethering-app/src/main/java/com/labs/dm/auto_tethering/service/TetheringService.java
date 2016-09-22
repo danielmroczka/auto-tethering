@@ -5,18 +5,22 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
-import android.util.Log;
-import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.AppProperties;
+import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
+import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.Cron.STATUS;
 import com.labs.dm.auto_tethering.db.DBManager;
@@ -29,10 +33,51 @@ import java.util.concurrent.TimeUnit;
 
 import static android.os.Build.VERSION;
 import static android.os.Build.VERSION_CODES;
-import static com.labs.dm.auto_tethering.AppProperties.*;
-import static com.labs.dm.auto_tethering.TetherIntents.*;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING_HC;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
+import static com.labs.dm.auto_tethering.AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.FORCE_NET_FROM_NOTIFY;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
+import static com.labs.dm.auto_tethering.TetherIntents.BT_CONNECTED;
+import static com.labs.dm.auto_tethering.TetherIntents.BT_DISCONNECTED;
+import static com.labs.dm.auto_tethering.TetherIntents.BT_RESTORE;
+import static com.labs.dm.auto_tethering.TetherIntents.BT_SEARCH;
+import static com.labs.dm.auto_tethering.TetherIntents.EXIT;
+import static com.labs.dm.auto_tethering.TetherIntents.RESUME;
+import static com.labs.dm.auto_tethering.TetherIntents.TEMPEARTURE_BELOW_LIMIT;
+import static com.labs.dm.auto_tethering.TetherIntents.TEMPERATURE_ABOVE_LIMIT;
+import static com.labs.dm.auto_tethering.TetherIntents.TETHERING;
+import static com.labs.dm.auto_tethering.TetherIntents.USB_OFF;
+import static com.labs.dm.auto_tethering.TetherIntents.USB_ON;
+import static com.labs.dm.auto_tethering.TetherIntents.WIDGET;
 import static com.labs.dm.auto_tethering.Utils.adapterDayOfWeek;
-import static com.labs.dm.auto_tethering.service.ServiceAction.*;
+import static com.labs.dm.auto_tethering.service.ServiceAction.BLUETOOTH_INTERNET_TETHERING_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.BLUETOOTH_INTERNET_TETHERING_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.CELL_INTERNET_TETHERING_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.CELL_INTERNET_TETHERING_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.DATA_USAGE_EXCEED_LIMIT;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF_IDLE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.ROAMING_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SIMCARD_BLOCK;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TEMP_TETHERING_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TEMP_TETHERING_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF_IDLE;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_ON;
 
 /**
  * Created by Daniel Mroczka
@@ -56,7 +101,7 @@ public class TetheringService extends IntentService {
         USB_ON,
         DATA_USAGE_LIMIT_EXCEED,
         BT,
-        DEFAULT
+        ACTIVATED_ON_CELL, DEACTIVATED_ON_CELL, TEMPERATURE_OFF, DEFAULT
     }
 
     private static final String TAG = "TetheringService";
@@ -98,8 +143,8 @@ public class TetheringService extends IntentService {
         timer.schedule(bluetoothTask, 5000, 30000);
     }
 
-    private final String[] invents = {TetherIntents.TETHERING, TetherIntents.WIDGET, TetherIntents.RESUME, EXIT, TetherIntents.USB_ON, TetherIntents.USB_OFF,
-            TetherIntents.BT_RESTORE, TetherIntents.BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH};
+    private final String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF,
+            BT_RESTORE, BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPEARTURE_BELOW_LIMIT};
 
     private void registerReceivers() {
         IntentFilter filter = new IntentFilter();
@@ -125,7 +170,7 @@ public class TetheringService extends IntentService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "onStartCommand");
+        MyLog.i(TAG, "onStartCommand");
         runFromActivity = intent.getBooleanExtra("runFromActivity", false);
         int state = intent.getIntExtra("state", -1);
         if (state == 1) {
@@ -144,14 +189,14 @@ public class TetheringService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         if (isServiceActivated()) {
-            showNotification(getString(R.string.service_started));
+            showNotification(getString(R.string.service_started), serviceHelper.isTetheringWiFi() ? serviceHelper.isConnectedToInternet() ? R.drawable.app_on : R.drawable.app_yellow : R.drawable.app_off);
 
             if (!isCorrectSimCard()) {
                 execute(SIMCARD_BLOCK);
             }
 
             if (!allowRoaming()) {
-                showNotification(getString(R.string.roaming_service_disabled));
+                showNotification(getString(R.string.roaming_service_disabled), R.drawable.app_off);
             }
         }
 
@@ -159,6 +204,7 @@ public class TetheringService extends IntentService {
             try {
                 boolean connected3G = serviceHelper.isConnectedToInternet();
                 boolean tethered = serviceHelper.isTetheringWiFi();
+                checkCellular();
 
                 if (!(forceOff || forceOn) && (isServiceActivated() || keepService())) {
                     if (enabled()) {
@@ -215,7 +261,7 @@ public class TetheringService extends IntentService {
                     flag = false;
                 }
 
-                long usage = ServiceHelper.getDataUsage() - prefs.getLong("data.usage.reset.value", 0);
+                long usage = ServiceHelper.getDataUsage() - prefs.getLong("data.usage.removeAllData.value", 0);
 
                 if (prefs.getBoolean("data.limit.on", false)) {
                     if (usage / (1048576f) > Integer.parseInt(prefs.getString("data.limit.value", "0"))) {
@@ -229,9 +275,34 @@ public class TetheringService extends IntentService {
 
                 TimeUnit.SECONDS.sleep(CHECK_DELAY);
             } catch (InterruptedException e) {
-                Log.e(TAG, e.getMessage());
+                MyLog.e(TAG, e.getMessage());
             }
         }
+    }
+
+    private void checkCellular() {
+        Cellular current = Utils.getCellInfo(getApplicationContext());
+
+        if (prefs.getBoolean("cell.activate.enable", false) && !serviceHelper.isTetheringWiFi()) {
+            List<Cellular> cids = DBManager.getInstance(this).readCellular('A');
+            for (Cellular item : cids) {
+                if (current.theSame(item)) {
+                    execute(CELL_INTERNET_TETHERING_ON);
+                }
+            }
+        } else if (prefs.getBoolean("cell.deactivate.enable", false) && serviceHelper.isTetheringWiFi()) {
+            List<Cellular> cids = DBManager.getInstance(this).readCellular('D');
+            for (Cellular item : cids) {
+                if (current.theSame(item)) {
+                    execute(CELL_INTERNET_TETHERING_OFF);
+                }
+            }
+        } else if (!prefs.getBoolean("cell.activate.enable", false) && status == Status.ACTIVATED_ON_CELL) {
+            status = Status.DEFAULT;
+        } else if (!prefs.getBoolean("cell.deactivate.enable", false) && status == Status.DEACTIVATED_ON_CELL) {
+            status = Status.DEFAULT;
+        }
+
     }
 
     private boolean enabled() {
@@ -267,12 +338,12 @@ public class TetheringService extends IntentService {
             return false;
         }
 
-        if (!state || status != Status.DEACTIVATED_ON_IDLE) {
+        //if (!state || status != Status.DEACTIVATED_ON_IDLE) {
             new TurnOnTetheringAsyncTask().doInBackground(state);
             return true;
-        }
+        //}
 
-        return false;
+        //return false;
     }
 
     private boolean isServiceActivated() {
@@ -400,12 +471,12 @@ public class TetheringService extends IntentService {
             return false;
         }
 
-        if (!state || status != Status.DEACTIVATED_ON_IDLE) {
+        // if (!state || status != Status.DEACTIVATED_ON_IDLE) {
             new TurnOn3GAsyncTask().doInBackground(state);
             return true;
-        }
+        //}
 
-        return false;
+        // return false;
     }
 
     private boolean isActivatedTethering() {
@@ -455,12 +526,15 @@ public class TetheringService extends IntentService {
     private void runAsForeground() {
         if (notification == null) {
             this.notification = buildNotification(getString(R.string.service_started));
-            //showNotification(getString(R.string.service_started));
             startForeground(NOTIFICATION_ID, notification);
         }
     }
 
     private Notification buildNotification(String caption) {
+        return buildNotification(caption, serviceHelper.isTetheringWiFi() ? serviceHelper.isConnectedToInternet() ? R.drawable.app_on : R.drawable.app_yellow : R.drawable.app_off);
+    }
+
+    private Notification buildNotification(String caption, int icon) {
         lastNotificationTickerText = caption;
         Notification notify;
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -470,16 +544,12 @@ public class TetheringService extends IntentService {
 
         if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
             Notification.Builder builder = new Notification.Builder(this)
-                    .setContentTitle(getText(R.string.app_name))
-                    .setContentText(caption)
                     .setTicker(caption)
                     .setOngoing(true)
-                    .setSmallIcon(R.drawable.app)
-                    //.setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.app))
-                    .setAutoCancel(false)
+                    .setSmallIcon(icon)
                     .setContentIntent(pendingIntent)
                     .setPriority(Notification.PRIORITY_MAX)
-                    .setStyle(new Notification.BigTextStyle().bigText(caption));
+                    .setStyle(new Notification.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
 
             Intent onIntent = new Intent(TetherIntents.TETHERING);
             PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -510,22 +580,22 @@ public class TetheringService extends IntentService {
             builder.addAction(R.drawable.ic_exit24, "Exit", exitPendingIntent);
             notify = builder.build();
         } else {
-            notify = new Notification(R.drawable.app, caption, System.currentTimeMillis());
+            notify = new Notification(icon, caption, System.currentTimeMillis());
             notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
         }
         return notify;
     }
 
-    private void showNotification(String body) {
+    private void showNotification(String body, int icon) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification notification = buildNotification(body);
+        Notification notification = buildNotification(body, icon);
         notificationManager.notify(NOTIFICATION_ID, notification);
-        Log.i(TAG, "Notification: " + body);
+        MyLog.i(TAG, "Notification: " + body);
     }
 
     @Override
     public void onDestroy() {
-        Log.i(TAG, "onDestroy");
+        MyLog.i(TAG, "onDestroy");
         flag = false;
         revertToInitialState();
         stopForeground(true);
@@ -547,7 +617,7 @@ public class TetheringService extends IntentService {
     private class MyBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i(TAG, intent.getAction());
+            MyLog.i(TAG, intent.getAction());
             switch (intent.getAction()) {
                 case TetherIntents.TETHERING:
                     if (forceOn && !forceOff) {
@@ -560,7 +630,7 @@ public class TetheringService extends IntentService {
                     } else {
                         forceOff = false;
                         forceOn = false;
-                        showNotification(lastNotificationTickerText);
+                        showNotification(lastNotificationTickerText, R.drawable.app_blue);
                     }
 
                     if (prefs.getBoolean(FORCE_NET_FROM_NOTIFY, true)) {
@@ -636,6 +706,18 @@ public class TetheringService extends IntentService {
                     new BluetoothTask(getApplicationContext(), prefs, connectedDeviceName, initialBluetoothStatus).execute();
                     break;
 
+                case TEMPERATURE_ABOVE_LIMIT:
+                    if (serviceHelper.isTetheringWiFi()) {
+                        execute(TEMP_TETHERING_OFF);
+                    }
+                    break;
+
+                case TEMPEARTURE_BELOW_LIMIT:
+                    if (status == Status.TEMPERATURE_OFF && !serviceHelper.isTetheringWiFi()) {
+                        execute(TEMP_TETHERING_ON);
+                    }
+                    break;
+
                 case EXIT:
                     stopSelf();
                     break;
@@ -647,7 +729,7 @@ public class TetheringService extends IntentService {
                 execute(INTERNET_OFF);
             } else if (forceOn) {
                 if (!allowRoaming()) {
-                    showNotification(getString(R.string.roaming_service_disabled));
+                    showNotification(getString(R.string.roaming_service_disabled), R.drawable.app_off);
                     forceOff = true;
                     forceOn = false;
                 } else {
@@ -686,9 +768,26 @@ public class TetheringService extends IntentService {
             showNotify = true;
         }
 
-        Log.i(TAG, "Execute action: " + serviceAction.toString());
+        MyLog.i(TAG, "Execute action: " + serviceAction.toString());
         int id = R.string.service_started;
-
+        int icon = R.drawable.app_off;
+        if (serviceAction.name().contains("IDLE")) {
+            icon = R.drawable.app_off;
+        } else if (serviceAction.isOn()) {
+            if ((serviceAction.isTethering() && serviceHelper.isConnectedToInternet()) || (serviceAction.isInternet() && serviceHelper.isTetheringWiFi())) {
+                icon = R.drawable.app_on;
+            } else {
+                icon = R.drawable.app_yellow;
+            }
+        } else if (!serviceAction.isOn()) {
+            if ((serviceAction.isTethering() && !serviceHelper.isConnectedToInternet()) || (serviceAction.isInternet() && !serviceHelper.isTetheringWiFi())) {
+                icon = R.drawable.app_off;
+            } else {
+                icon = R.drawable.app_yellow;
+            }
+        } else if (serviceHelper.isConnectedToInternet() && serviceHelper.isTetheringWiFi()) {
+            icon = R.drawable.app_on;
+        }
         switch (serviceAction) {
             case TETHER_ON:
                 updateLastAccess();
@@ -740,11 +839,27 @@ public class TetheringService extends IntentService {
                 status = Status.DATA_USAGE_LIMIT_EXCEED;
                 break;
             case BLUETOOTH_INTERNET_TETHERING_ON:
-                id = R.string.bluetooth;
+                id = R.string.bluetooth_on;
                 status = Status.BT;
                 break;
             case BLUETOOTH_INTERNET_TETHERING_OFF:
                 id = R.string.bluetooth_off;
+                status = Status.DEFAULT;
+                break;
+            case CELL_INTERNET_TETHERING_ON:
+                id = R.string.cell_on;
+                status = Status.ACTIVATED_ON_CELL;
+                break;
+            case CELL_INTERNET_TETHERING_OFF:
+                id = R.string.cell_off;
+                status = Status.DEACTIVATED_ON_CELL;
+                break;
+            case TEMP_TETHERING_OFF:
+                id = R.string.temp_off;
+                status = Status.TEMPERATURE_OFF;
+                break;
+            case TEMP_TETHERING_ON:
+                id = R.string.temp_on;
                 status = Status.DEFAULT;
                 break;
         }
@@ -753,18 +868,8 @@ public class TetheringService extends IntentService {
         }
 
         if (showNotify || status != oldStatus) {
-            showNotification(getString(id));
+            showNotification(getString(id), icon);
         }
 
-    }
-
-    private void showToast(final String text) {
-        Handler h = new Handler(getApplication().getMainLooper());
-        h.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplication(), text, Toast.LENGTH_LONG).show();
-            }
-        });
     }
 }

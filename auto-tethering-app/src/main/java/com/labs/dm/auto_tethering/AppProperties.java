@@ -5,7 +5,22 @@ package com.labs.dm.auto_tethering;
  */
 public class AppProperties {
 
+    /**
+     * Maximal number of configured Bluetooth Devices
+     */
     public static final int MAX_BT_DEVICES = 3;
+    /**
+     * Maximal number of cellular networks
+     */
+    public static final int MAX_CELLULAR_ITEMS = 20;
+
+    public static final String DEFAULT_IDLE_TETHERING_OFF_TIME = "60";
+
+    public static final int TEMPERATURE_LIMIT = 40;
+
+    public static final int MAX_SCHEDULED_ITEMS = 10;
+
+    public static final int GPS_ACCURACY_LIMIT = 10;
 
     public static final String ACTIVATE_ON_STARTUP = "activate.on.startup";
     public static final String ACTIVATE_KEEP_SERVICE = "activate.keep.service";
@@ -26,7 +41,4 @@ public class AppProperties {
     public static final String ACTIVATE_ON_ROAMING_HC = "activate.on.roaming.home.country";
     public static final String RETURN_TO_PREV_STATE = "return.state";
     public static final String FORCE_NET_FROM_NOTIFY = "force.net.from.notify";
-
-    //DEFAULT
-    public static final String DEFAULT_IDLE_TETHERING_OFF_TIME = "60";
 }

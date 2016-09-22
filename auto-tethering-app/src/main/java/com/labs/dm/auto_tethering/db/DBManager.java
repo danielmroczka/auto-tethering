@@ -5,7 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
+
+import com.labs.dm.auto_tethering.MyLog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,21 +54,25 @@ public class DBManager extends SQLiteOpenHelper {
         // CREATE TABLE
         db.execSQL("create table SIMCARD(id INTEGER PRIMARY KEY, ssn VARCHAR(20), number VARCHAR(20), status INTEGER)");
         db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
+        //db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, type TEXT, lat REAL, lon REAL, name TEXT, status INTEGER)");
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
         db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
-        Log.i("DBManager", "DB structure created");
+        MyLog.i("DBManager", "DB structure created");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.i("DBManager", "onUpgrade old=" + oldVersion + ", new=" + newVersion);
+        MyLog.i("DBManager", "onUpgrade old=" + oldVersion + ", new=" + newVersion);
         if (oldVersion < 4) {
             db.execSQL("drop table IF EXISTS CRON");
             db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
             db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
-            Log.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
+        } else if (oldVersion < 5) {
+            db.execSQL("drop table IF EXISTS CELLULAR");
+            //db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, type TEXT, lat REAL, lon REAL, name TEXT, status INTEGER)");
         }
+        MyLog.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
     }
 
     public List<SimCard> readSimCard() {
@@ -192,8 +197,55 @@ public class DBManager extends SQLiteOpenHelper {
         return addOrUpdateCron(writableDatabase, cron);
     }
 
-    public void reset() {
+    public void removeAllData() {
         getWritableDatabase().delete(SimCard.NAME, null, null);
         getWritableDatabase().delete(Cron.NAME, null, null);
+        getWritableDatabase().delete(Cellular.NAME, null, null);
+    }
+
+    public long addOrUpdateCellular(Cellular cellular) {
+        ContentValues content = new ContentValues();
+        content.put("cid", cellular.getCid());
+        content.put("lac", cellular.getLac());
+        content.put("mcc", cellular.getMcc());
+        content.put("mnc", cellular.getMnc());
+        content.put("type", String.valueOf(cellular.getType()));
+        content.put("lat", cellular.getLat());
+        content.put("lon", cellular.getLon());
+        content.put("name", cellular.getName());
+        content.put("status", cellular.getStatus());
+
+        if (cellular.getId() > 0) {
+            return writableDatabase.update(Cellular.NAME, content, "id=" + cellular.getId(), null);
+        } else {
+            return writableDatabase.insert(Cellular.NAME, null, content);
+        }
+    }
+
+    public List<Cellular> readCellular(char type) {
+        List<Cellular> list;
+        Cursor cursor = null;
+        try {
+            cursor = readableDatabase.rawQuery("SELECT id, mcc, mnc, lac, cid, type, lat, lon, name, status FROM CELLULAR where type='" + type + "'", null);
+            list = new ArrayList<>(cursor.getCount());
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                do {
+                    Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), type, cursor.getDouble(6), cursor.getDouble(7), cursor.getString(8), cursor.getInt(9));
+                    p.setId(cursor.getInt(0));
+                    list.add(p);
+                }
+                while (cursor.moveToNext());
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return list;
+    }
+
+    public int removeCellular(final String id) {
+        return writableDatabase.delete(Cellular.NAME, "id=" + Integer.valueOf(id), null);
     }
 }
