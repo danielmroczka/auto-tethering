@@ -79,9 +79,11 @@ public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
                     if (pref instanceof CheckBoxPreference) {
                         boolean status = ((CheckBoxPreference) pref).isChecked();
                         if (status) {
-                            pc.removePreference(pref);
-                            db.removeSimCard((String) pref.getTitle());
-                            removeSimCard.setEnabled(pc.getPreferenceCount() > 2);
+                            String ssn = pref.getKey().toString();
+                            if (db.removeSimCard(ssn) > 0) {
+                                pc.removePreference(pref);
+                                removeSimCard.setEnabled(pc.getPreferenceCount() > 2);
+                            }
                         }
                     }
                 }
@@ -101,8 +103,9 @@ public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
         }
 
         SimCard simcard = new SimCard(tMgr.getSimSerialNumber(), number, 0);
-        db.addSimCard(simcard);
-        prepareSimCardWhiteList();
+        if (db.addSimCard(simcard) > 0) {
+            prepareSimCardWhiteList();
+        }
     }
 
     public void prepareSimCardWhiteList() {
@@ -116,8 +119,9 @@ public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
         }
         for (SimCard item : list) {
             Preference ps = new CheckBoxPreference(activity);
+            ps.setPersistent(false);
             ps.setTitle(item.getNumber());
-            ps.setSummary("SSN: " + item.getSsn());
+            ps.setKey(item.getSsn());
             pc.addPreference(ps);
         }
 

@@ -64,6 +64,7 @@
     <string name="revert.state.summary">Restore network state before run the service</string>
     <string name="title_activity_sim_card_list">SimCardListActivity</string>
     <string name="roaming.service.disabled">Service disabled due to roaming network</string>
+    <string name="simcard.service.disabled">Service disabled due to using restricted SIM card</string>
     <string name="activate.keep.service.title">Run service in background</string>
     <string name="activate.keep.service.summary">Keep service running after start tethering</string>
     <string name="turn_on_off_wifi_tethering">Turn on/off WiFi tethering</string>
@@ -91,7 +92,7 @@
     <string name="summary">Summary</string>
     <string name="widget.conf.title">Widget Configuration</string>
     <!-- RELEASE NOTES -->
-    <string name="release_notes">[x] Experimental: Add battery temperature monitoring\n\n[x] Notification Push: - add coloured status info\n\n[x] Add Holo Theme\n\n[x] Bug fixing</string>
+    <string name="release_notes">[x] Some hot fixes discovered in 0.0.42 release</string>
     <string name="activate_tethering_usb_on">Tethering activated on USB connection</string>
     <string name="activate_internet_usb_on">Internet activated on USB connection</string>
     <string name="activate_tethering_usb_off">Tethering deactivated on USB disconnect</string>
