@@ -61,7 +61,7 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
                 if ((Boolean) newValue == false) {
                     activity.sendBroadcast(new Intent(TEMPEARTURE_BELOW_LIMIT));
                 }
-                return false;
+                return true;
             }
         });
     }
