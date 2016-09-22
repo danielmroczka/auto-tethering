@@ -58,6 +58,7 @@ public class RegisterSchedulerListenerHelper extends AbstractRegisterHelper {
             } else {
                 title = String.format(Locale.ENGLISH, "%02d:%02d - %02d:%02d", cron.getHourOff(), cron.getMinOff(), cron.getHourOn(), cron.getMinOn());
             }
+            ps.setPersistent(false);
             ps.setTitle(title);
             ps.setSummary(Utils.maskToDays(cron.getMask()));
             p.addPreference(ps);

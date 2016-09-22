@@ -12,7 +12,7 @@ Some of implemented features:
 - [x] starts immediately after operation system boot (you don't have to switch on manually tethering and internet connection on your mobile phone)
 - [x] scheduler - you can define when your router will be switched off (i.e. during the night to safe the energy)
 - [x] if no one is using router for configured time internet connection and tethering could be switched off
-- [x] simcard's whitelist - you may define for which simcard you want to enable this features (for others simcard's service will be disabled to protect you from the additional costs)
+- [x] SIM card's whitelist - you may define for which SIM card you want to enable this features (for others SIM card's service will be disabled to protect you from the additional costs)
 - [x] checks permanently if your internet connection is active and reconnect if it has been lost
 - [x] option to disable while roaming (National and International)
 - [x] change status notifications

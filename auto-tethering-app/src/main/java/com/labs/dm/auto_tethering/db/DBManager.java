@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
 import com.labs.dm.auto_tethering.MyLog;
 
 import java.util.ArrayList;
@@ -69,7 +68,7 @@ public class DBManager extends SQLiteOpenHelper {
             db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
             db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
         } else if (oldVersion < 5) {
-            db.execSQL("drop table IF EXISTS CELLULAR");
+            //db.execSQL("drop table IF EXISTS CELLULAR");
             //db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, type TEXT, lat REAL, lon REAL, name TEXT, status INTEGER)");
         }
         MyLog.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
@@ -200,7 +199,7 @@ public class DBManager extends SQLiteOpenHelper {
     public void removeAllData() {
         getWritableDatabase().delete(SimCard.NAME, null, null);
         getWritableDatabase().delete(Cron.NAME, null, null);
-        getWritableDatabase().delete(Cellular.NAME, null, null);
+        //getWritableDatabase().delete(Cellular.NAME, null, null);
     }
 
     public long addOrUpdateCellular(Cellular cellular) {
