@@ -9,6 +9,9 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * This class is a helper for make development easier.
+ * It should be rewrite in case of production usage.
+ *
  * Created by Daniel Mroczka on 2016-09-20.
  */
 
@@ -79,7 +82,13 @@ public class MyLog extends Application {
     }
 
     private static void add(Item item) {
-        //log.add(item);
+        if (BuildConfig.DEBUG) {
+            log.add(item);
+        }
+    }
+
+    public static void clean() {
+        log.clear();
     }
 
 }

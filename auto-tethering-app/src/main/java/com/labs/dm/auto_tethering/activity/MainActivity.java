@@ -2,36 +2,17 @@ package com.labs.dm.auto_tethering.activity;
 
 import android.app.AlertDialog;
 import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
-import android.view.LayoutInflater;
+import android.preference.*;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
-
-import com.labs.dm.auto_tethering.BuildConfig;
-import com.labs.dm.auto_tethering.LogActivity;
-import com.labs.dm.auto_tethering.R;
-import com.labs.dm.auto_tethering.TetherIntents;
+import com.labs.dm.auto_tethering.*;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterAddSimCardListenerHelper;
-import com.labs.dm.auto_tethering.activity.helpers.RegisterBatteryTemperatureListenerHelper;
-import com.labs.dm.auto_tethering.activity.helpers.RegisterBluetoothListenerHelper;
-import com.labs.dm.auto_tethering.activity.helpers.RegisterGeneralListenerHelper;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterSchedulerListenerHelper;
 import com.labs.dm.auto_tethering.db.DBManager;
 import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
@@ -42,14 +23,7 @@ import java.text.Format;
 import java.util.Date;
 import java.util.Map;
 
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
-import static com.labs.dm.auto_tethering.AppProperties.SSID;
+import static com.labs.dm.auto_tethering.AppProperties.*;
 
 /**
  * Created by Daniel Mroczka
@@ -63,6 +37,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     private BroadcastReceiver receiver;
     private DBManager db;
     private final int NOTIFICATION_ID = 1234;
+    private ListenerManager listenerManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +51,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         registerReceievers();
         adjustSettingForOS();
         onStartup();
+        MyLog.clean();
     }
 
     private void adjustSettingForOS() {
@@ -124,24 +100,32 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void registerListeners() {
-        RegisterGeneralListenerHelper.getInstance(this).registerUIListeners();
-        RegisterBatteryTemperatureListenerHelper.getInstance(this).registerUIListeners();
+        listenerManager = new ListenerManager(this);
+        listenerManager.registerAll();
+
         for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
             Preference p = findPreference(entry.getKey());
 
             switch (entry.getKey()) {
                 case IDLE_3G_OFF_TIME:
                 case IDLE_TETHERING_OFF_TIME:
-                case "temp.value.stop":
-                case "temp.value.start":
                 case "usb.off.battery.lvl.value":
                 case "data.limit.value":
                     p.setSummary((CharSequence) entry.getValue());
                     p.getEditor().commit();
                     break;
-
+                case "temp.value.stop":
+                case "temp.value.start":
+                    if ("temp.value.start".equals(p.getKey())) {
+                        p.setSummary("When temp. returns to: " + entry.getValue() + " °C");
+                    } else if ("temp.value.stop".equals(p.getKey())) {
+                        p.setSummary("When temp. higher than: " + entry.getValue() + " °C");
+                    }
+                    p.getEditor().commit();
+                    break;
                 case SSID:
                     p.setSummary(serviceHelper.getTetheringSSID());
+                    p.getEditor().commit();
                     break;
             }
         }
@@ -185,27 +169,11 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void prepareSimCardWhiteList() {
-        new RegisterAddSimCardListenerHelper(this).prepareSimCardWhiteList();
+        listenerManager.getHelper(RegisterAddSimCardListenerHelper.class).prepare();
     }
 
     private void prepareScheduleList() {
-        new RegisterSchedulerListenerHelper(this).prepareScheduleList();
-    }
-
-    private void registerAddSchedule() {
-        new RegisterSchedulerListenerHelper(this).registerUIListeners();
-    }
-
-    private void registerBTListener() {
-        new RegisterBluetoothListenerHelper(this).registerUIListeners();
-    }
-
-    private void registerAddSimCardListener() {
-        new RegisterAddSimCardListenerHelper(this).registerUIListeners();
-    }
-
-    private void registerCellularNetworkListener() {
-        //new RegisterCellularListenerHelper(this).registerUIListeners();
+        listenerManager.getHelper(RegisterSchedulerListenerHelper.class).prepare();
     }
 
     @Override
@@ -253,10 +221,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         startService();
         prefs.edit().putString(SSID, serviceHelper.getTetheringSSID()).apply();
         loadPrefs();
-        registerAddSimCardListener();
-        registerCellularNetworkListener();
-        registerAddSchedule();
-        registerBTListener();
         prepareSimCardWhiteList();
         prepareScheduleList();
     }
@@ -294,9 +258,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                             .show();
                     prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
                 } else if (version < BuildConfig.VERSION_CODE) {
-                    LayoutInflater li = LayoutInflater.from(getApplicationContext());
-                    final View promptsView = li.inflate(R.layout.release, null);
-
                     /** First start after update **/
                     new AlertDialog.Builder(MainActivity.this)
                             .setTitle("Release notes " + BuildConfig.VERSION_NAME)
@@ -399,7 +360,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     @Override
     protected void onDestroy() {
         unregisterReceiver(receiver);
-        RegisterBatteryTemperatureListenerHelper.getInstance(this).unregisterListener();
+        listenerManager.unregisterAll();
         super.onDestroy();
     }
 
