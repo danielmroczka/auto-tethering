@@ -400,6 +400,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     protected void onDestroy() {
         unregisterReceiver(receiver);
         RegisterBatteryTemperatureListenerHelper.getInstance(this).unregisterListener();
+        db.close();
         super.onDestroy();
     }
 

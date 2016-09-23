@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
 import com.labs.dm.auto_tethering.MyLog;
 
 import java.util.ArrayList;
@@ -44,8 +45,12 @@ public class DBManager extends SQLiteOpenHelper {
 
     @Override
     public synchronized void close() {
-        writableDatabase.close();
-        readableDatabase.close();
+        if (writableDatabase != null && writableDatabase.isOpen()) {
+            writableDatabase.close();
+        }
+        if (readableDatabase != null && readableDatabase.isOpen()) {
+            readableDatabase.close();
+        }
     }
 
     @Override
@@ -108,7 +113,7 @@ public class DBManager extends SQLiteOpenHelper {
         boolean res;
         Cursor cursor = null;
         try {
-            cursor = writableDatabase.rawQuery("SELECT 1 FROM SIMCARD where ssn = '" + ssn + "'", null);
+            cursor = readableDatabase.rawQuery("SELECT 1 FROM SIMCARD where ssn = '" + ssn + "'", null);
             res = cursor.getCount() > 0;
         } finally {
             if (cursor != null) {
@@ -176,7 +181,7 @@ public class DBManager extends SQLiteOpenHelper {
         return writableDatabase.delete(Cron.NAME, "id=" + String.valueOf(id), null);
     }
 
-    public long addOrUpdateCron(SQLiteDatabase db, Cron cron) {
+    private long addOrUpdateCron(SQLiteDatabase db, Cron cron) {
         ContentValues content = new ContentValues();
         content.put("hourOff", cron.getHourOff());
         content.put("minOff", cron.getMinOff());
