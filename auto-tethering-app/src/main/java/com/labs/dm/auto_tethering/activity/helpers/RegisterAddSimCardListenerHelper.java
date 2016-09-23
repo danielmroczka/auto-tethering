@@ -29,6 +29,7 @@ public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
         super(activity);
     }
 
+    @Override
     public void registerUIListeners() {
         final TelephonyManager tMgr = (TelephonyManager) activity.getSystemService(TELEPHONY_SERVICE);
         final String ssn = tMgr.getSimSerialNumber();
@@ -104,11 +105,12 @@ public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
 
         SimCard simcard = new SimCard(tMgr.getSimSerialNumber(), number, 0);
         if (db.addSimCard(simcard) > 0) {
-            prepareSimCardWhiteList();
+            prepare();
         }
     }
 
-    public void prepareSimCardWhiteList() {
+    @Override
+    public void prepare() {
         PreferenceCategory pc = (PreferenceCategory) activity.findPreference("simcard.list");
         List<SimCard> list = db.readSimCard();
         for (int idx = 0; idx < pc.getPreferenceCount(); idx++) {

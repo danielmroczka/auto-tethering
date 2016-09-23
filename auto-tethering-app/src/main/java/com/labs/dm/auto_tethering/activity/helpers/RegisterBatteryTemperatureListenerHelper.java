@@ -30,22 +30,23 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
     private float lastTemperature;
     private final BatteryReceiver batteryReceiver;
 
-    private static RegisterBatteryTemperatureListenerHelper instance;
-
-    public synchronized static RegisterBatteryTemperatureListenerHelper getInstance(MainActivity activity) {
-        if (instance == null) {
-            instance = new RegisterBatteryTemperatureListenerHelper(activity);
-        }
-
-        return instance;
-    }
-
-    private RegisterBatteryTemperatureListenerHelper(MainActivity activity) {
+    public RegisterBatteryTemperatureListenerHelper(MainActivity activity) {
         super(activity);
         batteryReceiver = new BatteryReceiver();
     }
 
+    @Override
     public void registerUIListeners() {
+        Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if ("temp.value.start".equals(preference.getKey())) {
+                    preference.setSummary("When temp. returns to: " + newValue + " °C");
+                } else if ("temp.value.stop".equals(preference.getKey())) {
+                    preference.setSummary("When temp. higher than: " + newValue + " °C");
+                }
+                return true;
+            }
+        };
         batteryReceiver.register(activity, new IntentFilter(ACTION_BATTERY_CHANGED));
         EditTextPreference tempStart = (EditTextPreference) activity.findPreference("temp.value.start");
         tempStart.setOnPreferenceChangeListener(changeListener);
@@ -66,12 +67,12 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
         });
     }
 
-    public void unregisterListener() {
+    @Override
+    public void unregisterUIListeners() {
         batteryReceiver.unregister(activity);
     }
 
     private class BatteryReceiver extends BroadcastReceiver {
-
         public boolean isRegistered;
 
         public Intent register(Context context, IntentFilter filter) {
@@ -92,10 +93,10 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
         public void onReceive(Context context, Intent intent) {
             float temperature = (float) (intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) / 10);
             String sign = "→";
-            if (lastTemperature > temperature) {
-                sign = "↓";
-            } else if (lastTemperature < temperature) {
+            if (lastTemperature < temperature) {
                 sign = "↑";
+            } else if (lastTemperature > temperature) {
+                sign = "↓";
             }
             final PreferenceScreen current = (PreferenceScreen) activity.findPreference("temp.current");
 

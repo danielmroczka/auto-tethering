@@ -30,21 +30,12 @@ import static com.labs.dm.auto_tethering.activity.MainActivity.ON_CHANGE_SSID;
 public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
     private final ServiceHelper serviceHelper;
 
-    private static RegisterGeneralListenerHelper instance;
-
-    public synchronized static RegisterGeneralListenerHelper getInstance(MainActivity activity) {
-        if (instance == null) {
-            instance = new RegisterGeneralListenerHelper(activity);
-        }
-
-        return instance;
-    }
-
-    private RegisterGeneralListenerHelper(MainActivity activity) {
+    public RegisterGeneralListenerHelper(MainActivity activity) {
         super(activity);
         this.serviceHelper = new ServiceHelper(activity);
     }
 
+    @Override
     public void registerUIListeners() {
         Preference.OnPreferenceChangeListener revertStateCheckBoxListener = new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -201,8 +192,6 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
             }
         });
         btCheckBox.setChecked(prefs.getBoolean("bt.start.discovery", false));
-
-
     }
 
     private void startService() {
@@ -212,6 +201,4 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
             activity.startService(serviceIntent);
         }
     }
-
-
 }

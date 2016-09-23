@@ -27,6 +27,7 @@ public class RegisterSchedulerListenerHelper extends AbstractRegisterHelper {
         super(activity);
     }
 
+    @Override
     public void registerUIListeners() {
         PreferenceScreen p = (PreferenceScreen) activity.findPreference("scheduler.add");
         p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -43,7 +44,8 @@ public class RegisterSchedulerListenerHelper extends AbstractRegisterHelper {
         });
     }
 
-    public void prepareScheduleList() {
+    @Override
+    public void prepare() {
         final PreferenceCategory p = (PreferenceCategory) activity.findPreference("scheduled.shutdown.list");
         List<Cron> list = DBManager.getInstance(activity).getCrons();
 

@@ -14,7 +14,7 @@ import com.labs.dm.auto_tethering.db.DBManager;
 /**
  * Created by Daniel Mroczka on 9/21/2016.
  */
-abstract class AbstractRegisterHelper {
+public abstract class AbstractRegisterHelper {
     protected final MainActivity activity;
     protected final SharedPreferences prefs;
     protected final DBManager db;
@@ -27,6 +27,13 @@ abstract class AbstractRegisterHelper {
 
     public abstract void registerUIListeners();
 
+    public void unregisterUIListeners() {
+    }
+
+    public void prepare() {
+
+    }
+
     protected Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
         public boolean onPreferenceChange(Preference preference, Object newValue) {
             preference.setSummary((String) newValue);
@@ -34,7 +41,7 @@ abstract class AbstractRegisterHelper {
         }
     };
 
-    class InputFilterMinMax implements InputFilter {
+    protected class InputFilterMinMax implements InputFilter {
 
         private int min, max;
 
