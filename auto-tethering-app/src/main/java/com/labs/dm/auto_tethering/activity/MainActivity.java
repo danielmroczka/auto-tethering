@@ -361,6 +361,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     protected void onDestroy() {
         unregisterReceiver(receiver);
         listenerManager.unregisterAll();
+        db.close();
         super.onDestroy();
     }
 
