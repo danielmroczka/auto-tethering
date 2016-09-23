@@ -3,7 +3,12 @@ package com.labs.dm.auto_tethering.activity.helpers;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
@@ -13,15 +18,9 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.widget.Toast;
-
-import com.labs.dm.auto_tethering.AppProperties;
-import com.labs.dm.auto_tethering.BuildConfig;
-import com.labs.dm.auto_tethering.MyLog;
-import com.labs.dm.auto_tethering.R;
-import com.labs.dm.auto_tethering.Utils;
+import com.labs.dm.auto_tethering.*;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cellular;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -36,6 +35,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static android.content.Context.LOCATION_SERVICE;
 import static com.labs.dm.auto_tethering.AppProperties.MAX_CELLULAR_ITEMS;
 
 /**
@@ -53,6 +53,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
     }
 
     public void registerUIListeners() {
+        new LocationTask().execute();
         final PreferenceScreen activateAdd = (PreferenceScreen) activity.findPreference("cell.activate.add");
         final PreferenceScreen deactivateAdd = (PreferenceScreen) activity.findPreference("cell.deactivate.add");
         final PreferenceScreen activateRemove = (PreferenceScreen) activity.findPreference("cell.activate.remove");
@@ -127,6 +128,49 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             } catch (JSONException e) {
                 MyLog.e("JSONException", e.getMessage());
             }
+        }
+    }
+
+    private class LocationTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            MyLog.i("GPS", "LocationTask start");
+            final LocationManager locationManager = (LocationManager) activity.getSystemService(LOCATION_SERVICE);
+            final LocationListener myListener = new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    MyLog.i("GPS", "onLocationChanged");
+                }
+
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+                    MyLog.i("GPS", "onStatusChanged");
+                }
+
+                @Override
+                public void onProviderEnabled(String provider) {
+                    MyLog.i("GPS", "onProviderEnabled");
+                }
+
+                @Override
+                public void onProviderDisabled(String provider) {
+                    MyLog.i("GPS", "onProviderDisabled");
+                }
+            };
+
+            Looper.prepare();
+            Looper myLooper = Looper.myLooper();
+            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, myListener, myLooper);
+            final Handler myHandler = new Handler(myLooper);
+            myHandler.postDelayed(new Runnable() {
+                public void run() {
+                    locationManager.removeUpdates(myListener);
+                }
+            }, 10000);
+            MyLog.i("GPS", "LocationTask stop");
+
+            return null;
         }
     }
 

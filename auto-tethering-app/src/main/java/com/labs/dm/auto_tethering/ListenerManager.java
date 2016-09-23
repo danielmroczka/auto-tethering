@@ -21,7 +21,7 @@ public class ListenerManager {
 
     private void create() {
         map = new HashMap<>(5);
-        //map.put(RegisterCellularListenerHelper.class, new RegisterCellularListenerHelper(activity));
+        map.put(RegisterCellularListenerHelper.class, new RegisterCellularListenerHelper(activity));
         map.put(RegisterBatteryTemperatureListenerHelper.class, new RegisterBatteryTemperatureListenerHelper(activity));
         map.put(RegisterSchedulerListenerHelper.class, new RegisterSchedulerListenerHelper(activity));
         map.put(RegisterBluetoothListenerHelper.class, new RegisterBluetoothListenerHelper(activity));
