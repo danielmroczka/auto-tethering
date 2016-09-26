@@ -162,8 +162,8 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
                                 long dataUsage = ServiceHelper.getDataUsage();
                                 prefs.edit().putLong("data.usage.reset.value", dataUsage).apply();
                                 prefs.edit().putLong("data.usage.last.value", dataUsage).apply();
-                                prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
-
+                                //prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
+                                prefs.edit().putLong("data.usage.removeAllData.timestamp", System.currentTimeMillis()).apply();
                                 Intent intent = new Intent(TetherIntents.DATA_USAGE);
                                 activity.sendBroadcast(intent);
                             }
