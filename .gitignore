@@ -9,6 +9,7 @@
 /.idea
 target
 bin
+api.key
 
 *.iml
 
@@ -22,3 +23,4 @@ bin
 hs_err_pid*
 
 
+build/

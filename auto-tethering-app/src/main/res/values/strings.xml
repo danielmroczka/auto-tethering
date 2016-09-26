@@ -92,7 +92,10 @@
     <string name="summary">Summary</string>
     <string name="widget.conf.title">Widget Configuration</string>
     <!-- RELEASE NOTES -->
-    <string name="release_notes">[x] Some hot fixes discovered in 0.0.42 release</string>
+    <string name="release_notes">[x] Data unlock button on notification bar set focus to main screen and display
+        instruction to follow\n\n[x] Add feature do reset data usage at every application startup\n\n[x] Small
+        improvements in Notification Status Bar
+    </string>
     <string name="activate_tethering_usb_on">Tethering activated on USB connection</string>
     <string name="activate_internet_usb_on">Internet activated on USB connection</string>
     <string name="activate_tethering_usb_off">Tethering deactivated on USB disconnect</string>

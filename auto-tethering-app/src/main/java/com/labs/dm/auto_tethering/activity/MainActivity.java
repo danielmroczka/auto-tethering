@@ -88,6 +88,9 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     PreferenceScreen screen = (PreferenceScreen) findPreference("experimental");
                     int pos = findPreference("data.limit").getOrder();
                     screen.onItemClick(null, null, pos, 0);
+                    Intent it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+                    context.sendBroadcast(it);
+                    Toast.makeText(MainActivity.this, "Please uncheck the property 'Data usage limit on' to unlock!", Toast.LENGTH_LONG).show();
                 }
             }
         };
@@ -234,7 +237,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void onStartup() {
-        Runnable runnable = new Runnable() {
+        new Handler().post(new Runnable() {
             @Override
             public void run() {
                 int version = Integer.parseInt(prefs.getString(LATEST_VERSION, "0"));
@@ -261,7 +264,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     /** First start after update **/
                     new AlertDialog.Builder(MainActivity.this)
                             .setTitle("Release notes " + BuildConfig.VERSION_NAME)
-                            //.setView(promptsView)
                             .setMessage(getString(R.string.release_notes))
                             .setPositiveButton("Close", new DialogInterface.OnClickListener() {
                                 @Override
@@ -275,8 +277,21 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     /** Another execution **/
                 }
             }
-        };
-        new Handler().post(runnable);
+        });
+
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                if (prefs.getBoolean("data.limit.startup.reset", false)) {
+                    MyLog.i("Datausage", "Reset data usage at startup");
+                    prefs.edit().putLong("data.usage.removeAllData.value", ServiceHelper.getDataUsage()).apply();
+                    prefs.edit().putLong("data.usage.last.value", ServiceHelper.getDataUsage()).apply();
+                    prefs.edit().putLong("data.usage.removeAllData.timestamp", System.currentTimeMillis()).apply();
+                    Intent onIntent = new Intent(TetherIntents.DATA_USAGE);
+                    onIntent.putExtra("value", 0);
+                }
+            }
+        });
     }
 
     @Override
