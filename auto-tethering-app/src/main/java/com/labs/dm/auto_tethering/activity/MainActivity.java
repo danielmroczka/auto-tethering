@@ -83,13 +83,13 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     Date date = new Date(prefs.getLong("data.usage.removeAllData.timestamp", 0));
                     dataUsage.setSummary(String.format("%.2f MB from %s %s", intent.getLongExtra("value", 0) / 1048576f, dateFormat.format(date), timeFormat.format(date)));
                 } else if (TetherIntents.UNLOCK.equals(intent.getAction())) {
-                    Intent it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
-                    context.sendBroadcast(it);
                     NotificationManager nMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     nMgr.cancel(NOTIFICATION_ID);
                     PreferenceScreen screen = (PreferenceScreen) findPreference("experimental");
                     int pos = findPreference("data.limit").getOrder();
                     screen.onItemClick(null, null, pos, 0);
+                    Intent it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+                    context.sendBroadcast(it);
                     Toast.makeText(MainActivity.this, "Please uncheck the property 'Data usage limit on' to unlock!", Toast.LENGTH_LONG).show();
                 }
             }
