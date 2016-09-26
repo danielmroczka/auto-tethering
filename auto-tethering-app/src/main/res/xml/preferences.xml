@@ -260,6 +260,10 @@
                     android:key="data.limit.daily.reset"
                     android:summary="Reset counter just after the midnight every day"
                     android:title="Reset counter every day"/>
+            <CheckBoxPreference
+                    android:key="data.limit.startup.reset"
+                    android:summary="Reset counter on every application startup"
+                    android:title="Reset counter on startup"/>
         </PreferenceScreen>
 
         <PreferenceScreen
