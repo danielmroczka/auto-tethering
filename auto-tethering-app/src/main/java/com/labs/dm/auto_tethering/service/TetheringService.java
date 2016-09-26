@@ -802,13 +802,13 @@ public class TetheringService extends IntentService {
         if (serviceAction.name().contains("IDLE")) {
             icon = R.drawable.app_off;
         } else if (serviceAction.isOn()) {
-            if ((serviceAction.isTethering() && serviceHelper.isConnectedToInternet()) || (serviceAction.isInternet() && serviceHelper.isTetheringWiFi())) {
+            if ((serviceAction.isTethering() && serviceHelper.isConnectedOrConnectingToInternet()) || (serviceAction.isInternet() && serviceHelper.isTetheringWiFi())) {
                 icon = R.drawable.app_on;
             } else {
                 icon = R.drawable.app_yellow;
             }
         } else if (!serviceAction.isOn()) {
-            if ((serviceAction.isTethering() && !serviceHelper.isConnectedToInternet()) || (serviceAction.isInternet() && !serviceHelper.isTetheringWiFi())) {
+            if ((serviceAction.isTethering() && !serviceHelper.isConnectedOrConnectingToInternet()) || (serviceAction.isInternet() && !serviceHelper.isTetheringWiFi())) {
                 icon = R.drawable.app_off;
             } else {
                 icon = R.drawable.app_yellow;

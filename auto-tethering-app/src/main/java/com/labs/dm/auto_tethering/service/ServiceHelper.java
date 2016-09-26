@@ -102,6 +102,15 @@ public class ServiceHelper {
     }
 
     /**
+     * Returns true if internet connection provided by mobile is currently active or connecting
+     *
+     * @return
+     */
+    public boolean isConnectedOrConnectingToInternet() {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnectedOrConnecting();
+    }
+    /**
      * Changing Wifi Tethering state
      *
      * @param enable
