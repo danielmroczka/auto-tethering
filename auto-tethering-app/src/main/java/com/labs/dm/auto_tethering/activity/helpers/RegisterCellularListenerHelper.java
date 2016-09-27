@@ -159,10 +159,11 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                 }
             };
 
-            Looper.prepare();
-            Looper myLooper = Looper.myLooper();
-            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, myListener, myLooper);
-            final Handler myHandler = new Handler(myLooper);
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
+            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, myListener, Looper.myLooper());
+            final Handler myHandler = new Handler(Looper.myLooper());
             myHandler.postDelayed(new Runnable() {
                 public void run() {
                     locationManager.removeUpdates(myListener);
