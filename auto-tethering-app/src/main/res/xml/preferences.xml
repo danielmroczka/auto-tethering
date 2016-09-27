@@ -13,6 +13,16 @@
                 android:key="activate.on.startup"
                 android:summary="@string/activate.on.startup.summary"
                 android:title="@string/activate.on.startup.title"/>
+        <EditTextPreference
+                android:defaultValue="0"
+                android:dependency="activate.on.startup"
+                android:dialogTitle="@string/enter.value.minutes"
+                android:icon="@drawable/ic_empty"
+                android:inputType="number"
+                android:key="activate.on.startup.delay"
+                android:maxLength="2"
+                android:summary=""
+                android:title="Delay startup"/>
         <CheckBoxPreference
                 android:defaultValue="true"
                 android:icon="@drawable/ic_service"
