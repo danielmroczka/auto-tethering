@@ -85,7 +85,7 @@ public class DBManager extends SQLiteOpenHelper {
         List<SimCard> list;
         Cursor cursor = null;
         try {
-            cursor = getReadableDatabase().rawQuery("SELECT id, ssn, number, status FROM SIMCARD where status=" + SimCard.STATUS.ACTIVE, null);
+            cursor = getReadableDatabase().rawQuery("SELECT id, ssn, number, status FROM SIMCARD", null);
             list = new ArrayList<>(cursor.getCount());
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
@@ -115,7 +115,7 @@ public class DBManager extends SQLiteOpenHelper {
         boolean res;
         Cursor cursor = null;
         try {
-            cursor = getReadableDatabase().rawQuery("SELECT 1 FROM SIMCARD where ssn = '" + ssn + "' and status=" + SimCard.STATUS.ACTIVE, null);
+            cursor = getReadableDatabase().rawQuery("SELECT 1 FROM SIMCARD where ssn = '" + ssn + "'", null);
             res = cursor.getCount() > 0;
         } finally {
             if (cursor != null) {

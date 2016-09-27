@@ -279,11 +279,11 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:icon="@drawable/ic_signal"
+            android:icon="@drawable/ic_cell"
             android:summary="Activate/deactivate if device is in range of preferred cellular networks"
             android:title="Cellular Network">
             <PreferenceScreen
-                android:icon="@drawable/ic_signal"
+                android:icon="@drawable/ic_cell"
                 android:key="cell.current"
                 android:title="n/a" />
             <PreferenceCategory
