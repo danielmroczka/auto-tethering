@@ -50,8 +50,8 @@ android {
         minSdkVersion 10
         maxSdkVersion 22
         targetSdkVersion 21
-        versionCode 44
-        versionName "0.0.44"
+        versionCode 45
+        versionName "0.0.45"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + getDateAsMillis() + "L)"
         buildConfigField "String", "OPENCELLID_KEY", getMyApiKey("OPEN_CELL_ID_API_KEY")

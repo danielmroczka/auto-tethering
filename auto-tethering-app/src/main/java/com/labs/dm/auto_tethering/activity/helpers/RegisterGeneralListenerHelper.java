@@ -13,6 +13,7 @@ import android.text.InputFilter;
 import android.view.Gravity;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
@@ -21,7 +22,11 @@ import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
-import static com.labs.dm.auto_tethering.AppProperties.*;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
+import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
+import static com.labs.dm.auto_tethering.AppProperties.SSID;
 import static com.labs.dm.auto_tethering.activity.MainActivity.ON_CHANGE_SSID;
 
 /**
@@ -192,6 +197,9 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
             }
         });
         btCheckBox.setChecked(prefs.getBoolean("bt.start.discovery", false));
+
+        EditTextPreference delay = (EditTextPreference) activity.findPreference("activate.on.startup.delay");
+        delay.setOnPreferenceChangeListener(changeListener);
     }
 
     private void startService() {
