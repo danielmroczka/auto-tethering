@@ -18,8 +18,6 @@ import java.util.List;
  */
 public class DBManager extends SQLiteOpenHelper {
 
-    private final SQLiteDatabase writableDatabase;
-    private final SQLiteDatabase readableDatabase;
     public final static String DB_NAME = "autowifi.db";
     private static final int DB_VERSION = 4;
 
@@ -34,8 +32,6 @@ public class DBManager extends SQLiteOpenHelper {
 
     private DBManager(Context context, String name) {
         super(context, name, null, DB_VERSION);
-        writableDatabase = getWritableDatabase();
-        readableDatabase = getReadableDatabase();
     }
 
     private DBManager(Context context) {
@@ -45,11 +41,11 @@ public class DBManager extends SQLiteOpenHelper {
 
     @Override
     public synchronized void close() {
-        if (writableDatabase != null && writableDatabase.isOpen()) {
-            writableDatabase.close();
+        if (getWritableDatabase().isOpen()) {
+            getWritableDatabase().close();
         }
-        if (readableDatabase != null && readableDatabase.isOpen()) {
-            readableDatabase.close();
+        if (getReadableDatabase().isOpen()) {
+            getReadableDatabase().close();
         }
     }
 
@@ -83,7 +79,7 @@ public class DBManager extends SQLiteOpenHelper {
         List<SimCard> list;
         Cursor cursor = null;
         try {
-            cursor = readableDatabase.rawQuery("SELECT id, ssn, number, status FROM SIMCARD", null);
+            cursor = getReadableDatabase().rawQuery("SELECT id, ssn, number, status FROM SIMCARD", null);
             list = new ArrayList<>(cursor.getCount());
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
@@ -106,14 +102,14 @@ public class DBManager extends SQLiteOpenHelper {
         content.put("ssn", simCard.getSsn());
         content.put("number", simCard.getNumber());
         content.put("status", simCard.getStatus());
-        return writableDatabase.insert(SimCard.NAME, null, content);
+        return getWritableDatabase().insert(SimCard.NAME, null, content);
     }
 
     public boolean isOnWhiteList(final String ssn) {
         boolean res;
         Cursor cursor = null;
         try {
-            cursor = readableDatabase.rawQuery("SELECT 1 FROM SIMCARD where ssn = '" + ssn + "'", null);
+            cursor = getReadableDatabase().rawQuery("SELECT 1 FROM SIMCARD where ssn = '" + ssn + "'", null);
             res = cursor.getCount() > 0;
         } finally {
             if (cursor != null) {
@@ -124,14 +120,14 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
     public int removeSimCard(final String ssn) {
-        return writableDatabase.delete(SimCard.NAME, "ssn='" + ssn + "'", null);
+        return getWritableDatabase().delete(SimCard.NAME, "ssn='" + ssn + "'", null);
     }
 
     public List<Cron> getCrons() {
         List<Cron> list = new ArrayList<>();
         Cursor cursor = null;
         try {
-            cursor = readableDatabase.query(Cron.NAME, null, null, null, null, null, null);
+            cursor = getReadableDatabase().query(Cron.NAME, null, null, null, null, null, null);
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {
@@ -162,7 +158,7 @@ public class DBManager extends SQLiteOpenHelper {
         Cursor cursor = null;
         Cron cron = null;
         try {
-            cursor = readableDatabase.query(Cron.NAME, null, "id=" + id, null, null, null, null);
+            cursor = getReadableDatabase().query(Cron.NAME, null, "id=" + id, null, null, null, null);
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 cron = new Cron(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getInt(5), cursor.getInt(6));
@@ -178,7 +174,7 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
     public int removeCron(final int id) {
-        return writableDatabase.delete(Cron.NAME, "id=" + String.valueOf(id), null);
+        return getWritableDatabase().delete(Cron.NAME, "id=" + String.valueOf(id), null);
     }
 
     private long addOrUpdateCron(SQLiteDatabase db, Cron cron) {
@@ -198,7 +194,7 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
     public long addOrUpdateCron(Cron cron) {
-        return addOrUpdateCron(writableDatabase, cron);
+        return addOrUpdateCron(getWritableDatabase(), cron);
     }
 
     public void removeAllData() {
@@ -220,9 +216,9 @@ public class DBManager extends SQLiteOpenHelper {
         content.put("status", cellular.getStatus());
 
         if (cellular.getId() > 0) {
-            return writableDatabase.update(Cellular.NAME, content, "id=" + cellular.getId(), null);
+            return getWritableDatabase().update(Cellular.NAME, content, "id=" + cellular.getId(), null);
         } else {
-            return writableDatabase.insert(Cellular.NAME, null, content);
+            return getWritableDatabase().insert(Cellular.NAME, null, content);
         }
     }
 
@@ -230,7 +226,7 @@ public class DBManager extends SQLiteOpenHelper {
         List<Cellular> list;
         Cursor cursor = null;
         try {
-            cursor = readableDatabase.rawQuery("SELECT id, mcc, mnc, lac, cid, type, lat, lon, name, status FROM CELLULAR where type='" + type + "'", null);
+            cursor = getReadableDatabase().rawQuery("SELECT id, mcc, mnc, lac, cid, type, lat, lon, name, status FROM CELLULAR where type='" + type + "'", null);
             list = new ArrayList<>(cursor.getCount());
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
@@ -250,6 +246,6 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
     public int removeCellular(final String id) {
-        return writableDatabase.delete(Cellular.NAME, "id=" + Integer.valueOf(id), null);
+        return getWritableDatabase().delete(Cellular.NAME, "id=" + Integer.valueOf(id), null);
     }
 }
