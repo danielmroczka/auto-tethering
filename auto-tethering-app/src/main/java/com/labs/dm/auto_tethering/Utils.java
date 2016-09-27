@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 
 import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
 import static android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID;
+import static android.content.ContentValues.TAG;
 import static android.content.Context.LOCATION_SERVICE;
 
 /**
@@ -273,4 +274,57 @@ public class Utils {
         return location;
     }
 
+
+    public static Location getBestLocation(Context context) {
+        Location gpslocation = getLocationByProvider(context, LocationManager.GPS_PROVIDER);
+        Location networkLocation = getLocationByProvider(context, LocationManager.NETWORK_PROVIDER);
+        // if we have only one location available, the choice is easy
+        if (gpslocation == null) {
+            MyLog.d(TAG, "No GPS Location available.");
+            return networkLocation;
+        }
+        if (networkLocation == null) {
+            MyLog.d(TAG, "No Network Location available");
+            return gpslocation;
+        }
+        // a locationupdate is considered 'old' if its older than the configured
+        // update interval. this means, we didn't get a
+        // update from this provider since the last check
+        long old = System.currentTimeMillis() - 60000;
+        boolean gpsIsOld = (gpslocation.getTime() < old);
+        boolean networkIsOld = (networkLocation.getTime() < old);
+        // gps is current and available, gps is better than network
+        if (!gpsIsOld) {
+            MyLog.d(TAG, "Returning current GPS Location");
+            return gpslocation;
+        }
+        // gps is old, we can't trust it. use network location
+        if (!networkIsOld) {
+            MyLog.d(TAG, "GPS is old, Network is current, returning network");
+            return networkLocation;
+        }
+        // both are old return the newer of those two
+        if (gpslocation.getTime() > networkLocation.getTime()) {
+            MyLog.d(TAG, "Both are old, returning gps(newer)");
+            return networkLocation;
+        } else {
+            MyLog.d(TAG, "Both are old, returning network(newer)");
+            return networkLocation;
+        }
+    }
+
+    /**
+     * get the last known location from a specific provider (network/gps)
+     */
+    private static Location getLocationByProvider(Context context, String provider) {
+        Location location = null;
+        //if (!isProviderSupported(provider)) {
+        //  return null;
+        //}
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager.isProviderEnabled(provider)) {
+            location = locationManager.getLastKnownLocation(provider);
+        }
+        return location;
+    }
 }

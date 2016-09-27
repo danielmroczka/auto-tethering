@@ -259,7 +259,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         checkBox.setPersistent(false);
 
         if (current.hasLocation()) {
-            Location location = Utils.getLastKnownLocation(activity);
+            Location location = Utils.getBestLocation(activity);// getLastKnownLocation(activity);
             double distance = Utils.calculateDistance(location, current);
             if (location.getAccuracy() > AppProperties.GPS_ACCURACY_LIMIT) {
                 checkBox.setSummary(String.format("Distance: %.0f±%.0fm", distance, location.getAccuracy()));
@@ -296,7 +296,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                 }
             }
 
-            final Location location = Utils.getLastKnownLocation(activity);
+            final Location location = Utils.getBestLocation(activity);//getLastKnownLocation(activity);
 
             if (location != null) {
                 Collections.sort(col, new Comparator<Cellular>() {
