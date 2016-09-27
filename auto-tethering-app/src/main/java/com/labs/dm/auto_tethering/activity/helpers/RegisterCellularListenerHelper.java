@@ -44,6 +44,12 @@ import static com.labs.dm.auto_tethering.AppProperties.MAX_CELLULAR_ITEMS;
 public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     private final static int ITEM_COUNT = 3;
+    final PreferenceScreen activateAdd = (PreferenceScreen) activity.findPreference("cell.activate.add");
+    final PreferenceScreen deactivateAdd = (PreferenceScreen) activity.findPreference("cell.deactivate.add");
+    final PreferenceScreen activateRemove = (PreferenceScreen) activity.findPreference("cell.activate.remove");
+    final PreferenceScreen deactivateRemove = (PreferenceScreen) activity.findPreference("cell.deactivate.remove");
+    final PreferenceCategory activateList = (PreferenceCategory) activity.findPreference("cell.activate.list");
+    final PreferenceCategory deactivateList = (PreferenceCategory) activity.findPreference("cell.deactivate.list");
 
     public RegisterCellularListenerHelper(MainActivity activity) {
         super(activity);
@@ -54,12 +60,6 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     public void registerUIListeners() {
         new LocationTask().execute();
-        final PreferenceScreen activateAdd = (PreferenceScreen) activity.findPreference("cell.activate.add");
-        final PreferenceScreen deactivateAdd = (PreferenceScreen) activity.findPreference("cell.deactivate.add");
-        final PreferenceScreen activateRemove = (PreferenceScreen) activity.findPreference("cell.activate.remove");
-        final PreferenceScreen deactivateRemove = (PreferenceScreen) activity.findPreference("cell.deactivate.remove");
-        final PreferenceCategory activateList = (PreferenceCategory) activity.findPreference("cell.activate.list");
-        final PreferenceCategory deactivateList = (PreferenceCategory) activity.findPreference("cell.deactivate.list");
 
         activateAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -88,9 +88,6 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                 return remove(deactivateList, deactivateRemove);
             }
         });
-
-        load(activateList, activateRemove, 'A');
-        load(deactivateList, deactivateRemove, 'D');
     }
 
     private boolean add(PreferenceCategory list, PreferenceScreen remove, char type) {
@@ -136,40 +133,26 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         @Override
         protected Void doInBackground(Void... params) {
             MyLog.i("GPS", "LocationTask start");
-            final LocationManager locationManager = (LocationManager) activity.getSystemService(LOCATION_SERVICE);
-            final LocationListener myListener = new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    MyLog.i("GPS", "onLocationChanged");
-                }
-
-                @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {
-                    MyLog.i("GPS", "onStatusChanged");
-                }
-
-                @Override
-                public void onProviderEnabled(String provider) {
-                    MyLog.i("GPS", "onProviderEnabled");
-                }
-
-                @Override
-                public void onProviderDisabled(String provider) {
-                    MyLog.i("GPS", "onProviderDisabled");
-                }
-            };
-
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
+            if (Looper.getMainLooper() == null) {
+                Looper.prepareMainLooper();
             }
-            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, myListener, Looper.myLooper());
-            final Handler myHandler = new Handler(Looper.myLooper());
+            final LocationManager locationManager = (LocationManager) activity.getSystemService(LOCATION_SERVICE);
+
+            final MyLocationListener gpsListener = new MyLocationListener("GPS-Provider");
+            final MyLocationListener networkListener = new MyLocationListener("Network-Provider");
+            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, gpsListener, Looper.getMainLooper());
+            locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, networkListener, Looper.getMainLooper());
+
+            final Handler myHandler = new Handler(Looper.getMainLooper());
             myHandler.postDelayed(new Runnable() {
                 public void run() {
-                    locationManager.removeUpdates(myListener);
+                    MyLog.i("GPS", "LocationTask stop");
+                    locationManager.removeUpdates(gpsListener);
+                    locationManager.removeUpdates(networkListener);
+                    load(activateList, activateRemove, 'A');
+                    load(deactivateList, deactivateRemove, 'D');
                 }
-            }, 10000);
-            MyLog.i("GPS", "LocationTask stop");
+            }, 7500);
 
             return null;
         }
@@ -221,7 +204,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             long id = db.addOrUpdateCellular(current);
 
             if (id > 0) {
-                final CheckBoxPreference checkBox = createCheckBox(current, id);
+                final CheckBoxPreference checkBox = createCheckBox(current, Utils.getBestLocation(activity), id);
 
                 activity.runOnUiThread(new Runnable() {
                     @Override
@@ -252,7 +235,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         }
     }
 
-    private CheckBoxPreference createCheckBox(Cellular current, long id) {
+    private CheckBoxPreference createCheckBox(Cellular current, Location location, long id) {
         final CheckBoxPreference checkBox = new CheckBoxPreference(activity);
         String styledText = String.format("<small>CID: </small>%s <small>LAC: </small>%s", current.getCid(), current.getLac());
         checkBox.setTitle(Html.fromHtml(styledText));
@@ -260,7 +243,6 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         checkBox.setPersistent(false);
 
         if (current.hasLocation()) {
-            Location location = Utils.getBestLocation(activity);// getLastKnownLocation(activity);
             double distance = Utils.calculateDistance(location, current);
             if (location.getAccuracy() > AppProperties.GPS_ACCURACY_LIMIT) {
                 checkBox.setSummary(String.format("Distance: %.0f±%.0fm", distance, location.getAccuracy()));
@@ -297,7 +279,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                 }
             }
 
-            final Location location = Utils.getBestLocation(activity);//getLastKnownLocation(activity);
+            final Location location = Utils.getBestLocation(activity);
 
             if (location != null) {
                 Collections.sort(col, new Comparator<Cellular>() {
@@ -313,9 +295,8 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                     }
                 });
             }
-
             for (Cellular item : col) {
-                final CheckBoxPreference checkBox = createCheckBox(item, item.getId());
+                final CheckBoxPreference checkBox = createCheckBox(item, location, item.getId());
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -364,6 +345,32 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             String styledText = String.format("<small>CID:</small><font color='#00FF40'>%s</font> <small>LAC:</small><font color='#00FF40'>%s</font>", current.getCid(), current.getLac());
             cell.setTitle("Current Cellular Network:");
             cell.setSummary(Html.fromHtml(styledText));
+        }
+    }
+
+    private class MyLocationListener implements LocationListener {
+        private String TAG;
+
+        public MyLocationListener(String TAG) {
+            this.TAG = TAG;
+        }
+
+        @Override
+        public void onLocationChanged(Location location) {
+            MyLog.i(TAG, "onLocationChanged;accuracy=" + location.getAccuracy());
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            MyLog.i(TAG, "onStatusChanged;status=" + status);
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
         }
     }
 

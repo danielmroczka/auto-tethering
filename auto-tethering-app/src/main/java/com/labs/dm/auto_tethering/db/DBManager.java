@@ -53,10 +53,12 @@ public class DBManager extends SQLiteOpenHelper {
         // CREATE TABLE
         db.execSQL("create table SIMCARD(id INTEGER PRIMARY KEY, ssn VARCHAR(20), number VARCHAR(20), status INTEGER)");
         db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
-        db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, type TEXT, lat REAL, lon REAL, name TEXT, status INTEGER)");
+        db.execSQL("create table CELL_GROUP(id INTEGER PRIMARY KEY, name TEXT, status INTEGER");
+        db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, type TEXT, lat REAL, lon REAL, name TEXT, simcard INTEGER, group INTEGER, status INTEGER, FOREIGN KEY(simcard) REFERENCES SIMCARD(id), FOREIGN KEY(group) REFERENCES CELL_GROUP(id))");
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
         db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
+        db.execSQL("create unique index CELLULAR_UNIQUE_IDX on cellular(mcc,mnc, lac, cid, group)");
         MyLog.i("DBManager", "DB structure created");
     }
 
@@ -64,12 +66,21 @@ public class DBManager extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         MyLog.i("DBManager", "onUpgrade old=" + oldVersion + ", new=" + newVersion);
         if (oldVersion < 4) {
+            // DROP TABLE
             db.execSQL("drop table IF EXISTS CRON");
+            // CREATE TABLE
             db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
+            // CREATE INDEX
             db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
         } else if (oldVersion < 5) {
+            // DROP TABLE
             db.execSQL("drop table IF EXISTS CELLULAR");
-            db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, type TEXT, lat REAL, lon REAL, name TEXT, status INTEGER)");
+            db.execSQL("drop table IF EXISTS CELL_GROUP");
+            // CREATE TABLE
+            db.execSQL("create table CELL_GROUP(id INTEGER PRIMARY KEY, name TEXT, status INTEGER");
+            db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, type TEXT, lat REAL, lon REAL, name TEXT, simcard INTEGER, group INTEGER, status INTEGER, FOREIGN KEY(simcard) REFERENCES SIMCARD(id), FOREIGN KEY(group) REFERENCES CELL_GROUP(id))");
+            // CREATE INDEX
+            db.execSQL("create unique index CELLULAR_UNIQUE_IDX on cellular(mcc,mnc, lac, cid, group)");
         }
         MyLog.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
     }
