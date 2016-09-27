@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
 import com.labs.dm.auto_tethering.MyLog;
 
 import java.util.ArrayList;
@@ -40,12 +41,7 @@ public class DBManager extends SQLiteOpenHelper {
 
     @Override
     public synchronized void close() {
-        if (getWritableDatabase().isOpen()) {
-            getWritableDatabase().close();
-        }
-        if (getReadableDatabase().isOpen()) {
-            getReadableDatabase().close();
-        }
+        super.close();
     }
 
     @Override
@@ -53,12 +49,12 @@ public class DBManager extends SQLiteOpenHelper {
         // CREATE TABLE
         db.execSQL("create table SIMCARD(id INTEGER PRIMARY KEY, ssn VARCHAR(20), number VARCHAR(20), status INTEGER)");
         db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
-        db.execSQL("create table CELL_GROUP(id INTEGER PRIMARY KEY, name TEXT, status INTEGER");
-        db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, type TEXT, lat REAL, lon REAL, name TEXT, simcard INTEGER, group INTEGER, status INTEGER, FOREIGN KEY(simcard) REFERENCES SIMCARD(id), FOREIGN KEY(group) REFERENCES CELL_GROUP(id))");
+        db.execSQL("create table CELL_GROUP(id INTEGER PRIMARY KEY, name TEXT, status INTEGER)");
+        db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, type TEXT, lat REAL, lon REAL, name TEXT, simcard INTEGER, cellgroup INTEGER, status INTEGER, FOREIGN KEY(simcard) REFERENCES SIMCARD(id), FOREIGN KEY(cellgroup) REFERENCES CELL_GROUP(id))");
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
         db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
-        db.execSQL("create unique index CELLULAR_UNIQUE_IDX on cellular(mcc,mnc, lac, cid, group)");
+        db.execSQL("create unique index CELLULAR_UNIQUE_IDX on cellular(mcc,mnc, lac, cid, cellgroup)");
         MyLog.i("DBManager", "DB structure created");
     }
 
@@ -77,10 +73,10 @@ public class DBManager extends SQLiteOpenHelper {
             db.execSQL("drop table IF EXISTS CELLULAR");
             db.execSQL("drop table IF EXISTS CELL_GROUP");
             // CREATE TABLE
-            db.execSQL("create table CELL_GROUP(id INTEGER PRIMARY KEY, name TEXT, status INTEGER");
-            db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, type TEXT, lat REAL, lon REAL, name TEXT, simcard INTEGER, group INTEGER, status INTEGER, FOREIGN KEY(simcard) REFERENCES SIMCARD(id), FOREIGN KEY(group) REFERENCES CELL_GROUP(id))");
+            db.execSQL("create table CELL_GROUP(id INTEGER PRIMARY KEY, name TEXT, status INTEGER)");
+            db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, type TEXT, lat REAL, lon REAL, name TEXT, simcard INTEGER, cellgroup INTEGER, status INTEGER, FOREIGN KEY(simcard) REFERENCES SIMCARD(id), FOREIGN KEY(cellgroup) REFERENCES CELL_GROUP(id))");
             // CREATE INDEX
-            db.execSQL("create unique index CELLULAR_UNIQUE_IDX on cellular(mcc,mnc, lac, cid, group)");
+            db.execSQL("create unique index CELLULAR_UNIQUE_IDX on cellular(mcc,mnc, lac, cid, cellgroup)");
         }
         MyLog.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
     }
@@ -89,7 +85,7 @@ public class DBManager extends SQLiteOpenHelper {
         List<SimCard> list;
         Cursor cursor = null;
         try {
-            cursor = getReadableDatabase().rawQuery("SELECT id, ssn, number, status FROM SIMCARD", null);
+            cursor = getReadableDatabase().rawQuery("SELECT id, ssn, number, status FROM SIMCARD where status=" + SimCard.STATUS.ACTIVE, null);
             list = new ArrayList<>(cursor.getCount());
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
@@ -119,7 +115,7 @@ public class DBManager extends SQLiteOpenHelper {
         boolean res;
         Cursor cursor = null;
         try {
-            cursor = getReadableDatabase().rawQuery("SELECT 1 FROM SIMCARD where ssn = '" + ssn + "'", null);
+            cursor = getReadableDatabase().rawQuery("SELECT 1 FROM SIMCARD where ssn = '" + ssn + "' and status=" + SimCard.STATUS.ACTIVE, null);
             res = cursor.getCount() > 0;
         } finally {
             if (cursor != null) {
@@ -211,6 +207,7 @@ public class DBManager extends SQLiteOpenHelper {
         getWritableDatabase().delete(SimCard.NAME, null, null);
         getWritableDatabase().delete(Cron.NAME, null, null);
         getWritableDatabase().delete(Cellular.NAME, null, null);
+        getWritableDatabase().delete(CellGroup.NAME, null, null);
     }
 
     public long addOrUpdateCellular(Cellular cellular) {

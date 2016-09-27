@@ -17,11 +17,23 @@ import android.telephony.gsm.GsmCellLocation;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -243,13 +255,13 @@ public class Utils {
             return gpsLocation;
         }
 
-        MyLog.d("Location", "GPS-Network: " + (gpsLocation.getTime() - networkLocation.getTime()));
+        MyLog.d("Location", "GPS-Network [s]: " + ((gpsLocation.getTime() - networkLocation.getTime())) / 1000);
 
         if (gpsLocation.getTime() >= networkLocation.getTime()) {
-            MyLog.d("Location GPS", "Lat: " + gpsLocation.getLatitude() + " Lon:" + gpsLocation.getLongitude());
+            MyLog.d("Location GPS", "Loc: " + gpsLocation.getLatitude() + " " + gpsLocation.getLongitude());
             return gpsLocation;
         } else {
-            MyLog.d("Location Network", "Lat: " + networkLocation.getLatitude() + " Lon:" + networkLocation.getLongitude());
+            MyLog.d("Location Network", "Loc: " + networkLocation.getLatitude() + " " + networkLocation.getLongitude());
             return networkLocation;
         }
     }
