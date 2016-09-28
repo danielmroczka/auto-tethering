@@ -5,6 +5,7 @@ import com.labs.dm.auto_tethering.activity.helpers.AbstractRegisterHelper;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterAddSimCardListenerHelper;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterBatteryTemperatureListenerHelper;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterBluetoothListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterCellularListenerHelper;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterDataLimitListenerHelper;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterGeneralListenerHelper;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterSchedulerListenerHelper;

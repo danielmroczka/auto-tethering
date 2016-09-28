@@ -23,9 +23,9 @@ import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
-import com.labs.dm.auto_tethering.*;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cellular;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -49,21 +49,12 @@ import static com.labs.dm.auto_tethering.AppProperties.MAX_CELLULAR_ITEMS;
 public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     private final static int ITEM_COUNT = 3;
-
-    public RegisterCellularListenerHelper(MainActivity activity) {
-        super(activity);
-        final TelephonyManager telManager = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
-        int events = PhoneStateListener.LISTEN_CELL_LOCATION;
-        telManager.listen(new MyPhoneStateListener(), events);
-    }
-
-    public void registerUIListeners() {
-        final PreferenceScreen activateAdd = getPreferenceScreen("cell.activate.add");
-        final PreferenceScreen deactivateAdd = getPreferenceScreen("cell.deactivate.add");
-        final PreferenceScreen activateRemove = getPreferenceScreen("cell.activate.remove");
-        final PreferenceScreen deactivateRemove = getPreferenceScreen("cell.deactivate.remove");
-        final PreferenceCategory activateList = getPreferenceCategory("cell.activate.list");
-        final PreferenceCategory deactivateList = getPreferenceCategory("cell.deactivate.list");
+    final PreferenceScreen activateAdd = getPreferenceScreen("cell.activate.add");
+    final PreferenceScreen deactivateAdd = getPreferenceScreen("cell.deactivate.add");
+    final PreferenceScreen activateRemove = getPreferenceScreen("cell.activate.remove");
+    final PreferenceScreen deactivateRemove = getPreferenceScreen("cell.deactivate.remove");
+    final PreferenceCategory activateList = getPreferenceCategory("cell.activate.list");
+    final PreferenceCategory deactivateList = getPreferenceCategory("cell.deactivate.list");
 
     public RegisterCellularListenerHelper(MainActivity activity) {
         super(activity);
@@ -257,7 +248,6 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         checkBox.setPersistent(false);
 
         if (current.hasLocation()) {
-            Location location = Utils.getBestLocation(activity);
             double distance = Utils.calculateDistance(location, current);
             checkBox.setSummary(Utils.formatDistance(location, distance));
         } else {
