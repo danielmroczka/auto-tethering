@@ -8,8 +8,10 @@ public class CellGroup {
     private int id;
     private int status;
     private String name;
+    private String type;
 
-    public CellGroup(String name, int status) {
+    public CellGroup(String name, String type, int status) {
+        this.type = type;
         this.status = status;
         this.name = name;
     }
@@ -36,6 +38,10 @@ public class CellGroup {
 
     public String getName() {
         return name;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public enum STATUS {

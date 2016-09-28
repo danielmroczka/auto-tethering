@@ -10,10 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-
 import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.activity.CellGroupActivity;
 import com.labs.dm.auto_tethering.activity.MainActivity;
-import com.labs.dm.auto_tethering.activity.ScheduleActivity;
 import com.labs.dm.auto_tethering.db.CellGroup;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
@@ -31,8 +30,9 @@ public class CellGroupPreference extends Preference {
     public CellGroupPreference(PreferenceCategory parent, CellGroup cellGroup, Context context) {
         super(context);
         this.cellGroup = cellGroup;
-        db = DBManager.getInstance(context);
         this.parent = parent;
+        db = DBManager.getInstance(context);
+        setTitle(cellGroup.getName());
     }
 
     @Override
@@ -71,10 +71,10 @@ public class CellGroupPreference extends Preference {
 
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getContext(), ScheduleActivity.class);
+                Intent intent = new Intent(getContext(), CellGroupActivity.class);
                 intent.putExtra("cronId", cellGroup.getId());
                 if (getContext() instanceof Activity) {
-                    ((Activity) getContext()).startActivityForResult(intent, MainActivity.ON_CHANGE_SCHEDULE);
+                    ((Activity) getContext()).startActivityForResult(intent, MainActivity.ON_CHANGE_CELLGROUP);
                 }
             }
         });

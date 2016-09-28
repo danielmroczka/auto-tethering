@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
 import com.labs.dm.auto_tethering.MyLog;
 
 import java.util.ArrayList;
@@ -55,6 +54,7 @@ public class DBManager extends SQLiteOpenHelper {
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
         db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
         db.execSQL("create unique index CELLULAR_UNIQUE_IDX on cellular(mcc,mnc, lac, cid, cellgroup)");
+        db.execSQL("create unique index CELL_GROUP_UNIQUE_IDX on cell_group(name, type)");
         MyLog.i("DBManager", "DB structure created");
     }
 
@@ -77,6 +77,7 @@ public class DBManager extends SQLiteOpenHelper {
             db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, lat REAL, lon REAL, name TEXT, simcard INTEGER, cellgroup INTEGER, status INTEGER, FOREIGN KEY(simcard) REFERENCES SIMCARD(id), FOREIGN KEY(cellgroup) REFERENCES CELL_GROUP(id))");
             // CREATE INDEX
             db.execSQL("create unique index CELLULAR_UNIQUE_IDX on cellular(mcc,mnc, lac, cid, cellgroup)");
+            db.execSQL("create unique index CELL_GROUP_UNIQUE_IDX on cell_group(name, type)");
         }
         MyLog.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
     }
@@ -211,7 +212,7 @@ public class DBManager extends SQLiteOpenHelper {
         content.put("lac", cellular.getLac());
         content.put("mcc", cellular.getMcc());
         content.put("mnc", cellular.getMnc());
-        content.put("type", String.valueOf(cellular.getType()));
+        //content.put("type", String.valueOf(cellular.getType()));
         content.put("lat", cellular.getLat());
         content.put("lon", cellular.getLon());
         content.put("name", cellular.getName());
@@ -219,16 +220,16 @@ public class DBManager extends SQLiteOpenHelper {
         return addOrUpdate(cellular.getId(), Cellular.NAME, content);
     }
 
-    public List<Cellular> readCellular(char type) {
+    public List<Cellular> readCellular(int groupId) {
         List<Cellular> list;
         Cursor cursor = null;
         try {
-            cursor = getReadableDatabase().rawQuery("SELECT id, mcc, mnc, lac, cid, type, lat, lon, name, status FROM CELLULAR where type='" + type + "'", null);
+            cursor = getReadableDatabase().rawQuery("SELECT id, mcc, mnc, lac, cid, lat, lon, name, status FROM CELLULAR where cellgroup=" + groupId, null);
             list = new ArrayList<>(cursor.getCount());
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {
-                    Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), type, cursor.getDouble(6), cursor.getDouble(7), cursor.getString(8), cursor.getInt(9));
+                    Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), ' ', cursor.getDouble(6), cursor.getDouble(7), cursor.getString(8), cursor.getInt(9));
                     p.setId(cursor.getInt(0));
                     list.add(p);
                 }
@@ -250,6 +251,7 @@ public class DBManager extends SQLiteOpenHelper {
         ContentValues content = new ContentValues();
         content.put("status", cellGroup.getStatus());
         content.put("name", cellGroup.getName());
+        content.put("type", cellGroup.getType());
         return addOrUpdate(cellGroup.getId(), CellGroup.NAME, content);
     }
 
@@ -257,15 +259,15 @@ public class DBManager extends SQLiteOpenHelper {
         return getWritableDatabase().delete(CellGroup.NAME, "id=" + Integer.valueOf(id), null);
     }
 
-    public List<CellGroup> getCellGroup() {
+    public List<CellGroup> loadCellGroup() {
         List<CellGroup> list = new ArrayList<>();
         Cursor cursor = null;
         try {
-            cursor = getReadableDatabase().query(CellGroup.NAME, null, null, null, null, null, null);
+            cursor = getReadableDatabase().query(CellGroup.NAME, null, null, null, "type, name", null, null);
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {
-                    CellGroup cellGroup = new CellGroup(cursor.getString(1), cursor.getInt(2));
+                    CellGroup cellGroup = new CellGroup(cursor.getString(1), cursor.getString(2), cursor.getInt(3));
                     cellGroup.setId(cursor.getInt(0));
                     list.add(cellGroup);
                 }

@@ -1,7 +1,9 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -17,15 +19,17 @@ import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.Html;
+import android.text.InputType;
+import android.widget.EditText;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
+import com.labs.dm.auto_tethering.db.CellGroup;
 import com.labs.dm.auto_tethering.db.Cellular;
-
+import com.labs.dm.auto_tethering.ui.CellGroupPreference;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -36,8 +40,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import static android.content.Context.LOCATION_SERVICE;
@@ -49,8 +51,8 @@ import static com.labs.dm.auto_tethering.AppProperties.MAX_CELLULAR_ITEMS;
 public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     private final static int ITEM_COUNT = 3;
-    private PreferenceCategory activateGroupAdd = getPreferenceCategory("cell.activate.group.add");
-    private PreferenceCategory deactivateGroupAdd = getPreferenceCategory("cell.deactivate.group.add");
+    private PreferenceScreen activateGroupAdd = getPreferenceScreen("cell.activate.group.add");
+    private PreferenceScreen deactivateGroupAdd = getPreferenceScreen("cell.deactivate.group.add");
     private PreferenceCategory activateList = getPreferenceCategory("cell.activate.list");
     private PreferenceCategory deactivateList = getPreferenceCategory("cell.deactivate.list");
 
@@ -64,42 +66,56 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
     public void registerUIListeners() {
         new LocationTask().execute();
 
-//        activateAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-//            @Override
-//            public boolean onPreferenceClick(Preference preference) {
-//                return add(activateList, activateRemove, 'A');
-//            }
-//        });
-//
-//        deactivateAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-//            @Override
-//            public boolean onPreferenceClick(Preference preference) {
-//                return add(deactivateList, deactivateRemove, 'D');
-//            }
-//        });
-//
-//        activateRemove.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-//            @Override
-//            public boolean onPreferenceClick(Preference preference) {
-//                return remove(activateList, activateRemove);
-//            }
-//        });
-//
-//        deactivateRemove.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-//            @Override
-//            public boolean onPreferenceClick(Preference preference) {
-//                return remove(deactivateList, deactivateRemove);
-//            }
-//        });
+        activateGroupAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                return addGroup(activateList, 'A');
+            }
+        });
+        deactivateGroupAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                return addGroup(deactivateList, 'D');
+            }
+        });
     }
 
-    private boolean add(PreferenceCategory list, PreferenceScreen remove, char type) {
-        new AddTask(list, remove, type).execute();
+    private boolean addGroup(final PreferenceCategory list, final char type) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("Provide group name");
+        final EditText input = new EditText(activity.getApplicationContext());
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
+        input.setPadding(1, 1, 1, 1);
+        builder.setView(input);
+
+        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String groupName = input.getText().toString();
+                CellGroup cellGroup = new CellGroup(groupName, String.valueOf(type), CellGroup.STATUS.ENABLED.getValue());
+                long res = db.addOrUpdateCellGroup(cellGroup);
+                if (res > 0) {
+                    cellGroup.setId((int) res);
+                    CellGroupPreference group = new CellGroupPreference(list, cellGroup, activity);
+                    list.addPreference(group);
+                } else {
+                    Toast.makeText(activity, "Please provide unique group name", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+
+        builder.show();
+        return true;
+    }
+
+    private boolean add(PreferenceCategory list, char type) {
+        new AddTask(list, type).execute();
         return true;
     }
 
     private void load(PreferenceCategory list, PreferenceScreen remove, char type) {
-        Thread th = new Thread(new LoadTask(list, remove, type));
+        Thread th = new Thread(new LoadTask(list, type));
         th.start();
     }
 
@@ -152,8 +168,9 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                     MyLog.i("GPS", "LocationTask stop");
                     locationManager.removeUpdates(gpsListener);
                     locationManager.removeUpdates(networkListener);
-                    //  load(activateList, activateRemove, 'A');
-                    //    load(deactivateList, deactivateRemove, 'D');
+                    loadGroups();
+                    //load(activateList, 'A');
+                    //load(deactivateList, 'D');
                 }
             }, 7500);
 
@@ -161,15 +178,18 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         }
     }
 
+    private void loadGroups() {
+        Thread th = new Thread(new LoadTask(activateList, 'A'));
+        th.start();
+    }
+
     private class AddTask extends AsyncTask<Void, Void, Void> {
 
         private PreferenceCategory list;
-        private PreferenceScreen remove;
         private char type;
 
-        public AddTask(PreferenceCategory list, PreferenceScreen remove, char type) {
+        public AddTask(PreferenceCategory list, char type) {
             this.list = list;
-            this.remove = remove;
             this.type = type;
         }
 
@@ -213,7 +233,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                     @Override
                     public void run() {
                         list.addPreference(checkBox);
-                        remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
+                        //remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
                         Toast.makeText(activity, "Cellular network has been added", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -254,61 +274,65 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         return checkBox;
     }
 
+
     private class LoadTask implements Runnable {
         private final PreferenceCategory list;
-        private final PreferenceScreen remove;
         private final char type;
 
-        public LoadTask(final PreferenceCategory list, final PreferenceScreen remove, final char type) {
+        public LoadTask(final PreferenceCategory list, final char type) {
             this.list = list;
-            this.remove = remove;
             this.type = type;
         }
 
         @Override
         public void run() {
-            List<Cellular> col = db.readCellular(type);
+            List<CellGroup> col = db.loadCellGroup();
 
-            for (Cellular item : col) {
-                if (!item.hasLocation()) {
-                    loadLocationFromService(item);
-                    if (item.hasLocation()) {
-                        db.addOrUpdateCellular(item);
-                    }
-                }
+            for (CellGroup group : col) {
+                CellGroupPreference cell = new CellGroupPreference(activateList, group, activity);
+                activateList.addPreference(cell);
+                List<Cellular> cells = db.readCellular(group.getId());
             }
+//            for (Cellular item : col) {
+//                if (!item.hasLocation()) {
+//                    loadLocationFromService(item);
+//                    if (item.hasLocation()) {
+//                        db.addOrUpdateCellular(item);
+//                    }
+//                }
+//            }
 
-            final Location location = Utils.getBestLocation(activity);
-
-            if (location != null) {
-                Collections.sort(col, new Comparator<Cellular>() {
-                    @Override
-                    public int compare(Cellular lhs, Cellular rhs) {
-                        if (lhs.isValid() && rhs.isValid()) {
-                            double distance1 = Utils.calculateDistance(location, lhs);
-                            double distance2 = Utils.calculateDistance(location, rhs);
-                            return (int) (distance1 - distance2);
-                        } else {
-                            return -1;
-                        }
-                    }
-                });
-            }
-            for (Cellular item : col) {
-                final CheckBoxPreference checkBox = createCheckBox(item, location, item.getId());
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        list.addPreference(checkBox);
-                    }
-                });
-            }
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
-                }
-            });
+//            final Location location = Utils.getBestLocation(activity);
+//
+//            if (location != null) {
+//                Collections.sort(col, new Comparator<Cellular>() {
+//                    @Override
+//                    public int compare(Cellular lhs, Cellular rhs) {
+//                        if (lhs.isValid() && rhs.isValid()) {
+//                            double distance1 = Utils.calculateDistance(location, lhs);
+//                            double distance2 = Utils.calculateDistance(location, rhs);
+//                            return (int) (distance1 - distance2);
+//                        } else {
+//                            return -1;
+//                        }
+//                    }
+//                });
+//            }
+//            for (Cellular item : col) {
+//                final CheckBoxPreference checkBox = createCheckBox(item, location, item.getId());
+//                activity.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        list.addPreference(checkBox);
+//                    }
+//                });
+//            }
+//            activity.runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
+//                }
+//            });
         }
     }
 
@@ -372,5 +396,6 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         public void onProviderDisabled(String provider) {
         }
     }
+
 
 }

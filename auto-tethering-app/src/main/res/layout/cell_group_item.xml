@@ -14,12 +14,12 @@
         android:padding="4dp">
 
         <ImageButton
-            android:id="@+id/btnToggle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_toggle" />
+                android:id="@+id/btnToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_toggle2"/>
     </LinearLayout>
 
     <LinearLayout
@@ -31,18 +31,18 @@
         android:padding="8dp">
 
         <TextView
-            android:id="@android:id/title"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/title"
-            android:textSize="26sp" />
+                android:id="@android:id/title"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/title"
+                android:textSize="22sp"/>
 
         <TextView
-            android:id="@android:id/summary"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/summary"
-            android:textSize="13sp" />
+                android:id="@android:id/summary"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/summary"
+                android:textSize="12sp"/>
     </LinearLayout>
 
     <LinearLayout

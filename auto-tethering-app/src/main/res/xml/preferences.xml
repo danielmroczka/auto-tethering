@@ -291,17 +291,17 @@
                 android:key="cell.activate.list"
                 android:title="Activate on Cellular Network">
                 <PreferenceScreen
-                    android:icon="@drawable/ic_add"
-                    android:key="cell.activate.group.add"
-                    android:title="Add Group" />
+                        android:icon="@drawable/ic_add"
+                        android:key="cell.activate.group.add"
+                        android:title="New activation group"/>
             </PreferenceCategory>
             <PreferenceCategory
                 android:key="cell.deactivate.list"
                 android:title="Deactivate on Cellular Network">
                 <PreferenceScreen
-                    android:icon="@drawable/ic_add"
-                    android:key="cell.deactivate.group.add"
-                    android:title="Add Group" />
+                        android:icon="@drawable/ic_add"
+                        android:key="cell.deactivate.group.add"
+                        android:title="New deactivation group"/>
             </PreferenceCategory>
 
 
