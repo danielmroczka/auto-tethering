@@ -80,7 +80,7 @@ public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
                     if (pref instanceof CheckBoxPreference) {
                         boolean status = ((CheckBoxPreference) pref).isChecked();
                         if (status) {
-                            String ssn = pref.getKey().toString();
+                            String ssn = pref.getKey();
                             if (db.removeSimCard(ssn) > 0) {
                                 pc.removePreference(pref);
                                 removeSimCard.setEnabled(pc.getPreferenceCount() > 2);

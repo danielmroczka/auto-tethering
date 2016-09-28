@@ -37,6 +37,9 @@ public class DataUsageTimerTask extends TimerTask {
             lastUpdate = prefs.getLong("data.usage.removeAllData.timestamp", 0);
         }
 
+        /**
+         * Reset counter if 'reset counter every day' activated and this is the first execution on current day
+         */
         if (prefs.getBoolean("data.limit.daily.reset", false) && !DateUtils.isToday(prefs.getLong("data.usage.removeAllData.timestamp", 0))) {
             MyLog.i(TAG, "Daily counter removeAllData" + ServiceHelper.getDataUsage());
             reset(ServiceHelper.getDataUsage());
@@ -49,7 +52,6 @@ public class DataUsageTimerTask extends TimerTask {
             MyLog.i(TAG, "Adjust after the boot " + ServiceHelper.getDataUsage());
             long offset = prefs.getLong("data.usage.last.value", 0) - Math.abs(prefs.getLong("data.usage.removeAllData.value", 0));
             prefs.edit().putLong("data.usage.removeAllData.value", -offset).apply();
-            prefs.edit().putLong("data.usage.removeAllData.timestamp", System.currentTimeMillis()).apply();
         }
 
         prefs.edit().putLong("data.usage.last.value", ServiceHelper.getDataUsage()).apply();

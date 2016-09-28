@@ -59,7 +59,7 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
         checkBoxPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if ((Boolean) newValue == false) {
+                if (!((Boolean) newValue)) {
                     activity.sendBroadcast(new Intent(TEMPEARTURE_BELOW_LIMIT));
                 }
                 return true;
