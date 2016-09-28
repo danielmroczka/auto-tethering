@@ -18,6 +18,11 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.widget.Toast;
+
+import com.labs.dm.auto_tethering.BuildConfig;
+import com.labs.dm.auto_tethering.MyLog;
+import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.*;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cellular;
@@ -44,12 +49,21 @@ import static com.labs.dm.auto_tethering.AppProperties.MAX_CELLULAR_ITEMS;
 public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     private final static int ITEM_COUNT = 3;
-    final PreferenceScreen activateAdd = (PreferenceScreen) activity.findPreference("cell.activate.add");
-    final PreferenceScreen deactivateAdd = (PreferenceScreen) activity.findPreference("cell.deactivate.add");
-    final PreferenceScreen activateRemove = (PreferenceScreen) activity.findPreference("cell.activate.remove");
-    final PreferenceScreen deactivateRemove = (PreferenceScreen) activity.findPreference("cell.deactivate.remove");
-    final PreferenceCategory activateList = (PreferenceCategory) activity.findPreference("cell.activate.list");
-    final PreferenceCategory deactivateList = (PreferenceCategory) activity.findPreference("cell.deactivate.list");
+
+    public RegisterCellularListenerHelper(MainActivity activity) {
+        super(activity);
+        final TelephonyManager telManager = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
+        int events = PhoneStateListener.LISTEN_CELL_LOCATION;
+        telManager.listen(new MyPhoneStateListener(), events);
+    }
+
+    public void registerUIListeners() {
+        final PreferenceScreen activateAdd = getPreferenceScreen("cell.activate.add");
+        final PreferenceScreen deactivateAdd = getPreferenceScreen("cell.deactivate.add");
+        final PreferenceScreen activateRemove = getPreferenceScreen("cell.activate.remove");
+        final PreferenceScreen deactivateRemove = getPreferenceScreen("cell.deactivate.remove");
+        final PreferenceCategory activateList = getPreferenceCategory("cell.activate.list");
+        final PreferenceCategory deactivateList = getPreferenceCategory("cell.deactivate.list");
 
     public RegisterCellularListenerHelper(MainActivity activity) {
         super(activity);
@@ -243,12 +257,9 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         checkBox.setPersistent(false);
 
         if (current.hasLocation()) {
+            Location location = Utils.getBestLocation(activity);
             double distance = Utils.calculateDistance(location, current);
-            if (location.getAccuracy() > AppProperties.GPS_ACCURACY_LIMIT) {
-                checkBox.setSummary(String.format("Distance: %.0f±%.0fm", distance, location.getAccuracy()));
-            } else {
-                checkBox.setSummary(String.format("Distance: %.0fm", distance));
-            }
+            checkBox.setSummary(Utils.formatDistance(location, distance));
         } else {
             checkBox.setSummary("Distance: n/a");
         }
@@ -340,7 +351,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         @Override
         public void onCellLocationChanged(CellLocation location) {
             super.onCellLocationChanged(location);
-            final PreferenceScreen cell = (PreferenceScreen) activity.findPreference("cell.current");
+            final PreferenceScreen cell = getPreferenceScreen("cell.current");
             Cellular current = Utils.getCellInfo(activity);
             String styledText = String.format("<small>CID:</small><font color='#00FF40'>%s</font> <small>LAC:</small><font color='#00FF40'>%s</font>", current.getCid(), current.getLac());
             cell.setTitle("Current Cellular Network:");

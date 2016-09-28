@@ -13,7 +13,9 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
@@ -35,8 +37,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
 
     @Override
     public void registerUIListeners() {
-        final PreferenceScreen mainScreen = (PreferenceScreen) activity.findPreference("screen.bluetooth");
-        mainScreen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        getPreferenceScreen("screen.bluetooth").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 prepareBTList();
@@ -44,12 +45,11 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
             }
         });
 
-        final PreferenceScreen add = (PreferenceScreen) activity.findPreference("bt.add.device");
-        add.setOnPreferenceClickListener(
+        getPreferenceScreen("bt.add.device").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        final PreferenceCategory category = (PreferenceCategory) activity.findPreference("bt.list");
+                        final PreferenceCategory category = getPreferenceCategory("bt.list");
 
                         AlertDialog.Builder builderSingle = new AlertDialog.Builder(activity);
                         builderSingle.setIcon(R.drawable.ic_bluetooth);
@@ -118,12 +118,12 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                 }
         );
 
-        final PreferenceScreen remove = (PreferenceScreen) activity.findPreference("bt.remove.device");
+        final PreferenceScreen remove = getPreferenceScreen("bt.remove.device");
         remove.setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        PreferenceCategory p = (PreferenceCategory) activity.findPreference("bt.list");
+                        PreferenceCategory p = getPreferenceCategory("bt.list");
                         boolean changed = false;
 
                         for (int idx = p.getPreferenceCount() - 1; idx >= 0; idx--) {
@@ -147,10 +147,25 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                     }
                 }
         );
+
+        final CheckBoxPreference btCheckBox = getCheckBoxPreference("bt.start.discovery");
+        btCheckBox.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                if (!btCheckBox.isChecked()) {
+                    activity.sendBroadcast(new Intent(TetherIntents.BT_RESTORE));
+                } else {
+                    Toast.makeText(activity, "You might be asked to approve Bluetooth connection on some preferred devices.", Toast.LENGTH_LONG).show();
+                }
+
+                return true;
+            }
+        });
+        btCheckBox.setChecked(prefs.getBoolean("bt.start.discovery", false));
     }
 
     private void prepareBTList() {
-        PreferenceCategory pc = (PreferenceCategory) activity.findPreference("bt.list");
+        PreferenceCategory pc = getPreferenceCategory("bt.list");
         Set<BluetoothDevice> bondedDevices = new ServiceHelper(activity).getBondedDevices();
         List<String> preferredDevices = Utils.findPreferredDevices(prefs);
         for (String deviceName : preferredDevices) {

@@ -15,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.R;
-import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
@@ -58,18 +57,18 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
             }
         };
 
-        PreferenceScreen editSSID = (PreferenceScreen) activity.findPreference(SSID);
+        PreferenceScreen editSSID = getPreferenceScreen(SSID);
         editSSID.setOnPreferenceChangeListener(changeListener);
 
-        EditTextPreference tetheringIdleTime = (EditTextPreference) activity.findPreference(IDLE_TETHERING_OFF_TIME);
+        EditTextPreference tetheringIdleTime = getEditTextPreference(IDLE_TETHERING_OFF_TIME);
         tetheringIdleTime.setOnPreferenceChangeListener(changeListener);
-        EditTextPreference internetIdleTime = (EditTextPreference) activity.findPreference(IDLE_3G_OFF_TIME);
+        EditTextPreference internetIdleTime = getEditTextPreference(IDLE_3G_OFF_TIME);
         internetIdleTime.setOnPreferenceChangeListener(changeListener);
 
-        CheckBoxPreference revertStateCheckBox = (CheckBoxPreference) activity.findPreference(RETURN_TO_PREV_STATE);
+        CheckBoxPreference revertStateCheckBox = getCheckBoxPreference(RETURN_TO_PREV_STATE);
         revertStateCheckBox.setOnPreferenceChangeListener(revertStateCheckBoxListener);
 
-        final PreferenceScreen connectedClients = (PreferenceScreen) activity.findPreference("idle.connected.clients");
+        final PreferenceScreen connectedClients = getPreferenceScreen("idle.connected.clients");
 
         connectedClients.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -79,7 +78,7 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
             }
         });
 
-        final CheckBoxPreference activationStartup = (CheckBoxPreference) activity.findPreference("activate.on.startup");
+        final CheckBoxPreference activationStartup = getCheckBoxPreference("activate.on.startup");
         final ComponentName componentName = new ComponentName(activity, BootCompletedReceiver.class);
         int state = activity.getPackageManager().getComponentEnabledSetting(componentName);
 
@@ -102,7 +101,7 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
             }
         });
 
-        CheckBoxPreference keepServiceCheckBox = (CheckBoxPreference) activity.findPreference(ACTIVATE_KEEP_SERVICE);
+        CheckBoxPreference keepServiceCheckBox = getCheckBoxPreference(ACTIVATE_KEEP_SERVICE);
         keepServiceCheckBox.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -113,7 +112,7 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
             }
         });
 
-        CheckBoxPreference roamingCheckBox = (CheckBoxPreference) activity.findPreference("activate.on.roaming");
+        CheckBoxPreference roamingCheckBox = getCheckBoxPreference("activate.on.roaming");
         roamingCheckBox.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -139,7 +138,7 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
             }
         });
 
-        EditTextPreference batteryLevelValue = (EditTextPreference) activity.findPreference("usb.off.battery.lvl.value");
+        EditTextPreference batteryLevelValue = getEditTextPreference("usb.off.battery.lvl.value");
         batteryLevelValue.setOnPreferenceChangeListener(changeListener);
         batteryLevelValue.getEditText().setFilters(new InputFilter[]{new InputFilterMinMax(0, 100)});
 
@@ -152,53 +151,7 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
             }
         });
 
-        PreferenceScreen resetDataUsage = (PreferenceScreen) activity.findPreference("data.limit.reset");
-        resetDataUsage.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                new AlertDialog.Builder(activity)
-                        .setTitle(R.string.warning)
-                        .setMessage("Do you want to reset data usage counter?")
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                long dataUsage = ServiceHelper.getDataUsage();
-                                prefs.edit().putLong("data.usage.reset.value", dataUsage).apply();
-                                prefs.edit().putLong("data.usage.last.value", dataUsage).apply();
-                                //prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
-                                prefs.edit().putLong("data.usage.removeAllData.timestamp", System.currentTimeMillis()).apply();
-                                Intent intent = new Intent(TetherIntents.DATA_USAGE);
-                                activity.sendBroadcast(intent);
-                            }
-                        })
-                        .setNegativeButton(R.string.no, null
-                        ).show();
-
-                return true;
-            }
-        });
-
-        EditTextPreference dataLimit = (EditTextPreference) activity.findPreference("data.limit.value");
-        dataLimit.setOnPreferenceChangeListener(changeListener);
-
-        final CheckBoxPreference btCheckBox = (CheckBoxPreference) activity.findPreference("bt.start.discovery");
-        btCheckBox.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                if (!btCheckBox.isChecked()) {
-                    activity.sendBroadcast(new Intent(TetherIntents.BT_RESTORE));
-                } else {
-                    Toast.makeText(activity, "You might be asked to approve Bluetooth connection on some preferred devices.", Toast.LENGTH_LONG).show();
-                }
-
-                return true;
-            }
-        });
-        btCheckBox.setChecked(prefs.getBoolean("bt.start.discovery", false));
-
-        EditTextPreference delay = (EditTextPreference) activity.findPreference("activate.on.startup.delay");
+        EditTextPreference delay = getEditTextPreference("activate.on.startup.delay");
         delay.setOnPreferenceChangeListener(changeListener);
     }
 

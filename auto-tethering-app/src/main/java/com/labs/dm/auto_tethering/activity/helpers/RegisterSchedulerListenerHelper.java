@@ -3,8 +3,8 @@ package com.labs.dm.auto_tethering.activity.helpers;
 import android.content.Intent;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
-import android.preference.PreferenceScreen;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.activity.ScheduleActivity;
@@ -29,11 +29,10 @@ public class RegisterSchedulerListenerHelper extends AbstractRegisterHelper {
 
     @Override
     public void registerUIListeners() {
-        PreferenceScreen p = (PreferenceScreen) activity.findPreference("scheduler.add");
-        p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        getPreferenceScreen("scheduler.add").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                PreferenceCategory cat = (PreferenceCategory) activity.findPreference("scheduled.shutdown.list");
+                PreferenceCategory cat = getPreferenceCategory("scheduled.shutdown.list");
                 if (cat.getPreferenceCount() >= MAX_SCHEDULED_ITEMS) {
                     Toast.makeText(activity, "You cannot add more than " + MAX_SCHEDULED_ITEMS + " schedule items!", Toast.LENGTH_LONG).show();
                     return false;
@@ -46,7 +45,7 @@ public class RegisterSchedulerListenerHelper extends AbstractRegisterHelper {
 
     @Override
     public void prepare() {
-        final PreferenceCategory p = (PreferenceCategory) activity.findPreference("scheduled.shutdown.list");
+        final PreferenceCategory p = getPreferenceCategory("scheduled.shutdown.list");
         List<Cron> list = DBManager.getInstance(activity).getCrons();
 
         p.removeAll();
