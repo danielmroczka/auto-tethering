@@ -259,11 +259,11 @@ public class DBManager extends SQLiteOpenHelper {
         return getWritableDatabase().delete(CellGroup.NAME, "id=" + Integer.valueOf(id), null);
     }
 
-    public List<CellGroup> loadCellGroup() {
+    public List<CellGroup> loadCellGroup(String type) {
         List<CellGroup> list = new ArrayList<>();
         Cursor cursor = null;
         try {
-            cursor = getReadableDatabase().query(CellGroup.NAME, null, null, null, "type, name", null, null);
+            cursor = getReadableDatabase().query(CellGroup.NAME, null, "type=?", new String[]{type}, "type, name", null, null);
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {

@@ -179,8 +179,8 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
     }
 
     private void loadGroups() {
-        Thread th = new Thread(new LoadTask(activateList, 'A'));
-        th.start();
+        new Thread(new LoadTask(activateList, 'A')).start();
+        new Thread(new LoadTask(deactivateList, 'D')).start();
     }
 
     private class AddTask extends AsyncTask<Void, Void, Void> {
@@ -286,53 +286,13 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
         @Override
         public void run() {
-            List<CellGroup> col = db.loadCellGroup();
+            List<CellGroup> col = db.loadCellGroup(String.valueOf(type));
 
             for (CellGroup group : col) {
-                CellGroupPreference cell = new CellGroupPreference(activateList, group, activity);
-                activateList.addPreference(cell);
+                CellGroupPreference cell = new CellGroupPreference(list, group, activity);
+                list.addPreference(cell);
                 List<Cellular> cells = db.readCellular(group.getId());
             }
-//            for (Cellular item : col) {
-//                if (!item.hasLocation()) {
-//                    loadLocationFromService(item);
-//                    if (item.hasLocation()) {
-//                        db.addOrUpdateCellular(item);
-//                    }
-//                }
-//            }
-
-//            final Location location = Utils.getBestLocation(activity);
-//
-//            if (location != null) {
-//                Collections.sort(col, new Comparator<Cellular>() {
-//                    @Override
-//                    public int compare(Cellular lhs, Cellular rhs) {
-//                        if (lhs.isValid() && rhs.isValid()) {
-//                            double distance1 = Utils.calculateDistance(location, lhs);
-//                            double distance2 = Utils.calculateDistance(location, rhs);
-//                            return (int) (distance1 - distance2);
-//                        } else {
-//                            return -1;
-//                        }
-//                    }
-//                });
-//            }
-//            for (Cellular item : col) {
-//                final CheckBoxPreference checkBox = createCheckBox(item, location, item.getId());
-//                activity.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        list.addPreference(checkBox);
-//                    }
-//                });
-//            }
-//            activity.runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
-//                }
-//            });
         }
     }
 

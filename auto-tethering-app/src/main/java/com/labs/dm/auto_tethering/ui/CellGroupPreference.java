@@ -3,8 +3,8 @@ package com.labs.dm.auto_tethering.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.preference.Preference;
 import android.preference.PreferenceCategory;
+import android.preference.PreferenceGroup;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,14 +21,14 @@ import com.labs.dm.auto_tethering.db.DBManager;
  * Created by Daniel Mroczka on 2016-09-28.
  */
 
-public class CellGroupPreference extends Preference {
+public class CellGroupPreference extends PreferenceGroup {
 
     private final PreferenceCategory parent;
     private CellGroup cellGroup;
     private DBManager db;
 
     public CellGroupPreference(PreferenceCategory parent, CellGroup cellGroup, Context context) {
-        super(context);
+        super(context, null);
         this.cellGroup = cellGroup;
         this.parent = parent;
         db = DBManager.getInstance(context);
@@ -72,7 +72,7 @@ public class CellGroupPreference extends Preference {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), CellGroupActivity.class);
-                intent.putExtra("cronId", cellGroup.getId());
+                intent.putExtra("groupId", cellGroup.getId());
                 if (getContext() instanceof Activity) {
                     ((Activity) getContext()).startActivityForResult(intent, MainActivity.ON_CHANGE_CELLGROUP);
                 }
