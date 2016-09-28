@@ -286,6 +286,34 @@
                 android:icon="@drawable/ic_cell"
                 android:key="cell.current"
                 android:title="n/a" />
+
+            <PreferenceCategory
+                android:key="cell.activate.list"
+                android:title="Activate on Cellular Network">
+                <PreferenceScreen
+                    android:icon="@drawable/ic_add"
+                    android:key="cell.activate.group.add"
+                    android:title="Add Group" />
+            </PreferenceCategory>
+            <PreferenceCategory
+                android:key="cell.deactivate.list"
+                android:title="Deactivate on Cellular Network">
+                <PreferenceScreen
+                    android:icon="@drawable/ic_add"
+                    android:key="cell.deactivate.group.add"
+                    android:title="Add Group" />
+            </PreferenceCategory>
+
+
+        </PreferenceScreen>
+        <!--<PreferenceScreen
+            android:icon="@drawable/ic_cell"
+            android:summary="Activate/deactivate if device is in range of preferred cellular networks"
+            android:title="Cellular Network">
+            <PreferenceScreen
+                android:icon="@drawable/ic_cell"
+                android:key="cell.current"
+                android:title="n/a" />
             <PreferenceCategory
                 android:key="cell.activate.list"
                 android:title="Activate on Cellular Network">
@@ -318,7 +346,7 @@
                     android:key="cell.deactivate.remove"
                     android:title="Remove selected cell" />
             </PreferenceCategory>
-        </PreferenceScreen>
+        </PreferenceScreen>     -->
 
         <PreferenceScreen
             android:icon="@drawable/ic_temperature"

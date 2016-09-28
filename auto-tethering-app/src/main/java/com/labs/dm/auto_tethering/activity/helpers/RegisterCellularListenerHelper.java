@@ -49,12 +49,10 @@ import static com.labs.dm.auto_tethering.AppProperties.MAX_CELLULAR_ITEMS;
 public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     private final static int ITEM_COUNT = 3;
-    final PreferenceScreen activateAdd = getPreferenceScreen("cell.activate.add");
-    final PreferenceScreen deactivateAdd = getPreferenceScreen("cell.deactivate.add");
-    final PreferenceScreen activateRemove = getPreferenceScreen("cell.activate.remove");
-    final PreferenceScreen deactivateRemove = getPreferenceScreen("cell.deactivate.remove");
-    final PreferenceCategory activateList = getPreferenceCategory("cell.activate.list");
-    final PreferenceCategory deactivateList = getPreferenceCategory("cell.deactivate.list");
+    private PreferenceCategory activateGroupAdd = getPreferenceCategory("cell.activate.group.add");
+    private PreferenceCategory deactivateGroupAdd = getPreferenceCategory("cell.deactivate.group.add");
+    private PreferenceCategory activateList = getPreferenceCategory("cell.activate.list");
+    private PreferenceCategory deactivateList = getPreferenceCategory("cell.deactivate.list");
 
     public RegisterCellularListenerHelper(MainActivity activity) {
         super(activity);
@@ -66,33 +64,33 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
     public void registerUIListeners() {
         new LocationTask().execute();
 
-        activateAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                return add(activateList, activateRemove, 'A');
-            }
-        });
-
-        deactivateAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                return add(deactivateList, deactivateRemove, 'D');
-            }
-        });
-
-        activateRemove.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                return remove(activateList, activateRemove);
-            }
-        });
-
-        deactivateRemove.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                return remove(deactivateList, deactivateRemove);
-            }
-        });
+//        activateAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//            @Override
+//            public boolean onPreferenceClick(Preference preference) {
+//                return add(activateList, activateRemove, 'A');
+//            }
+//        });
+//
+//        deactivateAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//            @Override
+//            public boolean onPreferenceClick(Preference preference) {
+//                return add(deactivateList, deactivateRemove, 'D');
+//            }
+//        });
+//
+//        activateRemove.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//            @Override
+//            public boolean onPreferenceClick(Preference preference) {
+//                return remove(activateList, activateRemove);
+//            }
+//        });
+//
+//        deactivateRemove.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//            @Override
+//            public boolean onPreferenceClick(Preference preference) {
+//                return remove(deactivateList, deactivateRemove);
+//            }
+//        });
     }
 
     private boolean add(PreferenceCategory list, PreferenceScreen remove, char type) {
@@ -154,8 +152,8 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                     MyLog.i("GPS", "LocationTask stop");
                     locationManager.removeUpdates(gpsListener);
                     locationManager.removeUpdates(networkListener);
-                    load(activateList, activateRemove, 'A');
-                    load(deactivateList, deactivateRemove, 'D');
+                    //  load(activateList, activateRemove, 'A');
+                    //    load(deactivateList, deactivateRemove, 'D');
                 }
             }, 7500);
 
