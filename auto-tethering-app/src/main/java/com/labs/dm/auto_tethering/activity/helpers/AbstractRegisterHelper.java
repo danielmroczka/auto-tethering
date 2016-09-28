@@ -2,11 +2,14 @@ package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.content.SharedPreferences;
 import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.text.InputFilter;
 import android.text.Spanned;
+
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.DBManager;
@@ -72,5 +75,21 @@ public abstract class AbstractRegisterHelper {
             }
         }
         return result;
+    }
+
+    protected PreferenceScreen getPreferenceScreen(String name) {
+        return (PreferenceScreen) activity.findPreference(name);
+    }
+
+    protected EditTextPreference getEditTextPreference(String name) {
+        return (EditTextPreference) activity.findPreference(name);
+    }
+
+    protected CheckBoxPreference getCheckBoxPreference(String name) {
+        return (CheckBoxPreference) activity.findPreference(name);
+    }
+
+    protected PreferenceCategory getPreferenceCategory(String name) {
+        return (PreferenceCategory) activity.findPreference(name);
     }
 }

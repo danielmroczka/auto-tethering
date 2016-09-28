@@ -189,6 +189,14 @@ public class Utils {
         }
     }
 
+    public static String formatDistance(Location location, double distance) {
+        if (location.getAccuracy() > AppProperties.GPS_ACCURACY_LIMIT) {
+            return String.format("Distance: %.0f±%.0fm", distance, location.getAccuracy());
+        } else {
+            return String.format("Distance: %.0fm", distance);
+        }
+    }
+
     public static void showToast(final Context context, final String text) {
         Handler h = new Handler(context.getMainLooper());
         h.post(new Runnable() {

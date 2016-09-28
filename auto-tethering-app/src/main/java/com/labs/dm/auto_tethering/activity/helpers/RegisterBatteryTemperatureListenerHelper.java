@@ -14,6 +14,7 @@ import android.text.InputFilter;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 
@@ -48,10 +49,10 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
             }
         };
         batteryReceiver.register(activity, new IntentFilter(ACTION_BATTERY_CHANGED));
-        EditTextPreference tempStart = (EditTextPreference) activity.findPreference("temp.value.start");
+        EditTextPreference tempStart = getEditTextPreference("temp.value.start");
         tempStart.setOnPreferenceChangeListener(changeListener);
         tempStart.getEditText().setFilters(new InputFilter[]{new InputFilterMinMax(0, 100)});
-        EditTextPreference tempStop = (EditTextPreference) activity.findPreference("temp.value.stop");
+        EditTextPreference tempStop = getEditTextPreference("temp.value.stop");
         tempStop.setOnPreferenceChangeListener(changeListener);
         tempStop.getEditText().setFilters(new InputFilter[]{new InputFilterMinMax(0, 100)});
 
@@ -98,7 +99,7 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
             } else if (lastTemperature > temperature) {
                 sign = "↓";
             }
-            final PreferenceScreen current = (PreferenceScreen) activity.findPreference("temp.current");
+            final PreferenceScreen current = getPreferenceScreen("temp.current");
 
             Spannable summary = new SpannableString(String.format("%.1f°C %s", temperature, sign));
             summary.setSpan(new ForegroundColorSpan(temperature > TEMPERATURE_LIMIT ? Color.RED : Color.GREEN), 0, summary.length(), 0);

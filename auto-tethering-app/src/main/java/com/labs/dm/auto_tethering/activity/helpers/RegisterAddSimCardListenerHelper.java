@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.SimCard;
@@ -74,7 +75,7 @@ public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
         removeSimCard.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                PreferenceCategory pc = (PreferenceCategory) activity.findPreference("simcard.list");
+                PreferenceCategory pc = getPreferenceCategory("simcard.list");
                 for (int idx = pc.getPreferenceCount() - 1; idx >= 0; idx--) {
                     Preference pref = pc.getPreference(idx);
                     if (pref instanceof CheckBoxPreference) {
@@ -111,7 +112,7 @@ public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
 
     @Override
     public void prepare() {
-        PreferenceCategory pc = (PreferenceCategory) activity.findPreference("simcard.list");
+        PreferenceCategory pc = getPreferenceCategory("simcard.list");
         List<SimCard> list = db.readSimCard();
         for (int idx = 0; idx < pc.getPreferenceCount(); idx++) {
             Object object = pc.getPreference(idx);
@@ -127,7 +128,7 @@ public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
             pc.addPreference(ps);
         }
 
-        PreferenceScreen ps = (PreferenceScreen) activity.findPreference("add.current.simcard");
+        PreferenceScreen ps = getPreferenceScreen("add.current.simcard");
         activity.findPreference("remove.simcard").setEnabled(pc.getPreferenceCount() > 2);
         ps.setEnabled(true);
     }
