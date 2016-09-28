@@ -13,7 +13,7 @@ import android.text.InputFilter;
 import android.view.Gravity;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
@@ -21,11 +21,7 @@ import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
-import static com.labs.dm.auto_tethering.AppProperties.SSID;
+import static com.labs.dm.auto_tethering.AppProperties.*;
 import static com.labs.dm.auto_tethering.activity.MainActivity.ON_CHANGE_SSID;
 
 /**
@@ -153,6 +149,22 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
 
         EditTextPreference delay = getEditTextPreference("activate.on.startup.delay");
         delay.setOnPreferenceChangeListener(changeListener);
+
+        PreferenceScreen shutdown = getPreferenceScreen("shutdown");
+        shutdown.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                try {
+                    Process proc = Runtime.getRuntime().exec(new String[]{"su", "-c", "reboot -p"});
+                    proc.waitFor();
+                } catch (Exception ex) {
+                    MyLog.e("shutdown", "error", ex);
+                }
+                return false;
+            }
+        });
+
+
     }
 
     private void startService() {
