@@ -15,6 +15,7 @@ import android.os.Looper;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
+import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
@@ -112,8 +113,8 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         return true;
     }
 
-    private boolean add(PreferenceScreen list, CellGroup group) {
-        new AddTask(list, group).execute();
+    private boolean add(PreferenceGroup list, CellGroup group, PreferenceScreen remove) {
+        new AddTask(list, group, remove).execute();
         return true;
     }
 
@@ -181,12 +182,14 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     private class AddTask extends AsyncTask<Void, Void, Void> {
 
-        private PreferenceScreen list;
+        private PreferenceGroup list;
         private CellGroup cellGroup;
+        private PreferenceScreen remove;
 
-        public AddTask(PreferenceScreen list, CellGroup cellGroup) {
+        public AddTask(PreferenceGroup list, CellGroup cellGroup, PreferenceScreen remove) {
             this.list = list;
             this.cellGroup = cellGroup;
+            this.remove = remove;
         }
 
         @Override
@@ -223,13 +226,14 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             long id = db.addOrUpdateCellular(current);
 
             if (id > 0) {
+                current.setId((int) id);
                 final CheckBoxPreference checkBox = createCheckBox(current, Utils.getBestLocation(activity));
 
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         list.addPreference(checkBox);
-                        //remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
+                        remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
                         Toast.makeText(activity, "Cellular network has been added", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -286,14 +290,22 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             List<CellGroup> col = db.loadCellGroup(String.valueOf(type));
 
             for (final CellGroup group : col) {
-                //CellGroupPreference cell = new CellGroupPreference(list, group, activity);
-                //list.addPreference(cell);
-
+                //final CellGroupPreference groupItem = new CellGroupPreference(list, group, activity);//activity.getPreferenceManager().createPreferenceScreen(activity);
                 final PreferenceScreen groupItem = activity.getPreferenceManager().createPreferenceScreen(activity);
+                //groupItem.setWidgetLayoutResource(R.layout.cell_group_item);
+
+                //final LinearLayout middleLayout = (LinearLayout) groupItem.getView(null, null).findViewById(R.id.middleLayout);
+//                middleLayout.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        Log.i("c", "c");
+//                        //v.setOnClickListener(this);
+//                        //v.getRootView().setOnClickListener(this);
+//                    }
+//                });
+
                 groupItem.setTitle(group.getName());
-
-                PreferenceScreen child = activity.getPreferenceManager().createPreferenceScreen(activity);
-
+                groupItem.setSummary("Items: " + db.readCellular(group.getId()).size());
 
                 PreferenceScreen add = activity.getPreferenceManager().createPreferenceScreen(activity);
                 add.setTitle("Add cell");
@@ -312,8 +324,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                 add.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        add(groupItem, group);
-                        remove.setEnabled(groupItem.getPreferenceCount() > ITEM_COUNT);
+                        add(groupItem, group, remove);
                         return true;
                     }
                 });
@@ -339,14 +350,12 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                 }
 
                 remove.setEnabled(groupItem.getPreferenceCount() > ITEM_COUNT);
-
-
                 list.addPreference(groupItem);
             }
         }
     }
 
-    private boolean remove(PreferenceScreen list, PreferenceScreen remove) {
+    private boolean remove(PreferenceGroup list, PreferenceScreen remove) {
         boolean changed = false;
 
         for (int idx = list.getPreferenceCount() - 1; idx >= 0; idx--) {

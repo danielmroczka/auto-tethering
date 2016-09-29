@@ -1,15 +1,12 @@
 package com.labs.dm.auto_tethering.ui;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceGroup;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
@@ -22,8 +19,7 @@ import com.labs.dm.auto_tethering.db.DBManager;
  * Created by Daniel Mroczka on 2016-09-28.
  */
 
-public class CellGroupPreference extends PreferenceGroup implements AdapterView.OnItemClickListener,
-        DialogInterface.OnDismissListener {
+public class CellGroupPreference extends PreferenceGroup {
 
     private final PreferenceCategory parent;
     private CellGroup cellGroup;
@@ -35,6 +31,7 @@ public class CellGroupPreference extends PreferenceGroup implements AdapterView.
         this.parent = parent;
         db = DBManager.getInstance(context);
         setTitle(cellGroup.getName());
+
     }
 
     @Override
@@ -81,7 +78,7 @@ public class CellGroupPreference extends PreferenceGroup implements AdapterView.
 
             @Override
             public void onClick(View v) {
-
+                v.setOnClickListener(this);
 //                Intent intent = new Intent(getContext(), CellGroupActivity.class);
 //                intent.putExtra("groupId", cellGroup.getId());
 //                if (getContext() instanceof Activity) {
@@ -98,14 +95,5 @@ public class CellGroupPreference extends PreferenceGroup implements AdapterView.
         return li.inflate(R.layout.cell_group_item, parent, false);
     }
 
-    @Override
-    public void onDismiss(DialogInterface dialog) {
-        Log.i("AA", "AA");
-    }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Log.i("AA", "AAB");
-
-    }
 }
