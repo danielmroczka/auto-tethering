@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.db.CellGroup;
 import com.labs.dm.auto_tethering.db.Cron;
@@ -31,7 +30,7 @@ public class CellGroupPreference extends PreferenceGroup {
         this.parent = parent;
         db = DBManager.getInstance(context);
         setTitle(cellGroup.getName());
-
+        onAttachedToHierarchy(parent.getPreferenceManager());
     }
 
     @Override
@@ -73,20 +72,35 @@ public class CellGroupPreference extends PreferenceGroup {
                 return true;
             }
         });
-
+//getPreferenceManager().
+        final CellGroupPreference me = this;
         middleLayout.setOnClickListener(new View.OnClickListener() {
-
-            @Override
+            //
+//            @Override
             public void onClick(View v) {
-                v.setOnClickListener(this);
+                me.onClick();
+
+//
+//                //getPreferenceManager(). showDialog(findPreference("pref_name"));
+//                PreferenceScreen screen = (PreferenceScreen) findPreference("experimental");
+//                int pos = findPreference("data.limit").getOrder();
+//                screen.onItemClick(null, null, pos, 0);
+            }
+        });
+    }
+
+    //me.getPreferenceManager().showDialog(findPreference("pref_name"));
+    //getOnPreferenceClickListener().onPreferenceClick(me);
+//getOnPreferenceChangeListener().onPreferenceChange(me, 0);
+    //v.setOnClickListener(this);
 //                Intent intent = new Intent(getContext(), CellGroupActivity.class);
 //                intent.putExtra("groupId", cellGroup.getId());
 //                if (getContext() instanceof Activity) {
 //                    ((Activity) getContext()).startActivityForResult(intent, MainActivity.ON_CHANGE_CELLGROUP);
 //                }
-            }
-        });
-    }
+    //}
+    //});
+    // }
 
     @Override
     protected View onCreateView(ViewGroup parent) {

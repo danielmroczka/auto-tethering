@@ -11,15 +11,13 @@ import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import com.labs.dm.auto_tethering.*;
 import com.labs.dm.auto_tethering.activity.MainActivity;
+import com.labs.dm.auto_tethering.db.CellGroup;
 import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.Cron.STATUS;
 import com.labs.dm.auto_tethering.db.DBManager;
 
-import java.util.Calendar;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static android.os.Build.VERSION;
@@ -234,16 +232,32 @@ public class TetheringService extends IntentService {
     private void checkCellular() {
         Cellular current = Utils.getCellInfo(getApplicationContext());
 
-        if (prefs.getBoolean("cell.activate.enable", false) && !serviceHelper.isTetheringWiFi()) {
-            List<Cellular> cids = DBManager.getInstance(this).readCellular('A');
-            for (Cellular item : cids) {
+        if (/*prefs.getBoolean("cell.activate.enable", false) &&*/ !serviceHelper.isTetheringWiFi()) {
+            List<CellGroup> activateGroup = DBManager.getInstance(this).loadCellGroup("A");
+
+            List<Cellular> actives = new ArrayList<>();
+            for (CellGroup acg : activateGroup) {
+                if (acg.getStatus() == CellGroup.STATUS.ENABLED.getValue()) {
+                    actives.addAll(DBManager.getInstance(this).readCellular(acg.getId()));
+                }
+            }
+
+            for (Cellular item : actives) {
                 if (current.theSame(item)) {
                     execute(CELL_INTERNET_TETHERING_ON);
                 }
             }
-        } else if (prefs.getBoolean("cell.deactivate.enable", false) && serviceHelper.isTetheringWiFi()) {
-            List<Cellular> cids = DBManager.getInstance(this).readCellular('D');
-            for (Cellular item : cids) {
+        } else if (/*prefs.getBoolean("cell.deactivate.enable", false) && */serviceHelper.isTetheringWiFi()) {
+            List<CellGroup> deactivateGroup = DBManager.getInstance(this).loadCellGroup("D");
+
+            List<Cellular> deactives = new ArrayList<>();
+            for (CellGroup dcg : deactivateGroup) {
+                if (dcg.getStatus() == CellGroup.STATUS.ENABLED.getValue()) {
+                    deactives.addAll(DBManager.getInstance(this).readCellular(dcg.getId()));
+                }
+            }
+
+            for (Cellular item : deactives) {
                 if (current.theSame(item)) {
                     execute(CELL_INTERNET_TETHERING_OFF);
                 }

@@ -44,6 +44,10 @@ public class CellGroup {
         return type;
     }
 
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
     public enum STATUS {
         DISABLED(0), ENABLED(1);
         final int value;

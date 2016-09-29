@@ -31,14 +31,14 @@
         android:padding="80dp">
 
         <TextView
-                android:id="@android:id/title"
+                android:id="@+id/groupTitle"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/title"
                 android:textSize="22sp"/>
 
         <TextView
-                android:id="@android:id/summary"
+                android:id="@+id/groupSummary"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/summary"

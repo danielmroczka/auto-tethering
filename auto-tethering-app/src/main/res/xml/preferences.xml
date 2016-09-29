@@ -42,27 +42,6 @@
             android:title="@string/activateTethering.title" />
     </PreferenceScreen>
 
-
-    <PreferenceScreen
-        android:icon="@drawable/ic_clock"
-        android:key="foo1"
-        android:title="ABC">
-        <PreferenceScreen
-            android:icon="@drawable/ic_add"
-            android:key="scheduler.add2"
-            android:title="DEF">
-            <PreferenceScreen
-                android:icon="@drawable/ic_add"
-                android:key="scheduler.add3"
-                android:title="GHI">
-
-            </PreferenceScreen>
-
-        </PreferenceScreen>
-
-    </PreferenceScreen>
-
-
     <PreferenceScreen
         android:icon="@drawable/ic_clock"
         android:key="scheduler.screen"
@@ -406,6 +385,7 @@
                         android:summary="Turn on USB tethering" />
                 </PreferenceScreen>
         -->
+
     </PreferenceScreen>
     <PreferenceCategory
         android:icon="@drawable/ic_wifi"

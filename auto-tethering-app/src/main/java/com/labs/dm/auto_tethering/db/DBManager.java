@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
 import com.labs.dm.auto_tethering.MyLog;
 
 import java.util.ArrayList;
@@ -290,5 +289,11 @@ public class DBManager extends SQLiteOpenHelper {
         } else {
             return getWritableDatabase().insert(name, null, content);
         }
+    }
+
+    public int toggleCellGroup(CellGroup group) {
+        ContentValues content = new ContentValues();
+        content.put("status", group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? CellGroup.STATUS.DISABLED.getValue() : CellGroup.STATUS.ENABLED.getValue());
+        return getWritableDatabase().update(CellGroup.NAME, content, "id=" + group.getId(), null);
     }
 }
