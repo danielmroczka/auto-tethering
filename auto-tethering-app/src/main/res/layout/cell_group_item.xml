@@ -28,7 +28,7 @@
         android:layout_weight="1"
         android:id="@+id/middleLayout"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="80dp">
 
         <TextView
                 android:id="@android:id/title"

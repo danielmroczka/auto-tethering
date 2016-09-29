@@ -17,6 +17,7 @@ public class Cellular {
     private double lon;
     private String name;
     private int status;
+    private int cellGroup;
 
     public void setId(int id) {
         this.id = id;
@@ -73,7 +74,7 @@ public class Cellular {
         this.cid = cid;
     }
 
-    public Cellular(int mcc, int mnc, int lac, int cid, char type, double lat, double lon, String name, int status) {
+    public Cellular(int mcc, int mnc, int lac, int cid, double lat, double lon, String name, int status) {
         this(mcc, mnc, lac, cid);
         this.type = type;
         this.lat = lat;
@@ -113,5 +114,13 @@ public class Cellular {
 
     public boolean isValid() {
         return cid > 0 && lac > 0 && mnc > 0 && mcc > 0;
+    }
+
+    public int getCellGroup() {
+        return cellGroup;
+    }
+
+    public void setCellGroup(int cellGroup) {
+        this.cellGroup = cellGroup;
     }
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
 import com.labs.dm.auto_tethering.MyLog;
 
 import java.util.ArrayList;
@@ -212,6 +213,7 @@ public class DBManager extends SQLiteOpenHelper {
         content.put("lac", cellular.getLac());
         content.put("mcc", cellular.getMcc());
         content.put("mnc", cellular.getMnc());
+        content.put("cellgroup", cellular.getCellGroup());
         //content.put("type", String.valueOf(cellular.getType()));
         content.put("lat", cellular.getLat());
         content.put("lon", cellular.getLon());
@@ -229,7 +231,7 @@ public class DBManager extends SQLiteOpenHelper {
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {
-                    Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), ' ', cursor.getDouble(6), cursor.getDouble(7), cursor.getString(8), cursor.getInt(9));
+                    Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getDouble(5), cursor.getDouble(6), cursor.getString(7), cursor.getInt(8));
                     p.setId(cursor.getInt(0));
                     list.add(p);
                 }

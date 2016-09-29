@@ -1,18 +1,19 @@
 package com.labs.dm.auto_tethering.ui;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
+import android.content.DialogInterface;
+import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceGroup;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+
 import com.labs.dm.auto_tethering.R;
-import com.labs.dm.auto_tethering.activity.CellGroupActivity;
-import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.CellGroup;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.DBManager;
@@ -21,7 +22,8 @@ import com.labs.dm.auto_tethering.db.DBManager;
  * Created by Daniel Mroczka on 2016-09-28.
  */
 
-public class CellGroupPreference extends PreferenceGroup {
+public class CellGroupPreference extends PreferenceGroup implements AdapterView.OnItemClickListener,
+        DialogInterface.OnDismissListener {
 
     private final PreferenceCategory parent;
     private CellGroup cellGroup;
@@ -67,15 +69,24 @@ public class CellGroupPreference extends PreferenceGroup {
             }
         });
 
+
+        setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                return true;
+            }
+        });
+
         middleLayout.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getContext(), CellGroupActivity.class);
-                intent.putExtra("groupId", cellGroup.getId());
-                if (getContext() instanceof Activity) {
-                    ((Activity) getContext()).startActivityForResult(intent, MainActivity.ON_CHANGE_CELLGROUP);
-                }
+
+//                Intent intent = new Intent(getContext(), CellGroupActivity.class);
+//                intent.putExtra("groupId", cellGroup.getId());
+//                if (getContext() instanceof Activity) {
+//                    ((Activity) getContext()).startActivityForResult(intent, MainActivity.ON_CHANGE_CELLGROUP);
+//                }
             }
         });
     }
@@ -85,5 +96,16 @@ public class CellGroupPreference extends PreferenceGroup {
         super.onCreateView(parent);
         LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         return li.inflate(R.layout.cell_group_item, parent, false);
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        Log.i("AA", "AA");
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Log.i("AA", "AAB");
+
     }
 }
