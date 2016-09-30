@@ -37,7 +37,6 @@ import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.CellGroup;
 import com.labs.dm.auto_tethering.db.Cellular;
-import com.labs.dm.auto_tethering.db.DBManager;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -326,7 +325,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         toggle.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                if (DBManager.getInstance(activity).toggleCellGroup(group) > 0) {
+                if (db.toggleCellGroup(group) > 0) {
                     if (group.getStatus() == CellGroup.STATUS.ENABLED.getValue()) {
                         group.setStatus(CellGroup.STATUS.DISABLED.getValue());
                         toggle.setTitle("Group disabled");
@@ -352,10 +351,21 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         removeGroup.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                if (DBManager.getInstance(activity).removeCellGroup(group.getId()) > 0) {
-                    list.removePreference(groupItem);
-                    groupItem.getDialog().dismiss();
-                }
+                new AlertDialog.Builder(activity)
+                        .setTitle(R.string.warning)
+                        .setMessage("Do you want to remove current group?")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (db.removeCellGroup(group.getId()) > 0) {
+                                    list.removePreference(groupItem);
+                                    groupItem.getDialog().dismiss();
+                                }
+                            }
+                        })
+                        .setNegativeButton(R.string.no, null
+                        ).show();
                 return true;
             }
         });
