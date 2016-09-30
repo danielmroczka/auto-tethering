@@ -57,11 +57,12 @@ public class Cellular {
         this.cid = cid;
     }
 
-    public Cellular(int mcc, int mnc, int lac, int cid, double lat, double lon, int status) {
+    public Cellular(int mcc, int mnc, int lac, int cid, double lat, double lon, int status, int cellgroup) {
         this(mcc, mnc, lac, cid);
         this.lat = lat;
         this.lon = lon;
         this.status = status;
+        this.cellGroup = cellgroup;
     }
 
     public void setLon(double lon) {

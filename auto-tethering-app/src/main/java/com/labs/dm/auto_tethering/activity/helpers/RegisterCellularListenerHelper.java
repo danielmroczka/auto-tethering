@@ -7,22 +7,38 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.*;
-import android.preference.*;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceGroup;
+import android.preference.PreferenceScreen;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.text.InputType;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-import com.labs.dm.auto_tethering.*;
+
+import com.labs.dm.auto_tethering.AppProperties;
+import com.labs.dm.auto_tethering.BuildConfig;
+import com.labs.dm.auto_tethering.MyLog;
+import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.CellGroup;
 import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.db.DBManager;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -88,6 +104,12 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         builder.setTitle("Provide group name");
         final EditText input = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                input.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 0, 0, 0));
+                input.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, 0, 0, 0));
+            }
+        }, 250);
 
         builder.setView(promptsView);
 
@@ -214,7 +236,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
             List<Cellular> otherTypesCellulars = db.readAllCellular("A".equals(cellGroup.getType()) ? "D" : "A");
             if (otherTypesCellulars.indexOf(current) >= 0) {
-                Utils.showToast(activity, "Cellular network  (" + current.getCid() + "/" + current.getLac() + ") is already added to " + ("A".equals(cellGroup.getType()) ? "deactivation" : "activation") + " group list.\nCannot be added both into activation and deactivation lists!");
+                Utils.showToast(activity, "Cellular network  (" + current.getCid() + "/" + current.getLac() + ") is already added to " + ("A".equals(cellGroup.getType()) ? "deactivation" : "activation") + " group list.\nCannot be added both to activation and deactivation lists!");
                 return null;
             }
 
@@ -233,10 +255,9 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                     }
                 });
 
-                loadCellGroup(activateList, cellGroup);
-
+                loadGroups();
             } else {
-                Utils.showToast(activity, "Cellular network (" + current.toString() + ") is already added into group!");
+                Utils.showToast(activity, "Cellular network (" + current.toString() + ") is already added to group!");
             }
             return null;
         }
@@ -316,12 +337,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                         setIcon(toggle, group);
                         setIcon(groupItem, group);
-                        //for (int i = 0; i < list.getPreferenceCount(); i++) {
-                        //    if (list.getPreference(i).getKey() != null && list.getPreference(i).getKey().equals(groupItem.getKey())) {
                         loadGroups();
-                        //loadCellGroup(list, group);
-                        //    }
-                        // }
                     }
                 }
                 return true;
@@ -417,7 +433,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
         String text = changed ? "Cellular network has been removed" : "Please select any item";
         if (changed) {
-            // loadCellGroup(activateList, cellGroup); //TODO
+            loadGroups();
         }
         Toast.makeText(activity, text, Toast.LENGTH_LONG).show();
         remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);

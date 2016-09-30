@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
 import com.labs.dm.auto_tethering.MyLog;
 
 import java.util.ArrayList;
@@ -223,12 +224,12 @@ public class DBManager extends SQLiteOpenHelper {
         List<Cellular> list;
         Cursor cursor = null;
         try {
-            cursor = getReadableDatabase().rawQuery("SELECT id, mcc, mnc, lac, cid, lat, lon, status FROM CELLULAR where cellgroup=" + groupId, null);
+            cursor = getReadableDatabase().rawQuery("SELECT id, mcc, mnc, lac, cid, lat, lon, status, cellgroup FROM CELLULAR where cellgroup=" + groupId, null);
             list = new ArrayList<>(cursor.getCount());
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {
-                    Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getDouble(5), cursor.getDouble(6), cursor.getInt(7));
+                    Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getDouble(5), cursor.getDouble(6), cursor.getInt(7), cursor.getInt(8));
                     p.setId(cursor.getInt(0));
                     list.add(p);
                 }
@@ -299,12 +300,12 @@ public class DBManager extends SQLiteOpenHelper {
         List<Cellular> list;
         Cursor cursor = null;
         try {
-            cursor = getReadableDatabase().rawQuery("SELECT c.id, c.mcc, c.mnc, c.lac, c.cid, c.lat, c.lon, c.status FROM CELLULAR c, CELL_GROUP g where c.cellgroup = g.id and g.type='" + type + "'", null);
+            cursor = getReadableDatabase().rawQuery("SELECT c.id, c.mcc, c.mnc, c.lac, c.cid, c.lat, c.lon, c.status, c.cellgroup FROM CELLULAR c, CELL_GROUP g where c.cellgroup = g.id and g.type='" + type + "'", null);
             list = new ArrayList<>(cursor.getCount());
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {
-                    Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getDouble(5), cursor.getDouble(6), cursor.getInt(7));
+                    Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getDouble(5), cursor.getDouble(6), cursor.getInt(7), cursor.getInt(8));
                     p.setId(cursor.getInt(0));
                     list.add(p);
                 }
@@ -322,12 +323,12 @@ public class DBManager extends SQLiteOpenHelper {
         List<Cellular> list;
         Cursor cursor = null;
         try {
-            cursor = getReadableDatabase().rawQuery("SELECT c.id, c.mcc, c.mnc, c.lac, c.cid, c.lat, c.lon, c.status FROM CELLULAR c, CELL_GROUP g where c.cellgroup = g.id and g.status = " + CellGroup.STATUS.ENABLED.getValue() + " and g.type='" + type + "'", null);
+            cursor = getReadableDatabase().rawQuery("SELECT c.id, c.mcc, c.mnc, c.lac, c.cid, c.lat, c.lon, c.status, c.cellgroup FROM CELLULAR c, CELL_GROUP g where c.cellgroup = g.id and g.status = " + CellGroup.STATUS.ENABLED.getValue() + " and g.type='" + type + "'", null);
             list = new ArrayList<>(cursor.getCount());
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {
-                    Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getDouble(5), cursor.getDouble(6), cursor.getInt(7));
+                    Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getDouble(5), cursor.getDouble(6), cursor.getInt(7), cursor.getInt(8));
                     p.setId(cursor.getInt(0));
                     list.add(p);
                 }

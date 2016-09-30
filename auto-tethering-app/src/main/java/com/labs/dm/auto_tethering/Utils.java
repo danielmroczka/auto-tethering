@@ -16,6 +16,7 @@ import android.telephony.cdma.CdmaCellLocation;
 import android.telephony.gsm.GsmCellLocation;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.db.Cellular;
@@ -198,7 +199,15 @@ public class Utils {
         h.post(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+                TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
+                if (v != null) {
+                    //v.setGravity(Gravity.LEFT);
+                    //v.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+                    v.setPadding(2, 2, 2, 2);
+
+                }
+                toast.show();
             }
         });
     }
