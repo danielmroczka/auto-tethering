@@ -301,7 +301,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
         final PreferenceScreen toggle = activity.getPreferenceManager().createPreferenceScreen(activity);
         setIcon(toggle, group);
-        toggle.setTitle(group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? "Group enabled" : "Group disabled");
+        setTitle(toggle, group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? "Group enabled" : "Group disabled");
         toggle.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -316,11 +316,12 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                         setIcon(toggle, group);
                         setIcon(groupItem, group);
-                        for (int i = 0; i < list.getPreferenceCount(); i++) {
-                            if (list.getPreference(i).getKey() != null && list.getPreference(i).getKey().equals(groupItem.getKey())) {
-                                loadGroups();
-                            }
-                        }
+                        //for (int i = 0; i < list.getPreferenceCount(); i++) {
+                        //    if (list.getPreference(i).getKey() != null && list.getPreference(i).getKey().equals(groupItem.getKey())) {
+                        loadGroups();
+                        //loadCellGroup(list, group);
+                        //    }
+                        // }
                     }
                 }
                 return true;
@@ -392,6 +393,10 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
         remove.setEnabled(groupItem.getPreferenceCount() > ITEM_COUNT);
         list.addPreference(groupItem);
+    }
+
+    private void setTitle(PreferenceScreen toggle, String title) {
+        toggle.setTitle(title);
     }
 
     private boolean removeCell(PreferenceGroup list, CellGroup cellGroup, PreferenceScreen remove) {
