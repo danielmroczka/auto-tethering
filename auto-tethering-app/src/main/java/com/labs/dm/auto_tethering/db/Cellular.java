@@ -7,16 +7,9 @@ package com.labs.dm.auto_tethering.db;
 public class Cellular {
     public final static String NAME = "CELLULAR";
 
-    private int id;
-    private int mcc;
-    private int mnc;
-    private int lac;
-    private int cid;
-    private double lat;
-    private double lon;
+    private int id, mcc, mnc, lac, cid, status, cellGroup;
+    private double lat, lon;
     private String name;
-    private int status;
-    private int cellGroup;
 
     public void setId(int id) {
         this.id = id;

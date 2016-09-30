@@ -7,16 +7,8 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceGroup;
-import android.preference.PreferenceScreen;
+import android.os.*;
+import android.preference.*;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -26,17 +18,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import com.labs.dm.auto_tethering.AppProperties;
-import com.labs.dm.auto_tethering.BuildConfig;
-import com.labs.dm.auto_tethering.MyLog;
-import com.labs.dm.auto_tethering.R;
-import com.labs.dm.auto_tethering.Utils;
+import com.labs.dm.auto_tethering.*;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.CellGroup;
 import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.db.DBManager;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -58,8 +44,8 @@ import static com.labs.dm.auto_tethering.AppProperties.MAX_CELLULAR_ITEMS;
 public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     private final static int ITEM_COUNT = 4;
-    private PreferenceScreen activateGroupAdd = getPreferenceScreen("cell.activate.group.addCell");
-    private PreferenceScreen deactivateGroupAdd = getPreferenceScreen("cell.deactivate.group.addCell");
+    private PreferenceScreen activateGroupAdd = getPreferenceScreen("cell.activate.group.add");
+    private PreferenceScreen deactivateGroupAdd = getPreferenceScreen("cell.deactivate.group.add");
     private PreferenceCategory activateList = getPreferenceCategory("cell.activate.list");
     private PreferenceCategory deactivateList = getPreferenceCategory("cell.deactivate.list");
 
@@ -72,12 +58,12 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     public void registerUIListeners() {
         new GetLoastLocationTask().execute();
-
         activateGroupAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 //new AddGroupTask(activateList, "A").execute();
                 return addGroup(activateList, "A");
+                //return true;
             }
         });
         deactivateGroupAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -85,6 +71,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             public boolean onPreferenceClick(Preference preference) {
                 //new AddGroupTask(deactivateList, "D").execute();
                 return addGroup(deactivateList, "D");
+                //return true;
             }
         });
     }
@@ -115,13 +102,12 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
                     final PreferenceScreen groupItem = activity.getPreferenceManager().createPreferenceScreen(activity);
                     groupItem.setTitle(cellGroup.getName());
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                        groupItem.setIcon((cellGroup.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? R.drawable.ic_checked : R.drawable.ic_unchecked));
-                    }
+                    setIcon(groupItem, cellGroup);
 
                     //CellGroupPreference group = new CellGroupPreference(list, cellGroup, activity);
                     //list.addPreference(groupItem);
-                    loadCellGroup(list, cellGroup);
+                    //loadCellGroup(list, cellGroup);
+                    new Thread(new LoadTask(list, type)).start();
                 } else {
                     Toast.makeText(activity, "Please provide unique group name", Toast.LENGTH_LONG).show();
                 }
@@ -131,6 +117,12 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
         builder.show();
         return true;
+    }
+
+    private void setIcon(PreferenceScreen groupItem, CellGroup cellGroup) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            groupItem.setIcon((cellGroup.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? R.drawable.ic_checked : R.drawable.ic_unchecked));
+        }
     }
 
     private boolean addCell(PreferenceGroup list, CellGroup group, PreferenceScreen remove) {
@@ -168,8 +160,8 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
     }
 
     private void loadGroups() {
-        new Thread(new LoadTask(activateList, 'A')).start();
-        new Thread(new LoadTask(deactivateList, 'D')).start();
+        new Thread(new LoadTask(activateList, "A")).start();
+        new Thread(new LoadTask(deactivateList, "D")).start();
     }
 
     private class AddGroupTask extends AsyncTask<Void, Void, Void> {
@@ -184,6 +176,9 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
         @Override
         protected Void doInBackground(Void... params) {
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
             addGroup(list, type);
             return null;
         }
@@ -217,6 +212,12 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             loadLocationFromService(current);
             current.setName("");
             current.setCellGroup(cellGroup.getId());
+
+            List<Cellular> otherTypesCellulars = db.readCellular(cellGroup.getType().equals("A") ? "D" : "A");
+            if (otherTypesCellulars.indexOf(current) >= 0) {
+                Toast.makeText(activity, "Cellular network is present on " + (cellGroup.getType().equals("A") ? "Deactivated" : "Activated") + " group list. Cannot be added into two list!", Toast.LENGTH_LONG).show();
+            }
+
             long id = db.addOrUpdateCellular(current);
 
             if (id > 0) {
@@ -256,23 +257,34 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     private class LoadTask implements Runnable {
         private final PreferenceCategory list;
-        private final char type;
+        private final String type;
+        private CellGroup cellGroup;
 
-        public LoadTask(final PreferenceCategory list, final char type) {
+        public LoadTask(final PreferenceCategory list, final String type) {
             this.list = list;
             this.type = type;
         }
 
+        public LoadTask(final PreferenceCategory list, CellGroup cellGroup) {
+            this(list, "");
+            this.cellGroup = cellGroup;
+        }
+
         @Override
         public void run() {
-            List<CellGroup> col = db.loadCellGroup(String.valueOf(type));
             for (int i = list.getPreferenceCount() - 1; i > 0; i--) {
                 if (!list.getPreference(i).getKey().startsWith("cell.")) {
                     list.removePreference(list.getPreference(i));
                 }
             }
-            for (final CellGroup group : col) {
-                loadCellGroup(list, group);
+            if (cellGroup != null) {
+                loadCellGroup(list, cellGroup);
+            } else {
+                List<CellGroup> col = db.loadCellGroup(type);
+
+                for (final CellGroup group : col) {
+                    loadCellGroup(list, group);
+                }
             }
         }
     }
@@ -282,15 +294,10 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         final PreferenceScreen groupItem = activity.getPreferenceManager().createPreferenceScreen(activity);
         groupItem.setTitle(group.getName());
         groupItem.setKey(String.valueOf(group.getId()));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            groupItem.setIcon((group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? R.drawable.ic_checked : R.drawable.ic_unchecked));
-        }
+        setIcon(groupItem, group);
 
         final PreferenceScreen toggle = activity.getPreferenceManager().createPreferenceScreen(activity);
         toggle.setTitle((group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? "Group Activated" : "Group Deactivated"));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            toggle.setIcon((group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? R.drawable.ic_checked : R.drawable.ic_unchecked));
-        }
         toggle.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -303,8 +310,8 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                         toggle.setTitle("Group Activated");
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                        toggle.setIcon((group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? R.drawable.ic_checked : R.drawable.ic_unchecked));
-                        groupItem.setIcon((group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? R.drawable.ic_checked : R.drawable.ic_unchecked));
+                        setIcon(toggle, group);
+                        setIcon(groupItem, group);
                         for (int i = 0; i < list.getPreferenceCount(); i++) {
                             if (list.getPreference(i).getKey().equals(groupItem.getKey())) {
                                 loadGroups();
@@ -371,7 +378,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         for (Cellular cellular : cells) {
             if (!cellular.hasLocation()) {
                 loadLocationFromService(cellular);
-                //db.addOrUpdateCellular(cellular);  TODO
+                db.addOrUpdateCellular(cellular);
             }
             CheckBoxPreference chk = createCheckBox(cellular, Utils.getBestLocation(activity));
             groupItem.addPreference(chk);

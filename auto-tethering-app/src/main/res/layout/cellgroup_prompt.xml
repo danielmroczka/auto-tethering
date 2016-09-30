@@ -7,11 +7,11 @@
     android:padding="10dp">
 
     <EditText
-        android:id="@+id/editTextDialogUserInput"
-        android:layout_width="match_parent"
-        android:maxLength="40"
-        android:inputType="text|textCapSentences"
-        android:layout_height="wrap_content">
+            android:id="@+id/editTextDialogUserInput"
+            android:layout_width="match_parent"
+            android:maxLength="20"
+            android:inputType="text|textCapSentences"
+            android:layout_height="wrap_content">
 
         <requestFocus />
 

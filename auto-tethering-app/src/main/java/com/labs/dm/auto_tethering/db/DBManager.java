@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
 import com.labs.dm.auto_tethering.MyLog;
 
 import java.util.ArrayList;
@@ -50,11 +49,11 @@ public class DBManager extends SQLiteOpenHelper {
         db.execSQL("create table SIMCARD(id INTEGER PRIMARY KEY, ssn VARCHAR(20), number VARCHAR(20), status INTEGER)");
         db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
         db.execSQL("create table CELL_GROUP(id INTEGER PRIMARY KEY, name TEXT, type TEXT, status INTEGER)");
-        db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, lat REAL, lon REAL, name TEXT, simcard INTEGER, cellgroup INTEGER, status INTEGER, FOREIGN KEY(simcard) REFERENCES SIMCARD(id), FOREIGN KEY(cellgroup) REFERENCES CELL_GROUP(id))");
+        db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, lat REAL, lon REAL, simcard INTEGER, cellgroup INTEGER, status INTEGER, FOREIGN KEY(simcard) REFERENCES SIMCARD(id), FOREIGN KEY(cellgroup) REFERENCES CELL_GROUP(id))");
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
         db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
-        db.execSQL("create unique index CELLULAR_UNIQUE_IDX on cellular(mcc,mnc, lac, cid, cellgroup)");
+        db.execSQL("create unique index CELLULAR_UNIQUE_IDX on cellular(mcc, mnc, lac, cid, cellgroup)");
         db.execSQL("create unique index CELL_GROUP_UNIQUE_IDX on cell_group(name, type)");
         MyLog.i("DBManager", "DB structure created");
     }
@@ -75,7 +74,7 @@ public class DBManager extends SQLiteOpenHelper {
             db.execSQL("drop table IF EXISTS CELL_GROUP");
             // CREATE TABLE
             db.execSQL("create table CELL_GROUP(id INTEGER PRIMARY KEY, name TEXT, type TEXT, status INTEGER)");
-            db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, lat REAL, lon REAL, name TEXT, simcard INTEGER, cellgroup INTEGER, status INTEGER, FOREIGN KEY(simcard) REFERENCES SIMCARD(id), FOREIGN KEY(cellgroup) REFERENCES CELL_GROUP(id))");
+            db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, lat REAL, lon REAL, simcard INTEGER, cellgroup INTEGER, status INTEGER, FOREIGN KEY(simcard) REFERENCES SIMCARD(id), FOREIGN KEY(cellgroup) REFERENCES CELL_GROUP(id))");
             // CREATE INDEX
             db.execSQL("create unique index CELLULAR_UNIQUE_IDX on cellular(mcc,mnc, lac, cid, cellgroup)");
             db.execSQL("create unique index CELL_GROUP_UNIQUE_IDX on cell_group(name, type)");
