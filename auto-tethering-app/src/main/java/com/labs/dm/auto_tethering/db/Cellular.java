@@ -9,7 +9,6 @@ public class Cellular {
 
     private int id, mcc, mnc, lac, cid, status, cellGroup;
     private double lat, lon;
-    private String name;
 
     public void setId(int id) {
         this.id = id;
@@ -43,10 +42,6 @@ public class Cellular {
         return lon;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public int getStatus() {
         return status;
     }
@@ -62,11 +57,10 @@ public class Cellular {
         this.cid = cid;
     }
 
-    public Cellular(int mcc, int mnc, int lac, int cid, double lat, double lon, String name, int status) {
+    public Cellular(int mcc, int mnc, int lac, int cid, double lat, double lon, int status) {
         this(mcc, mnc, lac, cid);
         this.lat = lat;
         this.lon = lon;
-        this.name = name;
         this.status = status;
     }
 
@@ -106,10 +100,6 @@ public class Cellular {
 
     public void setCellGroup(int cellGroup) {
         this.cellGroup = cellGroup;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
 }

@@ -57,7 +57,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
     }
 
     public void registerUIListeners() {
-        new GetLoastLocationTask().execute();
+        new GetLastLocationTask().execute();
         activateGroupAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -78,7 +78,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     private boolean addGroup(final PreferenceCategory list, final String type) {
         if (list.getPreferenceCount() > AppProperties.MAX_CELL_GROUPS_COUNT) {
-            Toast.makeText(activity, "Exceed the limit of group limit!", Toast.LENGTH_LONG).show();
+            Toast.makeText(activity, "Exceed the limit of group limit (" + AppProperties.MAX_CELL_GROUPS_COUNT + ")!", Toast.LENGTH_LONG).show();
             return false;
         }
         LayoutInflater li = LayoutInflater.from(activity);
@@ -130,7 +130,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         return true;
     }
 
-    private class GetLoastLocationTask extends AsyncTask<Void, Void, Void> {
+    private class GetLastLocationTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... params) {
@@ -210,12 +210,12 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             }
 
             loadLocationFromService(current);
-            current.setName("");
             current.setCellGroup(cellGroup.getId());
 
-            List<Cellular> otherTypesCellulars = db.readCellular(cellGroup.getType().equals("A") ? "D" : "A");
+            List<Cellular> otherTypesCellulars = db.readAllCellular("A".equals(cellGroup.getType()) ? "D" : "A");
             if (otherTypesCellulars.indexOf(current) >= 0) {
-                Toast.makeText(activity, "Cellular network is present on " + (cellGroup.getType().equals("A") ? "Deactivated" : "Activated") + " group list. Cannot be added into two list!", Toast.LENGTH_LONG).show();
+                Utils.showToast(activity, "Cellular network  (" + current.getCid() + "/" + current.getLac() + ") is already added to " + ("A".equals(cellGroup.getType()) ? "deactivation" : "activation") + " group list.\nCannot be added both into activation and deactivation lists!");
+                return null;
             }
 
             long id = db.addOrUpdateCellular(current);
@@ -229,9 +229,12 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                     public void run() {
                         list.addPreference(checkBox);
                         remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
-                        Toast.makeText(activity, "Cellular network has been added", Toast.LENGTH_SHORT).show();
+                        Utils.showToast(activity, "Cellular network has been added");
                     }
                 });
+
+                loadCellGroup(activateList, cellGroup);
+
             } else {
                 Utils.showToast(activity, "Cellular network (" + current.toString() + ") is already added into group!");
             }
@@ -297,23 +300,24 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         setIcon(groupItem, group);
 
         final PreferenceScreen toggle = activity.getPreferenceManager().createPreferenceScreen(activity);
-        toggle.setTitle((group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? "Group Activated" : "Group Deactivated"));
+        setIcon(toggle, group);
+        toggle.setTitle(group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? "Group enabled" : "Group disabled");
         toggle.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 if (DBManager.getInstance(activity).toggleCellGroup(group) > 0) {
                     if (group.getStatus() == CellGroup.STATUS.ENABLED.getValue()) {
                         group.setStatus(CellGroup.STATUS.DISABLED.getValue());
-                        toggle.setTitle("Group Deactivated");
+                        toggle.setTitle("Group disabled");
                     } else {
                         group.setStatus(CellGroup.STATUS.ENABLED.getValue());
-                        toggle.setTitle("Group Activated");
+                        toggle.setTitle("Group enabled");
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                         setIcon(toggle, group);
                         setIcon(groupItem, group);
                         for (int i = 0; i < list.getPreferenceCount(); i++) {
-                            if (list.getPreference(i).getKey().equals(groupItem.getKey())) {
+                            if (list.getPreference(i).getKey() != null && list.getPreference(i).getKey().equals(groupItem.getKey())) {
                                 loadGroups();
                             }
                         }
@@ -363,7 +367,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         remove.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                removeCell(groupItem, remove);
+                removeCell(groupItem, group, remove);
                 remove.setEnabled(groupItem.getPreferenceCount() > ITEM_COUNT);
                 return true;
             }
@@ -390,7 +394,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         list.addPreference(groupItem);
     }
 
-    private boolean removeCell(PreferenceGroup list, PreferenceScreen remove) {
+    private boolean removeCell(PreferenceGroup list, CellGroup cellGroup, PreferenceScreen remove) {
         boolean changed = false;
 
         for (int idx = list.getPreferenceCount() - 1; idx >= 0; idx--) {
@@ -407,6 +411,9 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         }
 
         String text = changed ? "Cellular network has been removed" : "Please select any item";
+        if (changed) {
+            // loadCellGroup(activateList, cellGroup); //TODO
+        }
         Toast.makeText(activity, text, Toast.LENGTH_LONG).show();
         remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
         return true;
