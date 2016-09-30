@@ -7,15 +7,27 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.*;
-import android.preference.*;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceGroup;
+import android.preference.PreferenceScreen;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.text.InputType;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
@@ -24,6 +36,7 @@ import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.CellGroup;
 import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.db.DBManager;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -44,9 +57,9 @@ import static com.labs.dm.auto_tethering.AppProperties.MAX_CELLULAR_ITEMS;
  */
 public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
-    private final static int ITEM_COUNT = 2;
-    private PreferenceScreen activateGroupAdd = getPreferenceScreen("cell.activate.group.add");
-    private PreferenceScreen deactivateGroupAdd = getPreferenceScreen("cell.deactivate.group.add");
+    private final static int ITEM_COUNT = 4;
+    private PreferenceScreen activateGroupAdd = getPreferenceScreen("cell.activate.group.addCell");
+    private PreferenceScreen deactivateGroupAdd = getPreferenceScreen("cell.deactivate.group.addCell");
     private PreferenceCategory activateList = getPreferenceCategory("cell.activate.list");
     private PreferenceCategory deactivateList = getPreferenceCategory("cell.deactivate.list");
 
@@ -58,35 +71,44 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
     }
 
     public void registerUIListeners() {
-        new LocationTask().execute();
+        new GetLoastLocationTask().execute();
 
         activateGroupAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                return addGroup(activateList, 'A');
+                //new AddGroupTask(activateList, "A").execute();
+                return addGroup(activateList, "A");
             }
         });
         deactivateGroupAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                return addGroup(deactivateList, 'D');
+                //new AddGroupTask(deactivateList, "D").execute();
+                return addGroup(deactivateList, "D");
             }
         });
     }
 
-    private boolean addGroup(final PreferenceCategory list, final char type) {
+    private boolean addGroup(final PreferenceCategory list, final String type) {
+        if (list.getPreferenceCount() > AppProperties.MAX_CELL_GROUPS_COUNT) {
+            Toast.makeText(activity, "Exceed the limit of group limit!", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        LayoutInflater li = LayoutInflater.from(activity);
+        View promptsView = li.inflate(R.layout.cellgroup_prompt, null);
+
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Provide group name");
-        final EditText input = new EditText(activity.getApplicationContext());
+        final EditText input = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
-        input.setPadding(1, 1, 1, 1);
-        builder.setView(input);
+
+        builder.setView(promptsView);
 
         builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String groupName = input.getText().toString();
-                CellGroup cellGroup = new CellGroup(groupName, String.valueOf(type), CellGroup.STATUS.ENABLED.getValue());
+                CellGroup cellGroup = new CellGroup(groupName, type, CellGroup.STATUS.ENABLED.getValue());
                 long res = db.addOrUpdateCellGroup(cellGroup);
                 if (res > 0) {
                     cellGroup.setId((int) res);
@@ -98,7 +120,8 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                     }
 
                     //CellGroupPreference group = new CellGroupPreference(list, cellGroup, activity);
-                    list.addPreference(groupItem);
+                    //list.addPreference(groupItem);
+                    loadCellGroup(list, cellGroup);
                 } else {
                     Toast.makeText(activity, "Please provide unique group name", Toast.LENGTH_LONG).show();
                 }
@@ -110,40 +133,12 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         return true;
     }
 
-    private boolean add(PreferenceGroup list, CellGroup group, PreferenceScreen remove) {
-        new AddTask(list, group, remove).execute();
+    private boolean addCell(PreferenceGroup list, CellGroup group, PreferenceScreen remove) {
+        new AddCellTask(list, group, remove).execute();
         return true;
     }
 
-    private void loadLocationFromService(Cellular item) {
-        JSONObject json;
-        String url = String.format("http://opencellid.org/cell/get?key=%s&mcc=%d&mnc=%d&lac=%d&cellid=%d&format=json", BuildConfig.OPENCELLID_KEY, item.getMcc(), item.getMnc(), item.getLac(), item.getCid());
-
-        if (!item.hasLocation()) {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpGet httpget = new HttpGet(url);
-            HttpResponse response;
-            try {
-                response = httpclient.execute(httpget);
-                HttpEntity entity = response.getEntity();
-                if (entity != null) {
-                    InputStream inputStream = entity.getContent();
-                    String result = Utils.convertStreamToString(inputStream);
-                    MyLog.d("Load JSON", result);
-                    json = new JSONObject(result);
-                    item.setLon(json.getDouble("lon"));
-                    item.setLat(json.getDouble("lat"));
-                    inputStream.close();
-                }
-            } catch (IOException e) {
-                MyLog.e("HttpRequest", e.getMessage());
-            } catch (JSONException e) {
-                MyLog.e("JSONException", e.getMessage());
-            }
-        }
-    }
-
-    private class LocationTask extends AsyncTask<Void, Void, Void> {
+    private class GetLoastLocationTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... params) {
@@ -177,13 +172,31 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         new Thread(new LoadTask(deactivateList, 'D')).start();
     }
 
-    private class AddTask extends AsyncTask<Void, Void, Void> {
+    private class AddGroupTask extends AsyncTask<Void, Void, Void> {
+
+        private PreferenceCategory list;
+        private String type;
+
+        public AddGroupTask(PreferenceCategory list, String type) {
+            this.list = list;
+            this.type = type;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            addGroup(list, type);
+            return null;
+        }
+    }
+
+
+    private class AddCellTask extends AsyncTask<Void, Void, Void> {
 
         private PreferenceGroup list;
         private CellGroup cellGroup;
         private PreferenceScreen remove;
 
-        public AddTask(PreferenceGroup list, CellGroup cellGroup, PreferenceScreen remove) {
+        public AddCellTask(PreferenceGroup list, CellGroup cellGroup, PreferenceScreen remove) {
             this.list = list;
             this.cellGroup = cellGroup;
             this.remove = remove;
@@ -241,22 +254,6 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         }
     }
 
-    private CheckBoxPreference createCheckBox(Cellular current, Location location) {
-        final CheckBoxPreference checkBox = new CheckBoxPreference(activity);
-        String styledText = String.format("<small>CID: </small>%s <small>LAC: </small>%s", current.getCid(), current.getLac());
-        checkBox.setTitle(Html.fromHtml(styledText));
-        checkBox.setKey(String.valueOf(current.getId()));
-        checkBox.setPersistent(false);
-
-        if (current.hasLocation()) {
-            double distance = Utils.calculateDistance(location, current);
-            checkBox.setSummary(Utils.formatDistance(location, distance));
-        } else {
-            checkBox.setSummary("Distance: n/a");
-        }
-        return checkBox;
-    }
-
     private class LoadTask implements Runnable {
         private final PreferenceCategory list;
         private final char type;
@@ -269,106 +266,124 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         @Override
         public void run() {
             List<CellGroup> col = db.loadCellGroup(String.valueOf(type));
-            //list.removeAll();
+            for (int i = list.getPreferenceCount() - 1; i > 0; i--) {
+                if (!list.getPreference(i).getKey().startsWith("cell.")) {
+                    list.removePreference(list.getPreference(i));
+                }
+            }
             for (final CellGroup group : col) {
-                //final CellGroupPreference groupItem = new CellGroupPreference(list, group, activity);//activity.getPreferenceManager().createPreferenceScreen(activity);
-                final PreferenceScreen groupItem = activity.getPreferenceManager().createPreferenceScreen(activity);
-                groupItem.setTitle(group.getName());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    groupItem.setIcon((group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? R.drawable.ic_checked : R.drawable.ic_unchecked));
-                }
-
-                final PreferenceScreen toggle = activity.getPreferenceManager().createPreferenceScreen(activity);
-                toggle.setTitle((group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? "Group Activated" : "Group Deactivated"));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    toggle.setIcon((group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? R.drawable.ic_checked : R.drawable.ic_unchecked));
-                }
-                toggle.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        if (DBManager.getInstance(activity).toggleCellGroup(group) > 0) {
-                            if (group.getStatus() == CellGroup.STATUS.ENABLED.getValue()) {
-                                group.setStatus(CellGroup.STATUS.DISABLED.getValue());
-                                toggle.setTitle("Group Deactivated");
-                            } else {
-                                group.setStatus(CellGroup.STATUS.ENABLED.getValue());
-                                toggle.setTitle("Group Activated");
-                            }
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                                toggle.setIcon((group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? R.drawable.ic_checked : R.drawable.ic_unchecked));
-                            }
-                        }
-                        return true;
-                    }
-                });
-
-                PreferenceScreen removeGroup = activity.getPreferenceManager().createPreferenceScreen(activity);
-                removeGroup.setTitle("Remove current group");
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    removeGroup.setIcon(R.drawable.ic_close);
-                }
-                removeGroup.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        if (DBManager.getInstance(activity).removeCellGroup(group.getId()) > 0) {
-                            list.removePreference(groupItem);
-                            groupItem.getDialog().dismiss();
-                        }
-                        return true;
-                    }
-                });
-
-                PreferenceScreen add = activity.getPreferenceManager().createPreferenceScreen(activity);
-                add.setTitle("Add cell");
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    add.setIcon(R.drawable.ic_add);
-                }
-
-                final PreferenceScreen remove = activity.getPreferenceManager().createPreferenceScreen(activity);
-                remove.setTitle("Remove cell");
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    remove.setIcon(R.drawable.ic_remove);
-                }
-
-
-                add.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        add(groupItem, group, remove);
-                        return true;
-                    }
-                });
-
-                remove.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        remove(groupItem, remove);
-                        remove.setEnabled(groupItem.getPreferenceCount() > ITEM_COUNT);
-                        return true;
-                    }
-                });
-
-                groupItem.addPreference(toggle);
-                groupItem.addPreference(removeGroup);
-                groupItem.addPreference(add);
-                groupItem.addPreference(remove);
-
-                for (Cellular cellular : db.readCellular(group.getId())) {
-                    if (!cellular.hasLocation()) {
-                        loadLocationFromService(cellular);
-                        db.addOrUpdateCellular(cellular);
-                    }
-                    CheckBoxPreference chk = createCheckBox(cellular, Utils.getBestLocation(activity));
-                    groupItem.addPreference(chk);
-                }
-
-                remove.setEnabled(groupItem.getPreferenceCount() > ITEM_COUNT);
-                list.addPreference(groupItem);
+                loadCellGroup(list, group);
             }
         }
     }
 
-    private boolean remove(PreferenceGroup list, PreferenceScreen remove) {
+    private void loadCellGroup(final PreferenceCategory list, final CellGroup group) {
+        //final CellGroupPreference groupItem = new CellGroupPreference(list, group, activity);//activity.getPreferenceManager().createPreferenceScreen(activity);
+        final PreferenceScreen groupItem = activity.getPreferenceManager().createPreferenceScreen(activity);
+        groupItem.setTitle(group.getName());
+        groupItem.setKey(String.valueOf(group.getId()));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            groupItem.setIcon((group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? R.drawable.ic_checked : R.drawable.ic_unchecked));
+        }
+
+        final PreferenceScreen toggle = activity.getPreferenceManager().createPreferenceScreen(activity);
+        toggle.setTitle((group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? "Group Activated" : "Group Deactivated"));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            toggle.setIcon((group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? R.drawable.ic_checked : R.drawable.ic_unchecked));
+        }
+        toggle.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                if (DBManager.getInstance(activity).toggleCellGroup(group) > 0) {
+                    if (group.getStatus() == CellGroup.STATUS.ENABLED.getValue()) {
+                        group.setStatus(CellGroup.STATUS.DISABLED.getValue());
+                        toggle.setTitle("Group Deactivated");
+                    } else {
+                        group.setStatus(CellGroup.STATUS.ENABLED.getValue());
+                        toggle.setTitle("Group Activated");
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                        toggle.setIcon((group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? R.drawable.ic_checked : R.drawable.ic_unchecked));
+                        groupItem.setIcon((group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? R.drawable.ic_checked : R.drawable.ic_unchecked));
+                        for (int i = 0; i < list.getPreferenceCount(); i++) {
+                            if (list.getPreference(i).getKey().equals(groupItem.getKey())) {
+                                loadGroups();
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+        });
+
+        PreferenceScreen removeGroup = activity.getPreferenceManager().createPreferenceScreen(activity);
+        removeGroup.setTitle("Remove current group");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            removeGroup.setIcon(R.drawable.ic_trash);
+        }
+        removeGroup.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                if (DBManager.getInstance(activity).removeCellGroup(group.getId()) > 0) {
+                    list.removePreference(groupItem);
+                    groupItem.getDialog().dismiss();
+                }
+                return true;
+            }
+        });
+
+        PreferenceScreen add = activity.getPreferenceManager().createPreferenceScreen(activity);
+        add.setTitle("Add current cell");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            add.setIcon(R.drawable.ic_add);
+        }
+
+        final PreferenceScreen remove = activity.getPreferenceManager().createPreferenceScreen(activity);
+        remove.setTitle("Remove selected cell");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            remove.setIcon(R.drawable.ic_remove);
+        }
+
+
+        add.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                addCell(groupItem, group, remove);
+                return true;
+            }
+        });
+
+        remove.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                removeCell(groupItem, remove);
+                remove.setEnabled(groupItem.getPreferenceCount() > ITEM_COUNT);
+                return true;
+            }
+        });
+
+        groupItem.addPreference(toggle);
+        groupItem.addPreference(removeGroup);
+        groupItem.addPreference(add);
+        groupItem.addPreference(remove);
+
+        List<Cellular> cells = db.readCellular(group.getId());
+        for (Cellular cellular : cells) {
+            if (!cellular.hasLocation()) {
+                loadLocationFromService(cellular);
+                //db.addOrUpdateCellular(cellular);  TODO
+            }
+            CheckBoxPreference chk = createCheckBox(cellular, Utils.getBestLocation(activity));
+            groupItem.addPreference(chk);
+        }
+
+        groupItem.setSummary("Cells: " + cells.size());
+
+        remove.setEnabled(groupItem.getPreferenceCount() > ITEM_COUNT);
+        list.addPreference(groupItem);
+    }
+
+    private boolean removeCell(PreferenceGroup list, PreferenceScreen remove) {
         boolean changed = false;
 
         for (int idx = list.getPreferenceCount() - 1; idx >= 0; idx--) {
@@ -388,6 +403,50 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         Toast.makeText(activity, text, Toast.LENGTH_LONG).show();
         remove.setEnabled(list.getPreferenceCount() > ITEM_COUNT);
         return true;
+    }
+
+    private CheckBoxPreference createCheckBox(Cellular current, Location location) {
+        final CheckBoxPreference checkBox = new CheckBoxPreference(activity);
+        String styledText = String.format("<small>CID: </small>%s <small>LAC: </small>%s", current.getCid(), current.getLac());
+        checkBox.setTitle(Html.fromHtml(styledText));
+        checkBox.setKey(String.valueOf(current.getId()));
+        checkBox.setPersistent(false);
+
+        if (current.hasLocation()) {
+            double distance = Utils.calculateDistance(location, current);
+            checkBox.setSummary(Utils.formatDistance(location, distance));
+        } else {
+            checkBox.setSummary("Distance: n/a");
+        }
+        return checkBox;
+    }
+
+    private void loadLocationFromService(Cellular item) {
+        JSONObject json;
+        String url = String.format("http://opencellid.org/cell/get?key=%s&mcc=%d&mnc=%d&lac=%d&cellid=%d&format=json", BuildConfig.OPENCELLID_KEY, item.getMcc(), item.getMnc(), item.getLac(), item.getCid());
+
+        if (!item.hasLocation()) {
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpGet httpget = new HttpGet(url);
+            HttpResponse response;
+            try {
+                response = httpclient.execute(httpget);
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    InputStream inputStream = entity.getContent();
+                    String result = Utils.convertStreamToString(inputStream);
+                    MyLog.d("Load JSON", result);
+                    json = new JSONObject(result);
+                    item.setLon(json.getDouble("lon"));
+                    item.setLat(json.getDouble("lat"));
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                MyLog.e("HttpRequest", e.getMessage());
+            } catch (JSONException e) {
+                MyLog.e("JSONException", e.getMessage());
+            }
+        }
     }
 
     private class MyPhoneStateListener extends PhoneStateListener {

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
 import com.labs.dm.auto_tethering.MyLog;
 
 import java.util.ArrayList;
@@ -213,7 +214,6 @@ public class DBManager extends SQLiteOpenHelper {
         content.put("mcc", cellular.getMcc());
         content.put("mnc", cellular.getMnc());
         content.put("cellgroup", cellular.getCellGroup());
-        //content.put("type", String.valueOf(cellular.getType()));
         content.put("lat", cellular.getLat());
         content.put("lon", cellular.getLon());
         content.put("name", cellular.getName());
@@ -264,7 +264,7 @@ public class DBManager extends SQLiteOpenHelper {
         List<CellGroup> list = new ArrayList<>();
         Cursor cursor = null;
         try {
-            cursor = getReadableDatabase().query(CellGroup.NAME, null, "type=?", new String[]{type}, "type, name", null, null);
+            cursor = getReadableDatabase().query(CellGroup.NAME, null, "type=?", new String[]{type}, "type, name", null, "status desc, name");
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {
@@ -295,5 +295,29 @@ public class DBManager extends SQLiteOpenHelper {
         ContentValues content = new ContentValues();
         content.put("status", group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? CellGroup.STATUS.DISABLED.getValue() : CellGroup.STATUS.ENABLED.getValue());
         return getWritableDatabase().update(CellGroup.NAME, content, "id=" + group.getId(), null);
+    }
+
+    public List<Cellular> readCellular(String type) {
+        List<Cellular> list;
+        Cursor cursor = null;
+        try {
+            cursor = getReadableDatabase().rawQuery("SELECT c.id, c.mcc, c.mnc, c.lac, c.cid, c.lat, c.lon, c.name, c.status FROM CELLULAR c, CELL_GROUP g where c.cellgroup = g.id and g.status = " + CellGroup.STATUS.ENABLED.getValue() + " and g.type='" + type + "'", null);
+            list = new ArrayList<>(cursor.getCount());
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                do {
+                    Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getDouble(5), cursor.getDouble(6), cursor.getString(7), cursor.getInt(8));
+                    p.setId(cursor.getInt(0));
+                    list.add(p);
+                }
+                while (cursor.moveToNext());
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return list;
+
     }
 }

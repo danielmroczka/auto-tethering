@@ -12,7 +12,6 @@ public class Cellular {
     private int mnc;
     private int lac;
     private int cid;
-    private char type;
     private double lat;
     private double lon;
     private String name;
@@ -41,10 +40,6 @@ public class Cellular {
 
     public int getCid() {
         return cid;
-    }
-
-    public char getType() {
-        return type;
     }
 
     public double getLat() {
@@ -76,7 +71,6 @@ public class Cellular {
 
     public Cellular(int mcc, int mnc, int lac, int cid, double lat, double lon, String name, int status) {
         this(mcc, mnc, lac, cid);
-        this.type = type;
         this.lat = lat;
         this.lon = lon;
         this.name = name;
@@ -91,16 +85,13 @@ public class Cellular {
         this.lat = lat;
     }
 
-    public boolean theSame(Cellular other) {
+    @Override
+    public boolean equals(Object object) {
+        if (object == null && !(object instanceof Cellular)) {
+            return false;
+        }
+        Cellular other = (Cellular) object;
         return other != null && other.getLac() == getLac() && other.getCid() == getCid() && other.getMcc() == getMcc() && other.getMnc() == getMnc();
-    }
-
-    public void setType(char type) {
-        this.type = type;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     @Override
@@ -123,4 +114,9 @@ public class Cellular {
     public void setCellGroup(int cellGroup) {
         this.cellGroup = cellGroup;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 }

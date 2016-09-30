@@ -14,6 +14,8 @@ public class AppProperties {
      */
     public static final int MAX_CELLULAR_ITEMS = 20;
 
+    public static final int MAX_CELL_GROUPS_COUNT = 3;
+
     public static final String DEFAULT_IDLE_TETHERING_OFF_TIME = "60";
 
     public static final int TEMPERATURE_LIMIT = 40;
