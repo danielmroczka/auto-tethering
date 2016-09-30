@@ -14,7 +14,6 @@ import android.text.InputFilter;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 
@@ -56,11 +55,11 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
         tempStop.setOnPreferenceChangeListener(changeListener);
         tempStop.getEditText().setFilters(new InputFilter[]{new InputFilterMinMax(0, 100)});
 
-        CheckBoxPreference checkBoxPreference = (CheckBoxPreference) activity.findPreference("temp.monitoring.enable");
+        CheckBoxPreference checkBoxPreference = getCheckBoxPreference("temp.monitoring.enable");
         checkBoxPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if ((Boolean) newValue == false) {
+                if (!((Boolean) newValue)) {
                     activity.sendBroadcast(new Intent(TEMPEARTURE_BELOW_LIMIT));
                 }
                 return true;

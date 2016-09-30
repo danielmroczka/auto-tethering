@@ -16,13 +16,13 @@ import java.util.List;
  */
 
 public class MyLog extends Application {
-    private static DateFormat formatter = DateFormat.getDateTimeInstance(
+    private static final DateFormat formatter = DateFormat.getDateTimeInstance(
             DateFormat.SHORT,
             DateFormat.SHORT);
 
 
     static class Item {
-        int level;
+        final int level;
         String content;
 
         Item(int level, String content) {
