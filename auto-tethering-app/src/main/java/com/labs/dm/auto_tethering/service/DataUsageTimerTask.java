@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
 import android.text.format.DateUtils;
+
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.TetherIntents;
 
