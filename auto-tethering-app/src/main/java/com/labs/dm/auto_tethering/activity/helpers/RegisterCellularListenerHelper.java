@@ -7,8 +7,17 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.*;
-import android.preference.*;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceGroup;
+import android.preference.PreferenceScreen;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -19,6 +28,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
@@ -143,15 +153,23 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
             final MyLocationListener gpsListener = new MyLocationListener("GPS-Provider");
             final MyLocationListener networkListener = new MyLocationListener("Network-Provider");
-            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, gpsListener, Looper.getMainLooper());
-            locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, networkListener, Looper.getMainLooper());
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, gpsListener, Looper.getMainLooper());
+            }
+            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, networkListener, Looper.getMainLooper());
+            }
 
             final Handler myHandler = new Handler(Looper.getMainLooper());
             myHandler.postDelayed(new Runnable() {
                 public void run() {
                     MyLog.i("GPS", "LocationTask stop");
-                    locationManager.removeUpdates(gpsListener);
-                    locationManager.removeUpdates(networkListener);
+                    if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        locationManager.removeUpdates(gpsListener);
+                    }
+                    if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                        locationManager.removeUpdates(networkListener);
+                    }
                     loadGroups();
                 }
             }, 5000);
@@ -447,7 +465,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
     }
 
     private void loadLocationFromService(Cellular item) {
-        new GoogleGeoLocationProvider().send(item);
+        new GoogleGeoLocationProvider().loadLocationFromService(item);
         //new OpenCellIDProvider().loadLocationFromService(item);
     }
 

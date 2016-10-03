@@ -15,6 +15,7 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.SystemClock;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.MyLog;
 
 import java.lang.reflect.Field;
@@ -249,12 +250,17 @@ public class ServiceHelper {
     }
 
     public boolean isBluetoothActive() {
-        return BluetoothAdapter.getDefaultAdapter().isEnabled();
+        if (BluetoothAdapter.getDefaultAdapter() != null) {
+            return BluetoothAdapter.getDefaultAdapter().isEnabled();
+        }
+        return false;
     }
 
     public void setBluetoothStatus(boolean bluetoothStatus) {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothStatus && !mBluetoothAdapter.isEnabled()) {
+        if (mBluetoothAdapter == null) {
+            return;
+        } else if (bluetoothStatus && !mBluetoothAdapter.isEnabled()) {
             mBluetoothAdapter.enable();
         } else if (!bluetoothStatus && mBluetoothAdapter.isEnabled()) {
             mBluetoothAdapter.disable();

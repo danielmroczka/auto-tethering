@@ -4,6 +4,7 @@ import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.db.Cellular;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -29,9 +30,8 @@ public class OpenCellIDProvider {
         if (!item.hasLocation()) {
             HttpClient httpclient = new DefaultHttpClient();
             HttpGet httpget = new HttpGet(url);
-            HttpResponse response;
             try {
-                response = httpclient.execute(httpget);
+                HttpResponse response = httpclient.execute(httpget);
                 HttpEntity entity = response.getEntity();
                 if (entity != null) {
                     InputStream inputStream = entity.getContent();

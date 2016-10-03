@@ -19,6 +19,8 @@ public class Cellular {
     }
 
     /**
+     * Mobile Country Code
+     *
      * @return
      */
     public int getMcc() {
@@ -26,7 +28,7 @@ public class Cellular {
     }
 
     /**
-     * mobileNetworkCode
+     * Mobile Network Code
      * @return
      */
     public int getMnc() {
@@ -34,21 +36,37 @@ public class Cellular {
     }
 
     /**
-     * locationAreaCode
+     * Location Area Code
+     *
      * @return
      */
     public int getLac() {
         return lac;
     }
 
+    /**
+     * Cell ID
+     *
+     * @return
+     */
     public int getCid() {
         return cid;
     }
 
+    /**
+     * GPS Latitude
+     *
+     * @return
+     */
     public double getLat() {
         return lat;
     }
 
+    /**
+     * GPS Longitude
+     *
+     * @return
+     */
     public double getLon() {
         return lon;
     }
@@ -98,10 +116,20 @@ public class Cellular {
         return cid + "/" + lac;
     }
 
+    /**
+     * Returns true when GPS Location has been set
+     *
+     * @return
+     */
     public boolean hasLocation() {
         return lon != 0 && lat != 0;
     }
 
+    /**
+     * Returns true when Cellular Info is complete
+     *
+     * @return
+     */
     public boolean isValid() {
         return cid > 0 && lac > 0 && mnc > 0 && mcc > 0;
     }
