@@ -18,14 +18,25 @@ public class Cellular {
         return id;
     }
 
+    /**
+     * @return
+     */
     public int getMcc() {
         return mcc;
     }
 
+    /**
+     * mobileNetworkCode
+     * @return
+     */
     public int getMnc() {
         return mnc;
     }
 
+    /**
+     * locationAreaCode
+     * @return
+     */
     public int getLac() {
         return lac;
     }

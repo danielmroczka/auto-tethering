@@ -7,17 +7,8 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.SystemClock;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceGroup;
-import android.preference.PreferenceScreen;
+import android.os.*;
+import android.preference.*;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -28,9 +19,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.AppProperties;
-import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
@@ -38,16 +27,6 @@ import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.CellGroup;
 import com.labs.dm.auto_tethering.db.Cellular;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import static android.content.Context.LOCATION_SERVICE;
@@ -467,31 +446,8 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
     }
 
     private void loadLocationFromService(Cellular item) {
-        JSONObject json;
-        String url = String.format("http://opencellid.org/cell/get?key=%s&mcc=%d&mnc=%d&lac=%d&cellid=%d&format=json", BuildConfig.OPENCELLID_KEY, item.getMcc(), item.getMnc(), item.getLac(), item.getCid());
-
-        if (!item.hasLocation()) {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpGet httpget = new HttpGet(url);
-            HttpResponse response;
-            try {
-                response = httpclient.execute(httpget);
-                HttpEntity entity = response.getEntity();
-                if (entity != null) {
-                    InputStream inputStream = entity.getContent();
-                    String result = Utils.convertStreamToString(inputStream);
-                    MyLog.d("Load JSON", result);
-                    json = new JSONObject(result);
-                    item.setLon(json.getDouble("lon"));
-                    item.setLat(json.getDouble("lat"));
-                    inputStream.close();
-                }
-            } catch (IOException e) {
-                MyLog.e("HttpRequest", e.getMessage());
-            } catch (JSONException e) {
-                MyLog.e("JSONException", e.getMessage());
-            }
-        }
+        new GoogleGeoLocationProvider().send(item);
+        //new OpenCellIDProvider().loadLocationFromService(item);
     }
 
     private class MyPhoneStateListener extends PhoneStateListener {
