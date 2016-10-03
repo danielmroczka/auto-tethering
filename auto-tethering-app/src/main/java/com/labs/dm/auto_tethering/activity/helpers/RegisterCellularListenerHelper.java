@@ -26,6 +26,7 @@ import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.CellGroup;
 import com.labs.dm.auto_tethering.db.Cellular;
+import com.labs.dm.auto_tethering.provider.GoogleGeoLocationProvider;
 
 import java.util.List;
 
