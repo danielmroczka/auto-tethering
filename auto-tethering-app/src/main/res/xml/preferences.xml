@@ -153,6 +153,12 @@
             android:key="force.net.from.notify"
             android:summary="Connect to internet if tethering triggered from notification"
             android:title="Activate mobile data" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_info"
+            android:key="vibrate.on.tethering"
+            android:summary="Vibrate on tethering state change"
+            android:title="Vibrate" />
     </PreferenceScreen>
 
     <PreferenceScreen
