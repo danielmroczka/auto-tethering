@@ -1,15 +1,9 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.content.SharedPreferences;
-import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
+import android.preference.*;
 import android.text.InputFilter;
 import android.text.Spanned;
-
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.DBManager;
@@ -37,7 +31,7 @@ public abstract class AbstractRegisterHelper {
 
     }
 
-    protected Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
+    protected final Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
         public boolean onPreferenceChange(Preference preference, Object newValue) {
             preference.setSummary((String) newValue);
             return true;
@@ -46,7 +40,8 @@ public abstract class AbstractRegisterHelper {
 
     protected class InputFilterMinMax implements InputFilter {
 
-        private int min, max;
+        private final int min;
+        private final int max;
 
         public InputFilterMinMax(int min, int max) {
             this.min = min;

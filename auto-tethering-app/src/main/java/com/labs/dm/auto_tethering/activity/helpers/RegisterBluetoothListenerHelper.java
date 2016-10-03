@@ -13,7 +13,6 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
@@ -104,7 +103,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                                                 Preference ps = new CheckBoxPreference(activity);
                                                 ps.setTitle(name);
                                                 category.addPreference(ps);
-                                                (activity.findPreference("bt.remove.device")).setEnabled(category.getPreferenceCount() > 2);
+                                                getPreferenceScreen("bt.remove.device").setEnabled(category.getPreferenceCount() > 2);
                                             }
                                         }
                                         dialog.dismiss();
@@ -190,6 +189,6 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
             }
         }
 
-        activity.findPreference("bt.remove.device").setEnabled(pc.getPreferenceCount() > 2);
+        getPreferenceScreen("bt.remove.device").setEnabled(pc.getPreferenceCount() > 2);
     }
 }

@@ -13,14 +13,12 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Cellular;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -131,9 +129,9 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     private class AddTask extends AsyncTask<Void, Void, Void> {
 
-        private PreferenceCategory list;
-        private PreferenceScreen remove;
-        private char type;
+        private final PreferenceCategory list;
+        private final PreferenceScreen remove;
+        private final char type;
 
         public AddTask(PreferenceCategory list, PreferenceScreen remove, char type) {
             this.list = list;

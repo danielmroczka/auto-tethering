@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.SimCard;
@@ -36,7 +35,7 @@ public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
         final String ssn = tMgr.getSimSerialNumber();
         boolean status = db.isOnWhiteList(ssn);
 
-        PreferenceScreen addSimCard = (PreferenceScreen) activity.findPreference("add.current.simcard");
+        PreferenceScreen addSimCard = getPreferenceScreen("add.current.simcard");
         addSimCard.setEnabled(!status);
         final String[] number = {""};
         addSimCard.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -71,7 +70,7 @@ public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
             }
         });
 
-        final PreferenceScreen removeSimCard = (PreferenceScreen) activity.findPreference("remove.simcard");
+        final PreferenceScreen removeSimCard = getPreferenceScreen("remove.simcard");
         removeSimCard.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -81,7 +80,7 @@ public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
                     if (pref instanceof CheckBoxPreference) {
                         boolean status = ((CheckBoxPreference) pref).isChecked();
                         if (status) {
-                            String ssn = pref.getKey().toString();
+                            String ssn = pref.getKey();
                             if (db.removeSimCard(ssn) > 0) {
                                 pc.removePreference(pref);
                                 removeSimCard.setEnabled(pc.getPreferenceCount() > 2);
@@ -129,7 +128,7 @@ public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
         }
 
         PreferenceScreen ps = getPreferenceScreen("add.current.simcard");
-        activity.findPreference("remove.simcard").setEnabled(pc.getPreferenceCount() > 2);
+        getPreferenceScreen("remove.simcard").setEnabled(pc.getPreferenceCount() > 2);
         ps.setEnabled(true);
     }
 }
