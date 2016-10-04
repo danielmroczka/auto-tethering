@@ -381,6 +381,16 @@
                 android:title="Resume tethering" />
         </PreferenceScreen>
 
+        <PreferenceScreen
+                android:icon="@drawable/ic_wifi_on"
+                android:summary="Deactivate on WiFi networks"
+                android:title="WiFi activation">
+            <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="wifi.connected.block.tethering"
+                    android:summary="Block tethering while connected to WiFi network"
+                    android:title="Block tethering"/>
+        </PreferenceScreen>
         <!--
                 <PreferenceScreen
                         android:enabled="false"
