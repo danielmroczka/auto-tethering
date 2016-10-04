@@ -362,6 +362,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 prefs.edit().clear().apply();
+                                prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
                                 db.removeAllData();
                                 prepareSimCardWhiteList();
                                 prepareScheduleList();
@@ -369,8 +370,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                             }
                         })
                         .setNegativeButton(R.string.no, null).show();
-
-
                 return true;
             case R.id.action_exit:
                 if (prefs.getBoolean(ACTIVATE_KEEP_SERVICE, true)) {

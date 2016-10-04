@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,10 +17,7 @@ import java.util.List;
  */
 
 public class MyLog extends Application {
-    private static final DateFormat formatter = DateFormat.getDateTimeInstance(
-            DateFormat.SHORT,
-            DateFormat.SHORT);
-
+    private static final DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
 
     static class Item {
         final int level;

@@ -24,6 +24,11 @@ public class AppProperties {
 
     public static final int GPS_ACCURACY_LIMIT = 10;
 
+    /**
+     * Time when GPS request update has been switched off
+     */
+    public static final int GPS_UPDATE_TIMEOUT = 5000; //ms
+
     public static final String ACTIVATE_ON_STARTUP = "activate.on.startup";
     public static final String ACTIVATE_KEEP_SERVICE = "activate.keep.service";
     public static final String ACTIVATE_3G = "activate.3g";
