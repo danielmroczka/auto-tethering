@@ -7,17 +7,8 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.SystemClock;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceGroup;
-import android.preference.PreferenceScreen;
+import android.os.*;
+import android.preference.*;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -28,7 +19,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
@@ -320,6 +310,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         final PreferenceScreen toggle = activity.getPreferenceManager().createPreferenceScreen(activity);
         setIcon(toggle, group);
         setTitle(toggle, group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? "Group enabled" : "Group disabled");
+        toggle.setSummary(group.getStatus() == CellGroup.STATUS.ENABLED.getValue() ? "Tap to disable group" : "Tap to enable group");
         toggle.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -327,9 +318,11 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                     if (group.getStatus() == CellGroup.STATUS.ENABLED.getValue()) {
                         group.setStatus(CellGroup.STATUS.DISABLED.getValue());
                         toggle.setTitle("Group disabled");
+                        toggle.setSummary("Tap to enable group");
                     } else {
                         group.setStatus(CellGroup.STATUS.ENABLED.getValue());
                         toggle.setTitle("Group enabled");
+                        toggle.setSummary("Tap to disable group");
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                         setIcon(toggle, group);
@@ -342,7 +335,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         });
 
         PreferenceScreen removeGroup = activity.getPreferenceManager().createPreferenceScreen(activity);
-        removeGroup.setTitle("Remove current group");
+        removeGroup.setTitle("Remove group: " + group.getName());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             removeGroup.setIcon(R.drawable.ic_trash);
         }
@@ -398,10 +391,17 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             }
         });
 
-        groupItem.addPreference(toggle);
-        groupItem.addPreference(removeGroup);
-        groupItem.addPreference(add);
-        groupItem.addPreference(remove);
+        PreferenceCategory groupCategory = new PreferenceCategory(activity);
+        groupCategory.setTitle("Group operations");
+        PreferenceCategory cellCategory = new PreferenceCategory(activity);
+        cellCategory.setTitle("Cellular network list");
+        groupItem.addPreference(groupCategory);
+        groupItem.addPreference(cellCategory);
+
+        groupCategory.addPreference(toggle);
+        groupCategory.addPreference(removeGroup);
+        cellCategory.addPreference(add);
+        cellCategory.addPreference(remove);
 
         Location location = Utils.getBestLocation(activity);
         List<Cellular> cells = db.readCellular(group.getId());
@@ -411,7 +411,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                 db.addOrUpdateCellular(cellular);
             }
             CheckBoxPreference chk = createCheckBox(cellular, location);
-            groupItem.addPreference(chk);
+            cellCategory.addPreference(chk);
         }
 
         groupItem.setSummary("Cells: " + cells.size());

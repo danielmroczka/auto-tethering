@@ -1,35 +1,17 @@
 package com.labs.dm.auto_tethering.activity;
 
-import android.app.AlarmManager;
-import android.app.AlertDialog;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.app.*;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.preference.*;
+import android.view.*;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.Toast;
-
-import com.labs.dm.auto_tethering.BuildConfig;
-import com.labs.dm.auto_tethering.ListenerManager;
-import com.labs.dm.auto_tethering.LogActivity;
-import com.labs.dm.auto_tethering.MyLog;
-import com.labs.dm.auto_tethering.R;
-import com.labs.dm.auto_tethering.TetherIntents;
+import com.labs.dm.auto_tethering.*;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterAddSimCardListenerHelper;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterSchedulerListenerHelper;
 import com.labs.dm.auto_tethering.db.DBManager;
@@ -41,14 +23,7 @@ import java.text.Format;
 import java.util.Date;
 import java.util.Map;
 
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
-import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
-import static com.labs.dm.auto_tethering.AppProperties.SSID;
+import static com.labs.dm.auto_tethering.AppProperties.*;
 
 /**
  * Created by Daniel Mroczka
@@ -321,6 +296,52 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 }
             }
         });
+    }
+
+    @Override
+    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+        super.onPreferenceTreeClick(preferenceScreen, preference);
+
+        if (preference instanceof PreferenceScreen) {
+            initializeActionBar((PreferenceScreen) preference);
+        }
+
+        return false;
+    }
+
+    private void initializeActionBar(PreferenceScreen preferenceScreen) {
+        final Dialog dialog = preferenceScreen.getDialog();
+
+        if (dialog != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                dialog.getActionBar().setDisplayHomeAsUpEnabled(true);
+            }
+
+            View homeBtn = dialog.findViewById(android.R.id.home);
+
+            if (homeBtn != null) {
+                View.OnClickListener dismissDialogClickListener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                };
+
+                ViewParent homeBtnContainer = homeBtn.getParent();
+
+                if (homeBtnContainer instanceof FrameLayout) {
+                    ViewGroup containerParent = (ViewGroup) homeBtnContainer.getParent();
+
+                    if (containerParent instanceof LinearLayout) {
+                        containerParent.setOnClickListener(dismissDialogClickListener);
+                    } else {
+                        ((FrameLayout) homeBtnContainer).setOnClickListener(dismissDialogClickListener);
+                    }
+                } else {
+                    homeBtn.setOnClickListener(dismissDialogClickListener);
+                }
+            }
+        }
     }
 
     @Override
