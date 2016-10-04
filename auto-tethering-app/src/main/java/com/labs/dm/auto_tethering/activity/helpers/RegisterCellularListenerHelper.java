@@ -392,7 +392,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         remove.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                removeCell(groupItem, group, remove);
+                removeCell(groupItem, remove);
                 remove.setEnabled(groupItem.getPreferenceCount() > ITEM_COUNT);
                 return true;
             }
@@ -403,13 +403,14 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         groupItem.addPreference(add);
         groupItem.addPreference(remove);
 
+        Location location = Utils.getBestLocation(activity);
         List<Cellular> cells = db.readCellular(group.getId());
         for (Cellular cellular : cells) {
             if (!cellular.hasLocation()) {
                 loadLocationFromService(cellular);
                 db.addOrUpdateCellular(cellular);
             }
-            CheckBoxPreference chk = createCheckBox(cellular, Utils.getBestLocation(activity));
+            CheckBoxPreference chk = createCheckBox(cellular, location);
             groupItem.addPreference(chk);
         }
 
@@ -423,7 +424,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         toggle.setTitle(title);
     }
 
-    private boolean removeCell(PreferenceGroup list, CellGroup cellGroup, PreferenceScreen remove) {
+    private boolean removeCell(PreferenceGroup list, PreferenceScreen remove) {
         boolean changed = false;
 
         for (int idx = list.getPreferenceCount() - 1; idx >= 0; idx--) {
