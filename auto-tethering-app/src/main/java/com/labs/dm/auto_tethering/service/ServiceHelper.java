@@ -15,6 +15,7 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.SystemClock;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.MyLog;
 
 import java.lang.reflect.Field;
@@ -96,9 +97,18 @@ public class ServiceHelper {
      *
      * @return
      */
-    public boolean isConnectedToInternet() {
+    public boolean isConnectedToInternetThroughMobile() {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         return cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnected();
+    }
+
+    public boolean isConnectedToInternetThroughWiFi() {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected();
+    }
+
+    public boolean isConnectedtToInternet() {
+        return isConnectedToInternetThroughMobile() || isConnectedToInternetThroughWiFi();
     }
 
     /**

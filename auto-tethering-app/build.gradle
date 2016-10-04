@@ -32,13 +32,16 @@ android {
             zipAlignEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
+            buildConfigField "String", "GOOGLE_API_KEY", getMyApiKey("GOOGLE_API_KEY_RELEASE")
         }
         debug {
             debuggable true
+            buildConfigField "String", "GOOGLE_API_KEY", getMyApiKey("GOOGLE_API_KEY_DEBUG")
         }
         coverage {
             debuggable true
             testCoverageEnabled = true
+            buildConfigField "String", "GOOGLE_API_KEY", getMyApiKey("GOOGLE_API_KEY_DEBUG")
         }
     }
 

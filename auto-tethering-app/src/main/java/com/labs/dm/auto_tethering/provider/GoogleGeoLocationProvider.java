@@ -9,11 +9,12 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,25 +30,20 @@ public class GoogleGeoLocationProvider {
 
     public void loadLocationFromService(Cellular item) {
         JSONObject json;
-        int TIMEOUT_MILLISEC = 10000;
+        int TIMEOUT = 5000;
 
         try {
-            JSONObject cell = new JSONObject();
-            JSONObject root = new JSONObject();
-            cell.put("cellId", item.getCid());
-            cell.put("locationAreaCode", item.getLac());
-            cell.put("mobileCountryCode", item.getMcc());
-            cell.put("mobileNetworkCode", item.getMnc());
-            root.put("cellTowers", cell);
+            JSONObject root = buildJSON(item);
 
             HttpParams httpParams = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(httpParams, TIMEOUT_MILLISEC);
-            HttpConnectionParams.setSoTimeout(httpParams, TIMEOUT_MILLISEC);
+            HttpConnectionParams.setConnectionTimeout(httpParams, TIMEOUT);
+            HttpConnectionParams.setSoTimeout(httpParams, TIMEOUT);
             HttpClient client = new DefaultHttpClient(httpParams);
 
+            StringEntity params = new StringEntity(root.toString());
             HttpPost request = new HttpPost(url);
-            request.setEntity(new ByteArrayEntity(root.toString().getBytes("UTF8")));
-
+            request.setEntity(params);
+            request.addHeader("content-type", "application/json");
             HttpResponse response = client.execute(request);
             HttpEntity entity = response.getEntity();
             if (entity != null) {
@@ -64,5 +60,18 @@ public class GoogleGeoLocationProvider {
         } catch (JSONException e) {
             MyLog.e("JSONException", e.getMessage());
         }
+    }
+
+    private JSONObject buildJSON(Cellular item) throws JSONException {
+        JSONObject cell = new JSONObject();
+        JSONArray root2 = new JSONArray();
+        cell.put("cellId", item.getCid());
+        cell.put("locationAreaCode", item.getLac());
+        cell.put("mobileCountryCode", item.getMcc());
+        cell.put("mobileNetworkCode", item.getMnc());
+        root2.put(cell);
+        JSONObject root = new JSONObject();
+        root.put("cellTowers", root2);
+        return root;
     }
 }

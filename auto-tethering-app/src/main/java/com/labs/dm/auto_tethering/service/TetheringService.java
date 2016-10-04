@@ -162,7 +162,7 @@ public class TetheringService extends IntentService {
     }
 
     private void init() {
-        initial3GStatus = serviceHelper.isConnectedToInternet();
+        initial3GStatus = serviceHelper.isConnectedToInternetThroughMobile();
         initialTetheredStatus = serviceHelper.isTetheringWiFi();
         initialBluetoothStatus = serviceHelper.isBluetoothActive();
     }
@@ -201,7 +201,7 @@ public class TetheringService extends IntentService {
 
         while (flag) {
             try {
-                boolean connected3G = serviceHelper.isConnectedToInternet();
+                boolean connected3G = serviceHelper.isConnectedToInternetThroughMobile();
                 boolean tethered = serviceHelper.isTetheringWiFi();
                 checkCellular();
 
@@ -251,7 +251,7 @@ public class TetheringService extends IntentService {
                         }
                     }
                 } else if (forceOn) {
-                    if (!serviceHelper.isConnectedToInternet()) {
+                    if (!serviceHelper.isConnectedToInternetThroughMobile()) {
                         execute(INTERNET_ON);
                     }
                     if (!serviceHelper.isTetheringWiFi()) {
@@ -454,7 +454,7 @@ public class TetheringService extends IntentService {
      * @return true if changed the state or false if not
      */
     private boolean internetAsyncTask(boolean state) {
-        if (serviceHelper.isConnectedToInternet() == state) {
+        if (serviceHelper.isConnectedToInternetThroughMobile() == state) {
             return false;
         }
 
@@ -522,7 +522,7 @@ public class TetheringService extends IntentService {
     }
 
     private int getNotifcationIcon() {
-        return serviceHelper.isTetheringWiFi() ? serviceHelper.isConnectedToInternet() ? R.drawable.app_on : R.drawable.app_yellow : R.drawable.app_off;
+        return serviceHelper.isTetheringWiFi() ? serviceHelper.isConnectedToInternetThroughMobile() ? R.drawable.app_on : R.drawable.app_yellow : R.drawable.app_off;
     }
 
     private Notification buildNotification(String caption, int icon) {
@@ -861,12 +861,12 @@ public class TetheringService extends IntentService {
                 icon = R.drawable.app_yellow;
             }
         } else if (!serviceAction.isOn()) {
-            if ((serviceAction.isTethering() && !serviceHelper.isConnectedToInternet()) || (serviceAction.isInternet() && !serviceHelper.isTetheringWiFi())) {
+            if ((serviceAction.isTethering() && !serviceHelper.isConnectedToInternetThroughMobile()) || (serviceAction.isInternet() && !serviceHelper.isTetheringWiFi())) {
                 icon = R.drawable.app_off;
             } else {
                 icon = R.drawable.app_yellow;
             }
-        } else if (serviceHelper.isConnectedToInternet() && serviceHelper.isTetheringWiFi()) {
+        } else if (serviceHelper.isConnectedToInternetThroughMobile() && serviceHelper.isTetheringWiFi()) {
             icon = R.drawable.app_on;
         }
         return icon;
