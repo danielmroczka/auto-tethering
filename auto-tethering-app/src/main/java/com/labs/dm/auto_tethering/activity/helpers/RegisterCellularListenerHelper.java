@@ -7,17 +7,8 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.SystemClock;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceGroup;
-import android.preference.PreferenceScreen;
+import android.os.*;
+import android.preference.*;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -28,7 +19,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
@@ -196,7 +186,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             if (!current.isValid()) {
                 Utils.showToast(activity, "Cannot retrieve Cellular network info.\nPlease check the network access and try again");
                 return null;
-            } else if (list.getPreferenceCount() > MAX_CELLULAR_ITEMS + 2) {
+            } else if (list.getPreferenceCount() >= MAX_CELLULAR_ITEMS + 2) {
                 Utils.showToast(activity, "Exceeded the limit of max. " + MAX_CELLULAR_ITEMS + " configured networks!");
                 return null;
             }
@@ -325,11 +315,8 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if (db.removeCellGroup(group.getId()) > 0) {
-                                    Preference p = list.findPreference(String.valueOf(group.getId()));
-                                    if (p != null) {
-                                        list.removePreference(p);
-                                        groupItem.getDialog().dismiss();
-                                    }
+                                    loadGroups();
+                                    groupItem.getDialog().dismiss();
                                 }
                             }
                         })
