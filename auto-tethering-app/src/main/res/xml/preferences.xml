@@ -168,8 +168,7 @@
         <PreferenceScreen
             android:icon="@drawable/ic_usb"
             android:summary="Activates tethering on USB/AC connection"
-            android:title="USB/AC acti
-            vation">
+            android:title="USB/AC activation">
             <CheckBoxPreference
                 android:icon="@drawable/ic_usb"
                 android:key="usb.only.when.connected"
