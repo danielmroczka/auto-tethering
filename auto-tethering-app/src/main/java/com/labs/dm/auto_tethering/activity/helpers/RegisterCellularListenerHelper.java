@@ -7,8 +7,17 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.*;
-import android.preference.*;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceGroup;
+import android.preference.PreferenceScreen;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -19,6 +28,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
@@ -283,7 +293,6 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                         group.setStatus(CellGroup.STATUS.DISABLED.getValue());
                         toggle.setTitle("Group disabled");
                         toggle.setSummary("Tap to enable group");
-                        //list.findPreference(String.valueOf(group.getId())).se
                     } else {
                         group.setStatus(CellGroup.STATUS.ENABLED.getValue());
                         toggle.setTitle("Group enabled");
@@ -401,7 +410,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
     }
 
     private boolean removeCell(PreferenceGroup list, PreferenceScreen remove) {
-        boolean changed = false;
+        int changed = 0;
 
         for (int idx = list.getPreferenceCount() - 1; idx >= 0; idx--) {
             Preference pref = list.getPreference(idx);
@@ -410,14 +419,13 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                 if (status && !pref.getKey().startsWith("cell")) {
                     if (db.removeCellular(pref.getKey()) > 0) {
                         list.removePreference(pref);
-                        changed = true;
+                        changed++;
                     }
                 }
             }
         }
-
-        String text = changed ? "Cellular network has been removed" : "Please select any item";
-        if (changed) {
+        String text = changed == 0 ? "Please select any item" : (changed > 1) ? changed + " cellular networks have been removed" : "Cellular network has been removed";
+        if (changed > 0) {
             loadGroups();
         }
         Toast.makeText(activity, text, Toast.LENGTH_LONG).show();

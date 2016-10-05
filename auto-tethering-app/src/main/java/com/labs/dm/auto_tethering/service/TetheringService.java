@@ -289,7 +289,7 @@ public class TetheringService extends IntentService {
     private void checkCellular() {
         Cellular current = Utils.getCellInfo(getApplicationContext());
 
-        if (!serviceHelper.isTetheringWiFi() && onActivationList("A", current)) {
+        if (!serviceHelper.isTetheringWiFi() && onActivationList("A", current) && usb()) {
             execute(CELL_INTERNET_TETHERING_ON);
         } else if (serviceHelper.isTetheringWiFi() && onActivationList("D", current)) {
             execute(CELL_INTERNET_TETHERING_OFF);
