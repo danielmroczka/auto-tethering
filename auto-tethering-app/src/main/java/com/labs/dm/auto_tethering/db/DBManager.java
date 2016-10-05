@@ -82,9 +82,10 @@ public class DBManager extends SQLiteOpenHelper {
         MyLog.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
     }
 
+
     @Override
-    public void onOpen(SQLiteDatabase db) {
-        super.onOpen(db);
+    public void onConfigure(SQLiteDatabase db) {
+        super.onConfigure(db);
         db.execSQL("PRAGMA foreign_keys=ON");
     }
 

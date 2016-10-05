@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.preference.Preference;
-
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.activity.MainActivity;
@@ -36,7 +35,6 @@ public class RegisterDataLimitListenerHelper extends AbstractRegisterHelper {
                                 long dataUsage = ServiceHelper.getDataUsage();
                                 prefs.edit().putLong("data.usage.reset.value", dataUsage).apply();
                                 prefs.edit().putLong("data.usage.last.value", dataUsage).apply();
-                                //prefs.edit().putLong("data.usage.reset.timestamp", System.currentTimeMillis()).apply();
                                 prefs.edit().putLong("data.usage.removeAllData.timestamp", System.currentTimeMillis()).apply();
                                 Intent intent = new Intent(TetherIntents.DATA_USAGE);
                                 activity.sendBroadcast(intent);
