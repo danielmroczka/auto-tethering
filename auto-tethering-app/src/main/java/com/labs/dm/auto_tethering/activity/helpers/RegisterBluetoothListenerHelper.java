@@ -39,7 +39,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 prepareBTList();
-                return false;
+                return true;
             }
         });
 
@@ -173,6 +173,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
     }
 
     private void prepareBTList() {
+        clean();
         PreferenceCategory pc = getPreferenceCategory("bt.list");
         Set<BluetoothDevice> bondedDevices = new ServiceHelper(activity).getBondedDevices();
         List<Bluetooth> preferredDevices = db.readBluetooth();
@@ -183,7 +184,6 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                 ps.setTitle(device.getName());
                 ps.setKey(String.valueOf(device.getId()));
                 ps.setPersistent(false);
-                Toast.makeText(activity, "Device " + device.getName() + " is no longer paired.\nActivation on this device won't work.\nPlease pair devices again", Toast.LENGTH_LONG);
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                     boolean found = false;
                     for (BluetoothDevice bd : bondedDevices) {
@@ -203,4 +203,15 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
 
         getPreferenceScreen("bt.remove.device").setEnabled(pc.getPreferenceCount() > 2);
     }
+
+    private void clean() {
+        PreferenceCategory p = getPreferenceCategory("bt.list");
+        for (int idx = p.getPreferenceCount() - 1; idx >= 0; idx--) {
+            Preference pref = p.getPreference(idx);
+            if (pref instanceof CheckBoxPreference) {
+                p.removePreference(pref);
+            }
+        }
+    }
 }
+
