@@ -144,14 +144,12 @@ class BluetoothTask {
                 alreadyConnected = true;
                 MyLog.d(TAG, "Already connected to " + device.getName());
             }
-            try {
-                if (!alreadyConnected) {
+            if (!alreadyConnected) {
+                try {
                     prefs.edit().putLong("bt.last.connect." + device.getName(), System.currentTimeMillis()).apply();
                     socket.connect();
                     MyLog.d(TAG, "Connected to " + device.getName());
-                }
-            } finally {
-                if (!alreadyConnected) {
+                } finally {
                     socket.close();
                 }
             }

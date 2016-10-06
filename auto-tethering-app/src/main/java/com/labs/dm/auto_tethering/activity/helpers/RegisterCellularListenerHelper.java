@@ -7,28 +7,19 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.SystemClock;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceGroup;
-import android.preference.PreferenceScreen;
+import android.os.*;
+import android.preference.*;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
@@ -88,7 +79,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         LayoutInflater li = LayoutInflater.from(activity);
         View promptsView = li.inflate(R.layout.cellgroup_prompt, null);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Provide group name");
         final EditText input = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
@@ -105,22 +96,26 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String groupName = input.getText().toString();
-                CellGroup cellGroup = new CellGroup(groupName, type, CellGroup.STATUS.ENABLED.getValue());
-                long res = db.addOrUpdateCellGroup(cellGroup);
-                if (res > 0) {
-                    cellGroup.setId((int) res);
-                    final PreferenceScreen groupItem = activity.getPreferenceManager().createPreferenceScreen(activity);
-                    groupItem.setTitle(cellGroup.getName());
-                    setIcon(groupItem, cellGroup);
-                    new Thread(new LoadCellGroupTask(list, type)).start();
+                if (!TextUtils.isEmpty(groupName)) {
+                    CellGroup cellGroup = new CellGroup(groupName, type, CellGroup.STATUS.ENABLED.getValue());
+                    long res = db.addOrUpdateCellGroup(cellGroup);
+                    if (res > 0) {
+                        cellGroup.setId((int) res);
+                        final PreferenceScreen groupItem = activity.getPreferenceManager().createPreferenceScreen(activity);
+                        groupItem.setTitle(cellGroup.getName());
+                        setIcon(groupItem, cellGroup);
+                        new Thread(new LoadCellGroupTask(list, type)).start();
+                    } else {
+                        Toast.makeText(activity, "Please provide unique group name", Toast.LENGTH_LONG).show();
+                    }
                 } else {
-                    Toast.makeText(activity, "Please provide unique group name", Toast.LENGTH_LONG).show();
+                    Toast.makeText(activity, "Group name should not be empty!", Toast.LENGTH_LONG).show();
                 }
             }
         });
         builder.setNegativeButton("Cancel", null);
-
         builder.show();
+
         return true;
     }
 
