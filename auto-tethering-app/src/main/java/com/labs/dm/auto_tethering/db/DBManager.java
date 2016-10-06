@@ -56,7 +56,7 @@ public class DBManager extends SQLiteOpenHelper {
         db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
         db.execSQL("create unique index CELLULAR_UNIQUE_IDX on cellular(mcc, mnc, lac, cid, cellgroup)");
         db.execSQL("create unique index CELL_GROUP_UNIQUE_IDX on cell_group(name, type)");
-        db.execSQL("create unique index BLUETOOTH_UNIQUE_IDX on bluetooth(address)");
+        db.execSQL("create unique index BLUETOOTH_UNIQUE_IDX on bluetooth(name)");
     }
 
     @Override
@@ -81,10 +81,11 @@ public class DBManager extends SQLiteOpenHelper {
             db.execSQL("create unique index CELL_GROUP_UNIQUE_IDX on cell_group(name, type)");
         } else if (oldVersion < 6) {
             // CREATE TABLE
+            db.execSQL("drop table IF EXISTS BLUETOOTH");
             db.execSQL("create table BLUETOOTH(id INTEGER PRIMARY KEY, name VARCHAR(40), address VARCHAR(20), used datetime, status INTEGER)");
             // CREATE INDEX
-            db.execSQL("create unique index BLUETOOTH_UNIQUE_IDX on bluetooth(address)");
-            importBluetooth();
+            db.execSQL("create unique index BLUETOOTH_UNIQUE_IDX on bluetooth(name)");
+            importBluetooth(db);
         }
         MyLog.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
     }
@@ -393,13 +394,18 @@ public class DBManager extends SQLiteOpenHelper {
         return addOrUpdate(bluetooth.getId(), Bluetooth.NAME, content);
     }
 
-    private void importBluetooth() {
+    private void importBluetooth(SQLiteDatabase db) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         Map<String, ?> map = prefs.getAll();
         for (Map.Entry<String, ?> entry : map.entrySet()) {
             if (entry.getKey().startsWith("bt.devices.")) {
                 Bluetooth bluetooth = new Bluetooth((String) entry.getValue(), "");
-                addOrUpdateBluetooth(bluetooth);
+                ContentValues content = new ContentValues();
+                content.put("name", bluetooth.getName());
+                db.insert(Bluetooth.NAME, null, content);
+                prefs.edit().remove(entry.getKey()).commit();
+            }
+            if (entry.getKey().startsWith("bt.last.connect")) {
                 prefs.edit().remove(entry.getKey()).commit();
             }
         }
