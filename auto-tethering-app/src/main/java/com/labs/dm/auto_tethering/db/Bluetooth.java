@@ -17,7 +17,6 @@ public class Bluetooth {
 
     private int status;
 
-
     public Bluetooth(String name, String address) {
         this.name = name;
         this.address = address;

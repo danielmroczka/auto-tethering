@@ -50,7 +50,7 @@ public class DBManager extends SQLiteOpenHelper {
         db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
         db.execSQL("create table CELL_GROUP(id INTEGER PRIMARY KEY, name TEXT, type TEXT, status INTEGER)");
         db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, lat REAL, lon REAL, cellgroup INTEGER, status INTEGER, FOREIGN KEY(cellgroup) REFERENCES CELL_GROUP(id) ON DELETE CASCADE)");
-        db.execSQL("create table BLUETOOTH(id INTEGER PRIMARY KEY, name VARCHAR(40), address VARCHAR(20), used datetime, type, INTEGER, status INTEGER)");
+        db.execSQL("create table BLUETOOTH(id INTEGER PRIMARY KEY, name VARCHAR(40), address VARCHAR(20), used datetime, status INTEGER)");
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
         db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
@@ -82,7 +82,7 @@ public class DBManager extends SQLiteOpenHelper {
         } else if (oldVersion < 6) {
             // CREATE TABLE
             db.execSQL("drop table IF EXISTS BLUETOOTH");
-            db.execSQL("create table BLUETOOTH(id INTEGER PRIMARY KEY, name VARCHAR(40), address VARCHAR(20), used datetime, type, INTEGER, status INTEGER)");
+            db.execSQL("create table BLUETOOTH(id INTEGER PRIMARY KEY, name VARCHAR(40), address VARCHAR(20), used datetime, status INTEGER)");
             // CREATE INDEX
             db.execSQL("create unique index BLUETOOTH_UNIQUE_IDX on bluetooth(name)");
             importBluetooth(db);
@@ -362,7 +362,7 @@ public class DBManager extends SQLiteOpenHelper {
         List<Bluetooth> list;
         Cursor cursor = null;
         try {
-            cursor = getReadableDatabase().rawQuery("SELECT id, name, address FROM BLUETOOTH order by used", null);
+            cursor = getReadableDatabase().rawQuery("SELECT id, name, address FROM BLUETOOTH order by used desc", null);
             list = new ArrayList<>(cursor.getCount());
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();

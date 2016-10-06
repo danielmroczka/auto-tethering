@@ -19,6 +19,7 @@ import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Bluetooth;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -108,6 +109,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                                                 if (id > 0) {
                                                     Preference ps = new CheckBoxPreference(activity);
                                                     ps.setTitle(name);
+                                                    ps.setSummary(bluetooth.getAddress() + (bluetooth.getUsed() > 0 ? "\nConnected on:" + new Date(bluetooth.getUsed()) : ""));
                                                     ps.setKey(String.valueOf(id));
                                                     ps.setPersistent(false);
                                                     category.addPreference(ps);
@@ -182,6 +184,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
             if (device != null && !TextUtils.isEmpty(device.getName())) {
                 Preference ps = new CheckBoxPreference(activity);
                 ps.setTitle(device.getName());
+                ps.setSummary(device.getAddress() + (device.getUsed() > 0 ? "\nConnected on:" + new Date(device.getUsed()) : ""));
                 ps.setKey(String.valueOf(device.getId()));
                 ps.setPersistent(false);
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {

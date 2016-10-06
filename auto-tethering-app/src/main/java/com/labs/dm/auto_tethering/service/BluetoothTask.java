@@ -161,7 +161,7 @@ class BluetoothTask {
 
         private void updateTimestamp(BluetoothDevice device) {
             for (Bluetooth b : DBManager.getInstance(context).readBluetooth()) {
-                if (device.equals(b.getName())) {
+                if (device.getName().equals(b.getName())) {
                     b.setUsed(System.currentTimeMillis());
                     DBManager.getInstance(context).addOrUpdateBluetooth(b);
                 }
