@@ -11,6 +11,8 @@ import android.os.Handler;
 import android.os.ParcelUuid;
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.Utils;
+import com.labs.dm.auto_tethering.db.Bluetooth;
+import com.labs.dm.auto_tethering.db.DBManager;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -47,7 +49,7 @@ class BluetoothTask {
         mainHandler.post(new BluetoothThread(context, prefs, connectedDeviceName, initialBluetoothStatus));
     }
 
-    class BluetoothThread implements Runnable {
+    private class BluetoothThread implements Runnable {
         private final ServiceHelper serviceHelper;
         private final Context context;
         private final SharedPreferences prefs;
@@ -68,7 +70,7 @@ class BluetoothTask {
             /**
              * Prepare a list with BluetoothDevice items
              */
-            List<BluetoothDevice> devicesToCheck = Utils.getBluetoothDevices(context, prefs);
+            List<BluetoothDevice> devicesToCheck = Utils.getBluetoothDevices(context);
             Intent btIntent = null;
 
             if (devicesToCheck.isEmpty() && connectedDeviceName != null) {
@@ -140,19 +142,28 @@ class BluetoothTask {
             MyLog.d(TAG, "Connecting to " + device.getName());
             boolean alreadyConnected = false;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH && socket.isConnected()) {
-                prefs.edit().putLong("bt.last.connect." + device.getName(), System.currentTimeMillis()).apply();
+                updateTimestamp(device);
                 alreadyConnected = true;
                 MyLog.d(TAG, "Already connected to " + device.getName());
             }
             try {
                 if (!alreadyConnected) {
-                    prefs.edit().putLong("bt.last.connect." + device.getName(), System.currentTimeMillis()).apply();
                     socket.connect();
+                    updateTimestamp(device);
                     MyLog.d(TAG, "Connected to " + device.getName());
                 }
             } finally {
                 if (!alreadyConnected) {
                     socket.close();
+                }
+            }
+        }
+
+        private void updateTimestamp(BluetoothDevice device) {
+            for (Bluetooth b : DBManager.getInstance(context).readBluetooth()) {
+                if (device.equals(b.getName())) {
+                    b.setUsed(System.currentTimeMillis());
+                    DBManager.getInstance(context).addOrUpdateBluetooth(b);
                 }
             }
         }
