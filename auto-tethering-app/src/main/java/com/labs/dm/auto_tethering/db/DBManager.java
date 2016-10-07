@@ -74,7 +74,8 @@ public class DBManager extends SQLiteOpenHelper {
             db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
             // CREATE INDEX
             db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
-        } else if (oldVersion < 5) {
+        }
+        if (oldVersion < 5) {
             // DROP TABLE
             db.execSQL("drop table IF EXISTS CELLULAR");
             db.execSQL("drop table IF EXISTS CELL_GROUP");
@@ -84,7 +85,8 @@ public class DBManager extends SQLiteOpenHelper {
             // CREATE INDEX
             db.execSQL("create unique index CELLULAR_UNIQUE_IDX on cellular(mcc,mnc, lac, cid, cellgroup)");
             db.execSQL("create unique index CELL_GROUP_UNIQUE_IDX on cell_group(name, type)");
-        } else if (oldVersion < 6) {
+        }
+        if (oldVersion < 6) {
             // CREATE TABLE
             db.execSQL("drop table IF EXISTS BLUETOOTH");
             db.execSQL("create table BLUETOOTH(id INTEGER PRIMARY KEY, name VARCHAR(40), address VARCHAR(20), used datetime, status INTEGER)");
