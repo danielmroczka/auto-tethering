@@ -2,15 +2,14 @@ package com.labs.dm.auto_tethering.db;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.preference.PreferenceManager;
 import com.labs.dm.auto_tethering.MyLog;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Daniel Mroczka on 2015-07-06.
@@ -18,25 +17,26 @@ import java.util.List;
 public class DBManager extends SQLiteOpenHelper {
 
     public final static String DB_NAME = "autowifi.db";
-    private static final int DB_VERSION = 5;
+    private static final int DB_VERSION = 6;
+    private Context context;
 
     private static DBManager instance;
 
     public static synchronized DBManager getInstance(Context context) {
         if (instance == null) {
-            instance = new DBManager(context.getApplicationContext());
+            instance = new DBManager(context);
         }
         return instance;
     }
 
     private DBManager(Context context, String name) {
         super(context, name, null, DB_VERSION);
+        this.context = context;
     }
 
     private DBManager(Context context) {
         this(context, DB_NAME);
     }
-
 
     @Override
     public synchronized void close() {
@@ -50,12 +50,13 @@ public class DBManager extends SQLiteOpenHelper {
         db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
         db.execSQL("create table CELL_GROUP(id INTEGER PRIMARY KEY, name TEXT, type TEXT, status INTEGER)");
         db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, lat REAL, lon REAL, cellgroup INTEGER, status INTEGER, FOREIGN KEY(cellgroup) REFERENCES CELL_GROUP(id) ON DELETE CASCADE)");
+        db.execSQL("create table BLUETOOTH(id INTEGER PRIMARY KEY, name VARCHAR(40), address VARCHAR(20), used datetime, status INTEGER)");
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
         db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
         db.execSQL("create unique index CELLULAR_UNIQUE_IDX on cellular(mcc, mnc, lac, cid, cellgroup)");
         db.execSQL("create unique index CELL_GROUP_UNIQUE_IDX on cell_group(name, type)");
-        MyLog.i("DBManager", "DB structure created");
+        db.execSQL("create unique index BLUETOOTH_UNIQUE_IDX on bluetooth(name)");
     }
 
     @Override
@@ -78,10 +79,21 @@ public class DBManager extends SQLiteOpenHelper {
             // CREATE INDEX
             db.execSQL("create unique index CELLULAR_UNIQUE_IDX on cellular(mcc,mnc, lac, cid, cellgroup)");
             db.execSQL("create unique index CELL_GROUP_UNIQUE_IDX on cell_group(name, type)");
+        } else if (oldVersion < 6) {
+            // CREATE TABLE
+            db.execSQL("drop table IF EXISTS BLUETOOTH");
+            db.execSQL("create table BLUETOOTH(id INTEGER PRIMARY KEY, name VARCHAR(40), address VARCHAR(20), used datetime, status INTEGER)");
+            // CREATE INDEX
+            db.execSQL("create unique index BLUETOOTH_UNIQUE_IDX on bluetooth(name)");
+            importBluetooth(db);
         }
         MyLog.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
     }
 
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+    }
 
     @Override
     public void onConfigure(SQLiteDatabase db) {
@@ -344,5 +356,58 @@ public class DBManager extends SQLiteOpenHelper {
         }
         return list;
 
+    }
+
+    public List<Bluetooth> readBluetooth() {
+        List<Bluetooth> list;
+        Cursor cursor = null;
+        try {
+            cursor = getReadableDatabase().rawQuery("SELECT id, name, address FROM BLUETOOTH order by used desc", null);
+            list = new ArrayList<>(cursor.getCount());
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                do {
+                    Bluetooth p = new Bluetooth(cursor.getString(1), cursor.getString(2));
+                    p.setId(cursor.getInt(0));
+                    list.add(p);
+                }
+                while (cursor.moveToNext());
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return list;
+    }
+
+    public int removeBluetooth(int id) {
+        return getWritableDatabase().delete(Bluetooth.NAME, "id=" + id, null);
+    }
+
+    public long addOrUpdateBluetooth(Bluetooth bluetooth) {
+        ContentValues content = new ContentValues();
+        content.put("status", bluetooth.getStatus());
+        content.put("name", bluetooth.getName());
+        content.put("address", bluetooth.getAddress());
+        content.put("used", bluetooth.getUsed());
+        return addOrUpdate(bluetooth.getId(), Bluetooth.NAME, content);
+    }
+
+    private void importBluetooth(SQLiteDatabase db) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Map<String, ?> map = prefs.getAll();
+        for (Map.Entry<String, ?> entry : map.entrySet()) {
+            if (entry.getKey().startsWith("bt.devices.")) {
+                Bluetooth bluetooth = new Bluetooth((String) entry.getValue(), "");
+                ContentValues content = new ContentValues();
+                content.put("name", bluetooth.getName());
+                db.insert(Bluetooth.NAME, null, content);
+                prefs.edit().remove(entry.getKey()).commit();
+            }
+            if (entry.getKey().startsWith("bt.last.connect")) {
+                prefs.edit().remove(entry.getKey()).commit();
+            }
+        }
     }
 }

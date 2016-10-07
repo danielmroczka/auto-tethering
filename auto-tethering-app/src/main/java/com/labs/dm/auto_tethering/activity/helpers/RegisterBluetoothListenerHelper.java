@@ -13,15 +13,14 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
-import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
+import com.labs.dm.auto_tethering.db.Bluetooth;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static com.labs.dm.auto_tethering.AppProperties.MAX_BT_DEVICES;
@@ -41,7 +40,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 prepareBTList();
-                return false;
+                return true;
             }
         });
 
@@ -49,6 +48,12 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
+                        final List<Bluetooth> devices = db.readBluetooth();
+                        if (devices.size() >= MAX_BT_DEVICES) {
+                            Toast.makeText(activity, "Exceeded the limit of max. " + MAX_BT_DEVICES + " devices!", Toast.LENGTH_LONG).show();
+                            return false;
+                        }
+
                         final PreferenceCategory category = getPreferenceCategory("bt.list");
 
                         AlertDialog.Builder builderSingle = new AlertDialog.Builder(activity);
@@ -57,7 +62,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
 
                         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(activity, android.R.layout.select_dialog_singlechoice);
 
-                        Set<BluetoothDevice> pairedDevices = new ServiceHelper(activity).getBondedDevices();
+                        final Set<BluetoothDevice> pairedDevices = new ServiceHelper(activity).getBondedDevices();
                         for (BluetoothDevice device : pairedDevices) {
                             arrayAdapter.add(device.getName());
                         }
@@ -84,33 +89,37 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                                             String name = arrayAdapter.getItem(which);
 
                                             boolean found = false;
-                                            int counter = 0;
-                                            Map<String, ?> map = prefs.getAll();
-                                            for (Map.Entry<String, ?> entry : map.entrySet()) {
-                                                if (entry.getKey().startsWith("bt.devices.")) {
-                                                    counter++;
-                                                    if (entry.getValue().equals(name)) {
-                                                        found = true;
-                                                    }
+                                            for (Bluetooth b : devices) {
+                                                if (name.equals(b.getName())) {
+                                                    found = true;
                                                 }
                                             }
 
                                             if (found) {
                                                 Toast.makeText(activity, "Device " + name + " is already added!", Toast.LENGTH_LONG).show();
-                                            } else if (counter >= MAX_BT_DEVICES) {
-                                                Toast.makeText(activity, "Exceeded the limit of max. " + MAX_BT_DEVICES + " devices!", Toast.LENGTH_LONG).show();
                                             } else {
-                                                prefs.edit().putString("bt.devices." + name, name).apply();
-                                                Preference ps = new CheckBoxPreference(activity);
-                                                ps.setTitle(name);
-                                                category.addPreference(ps);
+                                                Bluetooth bluetooth = null;
+                                                for (BluetoothDevice device : pairedDevices) {
+                                                    if (name.equals(device.getName())) {
+                                                        bluetooth = new Bluetooth(name, device.getAddress());
+                                                    }
+                                                }
+
+                                                long id = db.addOrUpdateBluetooth(bluetooth);
+                                                if (id > 0) {
+                                                    Preference ps = new CheckBoxPreference(activity);
+                                                    ps.setTitle(name);
+                                                    ps.setSummary(bluetooth.getAddress() + (bluetooth.getUsed() > 0 ? "\nConnected on:" + new Date(bluetooth.getUsed()) : ""));
+                                                    ps.setKey(String.valueOf(id));
+                                                    ps.setPersistent(false);
+                                                    category.addPreference(ps);
+                                                }
                                                 getPreferenceScreen("bt.remove.device").setEnabled(category.getPreferenceCount() > 2);
                                             }
                                         }
                                         dialog.dismiss();
                                     }
                                 }
-
                         );
                         builderSingle.show();
                         return false;
@@ -131,9 +140,10 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                             if (pref instanceof CheckBoxPreference) {
                                 boolean status = ((CheckBoxPreference) pref).isChecked();
                                 if (status) {
-                                    p.removePreference(pref);
-                                    prefs.edit().remove("bt.devices." + pref.getTitle()).apply();
-                                    changed = true;
+                                    if (db.removeBluetooth(Integer.parseInt(pref.getKey())) > 0) {
+                                        p.removePreference(pref);
+                                        changed = true;
+                                    }
                                 }
                             }
                         }
@@ -165,18 +175,22 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
     }
 
     private void prepareBTList() {
+        clean();
         PreferenceCategory pc = getPreferenceCategory("bt.list");
         Set<BluetoothDevice> bondedDevices = new ServiceHelper(activity).getBondedDevices();
-        List<String> preferredDevices = Utils.findPreferredDevices(prefs);
-        for (String deviceName : preferredDevices) {
-            if (!TextUtils.isEmpty(deviceName)) {
+        List<Bluetooth> preferredDevices = db.readBluetooth();
+
+        for (Bluetooth device : preferredDevices) {
+            if (device != null && !TextUtils.isEmpty(device.getName())) {
                 Preference ps = new CheckBoxPreference(activity);
-                ps.setTitle(deviceName);
-                Toast.makeText(activity, "Device " + deviceName + " is no longer paired.\nActivation on this device won't work.\nPlease pair devices again", Toast.LENGTH_LONG);
+                ps.setTitle(device.getName());
+                ps.setSummary(device.getAddress() + (device.getUsed() > 0 ? "\nConnected on:" + new Date(device.getUsed()) : ""));
+                ps.setKey(String.valueOf(device.getId()));
+                ps.setPersistent(false);
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                     boolean found = false;
                     for (BluetoothDevice bd : bondedDevices) {
-                        if (bd.getName().equals(deviceName)) {
+                        if (bd.getName().equals(device.getName())) {
                             found = true;
                             break;
                         }
@@ -192,4 +206,15 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
 
         getPreferenceScreen("bt.remove.device").setEnabled(pc.getPreferenceCount() > 2);
     }
+
+    private void clean() {
+        PreferenceCategory p = getPreferenceCategory("bt.list");
+        for (int idx = p.getPreferenceCount() - 1; idx >= 0; idx--) {
+            Preference pref = p.getPreference(idx);
+            if (pref instanceof CheckBoxPreference) {
+                p.removePreference(pref);
+            }
+        }
+    }
 }
+
