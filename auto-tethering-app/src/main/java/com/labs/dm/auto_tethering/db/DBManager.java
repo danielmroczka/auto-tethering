@@ -7,14 +7,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
-
 import com.labs.dm.auto_tethering.MyLog;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Daniel Mroczka on 2015-07-06.
@@ -23,6 +18,7 @@ public class DBManager extends SQLiteOpenHelper {
 
     public final static String DB_NAME = "autowifi.db";
     private static final int DB_VERSION = 6;
+    //TODO to remove because of Lint performance warning: StaticFieldLeak: Static Field Leaks
     private Context context;
 
     private static DBManager instance;
@@ -277,7 +273,7 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
     public int removeCellGroup(int id) {
-        return getWritableDatabase().delete(CellGroup.NAME, "id=" + Integer.valueOf(id), null);
+        return getWritableDatabase().delete(CellGroup.NAME, "id=" + id, null);
     }
 
     public List<CellGroup> loadCellGroup(String type) {
@@ -410,10 +406,10 @@ public class DBManager extends SQLiteOpenHelper {
                 ContentValues content = new ContentValues();
                 content.put("name", bluetooth.getName());
                 db.insert(Bluetooth.NAME, null, content);
-                prefs.edit().remove(entry.getKey()).commit();
+                prefs.edit().remove(entry.getKey()).apply();
             }
             if (entry.getKey().startsWith("bt.last.connect")) {
-                prefs.edit().remove(entry.getKey()).commit();
+                prefs.edit().remove(entry.getKey()).apply();
             }
         }
     }

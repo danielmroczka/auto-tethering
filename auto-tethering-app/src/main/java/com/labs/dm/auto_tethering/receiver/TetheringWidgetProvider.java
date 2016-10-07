@@ -46,14 +46,14 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
             remoteViews.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }
-        context.getSharedPreferences("widget", 0).edit().putInt("clicks", 0).commit();
+        context.getSharedPreferences("widget", 0).edit().putInt("clicks", 0).apply();
     }
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
         if (intent.getAction().equals("widget.click")) {
             int clickCount = context.getSharedPreferences("widget", MODE_PRIVATE).getInt("clicks", 0);
-            context.getSharedPreferences("widget", MODE_PRIVATE).edit().putInt("clicks", ++clickCount).commit();
+            context.getSharedPreferences("widget", MODE_PRIVATE).edit().putInt("clicks", ++clickCount).apply();
 
             final Handler handler = new Handler() {
                 public void handleMessage(Message msg) {
@@ -72,7 +72,7 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
                         context.startService(i);
                     }
 
-                    context.getSharedPreferences("widget", MODE_PRIVATE).edit().putInt("clicks", 0).commit();
+                    context.getSharedPreferences("widget", MODE_PRIVATE).edit().putInt("clicks", 0).apply();
                 }
             };
 

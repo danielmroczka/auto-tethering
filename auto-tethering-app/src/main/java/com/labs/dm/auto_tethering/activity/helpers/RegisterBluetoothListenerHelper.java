@@ -13,7 +13,6 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.activity.MainActivity;
@@ -106,14 +105,16 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                                                     }
                                                 }
 
-                                                long id = db.addOrUpdateBluetooth(bluetooth);
-                                                if (id > 0) {
-                                                    Preference ps = new CheckBoxPreference(activity);
-                                                    ps.setTitle(name);
-                                                    ps.setSummary((bluetooth.getAddress() != null ? bluetooth.getAddress() : "") + (bluetooth.getUsed() > 0 ? "\nConnected on:" + new Date(bluetooth.getUsed()) : ""));
-                                                    ps.setKey(String.valueOf(id));
-                                                    ps.setPersistent(false);
-                                                    category.addPreference(ps);
+                                                if (bluetooth != null) {
+                                                    long id = db.addOrUpdateBluetooth(bluetooth);
+                                                    if (id > 0) {
+                                                        Preference ps = new CheckBoxPreference(activity);
+                                                        ps.setTitle(name);
+                                                        ps.setSummary((bluetooth.getAddress() != null ? bluetooth.getAddress() : "") + (bluetooth.getUsed() > 0 ? "\nConnected on:" + new Date(bluetooth.getUsed()) : ""));
+                                                        ps.setKey(String.valueOf(id));
+                                                        ps.setPersistent(false);
+                                                        category.addPreference(ps);
+                                                    }
                                                 }
                                                 getPreferenceScreen("bt.remove.device").setEnabled(category.getPreferenceCount() > 2);
                                             }

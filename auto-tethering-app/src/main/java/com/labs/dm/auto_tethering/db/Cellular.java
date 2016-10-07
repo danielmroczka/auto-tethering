@@ -104,11 +104,11 @@ public class Cellular {
 
     @Override
     public boolean equals(Object object) {
-        if (object == null && !(object instanceof Cellular)) {
+        if (object == null) {
             return false;
         }
         Cellular other = (Cellular) object;
-        return other != null && other.getLac() == getLac() && other.getCid() == getCid() && other.getMcc() == getMcc() && other.getMnc() == getMnc();
+        return other.getLac() == getLac() && other.getCid() == getCid() && other.getMcc() == getMcc() && other.getMnc() == getMnc();
     }
 
     @Override

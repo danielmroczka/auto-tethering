@@ -1,6 +1,5 @@
 package com.labs.dm.auto_tethering;
 
-import android.app.Application;
 import android.util.Log;
 
 import java.text.DateFormat;
@@ -16,7 +15,7 @@ import java.util.List;
  * Created by Daniel Mroczka on 2016-09-20.
  */
 
-public class MyLog extends Application {
+public class MyLog {
     private static final DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
 
     static class Item {

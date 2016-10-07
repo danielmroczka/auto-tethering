@@ -2,16 +2,11 @@ package com.labs.dm.auto_tethering.receiver;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.net.wifi.WifiManager;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.widget.RemoteViews;
-
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
@@ -43,7 +38,7 @@ public class TetheringStateReceiver extends BroadcastReceiver {
             remoteViews.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }
-        context.getSharedPreferences("widget", 0).edit().putInt("clicks", 0).commit();
+        context.getSharedPreferences("widget", 0).edit().putInt("clicks", 0).apply();
         vibrate(context);
     }
 
