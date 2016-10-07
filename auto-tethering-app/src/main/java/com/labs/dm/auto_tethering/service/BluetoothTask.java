@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelUuid;
+
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.db.Bluetooth;
