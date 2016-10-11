@@ -549,10 +549,10 @@ public class TetheringService extends IntentService {
             String ticker = "Service on";
 
             if (forceOff && !forceOn) {
-                drawable = R.drawable.ic_wifi_off24;
+                drawable = R.drawable.ic_wifi_off;
                 ticker = "Tethering OFF";
             } else if (forceOn && !forceOff) {
-                drawable = R.drawable.ic_wifi_on24;
+                drawable = R.drawable.ic_wifi_on;
                 ticker = "Tethering ON";
             }
 
@@ -839,7 +839,7 @@ public class TetheringService extends IntentService {
                 status = Status.DEFAULT;
                 break;
             default:
-                MyLog.e(TAG, "Missing default notifcation!");
+                MyLog.e(TAG, "Missing default notification!");
         }
         if (msg != 0) {
             id = msg;
