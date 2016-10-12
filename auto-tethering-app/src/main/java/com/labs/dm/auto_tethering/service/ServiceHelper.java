@@ -239,7 +239,9 @@ public class ServiceHelper {
     }
 
     public static long getDataUsage() {
-        return TrafficStats.getMobileRxBytes() + TrafficStats.getMobileTxBytes();
+        long rx = TrafficStats.getMobileRxBytes() != TrafficStats.UNSUPPORTED ? TrafficStats.getMobileRxBytes() : 0;
+        long tx = TrafficStats.getMobileTxBytes() != TrafficStats.UNSUPPORTED ? TrafficStats.getMobileTxBytes() : 0;
+        return rx + tx;
     }
 
     /**
