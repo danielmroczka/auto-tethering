@@ -2,6 +2,9 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="android:Theme.Holo" tools:targetApi="honeycomb">
+        <!--<item name="android:alertDialogTheme">@style/MyAlertDialogTheme</item>-->
+        <!--<item name="android:alertDialogStyle">@style/MyAlertDialogStyle</item>-->
+
     </style>
 
     <style name="MyTheme" parent="android:Theme.Holo.Dialog" tools:targetApi="honeycomb">
@@ -26,4 +29,52 @@
         <item name="android:topBright">@android:color/transparent</item>
         <item name="android:topDark">@android:color/transparent</item>
     </style>
+
+    <style name="MyAlertDialogTheme">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowTitleStyle">@style/MyAlertDialogTitle</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:textAppearanceMedium">@style/MyAlertTextAppearance</item>
+    </style>
+
+    <style name="MyAlertDialogStyle">
+        <!-- Define background colors of title, message, buttons, etc. here -->
+        <item name="android:fullDark">#9e3c3c</item>
+        <item name="android:topDark">#502929</item>
+        <item name="android:centerDark">#29502f</item>
+        <item name="android:bottomDark">#877937</item>
+        <item name="android:fullBright">#1a24b4</item>
+        <item name="android:topBright">#284d9c</item>
+        <item name="android:centerBright">#810d40</item>
+        <item name="android:bottomBright">#645e5e</item>
+        <item name="android:bottomMedium">#c4b8b8</item>
+        <item name="android:centerMedium">#130d0d</item>
+    </style>
+
+    <style name="MyBorderlessButton">
+        <!-- Set background drawable and text size of the buttons here -->
+        <item name="android:background">#3c639e</item>
+        <item name="android:textSize">16dp</item>
+    </style>
+
+    <style name="MyButtonBar">
+        <!-- Define a background for the button bar and a divider between the buttons here -->
+        <item name="android:divider">#3c9b9e</item>
+        <!--<item name="android:dividerPadding">8dp</item>-->
+        <!--<item name="android:showDividers">8dp</item>-->
+        <item name="android:background">#25169b</item>
+    </style>
+
+    <style name="MyAlertDialogTitle">
+        <item name="android:maxLines">1</item>
+        <item name="android:scrollHorizontally">true</item>
+    </style>
+
+    <style name="MyAlertTextAppearance">
+        <!-- Set text size and color of title and message here -->
+        <item name="android:textSize">16dp</item>
+        <item name="android:textColor">#569e3c</item>
+    </style>
+
 </resources>
