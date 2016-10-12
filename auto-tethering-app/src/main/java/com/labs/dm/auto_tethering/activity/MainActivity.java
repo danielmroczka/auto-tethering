@@ -293,9 +293,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             public void run() {
                 if (prefs.getBoolean("data.limit.startup.reset", false)) {
                     MyLog.i("Datausage", "Reset data usage at startup");
-                    prefs.edit().putLong("data.usage.removeAllData.value", ServiceHelper.getDataUsage()).apply();
-                    prefs.edit().putLong("data.usage.last.value", ServiceHelper.getDataUsage()).apply();
-                    prefs.edit().putLong("data.usage.removeAllData.timestamp", System.currentTimeMillis()).apply();
+                    Utils.resetDataUsageStat(prefs, -ServiceHelper.getDataUsage(), 0);
                     Intent onIntent = new Intent(TetherIntents.DATA_USAGE);
                     onIntent.putExtra("value", 0);
                 }

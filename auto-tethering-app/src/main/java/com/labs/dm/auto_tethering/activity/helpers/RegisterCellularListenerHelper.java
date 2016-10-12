@@ -7,17 +7,8 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.SystemClock;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceGroup;
-import android.preference.PreferenceScreen;
+import android.os.*;
+import android.preference.*;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -29,7 +20,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
@@ -383,18 +373,20 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
         final Location location = Utils.getBestLocation(activity);
         List<Cellular> cells = db.readCellular(group.getId());
-        Collections.sort(cells, new Comparator<Cellular>() {
-            @Override
-            public int compare(Cellular lhs, Cellular rhs) {
-                if (lhs.isValid() && rhs.isValid()) {
-                    double distance1 = Utils.calculateDistance(location, lhs);
-                    double distance2 = Utils.calculateDistance(location, rhs);
-                    return (int) (distance1 - distance2);
-                } else {
-                    return -1;
+        if (location != null) {
+            Collections.sort(cells, new Comparator<Cellular>() {
+                @Override
+                public int compare(Cellular lhs, Cellular rhs) {
+                    if (lhs.isValid() && rhs.isValid()) {
+                        double distance1 = Utils.calculateDistance(location, lhs);
+                        double distance2 = Utils.calculateDistance(location, rhs);
+                        return (int) (distance1 - distance2);
+                    } else {
+                        return -1;
+                    }
                 }
-            }
-        });
+            });
+        }
         for (Cellular cellular : cells) {
             if (!cellular.hasLocation()) {
                 loadLocationFromService(cellular);
@@ -445,7 +437,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         checkBox.setKey(String.valueOf(current.getId()));
         checkBox.setPersistent(false);
 
-        if (current.hasLocation()) {
+        if (location != null && current.hasLocation()) {
             double distance = Utils.calculateDistance(location, current);
             checkBox.setSummary(Utils.formatDistance(location, distance));
         } else {

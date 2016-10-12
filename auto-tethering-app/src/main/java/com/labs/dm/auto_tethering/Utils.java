@@ -18,25 +18,13 @@ import android.text.TextUtils;
 import android.util.SparseIntArray;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.labs.dm.auto_tethering.db.Bluetooth;
 import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.db.DBManager;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -295,5 +283,13 @@ public class Utils {
             location = locationManager.getLastKnownLocation(provider);
         }
         return location;
+    }
+
+    public static void resetDataUsageStat(SharedPreferences prefs, long resetValue, long value2) {
+        long timestamp = System.currentTimeMillis();
+        prefs.edit().putLong("data.usage.last.value", value2).apply();
+        prefs.edit().putLong("data.usage.removeAllData.value", resetValue).apply();
+        prefs.edit().putLong("data.usage.removeAllData.timestamp", timestamp).apply();
+        prefs.edit().putLong("data.usage.update.timestamp", timestamp).apply();
     }
 }

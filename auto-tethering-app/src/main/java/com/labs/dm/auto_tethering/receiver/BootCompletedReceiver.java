@@ -7,8 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import com.labs.dm.auto_tethering.MyLog;
-import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
 /**
@@ -21,14 +19,6 @@ public class BootCompletedReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, Intent intent) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-
-        if (prefs.getBoolean("usb.only.when.connected", false)) {
-            ServiceHelper serviceHelper = new ServiceHelper(context);
-            if (!serviceHelper.isPluggedToPower()) {
-                MyLog.d("Boot", "Service is not triggered due to USB configuration");
-                //return; TODO
-            }
-        }
 
         final Intent serviceIntent = new Intent(context, TetheringService.class);
         int delay = Integer.parseInt(prefs.getString("activate.on.startup.delay", "0"));

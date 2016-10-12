@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.preference.Preference;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
+import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
@@ -23,7 +24,7 @@ public class RegisterDataLimitListenerHelper extends AbstractRegisterHelper {
     public void registerUIListeners() {
         getPreferenceScreen("data.limit.reset").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
-            public boolean onPreferenceClick(Preference preference) {
+            public boolean onPreferenceClick(final Preference preference) {
                 new AlertDialog.Builder(activity)
                         .setTitle(R.string.warning)
                         .setMessage("Do you want to reset data usage counter?")
@@ -32,10 +33,7 @@ public class RegisterDataLimitListenerHelper extends AbstractRegisterHelper {
 
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                long dataUsage = ServiceHelper.getDataUsage();
-                                prefs.edit().putLong("data.usage.reset.value", dataUsage).apply();
-                                prefs.edit().putLong("data.usage.last.value", dataUsage).apply();
-                                prefs.edit().putLong("data.usage.removeAllData.timestamp", System.currentTimeMillis()).apply();
+                                Utils.resetDataUsageStat(prefs, -ServiceHelper.getDataUsage(), 0);
                                 Intent intent = new Intent(TetherIntents.DATA_USAGE);
                                 activity.sendBroadcast(intent);
                             }
@@ -49,4 +47,5 @@ public class RegisterDataLimitListenerHelper extends AbstractRegisterHelper {
 
         getEditTextPreference("data.limit.value").setOnPreferenceChangeListener(changeListener);
     }
+
 }

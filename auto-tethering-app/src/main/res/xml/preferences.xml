@@ -265,8 +265,9 @@
                 android:maxLength="6"
                 android:title="Data usage limit [MB]" />
             <PreferenceScreen
-                android:key="data.limit.counter"
-                android:title="Data usage counter" />
+                    android:key="data.limit.counter"
+                    android:title="Data usage counter"
+                    android:summary="n/a"/>
             <PreferenceCategory android:title="Reset counter">
                 <PreferenceScreen
                     android:icon="@drawable/ic_trash"
