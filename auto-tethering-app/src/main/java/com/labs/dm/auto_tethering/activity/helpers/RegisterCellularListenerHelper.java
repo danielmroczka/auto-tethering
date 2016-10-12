@@ -7,8 +7,17 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.*;
-import android.preference.*;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceGroup;
+import android.preference.PreferenceScreen;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -20,6 +29,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
@@ -196,7 +206,6 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                 return null;
             }
 
-            loadLocationFromService(current);
             current.setCellGroup(cellGroup.getId());
 
             List<Cellular> otherTypesCellulars = db.readAllCellular("A".equals(cellGroup.getType()) ? "D" : "A");
@@ -205,6 +214,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                 return null;
             }
 
+            loadLocationFromService(current);
             long id = db.addOrUpdateCellular(current);
 
             if (id > 0) {
@@ -222,7 +232,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
                 loadGroups();
             } else {
-                Utils.showToast(activity, "Cellular network (" + current.toString() + ") is already added to group!");
+                Utils.showToast(activity, "Cellular network (" + current.toString() + ") is already added to current group!");
             }
             return null;
         }

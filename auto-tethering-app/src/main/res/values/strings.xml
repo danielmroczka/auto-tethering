@@ -94,7 +94,7 @@
     <!-- RELEASE NOTES -->
     <string name="release_notes">[x] Fix problem if internet connection was enabled before start service and setting to
         activate internet has been switched off. Now it only force to connect if there is no connection but never tries
-        to disconnect existing internet connection
+        to disconnect existing internet connection\n\n[x] Improve graphics on high density display\n\n[x] [Experimental] Block tethering if active connection to WiFi Network\n\n[x] Cellular Network activation bugfix
     </string>
     <string name="activate_tethering_usb_on">Tethering activated on USB connection</string>
     <string name="activate_internet_usb_on">Internet activated on USB connection</string>

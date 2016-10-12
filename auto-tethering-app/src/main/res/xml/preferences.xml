@@ -311,47 +311,6 @@
 
 
         </PreferenceScreen>
-        <!--<PreferenceScreen
-            android:icon="@drawable/ic_cell"
-            android:summary="Activate/deactivate if device is in range of preferred cellular networks"
-            android:title="Cellular Network">
-            <PreferenceScreen
-                android:icon="@drawable/ic_cell"
-                android:key="cell.current"
-                android:title="n/a" />
-            <PreferenceCategory
-                android:key="cell.activate.list"
-                android:title="Activate on Cellular Network">
-                <CheckBoxPreference
-                    android:defaultValue="false"
-                    android:key="cell.activate.enable"
-                    android:title="Enable activation" />
-                <PreferenceScreen
-                    android:icon="@drawable/ic_add"
-                    android:key="cell.activate.add"
-                    android:title="Add current cell" />
-                <PreferenceScreen
-                    android:icon="@drawable/ic_remove"
-                    android:key="cell.activate.remove"
-                    android:title="Remove selected cell" />
-            </PreferenceCategory>
-            <PreferenceCategory
-                android:key="cell.deactivate.list"
-                android:title="Deactivate on Cellular Network">
-                <CheckBoxPreference
-                    android:defaultValue="false"
-                    android:key="cell.deactivate.enable"
-                    android:title="Enable deactivation" />
-                <PreferenceScreen
-                    android:icon="@drawable/ic_add"
-                    android:key="cell.deactivate.add"
-                    android:title="Add current cell" />
-                <PreferenceScreen
-                    android:icon="@drawable/ic_remove"
-                    android:key="cell.deactivate.remove"
-                    android:title="Remove selected cell" />
-            </PreferenceCategory>
-        </PreferenceScreen>     -->
 
         <PreferenceScreen
             android:icon="@drawable/ic_temperature"
@@ -381,27 +340,26 @@
                 android:title="Resume tethering" />
         </PreferenceScreen>
 
+        <PreferenceScreen
+            android:icon="@drawable/ic_wifi_off"
+            android:summary="Deactivate on WiFi networks"
+
+            android:title="WiFi activation">
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:icon="@drawable/ic_wifi_off"
+                android:key="wifi.connected.block.tethering"
+                android:summary="Block tethering while connected to WiFi network"
+                android:title="Block tethering" />
+        </PreferenceScreen>
         <!--<PreferenceScreen-->
-        <!--android:icon="@drawable/ic_wifi_on"-->
-        <!--android:summary="Deactivate on WiFi networks"-->
-        <!---->
-        <!--android:title="WiFi activation">-->
-        <!--<CheckBoxPreference-->
-        <!--android:defaultValue="false"-->
-        <!--android:key="wifi.connected.block.tethering"-->
-        <!--android:summary="Block tethering while connected to WiFi network"-->
-        <!--android:title="Block tethering"/>-->
+        <!--android:enabled="false"-->
+        <!--android:icon="@drawable/ic_usb"-->
+        <!--android:title="USB Tethering">-->
+        <!--<PreferenceScreen-->
+        <!--android:key="usb.tethering"-->
+        <!--android:summary="Turn on USB tethering" />-->
         <!--</PreferenceScreen>-->
-        <!--
-                <PreferenceScreen
-                        android:enabled="false"
-                        android:icon="@drawable/ic_usb"
-                        android:title="USB Tethering">
-                    <PreferenceScreen
-                        android:key="usb.tethering"
-                        android:summary="Turn on USB tethering" />
-                </PreferenceScreen>
-        -->
 
     </PreferenceScreen>
     <PreferenceCategory
