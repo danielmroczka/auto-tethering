@@ -89,6 +89,7 @@ public class TetheringService extends IntentService {
     private BroadcastReceiver receiver;
     private String lastNotificationTickerText;
     private String connectedDeviceName;
+    private boolean blockForceInternet;
 
     private enum ScheduleResult {
         ON, OFF, NONE
@@ -251,7 +252,7 @@ public class TetheringService extends IntentService {
                         }
                     }
                 } else if (forceOn) {
-                    if (!serviceHelper.isConnectedToInternetThroughMobile()) {
+                    if (!blockForceInternet && !serviceHelper.isConnectedToInternetThroughMobile()) {
                         execute(INTERNET_ON);
                     }
                     if (!serviceHelper.isTetheringWiFi()) {
@@ -665,6 +666,7 @@ public class TetheringService extends IntentService {
                         forceOn = false;
                         execute(TETHER_OFF);
                     } else {
+                        blockForceInternet = true;
                         forceOn = true;
                         forceOff = false;
                         status = Status.DEFAULT;
@@ -760,6 +762,7 @@ public class TetheringService extends IntentService {
     }
 
     private void execute(ServiceAction serviceAction, int msg) {
+        blockForceInternet = false;
         boolean action = serviceAction.isOn();
         boolean showNotify = false;
         if (serviceAction.isInternet() && serviceHelper.isConnectedOrConnectingToInternet() != action) {
