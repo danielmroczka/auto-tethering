@@ -35,6 +35,7 @@ public class DataUsageTimerTaskTest {
     }
 
     @Test
+    //@Ignore
     public void firstUsage() {
         //GIVEN
         //WHEN
@@ -44,15 +45,16 @@ public class DataUsageTimerTaskTest {
         assertEquals(0, prefs.getLong("data.usage.removeAllData.value", 0));
 
         assertTrue(prefs.getLong("data.usage.removeAllData.timestamp", 0) < System.currentTimeMillis());
-        assertTrue(prefs.getLong("data.usage.removeAllData.timestamp", 0) < System.currentTimeMillis());
+        assertTrue(prefs.getLong("data.usage.update.timestamp", 0) < System.currentTimeMillis());
     }
 
     @Test
+    //@Ignore
     public void afterRestart() {
         //GIVEN
         prefs.edit().putBoolean("data.limit.daily.reset", true).commit();
         prefs.edit().putLong("data.usage.removeAllData.value", 1000L).commit();
-        prefs.edit().putLong("data.usage.removeAllData.timestamp", System.currentTimeMillis() - 24 * 60 * 60 * 1000);
+        prefs.edit().putLong("data.usage.removeAllData.timestamp", System.currentTimeMillis() - 24 * 60 * 60 * 1000).commit();
 
         //WHEN
         task.run();
@@ -61,6 +63,6 @@ public class DataUsageTimerTaskTest {
         assertEquals(0, prefs.getLong("data.usage.last.value", 0));
         assertEquals(0, prefs.getLong("data.usage.removeAllData.value", 0));
         assertTrue(prefs.getLong("data.usage.removeAllData.timestamp", 0) < System.currentTimeMillis());
-        assertTrue(prefs.getLong("data.usage.removeAllData.timestamp", 0) < System.currentTimeMillis());
+        //assertTrue(prefs.getLong("data.usage.update.timestamp", 0) < System.currentTimeMillis());
     }
 }
