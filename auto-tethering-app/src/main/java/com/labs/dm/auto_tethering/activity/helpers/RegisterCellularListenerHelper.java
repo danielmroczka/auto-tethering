@@ -270,7 +270,6 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
     }
 
     private void loadCellGroup(final PreferenceCategory list, final CellGroup group) {
-        //final CellGroupPreference groupItem = new CellGroupPreference(list, group, activity);//activity.getPreferenceManager().createPreferenceScreen(activity);
         final PreferenceScreen groupItem = activity.getPreferenceManager().createPreferenceScreen(activity);
         groupItem.setTitle(group.getName());
         groupItem.setKey(String.valueOf(group.getId()));
@@ -413,11 +412,9 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             Preference pref = list.getPreference(idx);
             if (pref instanceof CheckBoxPreference) {
                 boolean status = ((CheckBoxPreference) pref).isChecked();
-                if (status && !pref.getKey().startsWith("cell")) {
-                    if (db.removeCellular(pref.getKey()) > 0) {
-                        list.removePreference(pref);
-                        changed++;
-                    }
+                if (status && !pref.getKey().startsWith("cell") && db.removeCellular(pref.getKey()) > 0) {
+                    list.removePreference(pref);
+                    changed++;
                 }
             }
         }

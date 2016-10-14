@@ -40,6 +40,20 @@ public class TetheringService extends IntentService {
     private String lastNotificationTickerText;
     private String connectedDeviceName;
     private boolean blockForceInternet;
+    private static final String TAG = "TetheringService";
+    private final static int CHECK_DELAY = 5;
+    private List<Cron> crons;
+    private SharedPreferences prefs;
+    private long lastAccess = getTime().getTimeInMillis();
+    private boolean initial3GStatus, initialTetheredStatus, initialBluetoothStatus;
+    private ServiceHelper serviceHelper;
+    private boolean runFromActivity;
+    private boolean flag = true;
+    private Notification notification;
+    private final int NOTIFICATION_ID = 1234;
+    private Timer timer;
+    private TimerTask dataUsageTask, bluetoothTask;
+    private static final int MINUTE_IN_MS = 60 * 1000;
 
     private enum ScheduleResult {
         ON, OFF, NONE
@@ -55,19 +69,8 @@ public class TetheringService extends IntentService {
         ACTIVATED_ON_CELL, DEACTIVATED_ON_CELL, TEMPERATURE_OFF, DEFAULT
     }
 
-    private static final String TAG = "TetheringService";
-    private final static int CHECK_DELAY = 5;
-    private List<Cron> crons;
-    private SharedPreferences prefs;
-    private long lastAccess = getTime().getTimeInMillis();
-    private boolean initial3GStatus, initialTetheredStatus, initialBluetoothStatus;
-    private ServiceHelper serviceHelper;
-    private boolean runFromActivity;
-    private boolean flag = true;
-    private Notification notification;
-    private final int NOTIFICATION_ID = 1234;
-    private Timer timer;
-    private TimerTask dataUsageTask, bluetoothTask;
+    private final String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF,
+            BT_RESTORE, BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPEARTURE_BELOW_LIMIT};
 
     private Status status = Status.DEFAULT;
 
@@ -93,9 +96,6 @@ public class TetheringService extends IntentService {
         timer.schedule(dataUsageTask, 1000, 15000);
         timer.schedule(bluetoothTask, 5000, 30000);
     }
-
-    private final String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF,
-            BT_RESTORE, BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPEARTURE_BELOW_LIMIT};
 
     private void registerReceivers() {
         IntentFilter filter = new IntentFilter();
@@ -391,7 +391,7 @@ public class TetheringService extends IntentService {
 
     private boolean check3GIdle() {
         if (prefs.getBoolean(IDLE_3G_OFF, false)) {
-            if (getTime().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_3G_OFF_TIME, "60")) * 1000 * 60) {
+            if (getTime().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_3G_OFF_TIME, "60")) * MINUTE_IN_MS) {
                 return true;
             }
         }
@@ -401,7 +401,7 @@ public class TetheringService extends IntentService {
 
     private boolean checkWifiIdle() {
         if (prefs.getBoolean(IDLE_TETHERING_OFF, false)) {
-            if (getTime().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_TETHERING_OFF_TIME, DEFAULT_IDLE_TETHERING_OFF_TIME)) * 1000 * 60) {
+            if (getTime().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_TETHERING_OFF_TIME, DEFAULT_IDLE_TETHERING_OFF_TIME)) * MINUTE_IN_MS) {
                 return true;
             }
         }
@@ -814,7 +814,7 @@ public class TetheringService extends IntentService {
             id = msg;
         }
 
-        if (showNotify || status != oldStatus) {
+        if (showNotify || !status.equals(oldStatus)) {
             showNotification(getString(id), icon);
         }
     }

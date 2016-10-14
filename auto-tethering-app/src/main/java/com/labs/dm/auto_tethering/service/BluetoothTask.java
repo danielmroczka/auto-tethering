@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelUuid;
-
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.db.Bluetooth;
@@ -101,12 +100,11 @@ class BluetoothTask {
                     String previousConnectedDeviceName = connectedDeviceName;
                     connectedDeviceName = device.getName();
 
-                    if (connectedDeviceName != null) {
-                        if (previousConnectedDeviceName == null || !connectedDeviceName.equals(previousConnectedDeviceName)) {
-                            MyLog.i(TAG, "Connected to " + device.getName());
-                            btIntent = new Intent(BT_CONNECTED);
-                        }
+                    if (connectedDeviceName != null && (previousConnectedDeviceName == null || !connectedDeviceName.equals(previousConnectedDeviceName))) {
+                        MyLog.i(TAG, "Connected to " + device.getName());
+                        btIntent = new Intent(BT_CONNECTED);
                     }
+
                 } catch (Exception e) {
                     MyLog.e(TAG, device.getName() + " Device is not in range.");
                     if (connectedDeviceName != null && connectedDeviceName.equals(device.getName())) {

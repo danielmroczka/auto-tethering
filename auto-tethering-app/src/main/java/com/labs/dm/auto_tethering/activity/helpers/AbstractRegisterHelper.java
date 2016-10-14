@@ -1,15 +1,9 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.content.SharedPreferences;
-import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
+import android.preference.*;
 import android.text.InputFilter;
 import android.text.Spanned;
-
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.DBManager;
@@ -31,10 +25,11 @@ public abstract class AbstractRegisterHelper {
     public abstract void registerUIListeners();
 
     public void unregisterUIListeners() {
+        // Should be implemented on child class
     }
 
     public void prepare() {
-
+        // Should be implemented on child class
     }
 
     protected final Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
@@ -66,16 +61,6 @@ public abstract class AbstractRegisterHelper {
             }
             return "";
         }
-    }
-
-    public int getItemsCount(PreferenceCategory pc, String prefix) {
-        int result = 0;
-        for (int i = 0; i < pc.getPreferenceCount(); i++) {
-            if (pc.getPreference(i) instanceof CheckBoxPreference) {
-                result++;
-            }
-        }
-        return result;
     }
 
     protected PreferenceScreen getPreferenceScreen(String name) {
