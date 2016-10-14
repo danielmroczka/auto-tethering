@@ -288,17 +288,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         });
 
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                if (prefs.getBoolean("data.limit.startup.reset", false)) {
-                    MyLog.i("Datausage", "Reset data usage at startup");
-                    Utils.resetDataUsageStat(prefs, -ServiceHelper.getDataUsage(), 0);
-                    Intent onIntent = new Intent(TetherIntents.DATA_USAGE);
-                    onIntent.putExtra("value", 0);
-                }
-            }
-        });
     }
 
     @Override
