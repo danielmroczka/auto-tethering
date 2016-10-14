@@ -30,7 +30,7 @@ public class RegisterIdleListenerHelper extends AbstractRegisterHelper {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 connectedClients.setTitle("Connected clients: " + Utils.connectedClients());
-                return false;
+                return true;
             }
         });
 

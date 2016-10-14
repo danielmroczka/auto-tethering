@@ -2,6 +2,7 @@ package com.labs.dm.auto_tethering.service;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -12,7 +13,7 @@ public class ServiceActionTest {
     @Test
     public void general() throws Exception {
         assertTrue(ServiceAction.INTERNET_OFF.isInternet());
-        assertTrue(!ServiceAction.INTERNET_OFF.isOn());
-        assertTrue(!ServiceAction.INTERNET_OFF.isTethering());
+        assertFalse(ServiceAction.INTERNET_OFF.isOn());
+        assertFalse(ServiceAction.INTERNET_OFF.isTethering());
     }
 }

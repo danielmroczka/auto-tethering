@@ -19,8 +19,8 @@ public class MyLog {
     private static final DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
 
     static class Item {
-        final int level;
-        String content;
+        private final int level;
+        private String content;
 
         Item(int level, String content) {
             this.level = level;
