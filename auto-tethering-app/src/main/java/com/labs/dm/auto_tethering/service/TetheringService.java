@@ -109,6 +109,7 @@ public class TetheringService extends IntentService {
     @Override
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
+        MyLog.clean();
         runAsForeground();
         if (prefs.getBoolean("data.limit.startup.reset", false)) {
             MyLog.i("Datausage", "Reset data usage at startup");

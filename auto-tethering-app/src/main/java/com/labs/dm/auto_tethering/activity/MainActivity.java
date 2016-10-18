@@ -52,7 +52,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         registerReceievers();
         adjustSettingForOS();
         onStartup();
-        MyLog.clean();
     }
 
     private void adjustSettingForOS() {
