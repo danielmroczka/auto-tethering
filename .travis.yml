@@ -18,7 +18,7 @@ before_install:
   - export PATH=$GRADLE_HOME/bin:$PATH
 after_success:
   - ./merge_to_dev.sh
-  - curl http://www.jpm4j.org/install/script | sh
+  - sudo curl http://www.jpm4j.org/install/script | sh
   - jpm install com.codacy:codacy-coverage-reporter:assembly
   - export CODACY_PROJECT_TOKEN=fc889dab578347aeadb7f317a67b4125
   - codacy-coverage-reporter -l Java -r /build/reports/jacoco/jacocoTestDebugUnitTestReport/jacocoTestDebugUnitTestReport.xml
