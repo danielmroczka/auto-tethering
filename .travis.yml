@@ -1,6 +1,6 @@
 language: android
 install: true
-script: gradle clean assemble
+script: gradle clean build jacocoTestReport
 android:
   components:
     - build-tools-24.0.2
@@ -16,4 +16,9 @@ before_install:
   - unzip gradle-2.14.1-bin.zip
   - export GRADLE_HOME=$PWD/gradle-2.14.1
   - export PATH=$GRADLE_HOME/bin:$PATH
-after_success: ./merge_to_dev.sh
+after_success:
+  - ./merge_to_dev.sh
+  - curl https://www.jpm4j.org/install/script | sh
+  - jpm install com.codacy:codacy-coverage-reporter:assembly
+  - export CODACY_PROJECT_TOKEN=fc889dab578347aeadb7f317a67b4125
+  - codacy-coverage-reporter -l Java -r /build/reports/jacoco/jacocoTestDebugUnitTestReport/jacocoTestDebugUnitTestReport.xml
