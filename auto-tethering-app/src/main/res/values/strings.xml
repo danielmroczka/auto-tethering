@@ -92,7 +92,7 @@
     <string name="summary">Summary</string>
     <string name="widget.conf.title">Widget Configuration</string>
     <!-- RELEASE NOTES -->
-    <string name="release_notes">[x] Fix reset data usage counter on every startup.</string>
+    <string name="release_notes">[x] Support for Android Lollipop</string>
     <string name="activate_tethering_usb_on">Tethering activated on USB connection</string>
     <string name="activate_internet_usb_on">Internet activated on USB connection</string>
     <string name="activate_tethering_usb_off">Tethering deactivated on USB disconnect</string>
