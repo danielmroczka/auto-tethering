@@ -135,10 +135,17 @@ class BluetoothTask {
             ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
             BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
             BluetoothSocket socket;
+
+            UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
             if (Build.VERSION.SDK_INT <= JELLY_BEAN) {
-                socket = device.createInsecureRfcommSocketToServiceRecord(parcelUuids[0].getUuid());
+                if (parcelUuids != null && parcelUuids.length > 0) {
+                    uuid = parcelUuids[0].getUuid();
+                }
+                socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
             } else {
-                UUID uuid = parcelUuids.length >= 8 ? parcelUuids[7].getUuid() : parcelUuids[0].getUuid();
+                if (parcelUuids != null && parcelUuids.length > 0) {
+                    uuid = parcelUuids.length >= 8 ? parcelUuids[7].getUuid() : parcelUuids[0].getUuid();
+                }
                 socket = device.createRfcommSocketToServiceRecord(uuid);
             }
 
