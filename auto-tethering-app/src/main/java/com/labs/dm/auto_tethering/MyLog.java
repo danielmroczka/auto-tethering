@@ -17,6 +17,7 @@ import java.util.List;
 
 public class MyLog {
     private static final DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+    private static List<Item> log = new ArrayList<>();
 
     static class Item {
         private final int level;
@@ -27,8 +28,6 @@ public class MyLog {
             this.content = formatter.format(new Date()) + " | " + content;
         }
     }
-
-    private static List<Item> log = new ArrayList<>();
 
     /**
      * 0 - debug

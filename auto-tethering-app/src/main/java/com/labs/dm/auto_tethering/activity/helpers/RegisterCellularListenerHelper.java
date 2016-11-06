@@ -7,8 +7,17 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.*;
-import android.preference.*;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceGroup;
+import android.preference.PreferenceScreen;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -20,6 +29,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.AppProperties;
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
@@ -47,6 +57,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
     private PreferenceScreen deactivateGroupAdd = getPreferenceScreen("cell.deactivate.group.add");
     private PreferenceCategory activateList = getPreferenceCategory("cell.activate.list");
     private PreferenceCategory deactivateList = getPreferenceCategory("cell.deactivate.list");
+    private ProgressDialog progress;
 
     public RegisterCellularListenerHelper(MainActivity activity) {
         super(activity);
@@ -226,8 +237,6 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             }
             return null;
         }
-
-        private ProgressDialog progress;
 
         @Override
         protected void onPreExecute() {
