@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelUuid;
+
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.db.Bluetooth;
@@ -53,7 +54,6 @@ class BluetoothTask {
         private final ServiceHelper serviceHelper;
         private final Context context;
         private final SharedPreferences prefs;
-        private final String TAG = "FindBT";
         private String connectedDeviceName;
         private final boolean initialBluetoothStatus;
 
@@ -87,6 +87,14 @@ class BluetoothTask {
                 serviceHelper.setBlockingBluetoothStatus(true);
             }
 
+            connectEachDevice(devicesToCheck, btIntent);
+
+            if (prefs.getBoolean("bt.internet.auto.off", false) && !initialBluetoothStatus) {
+                serviceHelper.setBlockingBluetoothStatus(false);
+            }
+        }
+
+        private void connectEachDevice(List<BluetoothDevice> devicesToCheck, Intent btIntent) {
             for (BluetoothDevice device : devicesToCheck) {
                 /**
                  * If device is currently connected just only check this one without checking others.
@@ -119,10 +127,6 @@ class BluetoothTask {
                     Utils.broadcast(context, btIntent);
                     break;
                 }
-            }
-
-            if (prefs.getBoolean("bt.internet.auto.off", false) && !initialBluetoothStatus) {
-                serviceHelper.setBlockingBluetoothStatus(false);
             }
         }
 

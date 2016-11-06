@@ -1,4 +1,5 @@
-if [ "$TRAVIS_BRANCH" != "master" ]; then 
+#!/bin/sh
+if [ "$TRAVIS_BRANCH" != "master" ]; then
     exit 0;
 fi
 

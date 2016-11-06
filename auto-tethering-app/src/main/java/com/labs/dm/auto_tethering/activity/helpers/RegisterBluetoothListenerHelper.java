@@ -13,6 +13,7 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.activity.MainActivity;
@@ -85,41 +86,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                         builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        if (which >= 0) {
-                                            String name = arrayAdapter.getItem(which);
-
-                                            boolean found = false;
-                                            for (Bluetooth b : devices) {
-                                                if (name.equals(b.getName())) {
-                                                    found = true;
-                                                }
-                                            }
-
-                                            if (found) {
-                                                Toast.makeText(activity, "Device " + name + " is already added!", Toast.LENGTH_LONG).show();
-                                            } else {
-                                                Bluetooth bluetooth = null;
-                                                for (BluetoothDevice device : pairedDevices) {
-                                                    if (name.equals(device.getName())) {
-                                                        bluetooth = new Bluetooth(name, device.getAddress());
-                                                    }
-                                                }
-
-                                                if (bluetooth != null) {
-                                                    long id = db.addOrUpdateBluetooth(bluetooth);
-                                                    if (id > 0) {
-                                                        Preference ps = new CheckBoxPreference(activity);
-                                                        ps.setTitle(name);
-                                                        ps.setSummary((bluetooth.getAddress() != null ? bluetooth.getAddress() : "") + (bluetooth.getUsed() > 0 ? "\nConnected on:" + new Date(bluetooth.getUsed()) : ""));
-                                                        ps.setKey(String.valueOf(id));
-                                                        ps.setPersistent(false);
-                                                        category.addPreference(ps);
-                                                    }
-                                                }
-                                                getPreferenceScreen("bt.remove.device").setEnabled(category.getPreferenceCount() > 2);
-                                            }
-                                        }
-                                        dialog.dismiss();
+                                        buildAdapter(dialog, which, arrayAdapter, devices, pairedDevices, category);
                                     }
                                 }
                         );
@@ -174,6 +141,44 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
             }
         });
         btCheckBox.setChecked(prefs.getBoolean("bt.start.discovery", false));
+    }
+
+    private void buildAdapter(DialogInterface dialog, int which, ArrayAdapter<String> arrayAdapter, List<Bluetooth> devices, Set<BluetoothDevice> pairedDevices, PreferenceCategory category) {
+        if (which >= 0) {
+            String name = arrayAdapter.getItem(which);
+
+            boolean found = false;
+            for (Bluetooth b : devices) {
+                if (name.equals(b.getName())) {
+                    found = true;
+                }
+            }
+
+            if (found) {
+                Toast.makeText(activity, "Device " + name + " is already added!", Toast.LENGTH_LONG).show();
+            } else {
+                Bluetooth bluetooth = null;
+                for (BluetoothDevice device : pairedDevices) {
+                    if (name.equals(device.getName())) {
+                        bluetooth = new Bluetooth(name, device.getAddress());
+                    }
+                }
+
+                if (bluetooth != null) {
+                    long id = db.addOrUpdateBluetooth(bluetooth);
+                    if (id > 0) {
+                        Preference ps = new CheckBoxPreference(activity);
+                        ps.setTitle(name);
+                        ps.setSummary((bluetooth.getAddress() != null ? bluetooth.getAddress() : "") + (bluetooth.getUsed() > 0 ? "\nConnected on:" + new Date(bluetooth.getUsed()) : ""));
+                        ps.setKey(String.valueOf(id));
+                        ps.setPersistent(false);
+                        category.addPreference(ps);
+                    }
+                }
+                getPreferenceScreen("bt.remove.device").setEnabled(category.getPreferenceCount() > 2);
+            }
+        }
+        dialog.dismiss();
     }
 
     private void prepareBTList() {

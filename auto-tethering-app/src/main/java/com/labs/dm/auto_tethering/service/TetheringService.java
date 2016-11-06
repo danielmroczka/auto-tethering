@@ -85,26 +85,28 @@ import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_ON;
  */
 public class TetheringService extends IntentService {
 
+    private static final String TAG = "TetheringService";
+    private static final int CHECK_DELAY = 5;
+    private static final int NOTIFICATION_ID = 1234;
+    private static final int MINUTE_IN_MS = 60000;
+
     private boolean forceOff = false, forceOn = false;
     private boolean changeMobileState;
+    private boolean initial3GStatus, initialTetheredStatus, initialBluetoothStatus;
+    private boolean blockForceInternet;
+    private boolean runFromActivity;
+    private boolean flag = true;
+    private boolean internetOn;
+    private long lastAccess = getTime().getTimeInMillis();
     private BroadcastReceiver receiver;
     private String lastNotificationTickerText;
     private String connectedDeviceName;
-    private boolean blockForceInternet;
-    private static final String TAG = "TetheringService";
-    private final static int CHECK_DELAY = 5;
     private List<Cron> crons;
     private SharedPreferences prefs;
-    private long lastAccess = getTime().getTimeInMillis();
-    private boolean initial3GStatus, initialTetheredStatus, initialBluetoothStatus;
     private ServiceHelper serviceHelper;
-    private boolean runFromActivity;
-    private boolean flag = true;
     private Notification notification;
-    private final int NOTIFICATION_ID = 1234;
     private Timer timer;
     private TimerTask dataUsageTask, bluetoothTask;
-    private static final int MINUTE_IN_MS = 60 * 1000;
 
     private enum ScheduleResult {
         ON, OFF, NONE
@@ -114,7 +116,7 @@ public class TetheringService extends IntentService {
         DEACTIVATED_ON_IDLE,
         ACTIVATED_ON_SCHEDULE,
         DEACTIVATED_ON_SCHEDULE,
-        USB_ON, USB_OFF,
+        USB_ON,
         DATA_USAGE_LIMIT_EXCEED,
         BT,
         ACTIVATED_ON_CELL, DEACTIVATED_ON_CELL, TEMPERATURE_OFF, DEFAULT
@@ -236,7 +238,7 @@ public class TetheringService extends IntentService {
                         }
 
                         if (status == Status.DEFAULT) {
-                            if (isActivated3G() && !connected3G) {
+                            if (isActivated3G() && !connected3G && !serviceHelper.isConnectedToInternetThroughWiFi()) {
                                 execute(INTERNET_ON);
                             }
                             if (isActivatedTethering() && !tethered) {
@@ -515,8 +517,6 @@ public class TetheringService extends IntentService {
             return true;
         }
     }
-
-    boolean internetOn;
 
     private class TurnOn3GAsyncTask extends AsyncTask<Boolean, Void, Void> {
         @Override
@@ -892,6 +892,7 @@ public class TetheringService extends IntentService {
         }
     }
 
+    //TODO replace with getNotifcationIcon()
     private int getIcon(ServiceAction serviceAction) {
         int icon = R.drawable.app_off;
         if (serviceAction.name().contains("IDLE")) {
