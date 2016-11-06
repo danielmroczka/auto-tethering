@@ -50,6 +50,7 @@ import static com.labs.dm.auto_tethering.TetherIntents.BT_CONNECTED;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_DISCONNECTED;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_RESTORE;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_SEARCH;
+import static com.labs.dm.auto_tethering.TetherIntents.CHANGE_NETWORK_STATE;
 import static com.labs.dm.auto_tethering.TetherIntents.EXIT;
 import static com.labs.dm.auto_tethering.TetherIntents.RESUME;
 import static com.labs.dm.auto_tethering.TetherIntents.TEMPEARTURE_BELOW_LIMIT;
@@ -120,7 +121,7 @@ public class TetheringService extends IntentService {
     }
 
     private final String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF,
-            BT_RESTORE, BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPEARTURE_BELOW_LIMIT};
+            BT_RESTORE, BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPEARTURE_BELOW_LIMIT, CHANGE_NETWORK_STATE};
 
     private Status status = Status.DEFAULT;
 
@@ -547,7 +548,16 @@ public class TetheringService extends IntentService {
     }
 
     private int getNotifcationIcon() {
-        return serviceHelper.isTetheringWiFi() ? serviceHelper.isConnectedToInternetThroughMobile() ? R.drawable.app_on : R.drawable.app_yellow : R.drawable.app_off;
+        boolean tethering = serviceHelper.isTetheringWiFi();
+        boolean internet = serviceHelper.isConnectedToInternetThroughMobile();
+
+        if (tethering && internet) {
+            return R.drawable.app_on;
+        } else if (tethering || internet) {
+            return R.drawable.app_yellow;
+        } else {
+            return R.drawable.app_off;
+        }
     }
 
     private Notification buildNotification(String caption, int icon) {
@@ -656,7 +666,7 @@ public class TetheringService extends IntentService {
                         forceOff = false;
                         forceOn = false;
                     }
-                    showNotification(lastNotificationTickerText, getNotifcationIcon());
+
                     if (prefs.getBoolean(FORCE_NET_FROM_NOTIFY, true)) {
                         forceInternetConnect();
                     }
@@ -741,6 +751,10 @@ public class TetheringService extends IntentService {
                     if (status == Status.TEMPERATURE_OFF && !serviceHelper.isTetheringWiFi()) {
                         execute(TEMP_TETHERING_ON);
                     }
+                    break;
+
+                case CHANGE_NETWORK_STATE:
+                    showNotification(lastNotificationTickerText, getNotifcationIcon());
                     break;
 
                 case EXIT:

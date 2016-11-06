@@ -17,6 +17,7 @@ public class TetherIntents {
     public static final String BT_SEARCH = "bt.search";
     public static final String TEMPERATURE_ABOVE_LIMIT = "temp.overheat.start";
     public static final String TEMPEARTURE_BELOW_LIMIT = "temp.overheat.stop";
+    public static final String CHANGE_NETWORK_STATE = "change.net.state";
 
     //Invents registered in MainActivity
     public static final String CLIENTS = "clients";
