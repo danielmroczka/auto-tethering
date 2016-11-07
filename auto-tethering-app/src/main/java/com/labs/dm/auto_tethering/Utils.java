@@ -190,9 +190,9 @@ public class Utils {
 
     public static String formatDistance(Location location, double distance) {
         if (location.getAccuracy() > AppProperties.GPS_ACCURACY_LIMIT) {
-            return String.format("Distance: %.0f±%.0fm", distance, location.getAccuracy());
+            return String.format("Distance: %s±%.0fm", Utils.humanReadableDistance((long) distance), location.getAccuracy());
         } else {
-            return String.format("Distance: %.0fm", distance);
+            return String.format("Distance: %s", Utils.humanReadableDistance((long) distance));
         }
     }
 
@@ -303,5 +303,22 @@ public class Utils {
         prefs.edit().putLong("data.usage.removeAllData.value", resetValue).apply();
         prefs.edit().putLong("data.usage.removeAllData.timestamp", timestamp).apply();
         prefs.edit().putLong("data.usage.update.timestamp", timestamp).apply();
+    }
+
+    public static String humanReadableByteCount(long bytes) {
+        int unit = 1024;
+        if (bytes < unit) return bytes + "B";
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = "kMGTPE".charAt(exp - 1) + "";
+        return String.format("%.1f%sB", bytes / Math.pow(unit, exp), pre);
+    }
+
+    public static String humanReadableDistance(long bytes) {
+        int unit = 1000;
+        if (bytes < unit) return bytes + "m";
+        if (bytes / 1000d < 9.999) {
+            return String.format("%.2fkm", bytes / 1000d);
+        }
+        return String.format("%.0fkm", bytes / 1000d);
     }
 }
