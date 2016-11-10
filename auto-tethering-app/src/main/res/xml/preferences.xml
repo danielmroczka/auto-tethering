@@ -240,11 +240,6 @@
                     android:key="bt.internet.restore.to.initial"
                     android:summary="When device is no longer in range disconnect internet"
                     android:title="Restore internet state" />
-                <CheckBoxPreference
-                    android:defaultValue="false"
-                    android:key="bt.internet.auto.off"
-                    android:summary="Switch on BT connection only periodically"
-                    android:title="BT on only periodically" />
             </PreferenceCategory>
         </PreferenceScreen>
 

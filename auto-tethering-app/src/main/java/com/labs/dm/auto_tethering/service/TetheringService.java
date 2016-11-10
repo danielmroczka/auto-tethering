@@ -738,7 +738,7 @@ public class TetheringService extends IntentService {
                     break;
 
                 case BT_SEARCH:
-                    new BluetoothTask(getApplicationContext(), prefs, connectedDeviceName, initialBluetoothStatus).execute();
+                    new BluetoothTask(getApplicationContext(), prefs, connectedDeviceName).execute();
                     break;
 
                 case TEMPERATURE_ABOVE_LIMIT:

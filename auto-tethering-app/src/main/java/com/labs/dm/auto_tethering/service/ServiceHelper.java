@@ -282,7 +282,7 @@ public class ServiceHelper {
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         setBluetoothStatus(bluetoothStatus);
         long time = SystemClock.currentThreadTimeMillis();
-        while (adapter.isEnabled() != bluetoothStatus && SystemClock.currentThreadTimeMillis() - time < 3000) {
+        while (adapter.isEnabled() != bluetoothStatus && SystemClock.currentThreadTimeMillis() - time < 10000) {
         }
     }
 
