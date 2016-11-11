@@ -37,7 +37,7 @@
     <string name="switch.off.tethering.idle.summary">Switch off WiFi Tethering on idle</string>
     <string name="activate.on.startup.title">Startup</string>
     <string name="startup.title">Service activation</string>
-    <string name="scheduler.title">Scheduler</string>
+    <string name="scheduler.title">Time Scheduler</string>
     <string name="idle.time.minutes">Idle time in minutes</string>
     <string name="warning">Warning</string>
     <string name="advanced.settings">Advanced Settings</string>
