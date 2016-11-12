@@ -142,6 +142,9 @@ class BluetoothTask {
 
             socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
 
+            //Method m = device.getClass().getMethod("createInsecureRfcommSocket", new Class[] {int.class});
+            //socket = (BluetoothSocket) m.invoke(device, 1);
+
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
             } catch (InterruptedException e) {
