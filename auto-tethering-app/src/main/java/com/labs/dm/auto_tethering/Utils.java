@@ -134,9 +134,9 @@ public class Utils {
         return false;
     }
 
-    public static List<BluetoothDevice> getBluetoothDevices(Context context) {
+    public static List<BluetoothDevice> getBluetoothDevices(Context context, boolean keepConnected) {
         ServiceHelper serviceHelper = new ServiceHelper(context);
-        Set<BluetoothDevice> allBondedDevices = serviceHelper.getBondedDevices();
+        Set<BluetoothDevice> allBondedDevices = serviceHelper.getBondedDevices(keepConnected);
         List<BluetoothDevice> devicesToCheck = new ArrayList<>();
         List<Bluetooth> preferredDevices = DBManager.getInstance(context).readBluetooth();
         for (Bluetooth pref : preferredDevices) {

@@ -283,7 +283,9 @@ public class ServiceHelper {
         setBluetoothStatus(bluetoothStatus);
         long time = SystemClock.currentThreadTimeMillis();
         while (adapter.isEnabled() != bluetoothStatus && SystemClock.currentThreadTimeMillis() - time < 10000) {
+            MyLog.d(TAG, "BT connecting...");
         }
+        MyLog.d(TAG, "BT state = " + adapter.isEnabled());
     }
 
     /**
@@ -292,18 +294,14 @@ public class ServiceHelper {
      *
      * @return
      */
-    public Set<BluetoothDevice> getBondedDevices() {
+    public Set<BluetoothDevice> getBondedDevices(boolean keepConnected) {
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         boolean state = adapter.isEnabled();
         if (!state) {
-            adapter.enable();
-            long time = SystemClock.currentThreadTimeMillis();
-            while (!adapter.isEnabled() && SystemClock.currentThreadTimeMillis() - time < 3000) {
-
-            }
+            setBlockingBluetoothStatus(true);
         }
         Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
-        if (!state) {
+        if (!state && !keepConnected) {
             adapter.disable();
         }
         return pairedDevices;

@@ -65,7 +65,7 @@ class BluetoothTask {
             /**
              * Prepare a list with BluetoothDevice items
              */
-            List<BluetoothDevice> devicesToCheck = Utils.getBluetoothDevices(context);
+            List<BluetoothDevice> devicesToCheck = Utils.getBluetoothDevices(context, true);
             Intent btIntent = null;
 
             if (devicesToCheck.isEmpty() && connectedDeviceName != null) {
@@ -73,13 +73,14 @@ class BluetoothTask {
                 btIntent.putExtra("name", connectedDeviceName);
                 Utils.broadcast(context, btIntent);
                 connectedDeviceName = null;
+                return;
             }
 
             if (!devicesToCheck.isEmpty() && !BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                 /**
                  * Make sure that BT is enabled.
                  */
-                serviceHelper.setBlockingBluetoothStatus(true);
+                serviceHelper.setBluetoothStatus(true);//setBlockingBluetoothStatus(true);
             }
 
             connectEachDevice(devicesToCheck, btIntent);
@@ -130,17 +131,16 @@ class BluetoothTask {
             MyLog.d(TAG, "Connecting to " + device.getName());
 
             UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
-            if (Build.VERSION.SDK_INT <= JELLY_BEAN) {
-                if (parcelUuids != null && parcelUuids.length > 0) {
+
+            if (parcelUuids != null && parcelUuids.length > 0) {
+                if (Build.VERSION.SDK_INT <= JELLY_BEAN) {
                     uuid = parcelUuids[0].getUuid();
-                }
-                socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
-            } else {
-                if (parcelUuids != null && parcelUuids.length > 0) {
+                } else {
                     uuid = parcelUuids.length >= 8 ? parcelUuids[7].getUuid() : parcelUuids[0].getUuid();
                 }
-                socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
             }
+
+            socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
 
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
