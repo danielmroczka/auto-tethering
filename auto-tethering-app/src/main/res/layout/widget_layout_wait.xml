@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:hint="@string/tap_to_switch_on_tethering"
+        android:hint="@string/tap_to_turn_on_tethering"
             android:text="WAIT..."
             android:textColor="#fb0e0e"
             android:textSize="15sp"/>
