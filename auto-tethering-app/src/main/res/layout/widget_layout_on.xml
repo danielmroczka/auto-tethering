@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:clickable="false"
             android:gravity="center"
-            android:hint="@string/tap_to_switch_off_tethering"
+        android:hint="@string/tap_to_turn_off_tethering"
             android:text="@string/on"
             android:textColor="#12c812"
             android:textSize="15sp"/>

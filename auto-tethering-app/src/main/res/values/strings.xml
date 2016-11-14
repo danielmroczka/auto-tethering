@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Auto WiFi Tethering</string>
-    <string name="activate.on.startup.summary">Activate the service on boot</string>
-    <string name="activate.only.title">SIM card white list activation</string>
-    <string name="activate.only.summary">Activate only when SIM card is on the white list</string>
+    <string name="activate.on.startup.summary">Activate the service on device startup</string>
+    <string name="activate.only.title">SIM card whitelist activation</string>
+    <string name="activate.only.summary">Allow tethering only when SIM card is on the whitelist</string>
     <string name="activate.title">Activation</string>
     <string name="scheduler">Turn off tethering and internet connection for specified hours</string>
     <string name="enter.value">Enter value</string>
@@ -15,14 +15,13 @@
     <string name="no">No</string>
     <string name="add.simcard.title">Add current SIM card</string>
     <string name="remove.simcard.title">Remove current SIM card</string>
-    <string name="add.simcard.summary">Add current SIM card to the white list (all simcards on the list will be
+    <string name="add.simcard.summary">Add current SIM card to the whitelist (all simcards on the list will be
         acceptable)
     </string>
-    <string name="remove.simcard.summary">Remove current SIM card from the white list (connection will be denied if
+    <string name="remove.simcard.summary">Remove current SIM card from the whitelist (connection will be denied if
         phone uses this simcard)
     </string>
-    <string name="simcard.warn">Removed SIM card from list and checked option \'Activate on SIM card from the white
-        lists results that app will not be activated
+    <string name="simcard.warn">Removed SIM card from list and checked option \'Activate on SIM card from the whitelist results that app will not be activated
     </string>
     <string name="cannot.read.simcard">Unable to retrieve SIM card serial!</string>
     <string name="adv.activity.setting.summary">Advanced activity settings</string>
@@ -31,10 +30,10 @@
     <string name="ssid.conf">SSID Configuration</string>
     <string name="other.settings">Administration</string>
     <string name="enter.value.minutes">Enter value in minutes</string>
-    <string name="switch.off.internet.idle.title">Internet connection</string>
-    <string name="switch.off.internet.idle.summary">Switch off Internet Connection on idle</string>
-    <string name="switch.off.tethering.idle.title">WiFi Tethering</string>
-    <string name="switch.off.tethering.idle.summary">Switch off WiFi Tethering on idle</string>
+    <string name="turn.off.internet.idle.title">Internet connection</string>
+    <string name="turn.off.internet.idle.summary">Turn off Internet Connection on idle</string>
+    <string name="turn.off.tethering.idle.title">WiFi Tethering</string>
+    <string name="turn.off.tethering.idle.summary">Turn off WiFi Tethering on idle</string>
     <string name="activate.on.startup.title">Startup</string>
     <string name="startup.title">Service activation</string>
     <string name="scheduler.title">Time Scheduler</string>
@@ -65,15 +64,15 @@
     <string name="title_activity_sim_card_list">SimCardListActivity</string>
     <string name="roaming.service.disabled">Service disabled due to roaming network</string>
     <string name="simcard.service.disabled">Service disabled due to using restricted SIM card</string>
-    <string name="activate.keep.service.title">Run service in background</string>
+    <string name="activate.keep.service.title">Service in background</string>
     <string name="activate.keep.service.summary">Keep service running after start tethering</string>
     <string name="turn_on_off_wifi_tethering">Turn on/off WiFi tethering</string>
     <string name="turn_on_off_internet_connection">Turn on/off internet connection</string>
     <string name="add_widget">ADD WIDGET</string>
     <string name="version">version:</string>
     <string name="author">author: Daniel Mroczka</string>
-    <string name="scheduled_switch_off">Scheduled switch OFF</string>
-    <string name="scheduled_switch_on">Scheduled switch ON</string>
+    <string name="scheduled_turn_off">Scheduled turn OFF</string>
+    <string name="scheduled_turn_on">Scheduled turn ON</string>
     <string name="repeat_weekly_on">Repeat weekly on:</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
@@ -84,15 +83,15 @@
     <string name="about">About</string>
     <string name="reset_settings">Reset settings</string>
     <string name="exit">Exit</string>
-    <string name="tap_to_switch_on_tethering">Tap to switch on tethering</string>
-    <string name="tap_to_switch_off_tethering">Tap to switch off tethering</string>
+    <string name="tap_to_turn_on_tethering">Tap to turn on tethering</string>
+    <string name="tap_to_turn_off_tethering">Tap to turn off tethering</string>
     <string name="on">ON</string>
     <string name="off">OFF</string>
     <string name="title">Title</string>
     <string name="summary">Summary</string>
     <string name="widget.conf.title">Widget Configuration</string>
     <!-- RELEASE NOTES -->
-    <string name="release_notes">[x] Fix for Notification Push (sometimes colour of status has not been updated correctly)</string>
+    <string name="release_notes">[x] Some fixes for Bluetooth activation\n\n[x] Redesign main menu\n\n[x] Improve readability of distance and data usage</string>
     <string name="activate_tethering_usb_on">Tethering activated on USB connection</string>
     <string name="activate_internet_usb_on">Internet activated on USB connection</string>
     <string name="activate_tethering_usb_off">Tethering deactivated on USB disconnect</string>
@@ -102,9 +101,9 @@
     <string name="activate_internet_bt_on">Internet activated on BT connection</string>
     <string name="bluetooth_on">Bluetooth activation</string>
     <string name="bluetooth_off">Bluetooth deactivation</string>
-    <string name="cell_on">Activated on cellular network Coverage</string>
+    <string name="cell_on">Activated on cellular network coverage</string>
     <string name="cell_off">Deactivated on cellular network coverage</string>
-    <string name="temp_off">Tethering switched off due to high battery temperature</string>
-    <string name="temp_on">Tethering switched on due to return to normal battery temperature</string>
+    <string name="temp_off">Tethering turned off due to high battery temperature</string>
+    <string name="temp_on">Tethering turned on due to return to normal battery temperature</string>
 </resources>
 

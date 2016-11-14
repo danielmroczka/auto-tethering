@@ -19,7 +19,7 @@
                 android:layout_height="wrap_content"
                 android:checked="true"
                 android:labelFor="@+id/scheduleTimeOff"
-                android:text="@string/scheduled_switch_off"
+            android:text="@string/scheduled_turn_off"
                 android:textAppearance="?android:attr/textAppearanceMedium"/>
 
         <TimePicker
@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:checked="true"
                 android:labelFor="@+id/scheduleTimeOn"
-                android:text="@string/scheduled_switch_on"
+            android:text="@string/scheduled_turn_on"
                 android:textAppearance="?android:attr/textAppearanceMedium"/>
 
         <TimePicker

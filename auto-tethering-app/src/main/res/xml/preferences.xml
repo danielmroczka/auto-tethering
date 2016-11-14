@@ -47,11 +47,11 @@
         android:key="source.activation"
         android:title="Source of activation">
 
-        <PreferenceCategory android:title="General">
+        <PreferenceCategory android:title="General settings">
             <PreferenceScreen
                 android:icon="@drawable/ic_clock"
                 android:key="scheduler.screen"
-                android:summary=""
+                android:summary="Manage tethering with scheduler"
                 android:title="@string/scheduler.title">
                 <PreferenceScreen
                     android:icon="@drawable/ic_add"
@@ -69,12 +69,12 @@
                 <CheckBoxPreference
                     android:icon="@drawable/ic_usb"
                     android:key="usb.only.when.connected"
-                    android:summary="Service and tethering active only when connected to USB port or AC charger"
+                    android:summary="Service and tethering activate only when connected to USB or AC charger"
                     android:title="Only when connected" />
                 <CheckBoxPreference
                     android:icon="@drawable/ic_battery_level"
                     android:key="usb.off.battery.lvl"
-                    android:summary="Turn off tethering if battery is below the level"
+                    android:summary="Don't tether if battery is below the level"
                     android:title="Battery level" />
                 <EditTextPreference
                     android:defaultValue="15"
@@ -135,7 +135,29 @@
                         android:title="New deactivation group" />
                 </PreferenceCategory>
             </PreferenceScreen>
-
+            <PreferenceScreen
+                android:icon="@drawable/ic_bluetooth"
+                android:key="screen.bluetooth"
+                android:summary="Activates tethering when preferred Bluetooth devices are available"
+                android:title="Bluetooth activation">
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="bt.start.discovery"
+                    android:summary="Check periodically preferred devices if they are available"
+                    android:title="Find Bluetooth devices" />
+                <PreferenceCategory
+                    android:key="bt.list"
+                    android:title="Bluetooth devices whitelist">
+                    <PreferenceScreen
+                        android:icon="@drawable/ic_add"
+                        android:key="bt.add.device"
+                        android:title="Add Bluetooth device" />
+                    <PreferenceScreen
+                        android:icon="@drawable/ic_remove"
+                        android:key="bt.remove.device"
+                        android:title="Remove selected" />
+                </PreferenceCategory>
+            </PreferenceScreen>
         </PreferenceCategory>
 
         <PreferenceCategory android:title="SIM Card or Roaming">
@@ -178,18 +200,18 @@
                 android:title="International roaming" />
         </PreferenceCategory>
 
-        <PreferenceCategory android:title="When tethering deactivated">
+        <PreferenceCategory android:title="When tethering is deactivated">
             <PreferenceScreen
                 android:icon="@drawable/ic_sleep"
                 android:key="idle.screen"
-                android:summary="Switch off tethering when no one is connected"
+                android:summary="Turn off tethering when no device is connected"
                 android:title="Deactivate on idle">
                 <CheckBoxPreference
                     android:defaultValue="false"
                     android:icon="@drawable/ic_wifi"
                     android:key="idle.wifi.off"
-                    android:summary="@string/switch.off.tethering.idle.summary"
-                    android:title="@string/switch.off.tethering.idle.title" />
+                    android:summary="@string/turn.off.tethering.idle.summary"
+                    android:title="@string/turn.off.tethering.idle.title" />
                 <EditTextPreference
                     android:defaultValue="60"
                     android:dependency="idle.wifi.off"
@@ -204,8 +226,8 @@
                     android:defaultValue="false"
                     android:icon="@drawable/ic_signal"
                     android:key="idle.3g.off"
-                    android:summary="@string/switch.off.internet.idle.summary"
-                    android:title="@string/switch.off.internet.idle.title" />
+                    android:summary="@string/turn.off.internet.idle.summary"
+                    android:title="@string/turn.off.internet.idle.title" />
                 <EditTextPreference
                     android:defaultValue="60"
                     android:dependency="idle.3g.off"
@@ -227,7 +249,7 @@
                 android:icon="@drawable/ic_stats"
                 android:key="data.limit"
                 android:summary="Helps to control data usage on tethering"
-                android:title="Data usage">
+                android:title="Monitoring data usage">
                 <CheckBoxPreference
                     android:key="data.limit.on"
                     android:summary="Turn off tethering once data usage exceed the limit"
@@ -261,8 +283,8 @@
 
             <PreferenceScreen
                 android:icon="@drawable/ic_temperature"
-                android:summary="Switch off when the temperature exceeded"
-                android:title="Battery temperature monitoring">
+                android:summary="Turn off when the temperature is too high"
+                android:title="Battery temperature">
                 <CheckBoxPreference
                     android:defaultValue="false"
                     android:key="temp.monitoring.enable"
@@ -323,43 +345,14 @@
             android:title="Vibrate" />
     </PreferenceScreen>
 
-    <PreferenceScreen
-        android:icon="@drawable/ic_experimental"
-        android:key="experimental"
-        android:summary="Features under development"
-        android:title="Experimental">
-
+    <!--
         <PreferenceScreen
-            android:icon="@drawable/ic_bluetooth"
-            android:key="screen.bluetooth"
-            android:summary="Activates tethering when Bluetooth device is near"
-            android:title="Bluetooth activation">
-            <CheckBoxPreference
-                android:defaultValue="false"
-                android:key="bt.start.discovery"
-                android:summary="Scan if preferred devices are available"
-                android:title="Find Bluetooth devices" />
-            <PreferenceCategory
-                android:key="bt.list"
-                android:title="Bluetooth devices whitelist">
-                <PreferenceScreen
-                    android:icon="@drawable/ic_add"
-                    android:key="bt.add.device"
-                    android:title="Add Bluetooth device" />
-                <PreferenceScreen
-                    android:icon="@drawable/ic_remove"
-                    android:key="bt.remove.device"
-                    android:title="Remove selected" />
-            </PreferenceCategory>
-            <PreferenceCategory android:title="Other bluetooth settings">
-                <CheckBoxPreference
-                    android:defaultValue="false"
-                    android:key="bt.internet.restore.to.initial"
-                    android:summary="When device is no longer in range disconnect internet"
-                    android:title="Restore internet state" />
-            </PreferenceCategory>
+            android:icon="@drawable/ic_experimental"
+            android:key="experimental"
+            android:summary="Features under development"
+            android:title="Experimental">
         </PreferenceScreen>
-    </PreferenceScreen>
+    -->
 
     <PreferenceCategory
         android:icon="@drawable/ic_wifi"
