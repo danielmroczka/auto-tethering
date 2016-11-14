@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_CONNECTED;
@@ -34,35 +35,29 @@ class BluetoothTask {
     private final SharedPreferences prefs;
     private String TAG = "FindBT";
     private final String connectedDeviceName;
-    private final boolean initialBluetoothStatus;
     private Context context;
 
-    public BluetoothTask(Context context, SharedPreferences prefs, String connectedDeviceName, boolean initialBluetoothStatus) {
+    public BluetoothTask(Context context, SharedPreferences prefs, String connectedDeviceName) {
         this.context = context;
         this.context = context;
         this.prefs = prefs;
         this.connectedDeviceName = connectedDeviceName;
-        this.initialBluetoothStatus = initialBluetoothStatus;
     }
 
     public void execute() {
         Handler mainHandler = new Handler(context.getMainLooper());
-        mainHandler.post(new BluetoothThread(context, prefs, connectedDeviceName, initialBluetoothStatus));
+        mainHandler.post(new BluetoothThread(context, connectedDeviceName));
     }
 
     private class BluetoothThread implements Runnable {
         private final ServiceHelper serviceHelper;
         private final Context context;
-        private final SharedPreferences prefs;
         private String connectedDeviceName;
-        private final boolean initialBluetoothStatus;
 
-        public BluetoothThread(Context context, SharedPreferences prefs, String connectedDeviceName, boolean initialBluetoothStatus) {
+        public BluetoothThread(Context context, String connectedDeviceName) {
             this.serviceHelper = new ServiceHelper(context);
             this.context = context;
-            this.prefs = prefs;
             this.connectedDeviceName = connectedDeviceName;
-            this.initialBluetoothStatus = initialBluetoothStatus;
         }
 
         @Override
@@ -70,7 +65,7 @@ class BluetoothTask {
             /**
              * Prepare a list with BluetoothDevice items
              */
-            List<BluetoothDevice> devicesToCheck = Utils.getBluetoothDevices(context);
+            List<BluetoothDevice> devicesToCheck = Utils.getBluetoothDevices(context, true);
             Intent btIntent = null;
 
             if (devicesToCheck.isEmpty() && connectedDeviceName != null) {
@@ -78,20 +73,17 @@ class BluetoothTask {
                 btIntent.putExtra("name", connectedDeviceName);
                 Utils.broadcast(context, btIntent);
                 connectedDeviceName = null;
+                return;
             }
 
-            if (!devicesToCheck.isEmpty()) {
+            if (!devicesToCheck.isEmpty() && !BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                 /**
                  * Make sure that BT is enabled.
                  */
-                serviceHelper.setBlockingBluetoothStatus(true);
+                serviceHelper.setBluetoothStatus(true);//setBlockingBluetoothStatus(true);
             }
 
             connectEachDevice(devicesToCheck, btIntent);
-
-            if (prefs.getBoolean("bt.internet.auto.off", false) && !initialBluetoothStatus) {
-                serviceHelper.setBlockingBluetoothStatus(false);
-            }
         }
 
         private void connectEachDevice(List<BluetoothDevice> devicesToCheck, Intent btIntent) {
@@ -136,20 +128,29 @@ class BluetoothTask {
             BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
             BluetoothSocket socket;
 
+            MyLog.d(TAG, "Connecting to " + device.getName());
+
             UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
-            if (Build.VERSION.SDK_INT <= JELLY_BEAN) {
-                if (parcelUuids != null && parcelUuids.length > 0) {
+
+            if (parcelUuids != null && parcelUuids.length > 0) {
+                if (Build.VERSION.SDK_INT <= JELLY_BEAN) {
                     uuid = parcelUuids[0].getUuid();
-                }
-                socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
-            } else {
-                if (parcelUuids != null && parcelUuids.length > 0) {
+                } else {
                     uuid = parcelUuids.length >= 8 ? parcelUuids[7].getUuid() : parcelUuids[0].getUuid();
                 }
-                socket = device.createRfcommSocketToServiceRecord(uuid);
             }
 
-            MyLog.d(TAG, "Connecting to " + device.getName());
+            socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+
+            //Method m = device.getClass().getMethod("createInsecureRfcommSocket", new Class[] {int.class});
+            //socket = (BluetoothSocket) m.invoke(device, 1);
+
+            try {
+                TimeUnit.MILLISECONDS.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             boolean alreadyConnected = false;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH && socket.isConnected()) {
                 updateTimestamp(device);
@@ -162,7 +163,18 @@ class BluetoothTask {
                     updateTimestamp(device);
                     MyLog.d(TAG, "Connected to " + device.getName());
                 } finally {
-                    socket.close();
+
+                    if (socket != null) {
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(100);
+                            socket.getInputStream().close();
+                            socket.getOutputStream().close();
+                            socket.close();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
                 }
             }
         }

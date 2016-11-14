@@ -63,7 +63,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
 
                         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(activity, android.R.layout.select_dialog_singlechoice);
 
-                        final Set<BluetoothDevice> pairedDevices = new ServiceHelper(activity).getBondedDevices();
+                        final Set<BluetoothDevice> pairedDevices = new ServiceHelper(activity).getBondedDevices(false);
                         for (BluetoothDevice device : pairedDevices) {
                             arrayAdapter.add(device.getName());
                         }
@@ -184,7 +184,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
     private void prepareBTList() {
         clean();
         PreferenceCategory pc = getPreferenceCategory("bt.list");
-        Set<BluetoothDevice> bondedDevices = new ServiceHelper(activity).getBondedDevices();
+        Set<BluetoothDevice> bondedDevices = new ServiceHelper(activity).getBondedDevices(false);
         List<Bluetooth> preferredDevices = db.readBluetooth();
 
         for (Bluetooth device : preferredDevices) {

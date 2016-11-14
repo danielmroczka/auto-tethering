@@ -13,6 +13,7 @@ import android.text.InputFilter;
 import android.view.Gravity;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
@@ -20,7 +21,9 @@ import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
-import static com.labs.dm.auto_tethering.AppProperties.*;
+import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
+import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
+import static com.labs.dm.auto_tethering.AppProperties.SSID;
 import static com.labs.dm.auto_tethering.activity.MainActivity.ON_CHANGE_SSID;
 
 /**
@@ -113,7 +116,10 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
                             })
                             .setNegativeButton(R.string.no, null
                             ).show();
+                } else if ((Boolean) newValue) {
+                    Toast.makeText(activity, "Enable tethering while roaming outside the Home Country may charge you additional costs!", Toast.LENGTH_LONG).show();
                 }
+
                 return true;
             }
         });

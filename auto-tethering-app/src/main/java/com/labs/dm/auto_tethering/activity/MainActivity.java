@@ -36,6 +36,7 @@ import com.labs.dm.auto_tethering.ListenerManager;
 import com.labs.dm.auto_tethering.LogActivity;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
+import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterAddSimCardListenerHelper;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterSchedulerListenerHelper;
 import com.labs.dm.auto_tethering.db.DBManager;
@@ -90,7 +91,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            switchOffPreferences("activate.3g", "idle.3g.off", "force.net.from.notify", "usb.internet.force.off", "usb.internet.force.on", "bt.internet.restore.to.initial");
+            switchOffPreferences("activate.3g", "idle.3g.off", "force.net.from.notify", "usb.internet.force.off", "usb.internet.force.on");
         }
     }
 
@@ -115,7 +116,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     Format dateFormat = DateFormat.getDateFormat(getApplicationContext());
                     Format timeFormat = DateFormat.getTimeFormat(getApplicationContext());
                     Date date = new Date(prefs.getLong("data.usage.removeAllData.timestamp", 0));
-                    dataUsage.setSummary(String.format("%.2f MB from %s %s", intent.getLongExtra("value", 0) / 1048576f, dateFormat.format(date), timeFormat.format(date)));
+                    dataUsage.setSummary(String.format("%s from %s %s", Utils.humanReadableByteCount(intent.getLongExtra("value", 0)), dateFormat.format(date), timeFormat.format(date)));
                 } else if (TetherIntents.UNLOCK.equals(intent.getAction())) {
                     NotificationManager nMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     nMgr.cancel(NOTIFICATION_ID);
