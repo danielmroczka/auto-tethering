@@ -354,6 +354,12 @@
         </PreferenceScreen>
     -->
 
+    <PreferenceScreen
+        android:title="USB Tethering"
+        android:key="usb.tether">
+
+    </PreferenceScreen>
+
     <PreferenceCategory
         android:icon="@drawable/ic_wifi"
         android:key="ssid.screen"

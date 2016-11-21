@@ -139,6 +139,15 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
 
         EditTextPreference delay = getEditTextPreference("activate.on.startup.delay");
         delay.setOnPreferenceChangeListener(changeListener);
+
+        PreferenceScreen usb = getPreferenceScreen("usb.tether");
+        usb.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                serviceHelper.usbTethering(true);
+                return false;
+            }
+        });
     }
 
     private void startService() {

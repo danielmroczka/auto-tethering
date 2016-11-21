@@ -193,6 +193,27 @@ public class ServiceHelper {
         return null;
     }
 
+    public void usbTether(boolean value) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        for (Method m : cm.getClass().getDeclaredMethods()) {
+
+            if (m.getName().equals("tether")) {
+                try {
+                    m.invoke(cm, "usb0");
+                } catch (IllegalArgumentException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     @Deprecated
     public void usbTethering(boolean value) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
