@@ -240,15 +240,14 @@ public class TetheringService extends IntentService {
                         if (status == Status.DEFAULT) {
                             if (isActivated3G() && !connected3G && !serviceHelper.isConnectedToInternetThroughWiFi()) {
                                 execute(INTERNET_ON);
-                            }
-                            if (isActivatedTethering() && !tethered) {
+                            } else if (isActivatedTethering() && !tethered) {
                                 execute(TETHER_ON);
-                            }
-                            if (!isActivatedTethering() && tethered) {
+                            } else if (!isActivatedTethering() && tethered) {
                                 execute(TETHER_OFF);
-                            }
-                            if (internetOn && !isActivated3G() && connected3G) {
+                            } else if (internetOn && !isActivated3G() && connected3G) {
                                 execute(INTERNET_OFF);
+                            } else {
+                                showNotification(lastNotificationTickerText, getNotifcationIcon());
                             }
                         }
                     } else {
@@ -819,9 +818,11 @@ public class TetheringService extends IntentService {
                 id = R.string.notification_tethering_off;
                 break;
             case INTERNET_ON:
-                updateLastAccess();
-                status = Status.DEFAULT;
-                id = R.string.notification_internet_restored;
+                if (!Utils.isAirplaneModeOn(getApplicationContext())) {
+                    updateLastAccess();
+                    status = Status.DEFAULT;
+                    id = R.string.notification_internet_restored;
+                }
                 break;
             case INTERNET_OFF:
                 id = R.string.notification_internet_off;
