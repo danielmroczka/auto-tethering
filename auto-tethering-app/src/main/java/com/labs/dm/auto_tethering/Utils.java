@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.telephony.CellLocation;
 import android.telephony.TelephonyManager;
 import android.telephony.cdma.CdmaCellLocation;
 import android.telephony.gsm.GsmCellLocation;
@@ -219,17 +220,22 @@ public class Utils {
         final TelephonyManager tel = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         int mnc = 0, mcc = 0, lac = 0, cid = 0;
         String networkOperator = tel.getNetworkOperator();
-        if (!TextUtils.isEmpty(networkOperator)) {
+
+        if (!TextUtils.isEmpty(networkOperator) && networkOperator.length() >= 3) {
             mcc = Integer.parseInt(networkOperator.substring(0, 3));
             mnc = Integer.parseInt(networkOperator.substring(3));
         }
 
-        if (tel.getCellLocation() instanceof GsmCellLocation) {
-            lac = ((GsmCellLocation) tel.getCellLocation()).getLac();
-            cid = ((GsmCellLocation) tel.getCellLocation()).getCid();
-        } else if (tel.getCellLocation() instanceof CdmaCellLocation) {
-            lac = ((CdmaCellLocation) tel.getCellLocation()).getSystemId();
-            cid = ((CdmaCellLocation) tel.getCellLocation()).getBaseStationId();
+        CellLocation cell = tel.getCellLocation();
+
+        if (cell != null) {
+            if (cell instanceof GsmCellLocation) {
+                lac = ((GsmCellLocation) cell).getLac();
+                cid = ((GsmCellLocation) cell).getCid();
+            } else if (tel.getCellLocation() instanceof CdmaCellLocation) {
+                lac = ((CdmaCellLocation) cell).getSystemId();
+                cid = ((CdmaCellLocation) cell).getBaseStationId();
+            }
         }
 
         return new Cellular(mcc, mnc, lac, cid);
