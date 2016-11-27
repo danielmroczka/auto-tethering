@@ -91,7 +91,7 @@
     <string name="summary">Summary</string>
     <string name="widget.conf.title">Widget Configuration</string>
     <!-- RELEASE NOTES -->
-    <string name="release_notes">[x] Some fixes for Bluetooth activation\n\n[x] Redesign main menu\n\n[x] Improve readability of distance and data usage</string>
+    <string name="release_notes">[x] Fix for NPE in Cellular Info\n\n[x] Fix for tethering when device in airplane mode\n\n</string>
     <string name="activate_tethering_usb_on">Tethering activated on USB connection</string>
     <string name="activate_internet_usb_on">Internet activated on USB connection</string>
     <string name="activate_tethering_usb_off">Tethering deactivated on USB disconnect</string>
