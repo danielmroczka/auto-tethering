@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 
@@ -92,7 +93,7 @@ public class TetheringService extends IntentService {
 
     private boolean forceOff = false, forceOn = false;
     private boolean changeMobileState;
-    private boolean initial3GStatus, initialTetheredStatus, initialBluetoothStatus;
+    private boolean initial3GStatus, initialTetheredStatus, initialBluetoothStatus, initialWifiStatus;
     private boolean blockForceInternet;
     private boolean runFromActivity;
     private boolean flag = true;
@@ -176,6 +177,7 @@ public class TetheringService extends IntentService {
         initial3GStatus = serviceHelper.isConnectedToInternetThroughMobile();
         initialTetheredStatus = serviceHelper.isTetheringWiFi();
         initialBluetoothStatus = serviceHelper.isBluetoothActive();
+        initialWifiStatus = serviceHelper.isConnectedToInternetThroughWiFi();
     }
 
     @Override
@@ -247,7 +249,7 @@ public class TetheringService extends IntentService {
                             } else if (internetOn && !isActivated3G() && connected3G) {
                                 execute(INTERNET_OFF);
                             } else {
-                                showNotification(lastNotificationTickerText, getNotifcationIcon());
+                                //  showNotification(lastNotificationTickerText, getNotifcationIcon());
                             }
                         }
                     } else {
@@ -638,6 +640,15 @@ public class TetheringService extends IntentService {
         if (prefs.getBoolean(RETURN_TO_PREV_STATE, false) && prefs.getBoolean(ACTIVATE_KEEP_SERVICE, true)) {
             serviceHelper.setMobileDataEnabled(initial3GStatus);
             serviceHelper.setWifiTethering(initialTetheredStatus);
+        }
+        if (initialWifiStatus) {
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    serviceHelper.enableWifi();
+                }
+            }, 1000);
         }
         serviceHelper.setBluetoothStatus(initialBluetoothStatus);
     }

@@ -304,4 +304,8 @@ public class ServiceHelper {
         }
         return pairedDevices;
     }
+
+    public void enableWifi() {
+        wifiManager.setWifiEnabled(true);
+    }
 }
