@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:background="@mipmap/ic_wifi_widget_on"
+        android:background="@mipmap/ic_wifi_widget_warn"
         android:clickable="false" />
 
     <TextView
@@ -22,6 +22,6 @@
         android:gravity="center"
         android:hint="@string/tap_to_turn_off_tethering"
         android:text="@string/on"
-        android:textColor="#12c812"
+        android:textColor="#ffc400"
         android:textSize="15sp" />
 </LinearLayout>
