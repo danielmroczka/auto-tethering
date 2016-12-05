@@ -40,7 +40,6 @@ import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING_HC;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
 import static com.labs.dm.auto_tethering.AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.FORCE_NET_FROM_NOTIFY;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
@@ -581,7 +580,6 @@ public class TetheringService extends IntentService {
                     .setStyle(new Notification.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
 
             Intent onIntent = new Intent(TETHERING);
-            onIntent.putExtra("notification", true);
             PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             int drawable = R.drawable.ic_service24;
@@ -651,50 +649,38 @@ public class TetheringService extends IntentService {
             MyLog.i(TAG, intent.getAction());
             switch (intent.getAction()) {
                 case TETHERING:
-                    boolean fromNotification = intent.getBooleanExtra("notification", false);
+
                     if (forceOn && !forceOff) {
                         // Turn OFF
                         forceOff = true;
                         forceOn = false;
+                        blockForceInternet = false;
                         execute(TETHER_OFF);
-                        if (fromNotification) {
-                            blockForceInternet = true;
-                            execute(INTERNET_OFF);
-                        }
+                        execute(INTERNET_OFF);
                     } else if (!forceOff && !forceOn) {
                         // Turn ON
                         forceOn = true;
-                        if (fromNotification) {
-                            blockForceInternet = true;
-                            execute(INTERNET_ON);
-                        }
+                        blockForceInternet = false;
+                        execute(INTERNET_ON);
                         execute(TETHER_ON);
                     } else {
                         // Service ON
                         forceOff = false;
                         forceOn = false;
                         onService();
+                        showNotification(lastNotificationTickerText, getNotificationIcon());
                     }
-
-                    if (prefs.getBoolean(FORCE_NET_FROM_NOTIFY, true)) {
-                        //    forceInternetConnect();
-                    }
-                    break;
-
-                case RESUME:
-                    updateLastAccess();
-                    status = Status.DEFAULT;
                     break;
 
                 case WIDGET:
                     changeMobileState = intent.getExtras().getBoolean("changeMobileState", false);
+                    blockForceInternet = true;
 
                     if (serviceHelper.isTetheringWiFi()) {
                         forceOff = true;
                         forceOn = false;
                         execute(TETHER_OFF);
                     } else {
-                        blockForceInternet = true;
                         forceOn = true;
                         forceOff = false;
                         status = Status.DEFAULT;
@@ -704,6 +690,11 @@ public class TetheringService extends IntentService {
                     if (changeMobileState) {
                         forceInternetConnect();
                     }
+                    break;
+
+                case RESUME:
+                    updateLastAccess();
+                    status = Status.DEFAULT;
                     break;
 
                 case USB_ON:
@@ -804,16 +795,19 @@ public class TetheringService extends IntentService {
     }
 
     private void onService() {
-        if (isActivated3G() && !serviceHelper.isConnectedToInternetThroughMobile() && !serviceHelper.isConnectedToInternetThroughWiFi()) {
+        boolean tethering = serviceHelper.isTetheringWiFi();
+        boolean mobileOn = serviceHelper.isConnectedToInternetThroughMobile();
+
+        if (isActivated3G() && !mobileOn) {
             execute(INTERNET_ON);
-        } else if (isActivatedTethering() && !serviceHelper.isTetheringWiFi()) {
-            execute(TETHER_ON);
-        } else if (!isActivatedTethering() && serviceHelper.isTetheringWiFi()) {
-            execute(TETHER_OFF);
-        } else if (internetOn && !isActivated3G() && serviceHelper.isConnectedToInternetThroughMobile()) {
+        } else if (internetOn && !isActivated3G() && mobileOn) {
             execute(INTERNET_OFF);
-        } else {
-            showNotification(lastNotificationTickerText, getNotificationIcon());
+        }
+
+        if (isActivatedTethering() && !tethering) {
+            execute(TETHER_ON);
+        } else if (tethering && !isActivatedTethering()) {
+            execute(INTERNET_OFF);
         }
     }
 
@@ -937,20 +931,10 @@ public class TetheringService extends IntentService {
         int icon = R.drawable.app_off;
         if (serviceAction.name().contains("IDLE")) {
             icon = R.drawable.app_off;
-        } else if (serviceAction.isOn()) {
-            if ((serviceAction.isTethering() && serviceHelper.isConnectedOrConnectingToInternet()) || (serviceAction.isInternet() && serviceHelper.isTetheringWiFi())) {
-                icon = R.drawable.app_on;
-            } else {
-                icon = R.drawable.app_yellow;
-            }
-        } else if (!serviceAction.isOn()) {
-            if ((serviceAction.isTethering() && !serviceHelper.isConnectedToInternetThroughMobile()) || (serviceAction.isInternet() && !serviceHelper.isTetheringWiFi())) {
-                icon = R.drawable.app_off;
-            } else {
-                icon = R.drawable.app_yellow;
-            }
         } else if (serviceHelper.isConnectedToInternetThroughMobile() && serviceHelper.isTetheringWiFi()) {
             icon = R.drawable.app_on;
+        } else if (serviceHelper.isConnectedOrConnectingToInternet() || serviceHelper.isTetheringWiFi()) {
+            icon = R.drawable.app_yellow;
         }
         return icon;
     }
