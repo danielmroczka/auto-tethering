@@ -22,7 +22,7 @@
         android:gravity="center"
         android:hint="@string/tap_to_turn_on_tethering"
         android:text="WAIT..."
-        android:textColor="#fb0e0e"
+        android:textColor="#ffd600"
         android:textSize="15sp" />
 
 </LinearLayout>

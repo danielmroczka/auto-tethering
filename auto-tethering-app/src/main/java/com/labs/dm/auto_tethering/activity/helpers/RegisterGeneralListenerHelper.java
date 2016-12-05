@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.R;
+import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
@@ -139,6 +140,25 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
 
         EditTextPreference delay = getEditTextPreference("activate.on.startup.delay");
         delay.setOnPreferenceChangeListener(changeListener);
+
+        final CheckBoxPreference tetheringOn = getCheckBoxPreference("activate.tethering");
+        tetheringOn.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+
+                activity.sendBroadcast(new Intent(tetheringOn.isChecked() ? TetherIntents.TETHER_ON : TetherIntents.TETHER_OFF));
+                return false;
+            }
+        });
+        final CheckBoxPreference internetOn = getCheckBoxPreference("activate.3g");
+        internetOn.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+
+                activity.sendBroadcast(new Intent(internetOn.isChecked() ? TetherIntents.INTERNET_ON : TetherIntents.INTERNET_OFF));
+                return false;
+            }
+        });
     }
 
     private void startService() {

@@ -19,6 +19,11 @@ public class TetherIntents {
     public static final String TEMPEARTURE_BELOW_LIMIT = "temp.overheat.stop";
     public static final String CHANGE_NETWORK_STATE = "change.net.state";
 
+    public static final String TETHER_ON = "tether.on";
+    public static final String TETHER_OFF = "tether.off";
+    public static final String INTERNET_ON = "internet.on";
+    public static final String INTERNET_OFF = "internet.off";
+
     //Invents registered in MainActivity
     public static final String CLIENTS = "clients";
     public static final String DATA_USAGE = "data.usage";
