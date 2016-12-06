@@ -4,11 +4,11 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.preference.PreferenceManager;
+
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.TetherIntents;
-
-import java.util.concurrent.TimeUnit;
 
 import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
 import static android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID;
@@ -28,21 +28,20 @@ public class WidgetService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         boolean state = serviceHelper.isTetheringWiFi();
         MyLog.i("WidgetService", "onHandleIntent, state=" + state + ", extras=" + intent.getExtras().toString());
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        int widgetId = intent.getIntExtra(EXTRA_APPWIDGET_ID, INVALID_APPWIDGET_ID);
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        final int widgetId = intent.getIntExtra(EXTRA_APPWIDGET_ID, INVALID_APPWIDGET_ID);
 
         if (!serviceHelper.isServiceRunning(TetheringService.class) && prefs.getBoolean(key(widgetId, "start.service"), false)) {
             Intent serviceIntent = new Intent(this, TetheringService.class);
             startService(serviceIntent);
-            //TODO Remove sleep
-            try {
-                TimeUnit.MILLISECONDS.sleep(250);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            Intent onIntent = new Intent(TetherIntents.WIDGET);
-            onIntent.putExtra("changeMobileState", prefs.getBoolean(key(widgetId, "mobile"), false));
-            sendBroadcast(onIntent);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent onIntent = new Intent(TetherIntents.WIDGET);
+                    onIntent.putExtra("changeMobileState", prefs.getBoolean(key(widgetId, "mobile"), false));
+                    sendBroadcast(onIntent);
+                }
+            }, 250);
         } else if (serviceHelper.isServiceRunning(TetheringService.class)) {
             Intent onIntent = new Intent(TetherIntents.WIDGET);
             onIntent.putExtra("changeMobileState", prefs.getBoolean(key(widgetId, "mobile"), false));

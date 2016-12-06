@@ -126,7 +126,7 @@ class BluetoothTask {
             Method method = device.getClass().getMethod("getUuids");
             ParcelUuid[] parcelUuids = (ParcelUuid[]) method.invoke(device);
             BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-            BluetoothSocket socket;
+            final BluetoothSocket socket;
 
             MyLog.d(TAG, "Connecting to " + device.getName());
 
@@ -141,9 +141,6 @@ class BluetoothTask {
             }
 
             socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
-
-            //Method m = device.getClass().getMethod("createInsecureRfcommSocket", new Class[] {int.class});
-            //socket = (BluetoothSocket) m.invoke(device, 1);
 
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
@@ -163,18 +160,19 @@ class BluetoothTask {
                     updateTimestamp(device);
                     MyLog.d(TAG, "Connected to " + device.getName());
                 } finally {
-
                     if (socket != null) {
-                        try {
-                            TimeUnit.MILLISECONDS.sleep(100);
-                            socket.getInputStream().close();
-                            socket.getOutputStream().close();
-                            socket.close();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        new Handler().postDelayed(new Runnable() {
+                            public void run() {
+                                try {
+                                    socket.getInputStream().close();
+                                    socket.getOutputStream().close();
+                                    socket.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, 100);
                     }
-
                 }
             }
         }
