@@ -215,10 +215,10 @@ public class TetheringService extends IntentService {
             try {
                 boolean connected3G = serviceHelper.isConnectedToInternetThroughMobile();
                 boolean tethered = serviceHelper.isTetheringWiFi();
-                checkCellular();
 
                 if (!(forceOff || forceOn) && (isServiceActivated() || keepService())) {
                     if (enabled()) {
+                        checkCellular();
                         boolean idle = checkIdle();
                         ScheduleResult res = scheduler();
                         if (res == ScheduleResult.OFF) {
@@ -238,19 +238,6 @@ public class TetheringService extends IntentService {
                             }
                         }
 
-                        /*if (status == Status.DEFAULT) {
-                            if (isActivated3G() && !connected3G && !serviceHelper.isConnectedToInternetThroughWiFi()) {
-                                execute(INTERNET_ON);
-                            } else if (isActivatedTethering() && !tethered) {
-                                execute(TETHER_ON);
-                            } else if (!isActivatedTethering() && tethered) {
-                                execute(TETHER_OFF);
-                            } else if (internetOn && !isActivated3G() && connected3G) {
-                                execute(INTERNET_OFF);
-                            } else {
-                                showNotification(lastNotificationTickerText, getNotificationIcon());
-                            }
-                        }*/
                     } else {
 
                         if (tethered || connected3G) {
@@ -649,7 +636,6 @@ public class TetheringService extends IntentService {
             MyLog.i(TAG, intent.getAction());
             switch (intent.getAction()) {
                 case TETHERING:
-
                     if (forceOn && !forceOff) {
                         // Turn OFF
                         forceOff = true;
@@ -698,13 +684,15 @@ public class TetheringService extends IntentService {
                     break;
 
                 case USB_ON:
-                    if (prefs.getBoolean("usb.activate.on.connect", false)) {
-                        execute(TETHER_ON, R.string.activate_tethering_usb_on);
+                    if (!forceOff) {
+                        if (prefs.getBoolean("usb.activate.on.connect", false)) {
+                            execute(TETHER_ON, R.string.activate_tethering_usb_on);
+                        }
+                        if (prefs.getBoolean("usb.internet.force.on", false)) {
+                            execute(INTERNET_ON, R.string.activate_internet_usb_on);
+                        }
+                        status = Status.USB_ON;
                     }
-                    if (prefs.getBoolean("usb.internet.force.on", false)) {
-                        execute(INTERNET_ON, R.string.activate_internet_usb_on);
-                    }
-                    status = Status.USB_ON;
                     break;
                 case USB_OFF:
                     if (prefs.getBoolean("usb.activate.off.connect", false)) {
@@ -723,14 +711,16 @@ public class TetheringService extends IntentService {
                     status = Status.DEFAULT;
                     break;
                 case BT_CONNECTED:
-                    String deviceName = intent.getStringExtra("name");
-                    connectedDeviceName = deviceName;
-                    status = Status.BT;
-                    execute(BLUETOOTH_INTERNET_TETHERING_ON);
+                    if (!forceOff) {
+                        String deviceName = intent.getStringExtra("name");
+                        connectedDeviceName = deviceName;
+                        status = Status.BT;
+                        execute(BLUETOOTH_INTERNET_TETHERING_ON);
+                    }
                     break;
 
                 case BT_DISCONNECTED:
-                    deviceName = intent.getStringExtra("name");
+                    String deviceName = intent.getStringExtra("name");
                     if (connectedDeviceName != null && connectedDeviceName.equals(deviceName)) {
                         connectedDeviceName = null;
                     }
