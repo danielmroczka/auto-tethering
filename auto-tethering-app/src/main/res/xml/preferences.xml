@@ -331,12 +331,12 @@
             android:key="return.state"
             android:summary="@string/revert.state.summary"
             android:title="Restore connection to initial state" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:icon="@drawable/ic_signal"
-            android:key="force.net.from.notify"
-            android:summary="Connect to internet if tethering triggered from notification"
-            android:title="Activate mobile data" />
+        <!--<CheckBoxPreference-->
+        <!--android:defaultValue="true"-->
+        <!--android:icon="@drawable/ic_signal"-->
+        <!--android:key="force.net.from.notify"-->
+        <!--android:summary="Connect to internet if tethering triggered from notification"-->
+        <!--android:title="Activate mobile data" />-->
         <CheckBoxPreference
             android:defaultValue="false"
             android:icon="@drawable/ic_info"

@@ -18,6 +18,8 @@ import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
 import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
+import static android.net.wifi.WifiManager.WIFI_STATE_DISABLED;
+import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
 
 /**
  * Created by Daniel Mroczka
@@ -63,11 +65,11 @@ public class TetheringStateReceiver extends BroadcastReceiver {
         int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, 0);
         int layout = R.layout.widget_layout_wait;
         switch (state) {
-            case 3:
+            case WIFI_STATE_ENABLED:
             case 13:
                 layout = R.layout.widget_layout_on;
                 break;
-            case 1:
+            case WIFI_STATE_DISABLED:
             case 11:
                 layout = R.layout.widget_layout_off;
                 break;

@@ -41,7 +41,6 @@ import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING_HC;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
 import static com.labs.dm.auto_tethering.AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME;
-import static com.labs.dm.auto_tethering.AppProperties.FORCE_NET_FROM_NOTIFY;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
@@ -123,10 +122,10 @@ public class TetheringService extends IntentService {
         ACTIVATED_ON_CELL, DEACTIVATED_ON_CELL, TEMPERATURE_OFF, DEFAULT
     }
 
-    private final String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF,
-            BT_RESTORE, BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPEARTURE_BELOW_LIMIT, CHANGE_NETWORK_STATE};
-
     private Status status = Status.DEFAULT;
+
+    private final String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF,
+            BT_RESTORE, BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPEARTURE_BELOW_LIMIT, CHANGE_NETWORK_STATE, TetherIntents.TETHER_ON, TetherIntents.TETHER_OFF, TetherIntents.INTERNET_ON, TetherIntents.INTERNET_OFF};
 
     public TetheringService() {
         super(TAG);
@@ -201,7 +200,7 @@ public class TetheringService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         if (isServiceActivated()) {
-            showNotification(getString(R.string.service_started), getNotifcationIcon());
+            showNotification(getString(R.string.service_started), getNotificationIcon());
 
             if (!isCorrectSimCard()) {
                 execute(SIMCARD_BLOCK);
@@ -210,16 +209,18 @@ public class TetheringService extends IntentService {
             if (!allowRoaming()) {
                 showNotification(getString(R.string.roaming_service_disabled), R.drawable.app_off);
             }
+
+            onService();
         }
 
         while (flag) {
             try {
                 boolean connected3G = serviceHelper.isConnectedToInternetThroughMobile();
                 boolean tethered = serviceHelper.isTetheringWiFi();
-                checkCellular();
 
                 if (!(forceOff || forceOn) && (isServiceActivated() || keepService())) {
                     if (enabled()) {
+                        checkCellular();
                         boolean idle = checkIdle();
                         ScheduleResult res = scheduler();
                         if (res == ScheduleResult.OFF) {
@@ -239,19 +240,6 @@ public class TetheringService extends IntentService {
                             }
                         }
 
-                        if (status == Status.DEFAULT) {
-                            if (isActivated3G() && !connected3G && !serviceHelper.isConnectedToInternetThroughWiFi()) {
-                                execute(INTERNET_ON);
-                            } else if (isActivatedTethering() && !tethered) {
-                                execute(TETHER_ON);
-                            } else if (!isActivatedTethering() && tethered) {
-                                execute(TETHER_OFF);
-                            } else if (internetOn && !isActivated3G() && connected3G) {
-                                execute(INTERNET_OFF);
-                            } else {
-                                //  showNotification(lastNotificationTickerText, getNotifcationIcon());
-                            }
-                        }
                     } else {
 
                         if (tethered || connected3G) {
@@ -350,12 +338,12 @@ public class TetheringService extends IntentService {
         }
 
         if (Utils.isAirplaneModeOn(getApplicationContext())) {
-            showNotification("Tethering blocked due to activated Airplane Mode", getNotifcationIcon());
+            showNotification("Tethering blocked due to activated Airplane Mode", getNotificationIcon());
             return false;
         }
 
         if (state && prefs.getBoolean("wifi.connected.block.tethering", false) && serviceHelper.isConnectedToInternetThroughWiFi()) {
-            showNotification("Tethering blocked due to active connection to WiFi Network", getNotifcationIcon());
+            showNotification("Tethering blocked due to active connection to WiFi Network", getNotificationIcon());
             return false;
         }
 
@@ -545,10 +533,10 @@ public class TetheringService extends IntentService {
     }
 
     private Notification buildNotification(String caption) {
-        return buildNotification(caption, getNotifcationIcon());
+        return buildNotification(caption, getNotificationIcon());
     }
 
-    private int getNotifcationIcon() {
+    private int getNotificationIcon() {
         boolean tethering = serviceHelper.isTetheringWiFi();
         boolean internet = serviceHelper.isConnectedToInternetThroughMobile();
 
@@ -584,7 +572,7 @@ public class TetheringService extends IntentService {
             PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             int drawable = R.drawable.ic_service24;
-            String ticker = "Service on";
+            String ticker = "Service ON";
 
             if (forceOff && !forceOn) {
                 drawable = R.drawable.ic_wifi_off;
@@ -659,43 +647,37 @@ public class TetheringService extends IntentService {
             MyLog.i(TAG, intent.getAction());
             switch (intent.getAction()) {
                 case TETHERING:
-
                     if (forceOn && !forceOff) {
                         // Turn OFF
                         forceOff = true;
                         forceOn = false;
+                        blockForceInternet = false;
                         execute(TETHER_OFF);
                         execute(INTERNET_OFF);
                     } else if (!forceOff && !forceOn) {
                         // Turn ON
                         forceOn = true;
+                        blockForceInternet = false;
                         execute(INTERNET_ON);
                         execute(TETHER_ON);
                     } else {
                         // Service ON
                         forceOff = false;
                         forceOn = false;
+                        onService();
+                        showNotification(lastNotificationTickerText, getNotificationIcon());
                     }
-
-                    if (prefs.getBoolean(FORCE_NET_FROM_NOTIFY, true)) {
-                        forceInternetConnect();
-                    }
-                    break;
-
-                case RESUME:
-                    updateLastAccess();
-                    status = Status.DEFAULT;
                     break;
 
                 case WIDGET:
                     changeMobileState = intent.getExtras().getBoolean("changeMobileState", false);
+                    blockForceInternet = true;
 
                     if (serviceHelper.isTetheringWiFi()) {
                         forceOff = true;
                         forceOn = false;
                         execute(TETHER_OFF);
                     } else {
-                        blockForceInternet = true;
                         forceOn = true;
                         forceOff = false;
                         status = Status.DEFAULT;
@@ -707,14 +689,21 @@ public class TetheringService extends IntentService {
                     }
                     break;
 
+                case RESUME:
+                    updateLastAccess();
+                    status = Status.DEFAULT;
+                    break;
+
                 case USB_ON:
-                    if (prefs.getBoolean("usb.activate.on.connect", false)) {
-                        execute(TETHER_ON, R.string.activate_tethering_usb_on);
+                    if (!forceOff) {
+                        if (prefs.getBoolean("usb.activate.on.connect", false)) {
+                            execute(TETHER_ON, R.string.activate_tethering_usb_on);
+                        }
+                        if (prefs.getBoolean("usb.internet.force.on", false)) {
+                            execute(INTERNET_ON, R.string.activate_internet_usb_on);
+                        }
+                        status = Status.USB_ON;
                     }
-                    if (prefs.getBoolean("usb.internet.force.on", false)) {
-                        execute(INTERNET_ON, R.string.activate_internet_usb_on);
-                    }
-                    status = Status.USB_ON;
                     break;
                 case USB_OFF:
                     if (prefs.getBoolean("usb.activate.off.connect", false)) {
@@ -733,14 +722,16 @@ public class TetheringService extends IntentService {
                     status = Status.DEFAULT;
                     break;
                 case BT_CONNECTED:
-                    String deviceName = intent.getStringExtra("name");
-                    connectedDeviceName = deviceName;
-                    status = Status.BT;
-                    execute(BLUETOOTH_INTERNET_TETHERING_ON);
+                    if (!forceOff) {
+                        String deviceName = intent.getStringExtra("name");
+                        connectedDeviceName = deviceName;
+                        status = Status.BT;
+                        execute(BLUETOOTH_INTERNET_TETHERING_ON);
+                    }
                     break;
 
                 case BT_DISCONNECTED:
-                    deviceName = intent.getStringExtra("name");
+                    String deviceName = intent.getStringExtra("name");
                     if (connectedDeviceName != null && connectedDeviceName.equals(deviceName)) {
                         connectedDeviceName = null;
                     }
@@ -764,7 +755,23 @@ public class TetheringService extends IntentService {
                     break;
 
                 case CHANGE_NETWORK_STATE:
-                    showNotification(lastNotificationTickerText, getNotifcationIcon());
+                    showNotification(lastNotificationTickerText, getNotificationIcon());
+                    break;
+
+                case TetherIntents.TETHER_ON:
+                    execute(TETHER_ON);
+                    break;
+
+                case TetherIntents.TETHER_OFF:
+                    execute(TETHER_OFF);
+                    break;
+
+                case TetherIntents.INTERNET_ON:
+                    execute(INTERNET_ON);
+                    break;
+
+                case TetherIntents.INTERNET_OFF:
+                    execute(INTERNET_OFF);
                     break;
 
                 case EXIT:
@@ -788,6 +795,23 @@ public class TetheringService extends IntentService {
         }
     }
 
+    private void onService() {
+        boolean tethering = serviceHelper.isTetheringWiFi();
+        boolean mobileOn = serviceHelper.isConnectedToInternetThroughMobile();
+
+        if (isActivated3G() && !mobileOn) {
+            execute(INTERNET_ON);
+        } else if (internetOn && !isActivated3G() && mobileOn) {
+            execute(INTERNET_OFF);
+        }
+
+        if (isActivatedTethering() && !tethering) {
+            execute(TETHER_ON);
+        } else if (tethering && !isActivatedTethering()) {
+            execute(INTERNET_OFF);
+        }
+    }
+
     private void execute(ServiceAction... serviceAction) {
         for (ServiceAction action : serviceAction) {
             execute(action, 0);
@@ -795,7 +819,6 @@ public class TetheringService extends IntentService {
     }
 
     private void execute(ServiceAction serviceAction, int msg) {
-        blockForceInternet = false;
         boolean action = serviceAction.isOn();
         boolean showNotify = false;
         if (serviceAction.isInternet() && serviceHelper.isConnectedOrConnectingToInternet() != action) {
@@ -904,25 +927,15 @@ public class TetheringService extends IntentService {
         }
     }
 
-    //TODO replace with getNotifcationIcon()
+    //TODO replace with getNotificationIcon()
     private int getIcon(ServiceAction serviceAction) {
         int icon = R.drawable.app_off;
         if (serviceAction.name().contains("IDLE")) {
             icon = R.drawable.app_off;
-        } else if (serviceAction.isOn()) {
-            if ((serviceAction.isTethering() && serviceHelper.isConnectedOrConnectingToInternet()) || (serviceAction.isInternet() && serviceHelper.isTetheringWiFi())) {
-                icon = R.drawable.app_on;
-            } else {
-                icon = R.drawable.app_yellow;
-            }
-        } else if (!serviceAction.isOn()) {
-            if ((serviceAction.isTethering() && !serviceHelper.isConnectedToInternetThroughMobile()) || (serviceAction.isInternet() && !serviceHelper.isTetheringWiFi())) {
-                icon = R.drawable.app_off;
-            } else {
-                icon = R.drawable.app_yellow;
-            }
         } else if (serviceHelper.isConnectedToInternetThroughMobile() && serviceHelper.isTetheringWiFi()) {
             icon = R.drawable.app_on;
+        } else if (serviceHelper.isConnectedOrConnectingToInternet() || serviceHelper.isTetheringWiFi()) {
+            icon = R.drawable.app_yellow;
         }
         return icon;
     }
