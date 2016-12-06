@@ -296,10 +296,8 @@ public class TetheringService extends IntentService {
             execute(CELL_INTERNET_TETHERING_ON);
         } else if (serviceHelper.isTetheringWiFi() && isOnDeactivationList) {
             execute(CELL_INTERNET_TETHERING_OFF);
-        } else if (status == Status.ACTIVATED_ON_CELL && !isOnActivationList) {
-            status = Status.DEFAULT;
-        } else if (status == Status.DEACTIVATED_ON_CELL && !isOnDeactivationList) {
-            status = Status.DEFAULT;
+        } else if (!isOnActivationList && (status == Status.ACTIVATED_ON_CELL || status == Status.DEACTIVATED_ON_CELL)) {
+            execute(CELL_INTERNET_TETHERING_OFF);
         }
     }
 
@@ -516,6 +514,15 @@ public class TetheringService extends IntentService {
         }
     }
 
+    private class TurnOnBTAsyncTask extends AsyncTask<Boolean, Void, Void> {
+        @Override
+        protected Void doInBackground(Boolean... params) {
+            internetOn = params[0];
+            serviceHelper.setBluetoothStatus(params[0]);
+            return null;
+        }
+    }
+
     private class TurnOnTetheringAsyncTask extends AsyncTask<Boolean, Void, Void> {
         @Override
         protected Void doInBackground(Boolean... params) {
@@ -624,10 +631,16 @@ public class TetheringService extends IntentService {
         super.onDestroy();
     }
 
+    private void revertToInitialStateAsync() {
+        new TurnOnTetheringAsyncTask().doInBackground(false);
+        new TurnOn3GAsyncTask().doInBackground(initial3GStatus);
+        new TurnOnBTAsyncTask().doInBackground(initialBluetoothStatus);
+    }
+
     private void revertToInitialState() {
         if (prefs.getBoolean(RETURN_TO_PREV_STATE, false) && prefs.getBoolean(ACTIVATE_KEEP_SERVICE, true)) {
-            serviceHelper.setMobileDataEnabled(initial3GStatus);
-            serviceHelper.setWifiTethering(initialTetheredStatus);
+            new TurnOn3GAsyncTask().doInBackground(initial3GStatus);
+            new TurnOnBTAsyncTask().doInBackground(initialBluetoothStatus);
         }
         if (initialWifiStatus) {
             final Handler handler = new Handler();
@@ -638,7 +651,7 @@ public class TetheringService extends IntentService {
                 }
             }, 1000);
         }
-        serviceHelper.setBluetoothStatus(initialBluetoothStatus);
+        new TurnOnTetheringAsyncTask().doInBackground(initialBluetoothStatus);
     }
 
     private class MyBroadcastReceiver extends BroadcastReceiver {
@@ -719,6 +732,7 @@ public class TetheringService extends IntentService {
                         BluetoothAdapter.getDefaultAdapter().disable();
                     }
                     connectedDeviceName = null;
+                    revertToInitialStateAsync();
                     status = Status.DEFAULT;
                     break;
                 case BT_CONNECTED:

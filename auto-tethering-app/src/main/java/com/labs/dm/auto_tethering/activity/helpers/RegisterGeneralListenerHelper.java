@@ -145,16 +145,15 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
         tetheringOn.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-
                 activity.sendBroadcast(new Intent(tetheringOn.isChecked() ? TetherIntents.TETHER_ON : TetherIntents.TETHER_OFF));
                 return false;
             }
         });
+
         final CheckBoxPreference internetOn = getCheckBoxPreference("activate.3g");
         internetOn.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-
                 activity.sendBroadcast(new Intent(internetOn.isChecked() ? TetherIntents.INTERNET_ON : TetherIntents.INTERNET_OFF));
                 return false;
             }
