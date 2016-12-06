@@ -262,7 +262,7 @@ public class TetheringService extends IntentService {
                     flag = false;
                 }
 
-                long usage = ServiceHelper.getDataUsage() - prefs.getLong("data.usage.removeAllData.value", 0);
+                long usage = ServiceHelper.getDataUsage() + prefs.getLong("data.usage.removeAllData.value", 0);
 
                 if (prefs.getBoolean("data.limit.on", false)) {
                     if (usage / (1048576f) > Integer.parseInt(prefs.getString("data.limit.value", "0"))) {

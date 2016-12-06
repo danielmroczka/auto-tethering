@@ -197,7 +197,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                     boolean found = false;
                     for (BluetoothDevice bd : bondedDevices) {
-                        if (bd.getName().equals(device.getName())) {
+                        if (device.getName().equals(bd.getName())) {
                             found = true;
                             break;
                         }

@@ -331,12 +331,6 @@
             android:key="return.state"
             android:summary="@string/revert.state.summary"
             android:title="Restore connection to initial state" />
-        <!--<CheckBoxPreference-->
-        <!--android:defaultValue="true"-->
-        <!--android:icon="@drawable/ic_signal"-->
-        <!--android:key="force.net.from.notify"-->
-        <!--android:summary="Connect to internet if tethering triggered from notification"-->
-        <!--android:title="Activate mobile data" />-->
         <CheckBoxPreference
             android:defaultValue="false"
             android:icon="@drawable/ic_info"
@@ -344,15 +338,6 @@
             android:summary="Vibrate on tethering state change"
             android:title="Vibrate" />
     </PreferenceScreen>
-
-    <!--
-        <PreferenceScreen
-            android:icon="@drawable/ic_experimental"
-            android:key="experimental"
-            android:summary="Features under development"
-            android:title="Experimental">
-        </PreferenceScreen>
-    -->
 
     <PreferenceCategory
         android:icon="@drawable/ic_wifi"

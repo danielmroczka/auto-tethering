@@ -120,7 +120,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 } else if (TetherIntents.UNLOCK.equals(intent.getAction())) {
                     NotificationManager nMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     nMgr.cancel(NOTIFICATION_ID);
-                    PreferenceScreen screen = (PreferenceScreen) findPreference("experimental");
+                    PreferenceScreen screen = (PreferenceScreen) findPreference("source.activation");
                     int pos = findPreference("data.limit").getOrder();
                     screen.onItemClick(null, null, pos, 0);
                     Intent it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
