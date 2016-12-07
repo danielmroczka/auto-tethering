@@ -238,6 +238,8 @@ public class TetheringService extends IntentService {
                             if (checkWifiIdle()) {
                                 execute(TETHER_OFF_IDLE);
                             }
+                        } else if (status == Status.DEFAULT) {
+                            onService();
                         }
 
                     } else {
@@ -704,6 +706,7 @@ public class TetheringService extends IntentService {
 
                 case RESUME:
                     updateLastAccess();
+                    onService();
                     status = Status.DEFAULT;
                     break;
 

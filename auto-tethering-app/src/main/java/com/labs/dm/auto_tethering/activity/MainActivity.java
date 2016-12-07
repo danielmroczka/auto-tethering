@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.BuildConfig;
@@ -120,12 +121,22 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                 } else if (TetherIntents.UNLOCK.equals(intent.getAction())) {
                     NotificationManager nMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     nMgr.cancel(NOTIFICATION_ID);
-                    PreferenceScreen screen = (PreferenceScreen) findPreference("source.activation");
-                    int pos = findPreference("data.limit").getOrder();
-                    screen.onItemClick(null, null, pos, 0);
-                    Intent it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
-                    context.sendBroadcast(it);
-                    Toast.makeText(MainActivity.this, "Please uncheck the property 'Data usage limit on' to unlock!", Toast.LENGTH_LONG).show();
+
+                    PreferenceScreen preferenceScreen = (PreferenceScreen) findPreference("source.activation");
+                    final ListAdapter listAdapter = preferenceScreen.getRootAdapter();
+                    PreferenceScreen category = (PreferenceScreen) findPreference("data.limit");
+
+                    final int itemsCount = listAdapter.getCount();
+                    int itemNumber;
+                    for (itemNumber = 0; itemNumber < itemsCount; ++itemNumber) {
+                        if (listAdapter.getItem(itemNumber).equals(category)) {
+                            preferenceScreen.onItemClick(null, null, itemNumber, 0);
+                            Intent it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+                            context.sendBroadcast(it);
+                            Toast.makeText(MainActivity.this, "Please uncheck the property 'Data usage limit on' to unlock!", Toast.LENGTH_LONG).show();
+                            break;
+                        }
+                    }
                 }
             }
         };
