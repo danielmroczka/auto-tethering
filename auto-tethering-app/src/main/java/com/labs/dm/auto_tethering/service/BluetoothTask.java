@@ -5,9 +5,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
-import android.os.Handler;
 import android.os.ParcelUuid;
 
 import com.labs.dm.auto_tethering.MyLog;
@@ -22,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;
 import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_CONNECTED;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_DISCONNECTED;
@@ -32,21 +31,17 @@ import static com.labs.dm.auto_tethering.TetherIntents.BT_DISCONNECTED;
  * Created by Daniel Mroczka
  */
 class BluetoothTask {
-    private final SharedPreferences prefs;
-    private String TAG = "FindBT";
+    private final String TAG = "FindBT";
     private final String connectedDeviceName;
-    private Context context;
+    private final Context context;
 
-    public BluetoothTask(Context context, SharedPreferences prefs, String connectedDeviceName) {
+    public BluetoothTask(Context context, String connectedDeviceName) {
         this.context = context;
-        this.context = context;
-        this.prefs = prefs;
         this.connectedDeviceName = connectedDeviceName;
     }
 
     public void execute() {
-        Handler mainHandler = new Handler(context.getMainLooper());
-        mainHandler.post(new BluetoothThread(context, connectedDeviceName));
+        new Thread(new BluetoothThread(context, connectedDeviceName)).start();
     }
 
     private class BluetoothThread implements Runnable {
@@ -66,10 +61,9 @@ class BluetoothTask {
              * Prepare a list with BluetoothDevice items
              */
             List<BluetoothDevice> devicesToCheck = Utils.getBluetoothDevices(context, true);
-            Intent btIntent = null;
 
             if (devicesToCheck.isEmpty() && connectedDeviceName != null) {
-                btIntent = new Intent(BT_DISCONNECTED);
+                Intent btIntent = new Intent(BT_DISCONNECTED);
                 btIntent.putExtra("name", connectedDeviceName);
                 Utils.broadcast(context, btIntent);
                 connectedDeviceName = null;
@@ -80,13 +74,14 @@ class BluetoothTask {
                 /**
                  * Make sure that BT is enabled.
                  */
-                serviceHelper.setBluetoothStatus(true);//setBlockingBluetoothStatus(true);
+                serviceHelper.setBluetoothStatus(true);
             }
 
-            connectEachDevice(devicesToCheck, btIntent);
+            connectEachDevice(devicesToCheck);
         }
 
-        private void connectEachDevice(List<BluetoothDevice> devicesToCheck, Intent btIntent) {
+        private void connectEachDevice(List<BluetoothDevice> devicesToCheck) {
+            Intent btIntent = null;
             for (BluetoothDevice device : devicesToCheck) {
                 /**
                  * If device is currently connected just only check this one without checking others.
@@ -149,7 +144,7 @@ class BluetoothTask {
             }
 
             boolean alreadyConnected = false;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH && socket.isConnected()) {
+            if (Build.VERSION.SDK_INT >= ICE_CREAM_SANDWICH && socket.isConnected()) {
                 updateTimestamp(device);
                 alreadyConnected = true;
                 MyLog.d(TAG, "Already connected to " + device.getName());
@@ -160,20 +155,24 @@ class BluetoothTask {
                     updateTimestamp(device);
                     MyLog.d(TAG, "Connected to " + device.getName());
                 } finally {
-                    if (socket != null) {
-                        new Handler().postDelayed(new Runnable() {
-                            public void run() {
-                                try {
-                                    socket.getInputStream().close();
-                                    socket.getOutputStream().close();
-                                    socket.close();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }, 100);
-                    }
+                    close(socket);
                 }
+            }
+        }
+
+        private void close(BluetoothSocket socket) {
+            if (socket != null) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                    socket.getInputStream().close();
+                    socket.getOutputStream().close();
+                    socket.close();
+                } catch (IOException e) {
+                    MyLog.e(TAG, "failed closing I/O streams");
+                } catch (InterruptedException e) {
+                    MyLog.e(TAG, "failed closing I/O streams");
+                }
+
             }
         }
 
