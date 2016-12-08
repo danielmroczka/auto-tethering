@@ -26,7 +26,7 @@ import static com.labs.dm.auto_tethering.TetherIntents.BT_CONNECTED;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_DISCONNECTED;
 
 /**
- * Class triggers only by MyBroadcastReceiver every xx seconds.
+ * Class triggers by BluetoothTimerTask every xx seconds.
  * <p>
  * Created by Daniel Mroczka
  */

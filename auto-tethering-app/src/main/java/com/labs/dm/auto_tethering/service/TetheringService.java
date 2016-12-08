@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
@@ -706,8 +707,8 @@ public class TetheringService extends IntentService {
 
                 case RESUME:
                     updateLastAccess();
+                    //status = Status.DEFAULT;
                     onService();
-                    status = Status.DEFAULT;
                     break;
 
                 case USB_ON:
@@ -839,6 +840,10 @@ public class TetheringService extends IntentService {
         boolean action = serviceAction.isOn();
         boolean showNotify = false;
         if (serviceAction.isInternet() && serviceHelper.isConnectedOrConnectingToInternet() != action) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                MyLog.d(TAG, "Current Android OS doesn't support turn mobile data!");
+                return;
+            }
             if (!internetAsyncTask(action)) {
                 return;
             }
