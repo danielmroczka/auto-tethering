@@ -613,6 +613,10 @@ public class TetheringService extends IntentService {
         return notify;
     }
 
+    private void updateNotification() {
+        showNotification(lastNotificationTickerText, getNotificationIcon());
+    }
+
     private void showNotification(String body, int icon) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         Notification notification = buildNotification(body, icon);
@@ -663,6 +667,7 @@ public class TetheringService extends IntentService {
             MyLog.i(TAG, intent.getAction());
             switch (intent.getAction()) {
                 case TETHERING:
+                    // Correct order of execution: Turn OFF -> Turn ON -> Service ON -> ...
                     if (forceOn && !forceOff) {
                         // Turn OFF
                         forceOff = true;
@@ -681,7 +686,7 @@ public class TetheringService extends IntentService {
                         forceOff = false;
                         forceOn = false;
                         onService();
-                        showNotification(lastNotificationTickerText, getNotificationIcon());
+                        updateNotification();
                     }
                     break;
 
@@ -707,8 +712,10 @@ public class TetheringService extends IntentService {
 
                 case RESUME:
                     updateLastAccess();
-                    //status = Status.DEFAULT;
+                    connectedDeviceName = null;
+                    status = Status.DEFAULT;
                     onService();
+                    updateNotification();
                     break;
 
                 case USB_ON:
@@ -773,7 +780,7 @@ public class TetheringService extends IntentService {
                     break;
 
                 case CHANGE_NETWORK_STATE:
-                    showNotification(lastNotificationTickerText, getNotificationIcon());
+                    updateNotification();
                     break;
 
                 case TetherIntents.TETHER_ON:
@@ -842,9 +849,7 @@ public class TetheringService extends IntentService {
         if (serviceAction.isInternet() && serviceHelper.isConnectedOrConnectingToInternet() != action) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 MyLog.d(TAG, "Current Android OS doesn't support turn mobile data!");
-                return;
-            }
-            if (!internetAsyncTask(action)) {
+            } else if (!internetAsyncTask(action)) {
                 return;
             }
             showNotify = true;

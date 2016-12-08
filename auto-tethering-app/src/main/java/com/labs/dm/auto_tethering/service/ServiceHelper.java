@@ -261,16 +261,13 @@ public class ServiceHelper {
     }
 
     public boolean isBluetoothActive() {
-        if (BluetoothAdapter.getDefaultAdapter() != null) {
-            return BluetoothAdapter.getDefaultAdapter().isEnabled();
-        }
-        return false;
+        return BluetoothAdapter.getDefaultAdapter() != null && BluetoothAdapter.getDefaultAdapter().isEnabled();
     }
 
     public void setBluetoothStatus(boolean bluetoothStatus) {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
-
+            return;
         } else if (bluetoothStatus && !mBluetoothAdapter.isEnabled()) {
             mBluetoothAdapter.enable();
         } else if (!bluetoothStatus && mBluetoothAdapter.isEnabled()) {
@@ -283,6 +280,7 @@ public class ServiceHelper {
         setBluetoothStatus(bluetoothStatus);
         long time = SystemClock.currentThreadTimeMillis();
         while (adapter.isEnabled() != bluetoothStatus && SystemClock.currentThreadTimeMillis() - time < 5000) {
+            // NO-OP
         }
     }
 

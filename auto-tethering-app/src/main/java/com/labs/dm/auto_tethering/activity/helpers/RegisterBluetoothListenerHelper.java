@@ -149,7 +149,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
 
             boolean found = false;
             for (Bluetooth b : devices) {
-                if (name.equals(b.getName())) {
+                if (name != null && name.equals(b.getName())) {
                     found = true;
                 }
             }
@@ -159,7 +159,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
             } else {
                 Bluetooth bluetooth = null;
                 for (BluetoothDevice device : pairedDevices) {
-                    if (name.equals(device.getName())) {
+                    if (name != null && name.equals(device.getName())) {
                         bluetooth = new Bluetooth(name, device.getAddress());
                     }
                 }

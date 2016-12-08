@@ -104,7 +104,7 @@ public class Cellular {
 
     @Override
     public boolean equals(Object object) {
-        if (object == null) {
+        if (object == null || !(object instanceof Cellular)) {
             return false;
         }
         Cellular other = (Cellular) object;
