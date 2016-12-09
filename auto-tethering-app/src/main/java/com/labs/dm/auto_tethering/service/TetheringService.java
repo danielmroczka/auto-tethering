@@ -647,7 +647,7 @@ public class TetheringService extends IntentService {
     private void revertToInitialState() {
         if (prefs.getBoolean(RETURN_TO_PREV_STATE, false) && prefs.getBoolean(ACTIVATE_KEEP_SERVICE, true)) {
             new TurnOn3GAsyncTask().doInBackground(initial3GStatus);
-            new TurnOnBTAsyncTask().doInBackground(initialBluetoothStatus);
+            new TurnOnTetheringAsyncTask().doInBackground(initialTetheredStatus);
         }
         if (initialWifiStatus) {
             final Handler handler = new Handler();
@@ -658,7 +658,7 @@ public class TetheringService extends IntentService {
                 }
             }, 1000);
         }
-        new TurnOnTetheringAsyncTask().doInBackground(initialBluetoothStatus);
+        new TurnOnBTAsyncTask().doInBackground(initialBluetoothStatus);
     }
 
     private class MyBroadcastReceiver extends BroadcastReceiver {

@@ -91,7 +91,7 @@
     <string name="summary">Summary</string>
     <string name="widget.conf.title">Widget Configuration</string>
     <!-- RELEASE NOTES -->
-    <string name="release_notes">[x] Hotfix for release 0.0.54</string>
+    <string name="release_notes">[x] Bluetooth activation performance improvements\n\n[x] Fix misleading notification status for Android 5.0+ that mobile connection is on/off\n\n[x] Fix Bluetooth activation once tethering deactivated due to clients inactivity</string>
     <string name="activate_tethering_usb_on">Tethering activated on USB connection</string>
     <string name="activate_internet_usb_on">Internet activated on USB connection</string>
     <string name="activate_tethering_usb_off">Tethering deactivated on USB disconnect</string>
