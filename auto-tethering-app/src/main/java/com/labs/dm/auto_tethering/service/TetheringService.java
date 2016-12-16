@@ -114,16 +114,18 @@ public class TetheringService extends IntentService {
     }
 
     private enum Status {
+        DEFAULT,
         DEACTIVATED_ON_IDLE,
         ACTIVATED_ON_SCHEDULE,
         DEACTIVATED_ON_SCHEDULE,
         USB_ON,
         DATA_USAGE_LIMIT_EXCEED,
-        BT,
-        ACTIVATED_ON_CELL, DEACTIVATED_ON_CELL, TEMPERATURE_OFF, DEFAULT
+        ACTIVATED_ON_CELL, DEACTIVATED_ON_CELL,
+        TEMPERATURE_OFF,
+        BT
     }
 
-    private Status status = Status.DEFAULT;
+    private Status previousStatus, status = Status.DEFAULT;
 
     private final String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF,
             BT_RESTORE, BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPEARTURE_BELOW_LIMIT, CHANGE_NETWORK_STATE, TetherIntents.TETHER_ON, TetherIntents.TETHER_OFF, TetherIntents.INTERNET_ON, TetherIntents.INTERNET_OFF};
@@ -227,7 +229,7 @@ public class TetheringService extends IntentService {
                         if (res == ScheduleResult.OFF) {
                             execute(SCHEDULED_INTERNET_OFF, SCHEDULED_TETHER_OFF);
                         } else if (res == ScheduleResult.ON) {
-                            status = Status.DEFAULT;
+                            setStatus(Status.DEFAULT);
                             if (isActivated3G()) {
                                 execute(SCHEDULED_INTERNET_ON);
                             }
@@ -273,7 +275,7 @@ public class TetheringService extends IntentService {
                     }
                 } else {
                     if (status == Status.DATA_USAGE_LIMIT_EXCEED) {
-                        status = Status.DEFAULT;
+                        setStatus(Status.DEFAULT);
                     }
                 }
 
@@ -344,6 +346,7 @@ public class TetheringService extends IntentService {
         }
 
         if (state && prefs.getBoolean("wifi.connected.block.tethering", false) && serviceHelper.isConnectedToInternetThroughWiFi()) {
+            connectedDeviceName = null;
             showNotification("Tethering blocked due to active connection to WiFi Network", getNotificationIcon());
             return false;
         }
@@ -429,7 +432,7 @@ public class TetheringService extends IntentService {
         } else {
             updateLastAccess();
             if (status == Status.DEACTIVATED_ON_IDLE) {
-                status = Status.DEFAULT;
+                setStatus(Status.DEFAULT);
             }
         }
         return false;
@@ -701,7 +704,7 @@ public class TetheringService extends IntentService {
                     } else {
                         forceOn = true;
                         forceOff = false;
-                        status = Status.DEFAULT;
+                        setStatus(Status.DEFAULT);
                         execute(TETHER_ON);
                     }
 
@@ -713,7 +716,7 @@ public class TetheringService extends IntentService {
                 case RESUME:
                     updateLastAccess();
                     connectedDeviceName = null;
-                    status = Status.DEFAULT;
+                    setStatus(previousStatus);
                     onService();
                     updateNotification();
                     break;
@@ -726,7 +729,7 @@ public class TetheringService extends IntentService {
                         if (prefs.getBoolean("usb.internet.force.on", false)) {
                             execute(INTERNET_ON, R.string.activate_internet_usb_on);
                         }
-                        status = Status.USB_ON;
+                        setStatus(Status.USB_ON);
                     }
                     break;
                 case USB_OFF:
@@ -736,7 +739,7 @@ public class TetheringService extends IntentService {
                     if (prefs.getBoolean("usb.internet.force.off", false)) {
                         execute(INTERNET_OFF, R.string.activate_internet_usb_off);
                     }
-                    status = Status.DEFAULT;
+                    setStatus(Status.DEFAULT);
                     break;
                 case BT_RESTORE:
                     if (!initialBluetoothStatus) {
@@ -744,13 +747,13 @@ public class TetheringService extends IntentService {
                     }
                     connectedDeviceName = null;
                     revertToInitialStateAsync();
-                    status = Status.DEFAULT;
+                    setStatus(Status.DEFAULT);
                     break;
                 case BT_CONNECTED:
                     if (!forceOff) {
                         String deviceName = intent.getStringExtra("name");
                         connectedDeviceName = deviceName;
-                        status = Status.BT;
+                        setStatus(Status.BT);
                         execute(BLUETOOTH_INTERNET_TETHERING_ON);
                     }
                     break;
@@ -780,6 +783,7 @@ public class TetheringService extends IntentService {
                     break;
 
                 case CHANGE_NETWORK_STATE:
+                    onChangeNetworkState();
                     updateNotification();
                     break;
 
@@ -818,6 +822,9 @@ public class TetheringService extends IntentService {
                 }
             }
         }
+    }
+
+    private void onChangeNetworkState() {
     }
 
     private void onService() {
@@ -873,7 +880,7 @@ public class TetheringService extends IntentService {
             case TETHER_ON:
                 updateLastAccess();
                 id = R.string.notification_tethering_restored;
-                status = Status.DEFAULT;
+                setStatus(Status.DEFAULT);
                 break;
             case TETHER_OFF:
                 id = R.string.notification_tethering_off;
@@ -881,7 +888,7 @@ public class TetheringService extends IntentService {
             case INTERNET_ON:
                 if (!Utils.isAirplaneModeOn(getApplicationContext())) {
                     updateLastAccess();
-                    status = Status.DEFAULT;
+                    setStatus(Status.DEFAULT);
                     id = R.string.notification_internet_restored;
                 }
                 break;
@@ -891,56 +898,58 @@ public class TetheringService extends IntentService {
             case SCHEDULED_TETHER_ON:
                 updateLastAccess();
                 id = R.string.notification_scheduled_tethering_on;
-                status = Status.ACTIVATED_ON_SCHEDULE;
+                setStatus(Status.ACTIVATED_ON_SCHEDULE);
                 break;
             case SCHEDULED_TETHER_OFF:
                 id = R.string.notification_scheduled_tethering_off;
-                status = Status.DEACTIVATED_ON_SCHEDULE;
+                setStatus(Status.DEACTIVATED_ON_SCHEDULE);
                 break;
             case SCHEDULED_INTERNET_ON:
                 updateLastAccess();
                 id = R.string.notification_scheduled_internet_on;
-                status = Status.ACTIVATED_ON_SCHEDULE;
+                setStatus(Status.ACTIVATED_ON_SCHEDULE);
                 break;
             case SCHEDULED_INTERNET_OFF:
                 id = R.string.notification_scheduled_internet_off;
-                status = Status.DEACTIVATED_ON_SCHEDULE;
+                setStatus(Status.DEACTIVATED_ON_SCHEDULE);
                 break;
             case TETHER_OFF_IDLE:
                 id = R.string.notification_idle_tethering_off;
-                status = Status.DEACTIVATED_ON_IDLE;
+                previousStatus = status;
+                setStatus(Status.DEACTIVATED_ON_IDLE);
                 break;
             case INTERNET_OFF_IDLE:
                 id = R.string.notification_idle_internet_off;
-                status = Status.DEACTIVATED_ON_IDLE;
+                previousStatus = status;
+                setStatus(Status.DEACTIVATED_ON_IDLE);
                 break;
             case DATA_USAGE_EXCEED_LIMIT:
                 id = R.string.notification_data_exceed_limit;
-                status = Status.DATA_USAGE_LIMIT_EXCEED;
+                setStatus(Status.DATA_USAGE_LIMIT_EXCEED);
                 break;
             case BLUETOOTH_INTERNET_TETHERING_ON:
                 id = R.string.bluetooth_on;
-                status = Status.BT;
+                setStatus(Status.BT);
                 break;
             case BLUETOOTH_INTERNET_TETHERING_OFF:
                 id = R.string.bluetooth_off;
-                status = Status.DEFAULT;
+                setStatus(Status.DEFAULT);
                 break;
             case CELL_INTERNET_TETHERING_ON:
                 id = R.string.cell_on;
-                status = Status.ACTIVATED_ON_CELL;
+                setStatus(Status.ACTIVATED_ON_CELL);
                 break;
             case CELL_INTERNET_TETHERING_OFF:
                 id = R.string.cell_off;
-                status = Status.DEACTIVATED_ON_CELL;
+                setStatus(Status.DEACTIVATED_ON_CELL);
                 break;
             case TEMP_TETHERING_OFF:
                 id = R.string.temp_off;
-                status = Status.TEMPERATURE_OFF;
+                setStatus(Status.TEMPERATURE_OFF);
                 break;
             case TEMP_TETHERING_ON:
                 id = R.string.temp_on;
-                status = Status.DEFAULT;
+                setStatus(Status.DEFAULT);
                 break;
             default:
                 MyLog.e(TAG, "Missing default notification!");
@@ -965,5 +974,11 @@ public class TetheringService extends IntentService {
             icon = R.drawable.app_yellow;
         }
         return icon;
+    }
+
+    public void setStatus(Status status) {
+        MyLog.d(TAG, "New status = " + status.name());
+        previousStatus = this.status;
+        this.status = status;
     }
 }
