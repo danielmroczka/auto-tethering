@@ -688,7 +688,6 @@ public class TetheringService extends IntentService {
             MyLog.i(TAG, intent.getAction());
             switch (intent.getAction()) {
                 case SERVICE_ON:
-                    // Service ON
                     if (!forceOff && !forceOn) {
                         break;
                     }
@@ -775,7 +774,7 @@ public class TetheringService extends IntentService {
                     }
                     connectedDeviceName = null;
                     revertToInitialStateAsync();
-                    setStatus(Status.DEFAULT);
+                    execute(BLUETOOTH_INTERNET_TETHERING_OFF);
                     break;
                 case BT_CONNECTED:
                     if (!forceOff) {
@@ -942,7 +941,7 @@ public class TetheringService extends IntentService {
 
     private void notify(ServiceAction serviceAction, int msg, boolean showNotify) {
         Status oldStatus = status;
-        int id = R.string.service_started;
+        int id = 0;
         int icon = getIcon(serviceAction);
         switch (serviceAction) {
             case TETHER_ON:
@@ -954,14 +953,16 @@ public class TetheringService extends IntentService {
                 id = R.string.notification_tethering_off;
                 break;
             case INTERNET_ON:
-                if (!Utils.isAirplaneModeOn(getApplicationContext())) {
+                if (!Utils.isAirplaneModeOn(getApplicationContext()) && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                     updateLastAccess();
                     setStatus(Status.DEFAULT);
                     id = R.string.notification_internet_restored;
                 }
                 break;
             case INTERNET_OFF:
-                id = R.string.notification_internet_off;
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                    id = R.string.notification_internet_off;
+                }
                 break;
             case SCHEDULED_TETHER_ON:
                 updateLastAccess();
@@ -1002,6 +1003,7 @@ public class TetheringService extends IntentService {
             case BLUETOOTH_INTERNET_TETHERING_OFF:
                 id = R.string.bluetooth_off;
                 setStatus(Status.DEFAULT);
+                showNotify = true; //TODO
                 break;
             case CELL_INTERNET_TETHERING_ON:
                 id = R.string.cell_on;
@@ -1022,12 +1024,14 @@ public class TetheringService extends IntentService {
             default:
                 MyLog.e(TAG, "Missing default notification!");
         }
-        if (msg != 0) {
-            id = msg;
-        }
 
         if (showNotify || !status.equals(oldStatus)) {
-            showNotification(getString(id), icon);
+            if (msg != 0) {
+                id = msg;
+            }
+            if (id > 0) {
+                showNotification(getString(id), icon);
+            }
         }
     }
 

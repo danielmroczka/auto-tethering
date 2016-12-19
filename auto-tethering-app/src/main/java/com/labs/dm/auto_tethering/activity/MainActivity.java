@@ -443,12 +443,12 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
         switch (key) {
             case ACTIVATE_3G:
-            case ACTIVATE_TETHERING:
-            case ACTIVATE_ON_STARTUP: {
                 sendBroadcast(new Intent(SERVICE_ON));
+            case ACTIVATE_TETHERING:
+                sendBroadcast(new Intent(SERVICE_ON));
+            case ACTIVATE_ON_STARTUP: {
                 ((CheckBoxPreference) findPreference(key)).setChecked(sharedPreferences.getBoolean(key, false));
                 break;
             }
