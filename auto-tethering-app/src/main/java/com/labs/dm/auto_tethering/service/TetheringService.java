@@ -52,10 +52,16 @@ import static com.labs.dm.auto_tethering.TetherIntents.BT_DISCONNECTED;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_RESTORE;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_SEARCH;
 import static com.labs.dm.auto_tethering.TetherIntents.CHANGE_NETWORK_STATE;
+import static com.labs.dm.auto_tethering.TetherIntents.EVENT_MOBILE_OFF;
+import static com.labs.dm.auto_tethering.TetherIntents.EVENT_MOBILE_ON;
+import static com.labs.dm.auto_tethering.TetherIntents.EVENT_TETHER_OFF;
+import static com.labs.dm.auto_tethering.TetherIntents.EVENT_TETHER_ON;
+import static com.labs.dm.auto_tethering.TetherIntents.EVENT_WIFI_OFF;
+import static com.labs.dm.auto_tethering.TetherIntents.EVENT_WIFI_ON;
 import static com.labs.dm.auto_tethering.TetherIntents.EXIT;
 import static com.labs.dm.auto_tethering.TetherIntents.RESUME;
-import static com.labs.dm.auto_tethering.TetherIntents.TEMPEARTURE_BELOW_LIMIT;
 import static com.labs.dm.auto_tethering.TetherIntents.TEMPERATURE_ABOVE_LIMIT;
+import static com.labs.dm.auto_tethering.TetherIntents.TEMPERATURE_BELOW_LIMIT;
 import static com.labs.dm.auto_tethering.TetherIntents.TETHERING;
 import static com.labs.dm.auto_tethering.TetherIntents.USB_OFF;
 import static com.labs.dm.auto_tethering.TetherIntents.USB_ON;
@@ -93,7 +99,8 @@ public class TetheringService extends IntentService {
 
     private boolean forceOff = false, forceOn = false;
     private boolean changeMobileState;
-    private boolean initial3GStatus, initialTetheredStatus, initialBluetoothStatus, initialWifiStatus;
+    private boolean initial3GStatus, initialTetheredStatus, initialBluetoothStatus, initialWifiStatus, wifiWasEnabled;
+    private boolean tetheringProcessing;
     private boolean blockForceInternet;
     private boolean runFromActivity;
     private boolean flag = true;
@@ -128,7 +135,9 @@ public class TetheringService extends IntentService {
     private Status previousStatus, status = Status.DEFAULT;
 
     private final String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF,
-            BT_RESTORE, BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPEARTURE_BELOW_LIMIT, CHANGE_NETWORK_STATE, TetherIntents.TETHER_ON, TetherIntents.TETHER_OFF, TetherIntents.INTERNET_ON, TetherIntents.INTERNET_OFF};
+            BT_RESTORE, BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPERATURE_BELOW_LIMIT, CHANGE_NETWORK_STATE, TetherIntents.TETHER_ON, TetherIntents.TETHER_OFF, TetherIntents.INTERNET_ON, TetherIntents.INTERNET_OFF,
+            EVENT_TETHER_OFF, EVENT_TETHER_ON, EVENT_MOBILE_OFF, EVENT_MOBILE_ON, EVENT_WIFI_OFF, EVENT_WIFI_ON
+    };
 
     public TetheringService() {
         super(TAG);
@@ -326,7 +335,7 @@ public class TetheringService extends IntentService {
     }
 
     private boolean keepService() {
-        return prefs.getBoolean(AppProperties.ACTIVATE_KEEP_SERVICE, true);
+        return prefs.getBoolean(ACTIVATE_KEEP_SERVICE, true);
     }
 
     /**
@@ -349,6 +358,10 @@ public class TetheringService extends IntentService {
             connectedDeviceName = null;
             showNotification("Tethering blocked due to active connection to WiFi Network", getNotificationIcon());
             return false;
+        }
+        tetheringProcessing = true;
+        if (state && !serviceHelper.isTetheringWiFi()) {
+            wifiWasEnabled = serviceHelper.isWifiEnabled();//serviceHelper.isConnectedToInternetThroughWiFi();
         }
 
         new TurnOnTetheringAsyncTask().doInBackground(state);
@@ -653,8 +666,7 @@ public class TetheringService extends IntentService {
             new TurnOnTetheringAsyncTask().doInBackground(initialTetheredStatus);
         }
         if (initialWifiStatus) {
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     serviceHelper.enableWifi();
@@ -776,14 +788,24 @@ public class TetheringService extends IntentService {
                     }
                     break;
 
-                case TEMPEARTURE_BELOW_LIMIT:
+                case TEMPERATURE_BELOW_LIMIT:
                     if (status == Status.TEMPERATURE_OFF && !serviceHelper.isTetheringWiFi()) {
                         execute(TEMP_TETHERING_ON);
                     }
                     break;
 
-                case CHANGE_NETWORK_STATE:
-                    onChangeNetworkState();
+                case EVENT_TETHER_OFF:
+                    onTetheringOff();
+                case EVENT_TETHER_ON:
+                    onTetheringOn();
+                case EVENT_MOBILE_OFF:
+                    onMobileOff();
+                case EVENT_MOBILE_ON:
+                    onMobileOn();
+                case EVENT_WIFI_OFF:
+                    onWifiOff();
+                case EVENT_WIFI_ON:
+                    onWifiOn();
                     updateNotification();
                     break;
 
@@ -824,23 +846,53 @@ public class TetheringService extends IntentService {
         }
     }
 
-    private void onChangeNetworkState() {
+    private void onWifiOn() {
+    }
+
+    private void onWifiOff() {
+
+    }
+
+    private void onMobileOn() {
+    }
+
+    private void onMobileOff() {
+    }
+
+    private void onTetheringOn() {
+        tetheringProcessing = false;
+    }
+
+    private void onTetheringOff() {
+        tetheringProcessing = false;
+        if (wifiWasEnabled && !serviceHelper.isWifiEnabled()) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (!serviceHelper.isTetheringWiFi()) {
+                        serviceHelper.enableWifi();
+                    }
+                }
+            }, 100);
+        }
     }
 
     private void onService() {
-        boolean tethering = serviceHelper.isTetheringWiFi();
-        boolean mobileOn = serviceHelper.isConnectedToInternetThroughMobile();
+        if (!tetheringProcessing) {
+            boolean tethering = serviceHelper.isTetheringWiFi();
+            boolean mobileOn = serviceHelper.isConnectedToInternetThroughMobile();
 
-        if (isActivated3G() && !mobileOn) {
-            execute(INTERNET_ON);
-        } else if (internetOn && !isActivated3G() && mobileOn) {
-            execute(INTERNET_OFF);
-        }
+            if (isActivated3G() && !mobileOn) {
+                execute(INTERNET_ON);
+            } else if (internetOn && !isActivated3G() && mobileOn) {
+                execute(INTERNET_OFF);
+            }
 
-        if (isActivatedTethering() && !tethering) {
-            execute(TETHER_ON);
-        } else if (tethering && !isActivatedTethering()) {
-            execute(INTERNET_OFF);
+            if (isActivatedTethering() && !tethering) {
+                execute(TETHER_ON);
+            } else if (tethering && !isActivatedTethering()) {
+                execute(INTERNET_OFF);
+            }
         }
     }
 

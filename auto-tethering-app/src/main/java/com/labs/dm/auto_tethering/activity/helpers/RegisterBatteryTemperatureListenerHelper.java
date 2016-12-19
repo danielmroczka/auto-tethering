@@ -20,8 +20,8 @@ import com.labs.dm.auto_tethering.activity.MainActivity;
 
 import static android.content.Intent.ACTION_BATTERY_CHANGED;
 import static com.labs.dm.auto_tethering.AppProperties.TEMPERATURE_LIMIT;
-import static com.labs.dm.auto_tethering.TetherIntents.TEMPEARTURE_BELOW_LIMIT;
 import static com.labs.dm.auto_tethering.TetherIntents.TEMPERATURE_ABOVE_LIMIT;
+import static com.labs.dm.auto_tethering.TetherIntents.TEMPERATURE_BELOW_LIMIT;
 
 /**
  * Created by Daniel Mroczka on 9/21/2016.
@@ -61,7 +61,7 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 if (!((Boolean) newValue)) {
-                    activity.sendBroadcast(new Intent(TEMPEARTURE_BELOW_LIMIT));
+                    activity.sendBroadcast(new Intent(TEMPERATURE_BELOW_LIMIT));
                 }
                 return true;
             }
@@ -112,7 +112,7 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
                 if (temperature >= stop) {
                     activity.sendBroadcast(new Intent(TEMPERATURE_ABOVE_LIMIT));
                 } else if (temperature <= start) {
-                    activity.sendBroadcast(new Intent(TEMPEARTURE_BELOW_LIMIT));
+                    activity.sendBroadcast(new Intent(TEMPERATURE_BELOW_LIMIT));
                 }
                 MyLog.d("Temp. monitor", temperature + sign);
             }

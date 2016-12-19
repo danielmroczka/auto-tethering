@@ -16,7 +16,7 @@ public class TetherIntents {
     public static final String BT_DISCONNECTED = "bt.disconnected";
     public static final String BT_SEARCH = "bt.search";
     public static final String TEMPERATURE_ABOVE_LIMIT = "temp.overheat.start";
-    public static final String TEMPEARTURE_BELOW_LIMIT = "temp.overheat.stop";
+    public static final String TEMPERATURE_BELOW_LIMIT = "temp.overheat.stop";
     public static final String CHANGE_NETWORK_STATE = "change.net.state";
 
     public static final String TETHER_ON = "tether.on";
@@ -28,4 +28,10 @@ public class TetherIntents {
     public static final String CLIENTS = "clients";
     public static final String DATA_USAGE = "data.usage";
     public static final String UNLOCK = "unlock";
+    public static final String EVENT_WIFI_ON = "wifi.on";
+    public static final String EVENT_WIFI_OFF = "wifi.off";
+    public static final String EVENT_MOBILE_ON = "mobile.on";
+    public static final String EVENT_MOBILE_OFF = "mobile.off";
+    public static final String EVENT_TETHER_ON = "on.tether.on";
+    public static final String EVENT_TETHER_OFF = "on.tether.off";
 }

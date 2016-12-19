@@ -13,7 +13,6 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
-import android.os.SystemClock;
 import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.MyLog;
@@ -24,6 +23,7 @@ import java.lang.reflect.Method;
 import java.util.Set;
 
 import static android.os.BatteryManager.BATTERY_PLUGGED_USB;
+import static android.os.SystemClock.currentThreadTimeMillis;
 
 /**
  * Helper class responsible for communication with WIFI and mobile services
@@ -34,7 +34,8 @@ public class ServiceHelper {
 
     private final Context context;
     private final WifiManager wifiManager;
-    private final String TAG = "ServiceHelper";
+    private final static String TAG = "ServiceHelper";
+    private final static int TIMEOUT = 5000;
 
     public ServiceHelper(Context context) {
         this.context = context;
@@ -126,7 +127,13 @@ public class ServiceHelper {
      * @param enable
      */
     public void setWifiTethering(boolean enable) {
-        wifiManager.setWifiEnabled(false);
+        if (enable) {
+            wifiManager.setWifiEnabled(false);
+            //long time = currentThreadTimeMillis();
+            //while (isConnectedToInternetThroughWiFi() && currentThreadTimeMillis() - time < TIMEOUT) {
+            // WAIT
+            //}
+        }
         Method[] methods = wifiManager.getClass().getDeclaredMethods();
         for (Method method : methods) {
             if (method.getName().equals("setWifiApEnabled")) {
@@ -278,8 +285,8 @@ public class ServiceHelper {
     public void setBlockingBluetoothStatus(boolean bluetoothStatus) {
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         setBluetoothStatus(bluetoothStatus);
-        long time = SystemClock.currentThreadTimeMillis();
-        while (adapter.isEnabled() != bluetoothStatus && SystemClock.currentThreadTimeMillis() - time < 5000) {
+        long time = currentThreadTimeMillis();
+        while (adapter.isEnabled() != bluetoothStatus && currentThreadTimeMillis() - time < TIMEOUT) {
             // NO-OP
         }
     }
@@ -305,5 +312,9 @@ public class ServiceHelper {
 
     public void enableWifi() {
         wifiManager.setWifiEnabled(true);
+    }
+
+    public boolean isWifiEnabled() {
+        return wifiManager.isWifiEnabled();
     }
 }
