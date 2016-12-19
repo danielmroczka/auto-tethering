@@ -60,6 +60,7 @@ import static com.labs.dm.auto_tethering.TetherIntents.EVENT_WIFI_OFF;
 import static com.labs.dm.auto_tethering.TetherIntents.EVENT_WIFI_ON;
 import static com.labs.dm.auto_tethering.TetherIntents.EXIT;
 import static com.labs.dm.auto_tethering.TetherIntents.RESUME;
+import static com.labs.dm.auto_tethering.TetherIntents.SERVICE_ON;
 import static com.labs.dm.auto_tethering.TetherIntents.TEMPERATURE_ABOVE_LIMIT;
 import static com.labs.dm.auto_tethering.TetherIntents.TEMPERATURE_BELOW_LIMIT;
 import static com.labs.dm.auto_tethering.TetherIntents.TETHERING;
@@ -136,7 +137,7 @@ public class TetheringService extends IntentService {
 
     private final String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF,
             BT_RESTORE, BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPERATURE_BELOW_LIMIT, CHANGE_NETWORK_STATE, TetherIntents.TETHER_ON, TetherIntents.TETHER_OFF, TetherIntents.INTERNET_ON, TetherIntents.INTERNET_OFF,
-            EVENT_TETHER_OFF, EVENT_TETHER_ON, EVENT_MOBILE_OFF, EVENT_MOBILE_ON, EVENT_WIFI_OFF, EVENT_WIFI_ON
+            EVENT_TETHER_OFF, EVENT_TETHER_ON, EVENT_MOBILE_OFF, EVENT_MOBILE_ON, EVENT_WIFI_OFF, EVENT_WIFI_ON, SERVICE_ON
     };
 
     public TetheringService() {
@@ -686,6 +687,16 @@ public class TetheringService extends IntentService {
         public void onReceive(Context context, Intent intent) {
             MyLog.i(TAG, intent.getAction());
             switch (intent.getAction()) {
+                case SERVICE_ON:
+                    // Service ON
+                    if (!forceOff && !forceOn) {
+                        break;
+                    }
+                    forceOff = false;
+                    forceOn = false;
+                    onService();
+                    updateNotification();
+                    break;
                 case TETHERING:
                     // Correct order of execution: Turn OFF -> Turn ON -> Service ON -> ...
                     if (forceOn && !forceOff) {

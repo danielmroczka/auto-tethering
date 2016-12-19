@@ -57,6 +57,7 @@ import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
 import static com.labs.dm.auto_tethering.AppProperties.SSID;
+import static com.labs.dm.auto_tethering.TetherIntents.SERVICE_ON;
 
 /**
  * Created by Daniel Mroczka
@@ -442,10 +443,12 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
         switch (key) {
             case ACTIVATE_3G:
             case ACTIVATE_TETHERING:
             case ACTIVATE_ON_STARTUP: {
+                sendBroadcast(new Intent(SERVICE_ON));
                 ((CheckBoxPreference) findPreference(key)).setChecked(sharedPreferences.getBoolean(key, false));
                 break;
             }

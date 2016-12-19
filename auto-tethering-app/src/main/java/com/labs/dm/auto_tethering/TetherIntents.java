@@ -8,6 +8,7 @@ public class TetherIntents {
     public static final String EXIT = "com.labs.dm.auto_tethering.EXIT";
     public static final String RESUME = "com.labs.dm.auto_tethering.RESUME";
     public static final String TETHERING = "tethering";
+    public static final String SERVICE_ON = "service.on";
     public static final String WIDGET = "widget";
     public static final String USB_ON = "usb_on";
     public static final String USB_OFF = "usb_off";
