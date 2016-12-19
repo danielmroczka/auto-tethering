@@ -63,14 +63,13 @@ public class TetheringStateReceiver extends BroadcastReceiver {
 
     private int getLayout(Intent intent) {
         int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, 0);
+
         int layout = R.layout.widget_layout_wait;
-        switch (state) {
+        switch (state % 10) {
             case WIFI_STATE_ENABLED:
-            case 13:
                 layout = R.layout.widget_layout_on;
                 break;
             case WIFI_STATE_DISABLED:
-            case 11:
                 layout = R.layout.widget_layout_off;
                 break;
         }

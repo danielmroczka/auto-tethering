@@ -54,7 +54,7 @@ public class NetworkConnectionReceiver extends BroadcastReceiver {
         }
 
         if (intentName != null) {
-            Log.i("NCR", intentName);
+            Log.d("NCR", intentName);
             context.sendBroadcast(new Intent(intentName));
         }
     }

@@ -866,14 +866,14 @@ public class TetheringService extends IntentService {
     private void onTetheringOff() {
         tetheringProcessing = false;
         if (wifiWasEnabled && !serviceHelper.isWifiEnabled()) {
-            new Handler().postDelayed(new Runnable() {
+            new Handler().post(new Runnable() {
                 @Override
                 public void run() {
                     if (!serviceHelper.isTetheringWiFi()) {
                         serviceHelper.enableWifi();
                     }
                 }
-            }, 100);
+            });
         }
     }
 
