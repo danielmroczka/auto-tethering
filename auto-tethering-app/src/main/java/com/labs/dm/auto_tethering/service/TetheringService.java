@@ -359,6 +359,11 @@ public class TetheringService extends IntentService {
             showNotification("Tethering blocked due to active connection to WiFi Network", getNotificationIcon());
             return false;
         }
+
+        if (tetheringProcessing) {
+            return false;
+        }
+
         tetheringProcessing = true;
         if (state && !serviceHelper.isTetheringWiFi()) {
             wifiWasEnabled = serviceHelper.isWifiEnabled();//serviceHelper.isConnectedToInternetThroughWiFi();
@@ -745,7 +750,7 @@ public class TetheringService extends IntentService {
                     }
                     break;
                 case USB_OFF:
-                    if (prefs.getBoolean("usb.activate.off.connect", false)) {
+                    if (prefs.getBoolean("usb.deactivate.on.disconnect", false)) {
                         execute(TETHER_OFF, R.string.activate_tethering_usb_off);
                     }
                     if (prefs.getBoolean("usb.internet.force.off", false)) {
