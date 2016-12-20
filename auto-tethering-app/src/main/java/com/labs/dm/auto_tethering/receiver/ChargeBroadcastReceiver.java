@@ -5,11 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
+import static android.content.Intent.ACTION_POWER_CONNECTED;
+import static android.content.Intent.ACTION_POWER_DISCONNECTED;
 import static com.labs.dm.auto_tethering.TetherIntents.USB_OFF;
 import static com.labs.dm.auto_tethering.TetherIntents.USB_ON;
 
@@ -27,7 +30,7 @@ public class ChargeBroadcastReceiver extends BroadcastReceiver {
         MyLog.i(TAG, intent.getAction());
 
         switch (intent.getAction()) {
-            case Intent.ACTION_POWER_CONNECTED:
+            case ACTION_POWER_CONNECTED:
                 usbIntent = new Intent(USB_ON);
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
                 if (prefs.getBoolean("usb.internet.start.service", false) && !helper.isServiceRunning(TetheringService.class)) {
@@ -36,13 +39,15 @@ public class ChargeBroadcastReceiver extends BroadcastReceiver {
                     context.startService(serviceIntent);
                 }
                 break;
-            case Intent.ACTION_POWER_DISCONNECTED:
+            case ACTION_POWER_DISCONNECTED:
                 if (helper.isTetheringWiFi()) {
                     usbIntent = new Intent(USB_OFF);
                 }
                 break;
         }
 
-        Utils.broadcast(context, usbIntent);
+        if (usbIntent != null) {
+            Utils.broadcast(context, usbIntent);
+        }
     }
 }

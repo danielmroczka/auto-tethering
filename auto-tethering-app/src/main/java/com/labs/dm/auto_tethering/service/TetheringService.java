@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -141,7 +142,7 @@ public class TetheringService extends IntentService {
 
     private final String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF,
             BT_RESTORE, BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPERATURE_BELOW_LIMIT, CHANGE_NETWORK_STATE, TetherIntents.TETHER_ON, TetherIntents.TETHER_OFF, TetherIntents.INTERNET_ON, TetherIntents.INTERNET_OFF,
-            EVENT_TETHER_OFF, EVENT_TETHER_ON, EVENT_MOBILE_OFF, EVENT_MOBILE_ON, EVENT_WIFI_OFF, EVENT_WIFI_ON, SERVICE_ON, CHANGE_CELL
+            EVENT_TETHER_OFF, EVENT_TETHER_ON, EVENT_MOBILE_OFF, EVENT_MOBILE_ON, EVENT_WIFI_OFF, EVENT_WIFI_ON, SERVICE_ON, CHANGE_CELL, Intent.ACTION_BATTERY_CHANGED
     };
 
     public TetheringService() {
@@ -772,6 +773,7 @@ public class TetheringService extends IntentService {
                         setStatus(Status.USB_ON);
                     }
                     break;
+
                 case USB_OFF:
                     if (prefs.getBoolean("usb.deactivate.on.disconnect", false) || !usbConnection()) {
                         execute(TETHER_OFF, R.string.activate_tethering_usb_off);
@@ -779,8 +781,9 @@ public class TetheringService extends IntentService {
                     if (prefs.getBoolean("usb.internet.force.off", false) || !usbConnection()) {
                         execute(INTERNET_OFF, R.string.activate_internet_usb_off);
                     }
-                    setStatus(Status.DEFAULT);
+
                     break;
+
                 case BT_RESTORE:
                     if (!initialBluetoothStatus) {
                         BluetoothAdapter.getDefaultAdapter().disable();
@@ -789,6 +792,7 @@ public class TetheringService extends IntentService {
                     revertToInitialStateAsync();
                     execute(BLUETOOTH_INTERNET_TETHERING_OFF);
                     break;
+
                 case BT_CONNECTED:
                     if (!forceOff) {
                         String deviceName = intent.getStringExtra("name");
@@ -824,14 +828,19 @@ public class TetheringService extends IntentService {
 
                 case EVENT_TETHER_OFF:
                     onTetheringOff();
+
                 case EVENT_TETHER_ON:
                     onTetheringOn();
+
                 case EVENT_MOBILE_OFF:
                     onMobileOff();
+
                 case EVENT_MOBILE_ON:
                     onMobileOn();
+
                 case EVENT_WIFI_OFF:
                     onWifiOff();
+
                 case EVENT_WIFI_ON:
                     onWifiOn();
                     updateNotification();
@@ -856,6 +865,22 @@ public class TetheringService extends IntentService {
                 case CHANGE_CELL:
                     checkCellular();
                     sendBroadcast(new Intent(TetherIntents.CHANGE_CELL_FORM));
+                    break;
+
+                case Intent.ACTION_BATTERY_CHANGED:
+                    if (prefs.getBoolean("usb.off.battery.lvl", false)) {
+                        int declaredLevel = Integer.parseInt(prefs.getString("usb.off.battery.lvl.value", "15"));
+                        int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+                        int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+                        float currentLevel = 100 * level / (float) scale;
+                        boolean isConnected = serviceHelper.isPluggedToPower();
+
+                        if (!isConnected && declaredLevel > currentLevel) {
+                            sendBroadcast(new Intent(USB_OFF));
+                        } else if ((status == Status.USB_ON) && declaredLevel <= currentLevel) {
+                            onService();
+                        }
+                    }
                     break;
 
                 case EXIT:

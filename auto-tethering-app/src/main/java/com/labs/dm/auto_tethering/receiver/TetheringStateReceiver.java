@@ -14,12 +14,12 @@ import android.widget.RemoteViews;
 
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
-import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
 import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
 import static android.net.wifi.WifiManager.WIFI_STATE_DISABLED;
 import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
+import static com.labs.dm.auto_tethering.TetherIntents.CHANGE_NETWORK_STATE;
 
 /**
  * Created by Daniel Mroczka
@@ -48,17 +48,15 @@ public class TetheringStateReceiver extends BroadcastReceiver {
         }
         context.getSharedPreferences("widget", 0).edit().putInt("clicks", 0).apply();
         vibrate(context, getState(intent));
-        context.sendBroadcast(new Intent(TetherIntents.CHANGE_NETWORK_STATE));
+        context.sendBroadcast(new Intent(CHANGE_NETWORK_STATE));
     }
 
     private void vibrate(Context context, int state) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if (prefs.getBoolean("vibrate.on.tethering", false)) {
             Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-            if (v != null) {
-                if (state == WIFI_STATE_DISABLED || state == WIFI_STATE_ENABLED) {
-                    v.vibrate(200);
-                }
+            if (v != null && (state == WIFI_STATE_DISABLED || state == WIFI_STATE_ENABLED)) {
+                v.vibrate(200);
             }
         }
     }
