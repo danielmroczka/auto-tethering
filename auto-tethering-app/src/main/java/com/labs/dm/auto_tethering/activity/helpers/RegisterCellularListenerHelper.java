@@ -2,7 +2,6 @@ package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
@@ -19,9 +18,6 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
-import android.telephony.CellLocation;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -46,7 +42,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import static android.content.Context.LOCATION_SERVICE;
-import static android.telephony.PhoneStateListener.LISTEN_NONE;
 import static com.labs.dm.auto_tethering.AppProperties.MAX_CELLULAR_ITEMS;
 import static com.labs.dm.auto_tethering.TetherIntents.CHANGE_CELL;
 
@@ -61,14 +56,9 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
     private PreferenceCategory activateList = getPreferenceCategory("cell.activate.list");
     private PreferenceCategory deactivateList = getPreferenceCategory("cell.deactivate.list");
     private ProgressDialog progress;
-    private MyPhoneStateListener myPhoneStateListener;
 
     public RegisterCellularListenerHelper(MainActivity activity) {
         super(activity);
-        final TelephonyManager telManager = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
-        int events = PhoneStateListener.LISTEN_CELL_LOCATION;
-        myPhoneStateListener = new MyPhoneStateListener();
-        telManager.listen(myPhoneStateListener, events);
     }
 
     @Override
@@ -86,13 +76,6 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                 return addGroup(deactivateList, "D");
             }
         });
-    }
-
-    @Override
-    public void unregisterUIListeners() {
-        super.unregisterUIListeners();
-        final TelephonyManager telManager = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
-        telManager.listen(myPhoneStateListener, LISTEN_NONE);
     }
 
     private boolean addGroup(final PreferenceCategory list, final String type) {
@@ -164,8 +147,8 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             }
             final LocationManager locationManager = (LocationManager) activity.getSystemService(LOCATION_SERVICE);
 
-            final MyLocationListener gpsListener = new MyLocationListener("GPS-Provider");
-            final MyLocationListener networkListener = new MyLocationListener("Network-Provider");
+            final LocationListener gpsListener = new MyLocationListener("GPS-Provider");
+            final LocationListener networkListener = new MyLocationListener("Network-Provider");
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, gpsListener, Looper.getMainLooper());
             }
@@ -475,19 +458,6 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         }
     }
 
-    private class MyPhoneStateListener extends PhoneStateListener {
-
-        @Override
-        public void onCellLocationChanged(CellLocation location) {
-            super.onCellLocationChanged(location);
-            final PreferenceScreen cell = getPreferenceScreen("cell.current");
-            Cellular current = Utils.getCellInfo(activity);
-            String styledText = String.format("<small>CID:</small><font color='#00FF40'>%s</font> <small>LAC:</small><font color='#00FF40'>%s</font>", current.getCid(), current.getLac());
-            cell.setTitle("Current Cellular Network:");
-            cell.setSummary(Html.fromHtml(styledText));
-        }
-    }
-
     private class MyLocationListener implements LocationListener {
         private String TAG;
 
@@ -513,6 +483,5 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
         public void onProviderDisabled(String provider) {
         }
     }
-
 
 }

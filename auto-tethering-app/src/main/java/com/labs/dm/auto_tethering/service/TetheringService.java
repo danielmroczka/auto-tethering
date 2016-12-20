@@ -852,6 +852,7 @@ public class TetheringService extends IntentService {
 
                 case CHANGE_CELL:
                     checkCellular();
+                    sendBroadcast(new Intent(TetherIntents.CHANGE_CELL_FORM));
                     break;
 
                 case EXIT:

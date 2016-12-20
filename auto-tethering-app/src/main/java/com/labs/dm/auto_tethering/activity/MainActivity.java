@@ -21,6 +21,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.text.Html;
 import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,6 +41,7 @@ import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterAddSimCardListenerHelper;
 import com.labs.dm.auto_tethering.activity.helpers.RegisterSchedulerListenerHelper;
+import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.db.DBManager;
 import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
@@ -57,6 +59,7 @@ import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
 import static com.labs.dm.auto_tethering.AppProperties.SSID;
+import static com.labs.dm.auto_tethering.TetherIntents.CHANGE_CELL_FORM;
 import static com.labs.dm.auto_tethering.TetherIntents.SERVICE_ON;
 
 /**
@@ -81,7 +84,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         loadPrefs();
         checkIfNotlocked();
         registerListeners();
-        registerReceievers();
+        registerReceivers();
         adjustSettingForOS();
         onStartup();
     }
@@ -104,7 +107,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         }
     }
 
-    private void registerReceievers() {
+    private void registerReceivers() {
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -138,6 +141,12 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                             break;
                         }
                     }
+                } else if (CHANGE_CELL_FORM.equals(intent.getAction())) {
+                    final PreferenceScreen cell = (PreferenceScreen) getPreferenceScreen().findPreference("cell.current");
+                    Cellular current = Utils.getCellInfo(MainActivity.this);
+                    String styledText = String.format("<small>CID:</small><font color='#00FF40'>%s</font> <small>LAC:</small><font color='#00FF40'>%s</font>", current.getCid(), current.getLac());
+                    cell.setTitle("Current Cellular Network:");
+                    cell.setSummary(Html.fromHtml(styledText));
                 }
             }
         };
@@ -146,6 +155,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         filter.addAction(TetherIntents.CLIENTS);
         filter.addAction(TetherIntents.DATA_USAGE);
         filter.addAction(TetherIntents.UNLOCK);
+        filter.addAction(CHANGE_CELL_FORM);
         registerReceiver(receiver, filter);
     }
 
