@@ -19,6 +19,7 @@ public class TetherIntents {
     public static final String TEMPERATURE_ABOVE_LIMIT = "temp.overheat.start";
     public static final String TEMPERATURE_BELOW_LIMIT = "temp.overheat.stop";
     public static final String CHANGE_NETWORK_STATE = "change.net.state";
+    public static final String CHANGE_CELL = "change.cell";
 
     public static final String TETHER_ON = "tether.on";
     public static final String TETHER_OFF = "tether.off";

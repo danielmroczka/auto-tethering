@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -45,7 +46,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import static android.content.Context.LOCATION_SERVICE;
+import static android.telephony.PhoneStateListener.LISTEN_NONE;
 import static com.labs.dm.auto_tethering.AppProperties.MAX_CELLULAR_ITEMS;
+import static com.labs.dm.auto_tethering.TetherIntents.CHANGE_CELL;
 
 /**
  * Created by Daniel Mroczka on 9/12/2016.
@@ -58,14 +61,17 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
     private PreferenceCategory activateList = getPreferenceCategory("cell.activate.list");
     private PreferenceCategory deactivateList = getPreferenceCategory("cell.deactivate.list");
     private ProgressDialog progress;
+    private MyPhoneStateListener myPhoneStateListener;
 
     public RegisterCellularListenerHelper(MainActivity activity) {
         super(activity);
         final TelephonyManager telManager = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
         int events = PhoneStateListener.LISTEN_CELL_LOCATION;
-        telManager.listen(new MyPhoneStateListener(), events);
+        myPhoneStateListener = new MyPhoneStateListener();
+        telManager.listen(myPhoneStateListener, events);
     }
 
+    @Override
     public void registerUIListeners() {
         new GetLastLocationTask().execute();
         activateGroupAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -80,6 +86,13 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                 return addGroup(deactivateList, "D");
             }
         });
+    }
+
+    @Override
+    public void unregisterUIListeners() {
+        super.unregisterUIListeners();
+        final TelephonyManager telManager = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
+        telManager.listen(myPhoneStateListener, LISTEN_NONE);
     }
 
     private boolean addGroup(final PreferenceCategory list, final String type) {
@@ -307,6 +320,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                         loadGroups();
                     }
                 }
+                activity.sendBroadcast(new Intent(CHANGE_CELL));
                 return true;
             }
         });
@@ -334,6 +348,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                         })
                         .setNegativeButton(R.string.no, null
                         ).show();
+                activity.sendBroadcast(new Intent(CHANGE_CELL));
                 return true;
             }
         });
@@ -366,6 +381,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 addCell(cellCategory, group, remove);
+                activity.sendBroadcast(new Intent(CHANGE_CELL));
                 return true;
             }
         });
@@ -375,6 +391,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
             public boolean onPreferenceClick(Preference preference) {
                 removeCell(cellCategory, remove);
                 remove.setEnabled(cellCategory.getPreferenceCount() > ITEM_COUNT);
+                activity.sendBroadcast(new Intent(CHANGE_CELL));
                 return true;
             }
         });

@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
 import com.labs.dm.auto_tethering.AppProperties;
@@ -35,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 
 import static android.os.Build.VERSION;
 import static android.os.Build.VERSION_CODES;
+import static android.telephony.PhoneStateListener.LISTEN_NONE;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING;
@@ -51,6 +53,7 @@ import static com.labs.dm.auto_tethering.TetherIntents.BT_CONNECTED;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_DISCONNECTED;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_RESTORE;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_SEARCH;
+import static com.labs.dm.auto_tethering.TetherIntents.CHANGE_CELL;
 import static com.labs.dm.auto_tethering.TetherIntents.CHANGE_NETWORK_STATE;
 import static com.labs.dm.auto_tethering.TetherIntents.EVENT_MOBILE_OFF;
 import static com.labs.dm.auto_tethering.TetherIntents.EVENT_MOBILE_ON;
@@ -116,6 +119,7 @@ public class TetheringService extends IntentService {
     private Notification notification;
     private Timer timer;
     private TimerTask dataUsageTask, bluetoothTask;
+    private MyPhoneStateListener myPhoneStateListener;
 
     private enum ScheduleResult {
         ON, OFF, NONE
@@ -137,7 +141,7 @@ public class TetheringService extends IntentService {
 
     private final String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF,
             BT_RESTORE, BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPERATURE_BELOW_LIMIT, CHANGE_NETWORK_STATE, TetherIntents.TETHER_ON, TetherIntents.TETHER_OFF, TetherIntents.INTERNET_ON, TetherIntents.INTERNET_OFF,
-            EVENT_TETHER_OFF, EVENT_TETHER_ON, EVENT_MOBILE_OFF, EVENT_MOBILE_ON, EVENT_WIFI_OFF, EVENT_WIFI_ON, SERVICE_ON
+            EVENT_TETHER_OFF, EVENT_TETHER_ON, EVENT_MOBILE_OFF, EVENT_MOBILE_ON, EVENT_WIFI_OFF, EVENT_WIFI_ON, SERVICE_ON, CHANGE_CELL
     };
 
     public TetheringService() {
@@ -183,6 +187,11 @@ public class TetheringService extends IntentService {
             Intent onIntent = new Intent(TetherIntents.DATA_USAGE);
             onIntent.putExtra("value", 0);
         }
+
+        myPhoneStateListener = new MyPhoneStateListener(getApplicationContext());
+        final TelephonyManager telManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        int events = PhoneStateListener.LISTEN_CELL_LOCATION;
+        telManager.listen(myPhoneStateListener, events);
     }
 
     private void init() {
@@ -233,7 +242,6 @@ public class TetheringService extends IntentService {
 
                 if (!(forceOff || forceOn) && (isServiceActivated() || keepService())) {
                     if (enabled()) {
-                        checkCellular();
                         boolean idle = checkIdle();
                         ScheduleResult res = scheduler();
                         if (res == ScheduleResult.OFF) {
@@ -657,6 +665,8 @@ public class TetheringService extends IntentService {
         unregisterReceiver(receiver);
         dataUsageTask.cancel();
         bluetoothTask.cancel();
+        final TelephonyManager telManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        telManager.listen(myPhoneStateListener, LISTEN_NONE);
         super.onDestroy();
     }
 
@@ -838,6 +848,10 @@ public class TetheringService extends IntentService {
 
                 case TetherIntents.INTERNET_OFF:
                     execute(INTERNET_OFF);
+                    break;
+
+                case CHANGE_CELL:
+                    checkCellular();
                     break;
 
                 case EXIT:
