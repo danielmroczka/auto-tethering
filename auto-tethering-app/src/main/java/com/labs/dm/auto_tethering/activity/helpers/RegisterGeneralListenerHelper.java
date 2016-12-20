@@ -164,10 +164,8 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
 
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if (!(Boolean) newValue) {
-                    if (getCheckBoxPreference("usb.activate.on.connect").isChecked() || getCheckBoxPreference("usb.deactivate.on.disconnect").isChecked()) {
-                        Toast.makeText(activity, "Once option 'Start service on power connection' has been disabled options below settings won't work unless service is running", Toast.LENGTH_LONG).show();
-                    }
+                if ((!(Boolean) newValue) && (getCheckBoxPreference("usb.activate.on.connect").isChecked() || getCheckBoxPreference("usb.deactivate.on.disconnect").isChecked())) {
+                    Toast.makeText(activity, R.string.usb_activate_onconnect_unselect, Toast.LENGTH_LONG).show();
                 }
                 return true;
             }

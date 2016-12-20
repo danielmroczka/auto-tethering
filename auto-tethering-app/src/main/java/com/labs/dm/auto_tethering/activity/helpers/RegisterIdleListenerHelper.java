@@ -1,8 +1,8 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
-import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
+
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 
@@ -20,10 +20,8 @@ public class RegisterIdleListenerHelper extends AbstractRegisterHelper {
 
     @Override
     public void registerUIListeners() {
-        EditTextPreference tetheringIdleTime = getEditTextPreference(IDLE_TETHERING_OFF_TIME);
-        tetheringIdleTime.setOnPreferenceChangeListener(changeListener);
-        EditTextPreference internetIdleTime = getEditTextPreference(IDLE_3G_OFF_TIME);
-        internetIdleTime.setOnPreferenceChangeListener(changeListener);
+        getEditTextPreference(IDLE_TETHERING_OFF_TIME).setOnPreferenceChangeListener(changeListener);
+        getEditTextPreference(IDLE_3G_OFF_TIME).setOnPreferenceChangeListener(changeListener);
         final PreferenceScreen connectedClients = getPreferenceScreen("idle.connected.clients");
 
         connectedClients.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

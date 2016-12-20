@@ -273,12 +273,12 @@ public class ServiceHelper {
 
     public void setBluetoothStatus(boolean bluetoothStatus) {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (mBluetoothAdapter == null) {
-            return;
-        } else if (bluetoothStatus && !mBluetoothAdapter.isEnabled()) {
-            mBluetoothAdapter.enable();
-        } else if (!bluetoothStatus && mBluetoothAdapter.isEnabled()) {
-            mBluetoothAdapter.disable();
+        if (mBluetoothAdapter != null) {
+            if (bluetoothStatus && !mBluetoothAdapter.isEnabled()) {
+                mBluetoothAdapter.enable();
+            } else if (!bluetoothStatus && mBluetoothAdapter.isEnabled()) {
+                mBluetoothAdapter.disable();
+            }
         }
     }
 
