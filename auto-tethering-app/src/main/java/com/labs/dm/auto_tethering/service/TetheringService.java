@@ -942,7 +942,7 @@ public class TetheringService extends IntentService {
     private void notify(ServiceAction serviceAction, int msg, boolean showNotify) {
         Status oldStatus = status;
         int id = 0;
-        int icon = getIcon(serviceAction);
+        int icon = getNotificationIcon();
         switch (serviceAction) {
             case TETHER_ON:
                 updateLastAccess();
@@ -1033,19 +1033,6 @@ public class TetheringService extends IntentService {
                 showNotification(getString(id), icon);
             }
         }
-    }
-
-    //TODO replace with getNotificationIcon()
-    private int getIcon(ServiceAction serviceAction) {
-        int icon = R.drawable.app_off;
-        if (serviceAction.name().contains("IDLE")) {
-            icon = R.drawable.app_off;
-        } else if (serviceHelper.isConnectedToInternetThroughMobile() && serviceHelper.isTetheringWiFi()) {
-            icon = R.drawable.app_on;
-        } else if (serviceHelper.isConnectedOrConnectingToInternet() || serviceHelper.isTetheringWiFi()) {
-            icon = R.drawable.app_yellow;
-        }
-        return icon;
     }
 
     public void setStatus(Status status) {
