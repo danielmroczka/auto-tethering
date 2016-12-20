@@ -328,19 +328,22 @@ public class TetheringService extends IntentService {
         return isCorrectSimCard() && allowRoaming();
     }
 
-    private boolean batteryLevel() {
-        boolean batteryLevel = prefs.getBoolean("usb.off.battery.lvl", false);
-        return !batteryLevel || 100f * serviceHelper.batteryLevel() >= Integer.valueOf(prefs.getString("usb.off.battery.lvl.value", "15"));
+    private boolean batteryAboveLimit() {
+        boolean chkBatteryLvl = prefs.getBoolean("usb.off.battery.lvl", false);
+        boolean isConnected = serviceHelper.isPluggedToPower();
+        int lvlValue = Integer.valueOf(prefs.getString("usb.off.battery.lvl.value", "15"));
+        return isConnected || !chkBatteryLvl || 100f * serviceHelper.batteryLevel() >= lvlValue;
     }
 
     /**
-     * Returns true if properties is set 'usbConnection.only.when.connected' and device is pluged to usbConnection or ac charger
+     * Returns true if properties is set 'usbConnection.only.when.connected' and device is plugged
+     * to usbConnection/AC charger or if current battery level is above on limit
      *
      * @return
      */
     private boolean usbConnection() {
         boolean flag = prefs.getBoolean("usb.only.when.connected", false);
-        return (!flag || serviceHelper.isPluggedToPower()) && batteryLevel();
+        return (!flag || serviceHelper.isPluggedToPower()) && batteryAboveLimit();
     }
 
     private boolean keepService() {
@@ -770,10 +773,10 @@ public class TetheringService extends IntentService {
                     }
                     break;
                 case USB_OFF:
-                    if (prefs.getBoolean("usb.deactivate.on.disconnect", false)) {
+                    if (prefs.getBoolean("usb.deactivate.on.disconnect", false) || !usbConnection()) {
                         execute(TETHER_OFF, R.string.activate_tethering_usb_off);
                     }
-                    if (prefs.getBoolean("usb.internet.force.off", false)) {
+                    if (prefs.getBoolean("usb.internet.force.off", false) || !usbConnection()) {
                         execute(INTERNET_OFF, R.string.activate_internet_usb_off);
                     }
                     setStatus(Status.DEFAULT);

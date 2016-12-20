@@ -47,25 +47,25 @@ public class TetheringStateReceiver extends BroadcastReceiver {
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }
         context.getSharedPreferences("widget", 0).edit().putInt("clicks", 0).apply();
-        vibrate(context);
+        vibrate(context, getState(intent));
         context.sendBroadcast(new Intent(TetherIntents.CHANGE_NETWORK_STATE));
     }
 
-    private void vibrate(Context context) {
+    private void vibrate(Context context, int state) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if (prefs.getBoolean("vibrate.on.tethering", false)) {
             Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
             if (v != null) {
-                v.vibrate(200);
+                if (state == WIFI_STATE_DISABLED || state == WIFI_STATE_ENABLED) {
+                    v.vibrate(200);
+                }
             }
         }
     }
 
     private int getLayout(Intent intent) {
-        int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, 0);
-
         int layout = R.layout.widget_layout_wait;
-        switch (state % 10) {
+        switch (getState(intent)) {
             case WIFI_STATE_ENABLED:
                 layout = R.layout.widget_layout_on;
                 break;
@@ -74,5 +74,10 @@ public class TetheringStateReceiver extends BroadcastReceiver {
                 break;
         }
         return layout;
+    }
+
+    private int getState(Intent intent) {
+        int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, 0);
+        return state % 10;
     }
 }
