@@ -222,7 +222,6 @@ public class TetheringService extends IntentService {
         return super.onStartCommand(intent, flags, startId);
     }
 
-
     @Override
     protected void onHandleIntent(Intent intent) {
         if (isServiceActivated()) {
@@ -379,7 +378,7 @@ public class TetheringService extends IntentService {
 
         tetheringProcessing = true;
         if (state && !serviceHelper.isTetheringWiFi()) {
-            wifiWasEnabled = serviceHelper.isWifiEnabled();//serviceHelper.isConnectedToInternetThroughWiFi();
+            wifiWasEnabled = serviceHelper.isWifiEnabled();
         }
 
         new TurnOnTetheringAsyncTask().doInBackground(state);
@@ -769,9 +768,14 @@ public class TetheringService extends IntentService {
                 case RESUME:
                     updateLastAccess();
                     connectedDeviceName = null;
-                    setStatus(previousStatus);
-                    onService();
-                    updateNotification();
+                    if (Status.USB_ON.equals(previousStatus)) {
+                        setStatus(previousStatus);
+                        sendBroadcast(new Intent(USB_ON));
+                    } else {
+                        setStatus(previousStatus);
+                        onService();
+                        updateNotification();
+                    }
                     break;
 
                 case USB_ON:
