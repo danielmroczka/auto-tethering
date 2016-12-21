@@ -69,12 +69,12 @@
                 <CheckBoxPreference
                     android:icon="@drawable/ic_usb"
                     android:key="usb.only.when.connected"
-                    android:summary="Service and tethering activate only when connected to USB or AC charger"
-                    android:title="Only when connected" />
+                    android:summary="Activate tethering only when connected to USB or AC charger"
+                    android:title="USB connection" />
                 <CheckBoxPreference
                     android:icon="@drawable/ic_battery_level"
                     android:key="usb.off.battery.lvl"
-                    android:summary="Don't tether if battery is below the level"
+                    android:summary="Stop tethering when battery is below the level"
                     android:title="Battery level" />
                 <EditTextPreference
                     android:defaultValue="15"

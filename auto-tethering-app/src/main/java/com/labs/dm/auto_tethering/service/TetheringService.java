@@ -347,22 +347,7 @@ public class TetheringService extends IntentService {
      * @return true if changed the state or false if not
      */
     private boolean tetheringAsyncTask(boolean state) {
-        if (serviceHelper.isTetheringWiFi() == state) {
-            return false;
-        }
-
-        if (!isCorrectSimCard()) {
-            execute(SIMCARD_BLOCK);
-            return false;
-        }
-
-        if (!allowRoaming()) {
-            showNotification(getString(R.string.roaming_service_disabled), R.drawable.app_off);
-            return false;
-        }
-
-        if (Utils.isAirplaneModeOn(getApplicationContext())) {
-            showNotification("Tethering blocked due to activated Airplane Mode", getNotificationIcon());
+        if (serviceHelper.isTetheringWiFi() == state || !commonCheck(state)) {
             return false;
         }
 
@@ -382,6 +367,44 @@ public class TetheringService extends IntentService {
         }
 
         new TurnOnTetheringAsyncTask().doInBackground(state);
+        return true;
+    }
+
+    /**
+     * Turns mobile data in separate thread.
+     *
+     * @param state
+     * @return true if changed the state or false if not
+     */
+    private boolean internetAsyncTask(boolean state) {
+        if (serviceHelper.isConnectedToInternetThroughMobile() == state || !commonCheck(state)) {
+            return false;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            MyLog.d(TAG, "Current Android OS doesn't support turn mobile data!");
+            return false;
+        }
+
+        new TurnOn3GAsyncTask().doInBackground(state);
+        return true;
+    }
+
+    private boolean commonCheck(boolean state) {
+        if (!isCorrectSimCard()) {
+            execute(SIMCARD_BLOCK);
+            return false;
+        }
+
+        if (!allowRoaming()) {
+            showNotification(getString(R.string.roaming_service_disabled), R.drawable.app_off);
+            return false;
+        }
+
+        if (state && Utils.isAirplaneModeOn(getApplicationContext())) {
+            showNotification("Tethering blocked due to activated Airplane Mode", getNotificationIcon());
+            return false;
+        }
+
         return true;
     }
 
@@ -493,35 +516,6 @@ public class TetheringService extends IntentService {
 
     private void onChangeProperties() {
         crons = DBManager.getInstance(getApplicationContext()).getCrons();
-    }
-
-    /**
-     * Turns mobile data in separate thread.
-     *
-     * @param state
-     * @return true if changed the state or false if not
-     */
-    private boolean internetAsyncTask(boolean state) {
-        if (serviceHelper.isConnectedToInternetThroughMobile() == state) {
-            return false;
-        }
-
-        if (state && Utils.isAirplaneModeOn(getApplicationContext())) {
-            return false;
-        }
-
-        if (!isCorrectSimCard()) {
-            execute(SIMCARD_BLOCK);
-            return false;
-        }
-
-        if (!allowRoaming()) {
-            showNotification(getString(R.string.roaming_service_disabled), R.drawable.app_off);
-            return false;
-        }
-
-        new TurnOn3GAsyncTask().doInBackground(state);
-        return true;
     }
 
     private boolean isActivatedTethering() {
@@ -987,15 +981,13 @@ public class TetheringService extends IntentService {
     private void execute(ServiceAction serviceAction, int msg) {
         boolean action = serviceAction.isOn();
         boolean showNotify = false;
-        if (serviceAction.isInternet() && serviceHelper.isConnectedOrConnectingToInternet() != action) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                MyLog.d(TAG, "Current Android OS doesn't support turn mobile data!");
-            } else if (!internetAsyncTask(action)) {
+        if (serviceAction.isInternet()) {
+            if (!internetAsyncTask(action)) {
                 return;
             }
             showNotify = true;
         }
-        if (serviceAction.isTethering() && serviceHelper.isTetheringWiFi() != action) {
+        if (serviceAction.isTethering()) {
             if (!tetheringAsyncTask(action)) {
                 return;
             }
