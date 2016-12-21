@@ -77,15 +77,16 @@ import static com.labs.dm.auto_tethering.service.ServiceAction.BLUETOOTH_INTERNE
 import static com.labs.dm.auto_tethering.service.ServiceAction.BLUETOOTH_INTERNET_TETHERING_ON;
 import static com.labs.dm.auto_tethering.service.ServiceAction.CELL_INTERNET_TETHERING_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.CELL_INTERNET_TETHERING_ON;
-import static com.labs.dm.auto_tethering.service.ServiceAction.DATA_USAGE_EXCEED_LIMIT;
+import static com.labs.dm.auto_tethering.service.ServiceAction.DATA_USAGE_EXCEED_LIMIT_INTERNET_TETHERING_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF_IDLE;
 import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.ROAMING_INTERNET_TETHERING_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_ON;
 import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_ON;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SIMCARD_BLOCK;
+import static com.labs.dm.auto_tethering.service.ServiceAction.SIMCARD_BLOCK_INTERNET_TETHERING_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.TEMP_TETHERING_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.TEMP_TETHERING_ON;
 import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF;
@@ -104,7 +105,7 @@ public class TetheringService extends IntentService {
 
     private boolean forceOff = false, forceOn = false;
     private boolean changeMobileState;
-    private boolean initial3GStatus, initialTetheredStatus, initialBluetoothStatus, initialWifiStatus, wifiWasEnabled;
+    private boolean initial3GStatus, initialTetheringStatus, initialBluetoothStatus, initialWifiStatus, wifiWasEnabled;
     private boolean tetheringProcessing;
     private boolean blockForceInternet;
     private boolean runFromActivity;
@@ -124,18 +125,6 @@ public class TetheringService extends IntentService {
 
     private enum ScheduleResult {
         ON, OFF, NONE
-    }
-
-    private enum Status {
-        DEFAULT,
-        DEACTIVATED_ON_IDLE,
-        ACTIVATED_ON_SCHEDULE,
-        DEACTIVATED_ON_SCHEDULE,
-        USB_ON,
-        DATA_USAGE_LIMIT_EXCEED,
-        ACTIVATED_ON_CELL, DEACTIVATED_ON_CELL,
-        TEMPERATURE_OFF,
-        BT
     }
 
     private Status previousStatus, status = Status.DEFAULT;
@@ -200,7 +189,7 @@ public class TetheringService extends IntentService {
 
     private void init() {
         initial3GStatus = serviceHelper.isConnectedToInternetThroughMobile();
-        initialTetheredStatus = serviceHelper.isTetheringWiFi();
+        initialTetheringStatus = serviceHelper.isTetheringWiFi();
         initialBluetoothStatus = serviceHelper.isBluetoothActive();
         initialWifiStatus = serviceHelper.isConnectedToInternetThroughWiFi();
     }
@@ -228,10 +217,11 @@ public class TetheringService extends IntentService {
             showNotification(getString(R.string.service_started), getNotificationIcon());
 
             if (!isCorrectSimCard()) {
-                execute(SIMCARD_BLOCK);
+                execute(SIMCARD_BLOCK_INTERNET_TETHERING_OFF);
             }
 
             if (!allowRoaming()) {
+                execute(ROAMING_INTERNET_TETHERING_OFF);
                 showNotification(getString(R.string.roaming_service_disabled), R.drawable.app_off);
             }
 
@@ -279,7 +269,7 @@ public class TetheringService extends IntentService {
 
                 if (prefs.getBoolean("data.limit.on", false)) {
                     if (usage / (1048576f) > Integer.parseInt(prefs.getString("data.limit.value", "0"))) {
-                        execute(DATA_USAGE_EXCEED_LIMIT);
+                        execute(DATA_USAGE_EXCEED_LIMIT_INTERNET_TETHERING_OFF);
                     }
                 } else {
                     if (status == Status.DATA_USAGE_LIMIT_EXCEED) {
@@ -352,7 +342,7 @@ public class TetheringService extends IntentService {
         }
 
         if (!isCorrectSimCard()) {
-            execute(SIMCARD_BLOCK);
+            execute(SIMCARD_BLOCK_INTERNET_TETHERING_OFF);
             return false;
         }
 
@@ -511,7 +501,7 @@ public class TetheringService extends IntentService {
         }
 
         if (!isCorrectSimCard()) {
-            execute(SIMCARD_BLOCK);
+            execute(SIMCARD_BLOCK_INTERNET_TETHERING_OFF);
             return false;
         }
 
@@ -694,7 +684,7 @@ public class TetheringService extends IntentService {
     private void revertToInitialState() {
         if (prefs.getBoolean(RETURN_TO_PREV_STATE, false) && prefs.getBoolean(ACTIVATE_KEEP_SERVICE, true)) {
             new TurnOn3GAsyncTask().doInBackground(initial3GStatus);
-            new TurnOnTetheringAsyncTask().doInBackground(initialTetheredStatus);
+            new TurnOnTetheringAsyncTask().doInBackground(initialTetheringStatus);
         }
         if (initialWifiStatus) {
             new Handler().postDelayed(new Runnable() {
@@ -1010,14 +1000,19 @@ public class TetheringService extends IntentService {
         Status oldStatus = status;
         int id = 0;
         int icon = getNotificationIcon();
+
+        if (serviceAction.getStatus() != Status.NONE) {
+            setStatus(serviceAction.getStatus());
+        }
+        if (serviceAction.getResource() > 0) {
+            id = serviceAction.getResource();
+        }
+
         switch (serviceAction) {
             case TETHER_ON:
                 updateLastAccess();
                 id = R.string.notification_tethering_restored;
                 setStatus(Status.DEFAULT);
-                break;
-            case TETHER_OFF:
-                id = R.string.notification_tethering_off;
                 break;
             case INTERNET_ON:
                 if (!Utils.isAirplaneModeOn(getApplicationContext()) && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -1036,10 +1031,7 @@ public class TetheringService extends IntentService {
                 id = R.string.notification_scheduled_tethering_on;
                 setStatus(Status.ACTIVATED_ON_SCHEDULE);
                 break;
-            case SCHEDULED_TETHER_OFF:
-                id = R.string.notification_scheduled_tethering_off;
-                setStatus(Status.DEACTIVATED_ON_SCHEDULE);
-                break;
+
             case SCHEDULED_INTERNET_ON:
                 updateLastAccess();
                 id = R.string.notification_scheduled_internet_on;
@@ -1059,34 +1051,10 @@ public class TetheringService extends IntentService {
                 previousStatus = status;
                 setStatus(Status.DEACTIVATED_ON_IDLE);
                 break;
-            case DATA_USAGE_EXCEED_LIMIT:
-                id = R.string.notification_data_exceed_limit;
-                setStatus(Status.DATA_USAGE_LIMIT_EXCEED);
-                break;
-            case BLUETOOTH_INTERNET_TETHERING_ON:
-                id = R.string.bluetooth_on;
-                setStatus(Status.BT);
-                break;
             case BLUETOOTH_INTERNET_TETHERING_OFF:
                 id = R.string.bluetooth_off;
                 setStatus(Status.DEFAULT);
                 showNotify = true; //TODO
-                break;
-            case CELL_INTERNET_TETHERING_ON:
-                id = R.string.cell_on;
-                setStatus(Status.ACTIVATED_ON_CELL);
-                break;
-            case CELL_INTERNET_TETHERING_OFF:
-                id = R.string.cell_off;
-                setStatus(Status.DEACTIVATED_ON_CELL);
-                break;
-            case TEMP_TETHERING_OFF:
-                id = R.string.temp_off;
-                setStatus(Status.TEMPERATURE_OFF);
-                break;
-            case TEMP_TETHERING_ON:
-                id = R.string.temp_on;
-                setStatus(Status.DEFAULT);
                 break;
             default:
                 MyLog.e(TAG, "Missing default notification!");
