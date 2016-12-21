@@ -81,7 +81,6 @@ import static com.labs.dm.auto_tethering.service.ServiceAction.DATA_USAGE_EXCEED
 import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF_IDLE;
 import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_ON;
-import static com.labs.dm.auto_tethering.service.ServiceAction.ROAMING_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_ON;
 import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_OFF;
@@ -242,9 +241,6 @@ public class TetheringService extends IntentService {
 
         while (flag) {
             try {
-                boolean connected3G = serviceHelper.isConnectedToInternetThroughMobile();
-                boolean tethered = serviceHelper.isTetheringWiFi();
-
                 if (!(forceOff || forceOn) && (isServiceActivated() || keepService())) {
                     if (enabled()) {
                         boolean idle = checkIdle();
@@ -266,16 +262,6 @@ public class TetheringService extends IntentService {
                             }
                         } else if (status == Status.DEFAULT) {
                             onService();
-                        }
-
-                    } else {
-
-                        if (tethered || connected3G) {
-                            if (!isCorrectSimCard()) {
-                                execute(SIMCARD_BLOCK, R.string.simcard_service_disabled);
-                            } else if (!allowRoaming()) {
-                                execute(ROAMING_OFF, R.string.roaming_service_disabled);
-                            }
                         }
                     }
                 } else if (forceOn) {
@@ -363,6 +349,16 @@ public class TetheringService extends IntentService {
      */
     private boolean tetheringAsyncTask(boolean state) {
         if (serviceHelper.isTetheringWiFi() == state) {
+            return false;
+        }
+
+        if (!isCorrectSimCard()) {
+            execute(SIMCARD_BLOCK);
+            return false;
+        }
+
+        if (!allowRoaming()) {
+            showNotification(getString(R.string.roaming_service_disabled), R.drawable.app_off);
             return false;
         }
 
@@ -512,6 +508,16 @@ public class TetheringService extends IntentService {
         }
 
         if (state && Utils.isAirplaneModeOn(getApplicationContext())) {
+            return false;
+        }
+
+        if (!isCorrectSimCard()) {
+            execute(SIMCARD_BLOCK);
+            return false;
+        }
+
+        if (!allowRoaming()) {
+            showNotification(getString(R.string.roaming_service_disabled), R.drawable.app_off);
             return false;
         }
 
