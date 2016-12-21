@@ -1,13 +1,10 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Holo" tools:targetApi="honeycomb">
-        <!--<item name="android:alertDialogTheme">@style/MyAlertDialogTheme</item>-->
-        <!--<item name="android:alertDialogStyle">@style/MyAlertDialogStyle</item>-->
-
+    <style name="AppTheme">
     </style>
 
-    <style name="MyTheme" parent="android:Theme.Holo.Dialog" tools:targetApi="honeycomb">
+    <style name="MyTheme">
         <item name="android:alertDialogStyle">@style/CustomAlertDialogStyle</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:textColorPrimary">#FFFFFF</item>

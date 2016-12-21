@@ -177,7 +177,7 @@ public class TetheringService extends IntentService {
         for (String invent : invents) {
             filter.addAction(invent);
         }
-        receiver = new MyBroadcastReceiver();
+        receiver = new TetheringServiceReceiver();
         registerReceiver(receiver, filter);
     }
 
@@ -702,7 +702,7 @@ public class TetheringService extends IntentService {
         new TurnOnBTAsyncTask().doInBackground(initialBluetoothStatus);
     }
 
-    private class MyBroadcastReceiver extends BroadcastReceiver {
+    private class TetheringServiceReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             MyLog.i(TAG, intent.getAction());
