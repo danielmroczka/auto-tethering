@@ -52,8 +52,9 @@ import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_CONNECTED;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_DISCONNECTED;
-import static com.labs.dm.auto_tethering.TetherIntents.BT_RESTORE;
-import static com.labs.dm.auto_tethering.TetherIntents.BT_SEARCH;
+import static com.labs.dm.auto_tethering.TetherIntents.BT_START_SEARCH;
+import static com.labs.dm.auto_tethering.TetherIntents.BT_START_TASKSEARCH;
+import static com.labs.dm.auto_tethering.TetherIntents.BT_STOP;
 import static com.labs.dm.auto_tethering.TetherIntents.CHANGE_CELL;
 import static com.labs.dm.auto_tethering.TetherIntents.CHANGE_NETWORK_STATE;
 import static com.labs.dm.auto_tethering.TetherIntents.EVENT_MOBILE_OFF;
@@ -118,7 +119,7 @@ public class TetheringService extends IntentService {
     private SharedPreferences prefs;
     private ServiceHelper serviceHelper;
     private Notification notification;
-    private Timer timer;
+    private Timer bluetoothTimer, dataUsageTimer;
     private TimerTask dataUsageTask, bluetoothTask;
     private MyPhoneStateListener myPhoneStateListener;
 
@@ -141,7 +142,7 @@ public class TetheringService extends IntentService {
     private Status previousStatus, status = Status.DEFAULT;
 
     private final String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF,
-            BT_RESTORE, BT_CONNECTED, BT_DISCONNECTED, BT_SEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPERATURE_BELOW_LIMIT, CHANGE_NETWORK_STATE, TetherIntents.TETHER_ON, TetherIntents.TETHER_OFF, TetherIntents.INTERNET_ON, TetherIntents.INTERNET_OFF,
+            BT_STOP, BT_CONNECTED, BT_DISCONNECTED, BT_START_SEARCH, BT_START_TASKSEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPERATURE_BELOW_LIMIT, CHANGE_NETWORK_STATE, TetherIntents.TETHER_ON, TetherIntents.TETHER_OFF, TetherIntents.INTERNET_ON, TetherIntents.INTERNET_OFF,
             EVENT_TETHER_OFF, EVENT_TETHER_ON, EVENT_MOBILE_OFF, EVENT_MOBILE_ON, EVENT_WIFI_OFF, EVENT_WIFI_ON, SERVICE_ON, CHANGE_CELL, Intent.ACTION_BATTERY_CHANGED
     };
 
@@ -161,11 +162,14 @@ public class TetheringService extends IntentService {
     }
 
     private void registerTimeTask() {
-        dataUsageTask = new DataUsageTimerTask(getApplicationContext(), prefs);
-        bluetoothTask = new BluetoothTimerTask(getApplicationContext(), prefs);
-        timer = new Timer();
-        timer.schedule(dataUsageTask, 1000, 15000);
-        timer.schedule(bluetoothTask, 5000, 30000);
+        dataUsageTask = new DataUsageTimerTask(getApplicationContext());
+        bluetoothTask = new BluetoothTimerTask(getApplicationContext());
+        bluetoothTimer = new Timer();
+        dataUsageTimer = new Timer();
+        dataUsageTimer.schedule(dataUsageTask, 1000, 10000);
+        if (prefs.getBoolean("bt.start.discovery", false)) {
+            bluetoothTimer.schedule(bluetoothTask, 5000, 30000);
+        }
     }
 
     private void registerReceivers() {
@@ -667,6 +671,8 @@ public class TetheringService extends IntentService {
         stopForeground(true);
         stopSelf();
         unregisterReceiver(receiver);
+        dataUsageTimer.cancel();
+        bluetoothTimer.cancel();
         dataUsageTask.cancel();
         bluetoothTask.cancel();
         final TelephonyManager telManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -784,7 +790,9 @@ public class TetheringService extends IntentService {
 
                     break;
 
-                case BT_RESTORE:
+                case BT_STOP:
+                    bluetoothTask.cancel();
+                    bluetoothTimer.cancel();
                     if (!initialBluetoothStatus) {
                         BluetoothAdapter.getDefaultAdapter().disable();
                     }
@@ -810,7 +818,13 @@ public class TetheringService extends IntentService {
                     execute(BLUETOOTH_INTERNET_TETHERING_OFF);
                     break;
 
-                case BT_SEARCH:
+                case BT_START_TASKSEARCH:
+                    bluetoothTask = new BluetoothTimerTask(getApplicationContext());
+                    bluetoothTimer = new Timer();
+                    bluetoothTimer.schedule(bluetoothTask, 0, 30000);
+                    break;
+
+                case BT_START_SEARCH:
                     new BluetoothTask(getApplicationContext(), connectedDeviceName).execute();
                     break;
 

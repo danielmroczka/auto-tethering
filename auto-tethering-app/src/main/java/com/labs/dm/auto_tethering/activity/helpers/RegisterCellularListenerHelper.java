@@ -80,7 +80,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     private boolean addGroup(final PreferenceCategory list, final String type) {
         if (list.getPreferenceCount() > AppProperties.MAX_CELL_GROUPS_COUNT) {
-            Toast.makeText(activity, "Exceed the limit of group limit (" + AppProperties.MAX_CELL_GROUPS_COUNT + ")!", Toast.LENGTH_LONG).show();
+            Toast.makeText(activity, "Exceed the limit of groups (" + AppProperties.MAX_CELL_GROUPS_COUNT + ")!", Toast.LENGTH_LONG).show();
             return false;
         }
         LayoutInflater li = LayoutInflater.from(activity);

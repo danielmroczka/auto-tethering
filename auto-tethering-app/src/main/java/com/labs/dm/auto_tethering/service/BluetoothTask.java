@@ -26,7 +26,10 @@ import static com.labs.dm.auto_tethering.TetherIntents.BT_CONNECTED;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_DISCONNECTED;
 
 /**
- * Class triggers by BluetoothTimerTask every xx seconds.
+ * Class triggers by BluetoothTimerTask every xx seconds responsible for pooling all configured Bluetooth devices if they in range.
+ * If any of device is in the range it triggers Intent BT_CONNECTED
+ * Intent BT_CONNECTED will be triggered if already connected devices disconnects.
+ * <p>
  * <p>
  * Created by Daniel Mroczka
  */

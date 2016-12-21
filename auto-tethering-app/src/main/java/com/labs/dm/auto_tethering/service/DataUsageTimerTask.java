@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
+
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
@@ -19,9 +21,9 @@ public class DataUsageTimerTask extends TimerTask {
     private final Context context;
     private final SharedPreferences prefs;
 
-    public DataUsageTimerTask(Context context, SharedPreferences prefs) {
+    public DataUsageTimerTask(Context context) {
         this.context = context;
-        this.prefs = prefs;
+        this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     @Override

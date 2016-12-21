@@ -12,10 +12,11 @@ public class TetherIntents {
     public static final String WIDGET = "widget";
     public static final String USB_ON = "usb_on";
     public static final String USB_OFF = "usb_off";
-    public static final String BT_RESTORE = "bt_set_idle";
+    public static final String BT_STOP = "bt_set_idle";
     public static final String BT_CONNECTED = "bt.connected";
     public static final String BT_DISCONNECTED = "bt.disconnected";
-    public static final String BT_SEARCH = "bt.search";
+    public static final String BT_START_SEARCH = "bt.search";
+    public static final String BT_START_TASKSEARCH = "bt.start.search";
     public static final String TEMPERATURE_ABOVE_LIMIT = "temp.overheat.start";
     public static final String TEMPERATURE_BELOW_LIMIT = "temp.overheat.stop";
     public static final String CHANGE_NETWORK_STATE = "change.net.state";

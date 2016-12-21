@@ -132,8 +132,9 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 if (!btCheckBox.isChecked()) {
-                    activity.sendBroadcast(new Intent(TetherIntents.BT_RESTORE));
+                    activity.sendBroadcast(new Intent(TetherIntents.BT_STOP));
                 } else {
+                    activity.sendBroadcast(new Intent(TetherIntents.BT_START_TASKSEARCH));
                     Toast.makeText(activity, "You might be asked to approve Bluetooth connection on some preferred devices.", Toast.LENGTH_LONG).show();
                 }
 

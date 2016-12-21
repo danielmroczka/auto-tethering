@@ -8,7 +8,7 @@ public class AppProperties {
     /**
      * Maximal number of configured Bluetooth Devices
      */
-    public static final int MAX_BT_DEVICES = 3;
+    public static final int MAX_BT_DEVICES = 5;
     /**
      * Maximal number of cellular networks
      */
