@@ -226,16 +226,9 @@ public class TetheringService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (isServiceActivated()) {
             showNotification(getString(R.string.service_started), getNotificationIcon());
-
-            if (!isCorrectSimCard()) {
-                execute(SIMCARD_BLOCK);
+            if (commonCheck(true)) {
+                onService();
             }
-
-            if (!allowRoaming()) {
-                showNotification(getString(R.string.roaming_service_disabled), R.drawable.app_off);
-            }
-
-            onService();
         }
 
         while (flag) {
@@ -402,6 +395,11 @@ public class TetheringService extends IntentService {
 
         if (state && Utils.isAirplaneModeOn(getApplicationContext())) {
             showNotification("Tethering blocked due to activated Airplane Mode", getNotificationIcon());
+            return false;
+        }
+
+        if (!usbConnection()) {
+            showNotification("Tethering blocked due to USB disconnection or battery settings", getNotificationIcon());
             return false;
         }
 

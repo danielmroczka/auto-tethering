@@ -49,18 +49,16 @@ android {
         minSdkVersion 10
         maxSdkVersion 23
         targetSdkVersion 21
-        versionCode 58
-        versionName "0.0.58"
+        versionCode 59
+        versionName "0.0.59"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + getDateAsMillis() + "L)"
-        buildConfigField "String", "OPENCELLID_KEY", getMyApiKey("OPEN_CELL_ID_API_KEY")
         buildConfigField "String", "GOOGLE_API_KEY", getMyApiKey("GOOGLE_API_KEY")
     }
 
     testOptions {
         unitTests.returnDefaultValues = true
     }
-
 }
 
 static def getDateAsMillis() {
@@ -91,13 +89,15 @@ def propFile = new File(System.properties['user.home'] + '/.gradle/gradle.proper
 if (propFile.canRead()) {
     props.load(new FileInputStream(propFile))
 
-    if (props != null && props.containsKey('RELEASE_STORE_FILE') && props.containsKey('RELEASE_STORE_PASSWORD') &&
+    if (props && props.containsKey('RELEASE_STORE_FILE') && props.containsKey('RELEASE_STORE_PASSWORD') &&
             props.containsKey('RELEASE_KEY_ALIAS') && props.containsKey('RELEASE_KEY_PASSWORD')) {
         println 'gradle.properties found at:  ' + propFile
-        android.signingConfigs.release.storeFile = file(System.properties['user.home'] + '/.gradle/' + props['RELEASE_STORE_FILE'])
-        android.signingConfigs.release.storePassword = props['RELEASE_STORE_PASSWORD']
-        android.signingConfigs.release.keyAlias = props['RELEASE_KEY_ALIAS']
-        android.signingConfigs.release.keyPassword = props['RELEASE_KEY_PASSWORD']
+        android.signingConfigs.release.with {
+            storeFile = file(System.properties['user.home'] + '/.gradle/' + props['RELEASE_STORE_FILE'])
+            storePassword = props['RELEASE_STORE_PASSWORD']
+            keyAlias = props['RELEASE_KEY_ALIAS']
+            keyPassword = props['RELEASE_KEY_PASSWORD']
+        }
     } else {
         println 'gradle.properties found but some entries are missing'
         android.buildTypes.release.signingConfig = null
