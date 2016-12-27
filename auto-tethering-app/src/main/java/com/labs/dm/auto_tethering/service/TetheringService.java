@@ -73,23 +73,22 @@ import static com.labs.dm.auto_tethering.TetherIntents.USB_OFF;
 import static com.labs.dm.auto_tethering.TetherIntents.USB_ON;
 import static com.labs.dm.auto_tethering.TetherIntents.WIDGET;
 import static com.labs.dm.auto_tethering.Utils.adapterDayOfWeek;
-import static com.labs.dm.auto_tethering.service.ServiceAction.BLUETOOTH_INTERNET_TETHERING_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.BLUETOOTH_INTERNET_TETHERING_ON;
-import static com.labs.dm.auto_tethering.service.ServiceAction.CELL_INTERNET_TETHERING_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.CELL_INTERNET_TETHERING_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.BLUETOOTH_INTERNET_TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.BLUETOOTH_INTERNET_TETHER_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.CELL_INTERNET_TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.CELL_INTERNET_TETHER_ON;
 import static com.labs.dm.auto_tethering.service.ServiceAction.DATA_USAGE_EXCEED_LIMIT;
+import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_IDLE_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_OFF_IDLE;
 import static com.labs.dm.auto_tethering.service.ServiceAction.INTERNET_ON;
 import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_INTERNET_ON;
 import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.SCHEDULED_TETHER_ON;
-import static com.labs.dm.auto_tethering.service.ServiceAction.SIMCARD_BLOCK;
-import static com.labs.dm.auto_tethering.service.ServiceAction.TEMP_TETHERING_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.TEMP_TETHERING_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TEMP_TETHER_OFF;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TEMP_TETHER_ON;
+import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_IDLE_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF;
-import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_OFF_IDLE;
 import static com.labs.dm.auto_tethering.service.ServiceAction.TETHER_ON;
 
 /**
@@ -247,10 +246,10 @@ public class TetheringService extends IntentService {
                             execute(SCHEDULED_TETHER_ON);
                         } else if (idle && serviceHelper.isTetheringWiFi()) {
                             if (check3GIdle()) {
-                                execute(INTERNET_OFF_IDLE);
+                                execute(INTERNET_IDLE_OFF);
                             }
                             if (checkWifiIdle()) {
-                                execute(TETHER_OFF_IDLE);
+                                execute(TETHER_IDLE_OFF);
                             }
                         } else if (status == Status.DEFAULT) {
                             onService();
@@ -299,11 +298,11 @@ public class TetheringService extends IntentService {
         boolean isOnDeactivationList = onActivationList("D", current);
 
         if (!serviceHelper.isTetheringWiFi() && isOnActivationList && usbConnection()) {
-            execute(CELL_INTERNET_TETHERING_ON);
+            execute(CELL_INTERNET_TETHER_ON);
         } else if (serviceHelper.isTetheringWiFi() && isOnDeactivationList) {
-            execute(CELL_INTERNET_TETHERING_OFF);
+            execute(CELL_INTERNET_TETHER_OFF);
         } else if (!isOnActivationList && (status == Status.ACTIVATED_ON_CELL || status == Status.DEACTIVATED_ON_CELL)) {
-            execute(CELL_INTERNET_TETHERING_OFF);
+            execute(CELL_INTERNET_TETHER_OFF);
         }
     }
 
@@ -384,7 +383,7 @@ public class TetheringService extends IntentService {
 
     private boolean commonCheck(boolean state) {
         if (!isCorrectSimCard()) {
-            execute(SIMCARD_BLOCK);
+            showNotification(getString(R.string.simcard_service_disabled), R.drawable.app_off);
             return false;
         }
 
@@ -800,7 +799,7 @@ public class TetheringService extends IntentService {
                     }
                     connectedDeviceName = null;
                     revertToInitialStateAsync();
-                    execute(BLUETOOTH_INTERNET_TETHERING_OFF);
+                    execute(BLUETOOTH_INTERNET_TETHER_OFF);
                     break;
 
                 case BT_CONNECTED:
@@ -808,7 +807,7 @@ public class TetheringService extends IntentService {
                         String deviceName = intent.getStringExtra("name");
                         connectedDeviceName = deviceName;
                         setStatus(Status.BT);
-                        execute(BLUETOOTH_INTERNET_TETHERING_ON);
+                        execute(BLUETOOTH_INTERNET_TETHER_ON);
                     }
                     break;
 
@@ -817,7 +816,7 @@ public class TetheringService extends IntentService {
                     if (connectedDeviceName != null && connectedDeviceName.equals(deviceName)) {
                         connectedDeviceName = null;
                     }
-                    execute(BLUETOOTH_INTERNET_TETHERING_OFF);
+                    execute(BLUETOOTH_INTERNET_TETHER_OFF);
                     break;
 
                 case BT_START_TASKSEARCH:
@@ -832,13 +831,13 @@ public class TetheringService extends IntentService {
 
                 case TEMPERATURE_ABOVE_LIMIT:
                     if (serviceHelper.isTetheringWiFi()) {
-                        execute(TEMP_TETHERING_OFF);
+                        execute(TEMP_TETHER_OFF);
                     }
                     break;
 
                 case TEMPERATURE_BELOW_LIMIT:
                     if (status == Status.TEMPERATURE_OFF && !serviceHelper.isTetheringWiFi()) {
-                        execute(TEMP_TETHERING_ON);
+                        execute(TEMP_TETHER_ON);
                     }
                     break;
 
@@ -1039,12 +1038,12 @@ public class TetheringService extends IntentService {
                 id = R.string.notification_scheduled_internet_off;
                 setStatus(Status.DEACTIVATED_ON_SCHEDULE);
                 break;
-            case TETHER_OFF_IDLE:
+            case TETHER_IDLE_OFF:
                 id = R.string.notification_idle_tethering_off;
                 previousStatus = status;
                 setStatus(Status.DEACTIVATED_ON_IDLE);
                 break;
-            case INTERNET_OFF_IDLE:
+            case INTERNET_IDLE_OFF:
                 id = R.string.notification_idle_internet_off;
                 previousStatus = status;
                 setStatus(Status.DEACTIVATED_ON_IDLE);
@@ -1053,28 +1052,28 @@ public class TetheringService extends IntentService {
                 id = R.string.notification_data_exceed_limit;
                 setStatus(Status.DATA_USAGE_LIMIT_EXCEED);
                 break;
-            case BLUETOOTH_INTERNET_TETHERING_ON:
+            case BLUETOOTH_INTERNET_TETHER_ON:
                 id = R.string.bluetooth_on;
                 setStatus(Status.BT);
                 break;
-            case BLUETOOTH_INTERNET_TETHERING_OFF:
+            case BLUETOOTH_INTERNET_TETHER_OFF:
                 id = R.string.bluetooth_off;
                 setStatus(Status.DEFAULT);
                 showNotify = true; //TODO
                 break;
-            case CELL_INTERNET_TETHERING_ON:
+            case CELL_INTERNET_TETHER_ON:
                 id = R.string.cell_on;
                 setStatus(Status.ACTIVATED_ON_CELL);
                 break;
-            case CELL_INTERNET_TETHERING_OFF:
+            case CELL_INTERNET_TETHER_OFF:
                 id = R.string.cell_off;
                 setStatus(Status.DEACTIVATED_ON_CELL);
                 break;
-            case TEMP_TETHERING_OFF:
+            case TEMP_TETHER_OFF:
                 id = R.string.temp_off;
                 setStatus(Status.TEMPERATURE_OFF);
                 break;
-            case TEMP_TETHERING_ON:
+            case TEMP_TETHER_ON:
                 id = R.string.temp_on;
                 setStatus(Status.DEFAULT);
                 break;

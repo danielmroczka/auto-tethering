@@ -13,24 +13,24 @@ public enum ServiceAction {
     SCHEDULED_TETHER_OFF,
     SCHEDULED_INTERNET_ON,
     SCHEDULED_INTERNET_OFF,
-    TETHER_OFF_IDLE,
-    INTERNET_OFF_IDLE,
+    TETHER_IDLE_OFF,
+    INTERNET_IDLE_OFF,
     DATA_USAGE_EXCEED_LIMIT(true, true, false),
     ROAMING_OFF(true, true, false),
     SIMCARD_BLOCK(true, true, false),
-    BLUETOOTH_INTERNET_TETHERING_ON,
-    BLUETOOTH_INTERNET_TETHERING_OFF,
-    CELL_INTERNET_TETHERING_ON,
-    CELL_INTERNET_TETHERING_OFF,
-    TEMP_TETHERING_OFF,
-    TEMP_TETHERING_ON;
+    BLUETOOTH_INTERNET_TETHER_ON,
+    BLUETOOTH_INTERNET_TETHER_OFF,
+    CELL_INTERNET_TETHER_ON,
+    CELL_INTERNET_TETHER_OFF,
+    TEMP_TETHER_OFF,
+    TEMP_TETHER_ON;
 
     private final boolean on;
     private final boolean tethering;
     private final boolean internet;
 
     ServiceAction() {
-        this.on = name().contains("ON");
+        this.on = name().endsWith("_ON");
         this.internet = name().contains("INTERNET");
         this.tethering = name().contains("TETHER");
     }
