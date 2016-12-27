@@ -85,6 +85,8 @@ class BluetoothTask {
 
         private void connectEachDevice(List<BluetoothDevice> devicesToCheck) {
             Intent btIntent = null;
+            checkIfConnectedDeviceRemoved(devicesToCheck);
+
             for (BluetoothDevice device : devicesToCheck) {
                 /**
                  * If device is currently connected just only check this one without checking others.
@@ -117,6 +119,23 @@ class BluetoothTask {
                     Utils.broadcast(context, btIntent);
                     break;
                 }
+            }
+        }
+
+        private void checkIfConnectedDeviceRemoved(List<BluetoothDevice> devicesToCheck) {
+            boolean found = false;
+
+            for (BluetoothDevice device : devicesToCheck) {
+                if (connectedDeviceName != null && connectedDeviceName.equals(device.getName())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (connectedDeviceName != null && !found) {
+                Intent btIntent = new Intent(BT_DISCONNECTED);
+                btIntent.putExtra("name", connectedDeviceName);
+                Utils.broadcast(context, btIntent);
+                connectedDeviceName = null;
             }
         }
 

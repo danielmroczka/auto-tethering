@@ -14,6 +14,7 @@ import android.text.InputFilter;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.activity.MainActivity;
@@ -41,8 +42,16 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
         Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 if ("temp.value.start".equals(preference.getKey())) {
+                    if (Integer.parseInt((String) newValue) >= Integer.parseInt(prefs.getString("temp.value.stop", "40"))) {
+                        Toast.makeText(activity, "Value should be less than " + prefs.getString("temp.value.stop", "40"), Toast.LENGTH_LONG).show();
+                        return false;
+                    }
                     preference.setSummary("When temp. returns to: " + newValue + " °C");
                 } else if ("temp.value.stop".equals(preference.getKey())) {
+                    if (Integer.parseInt((String) newValue) <= Integer.parseInt(prefs.getString("temp.value.start", "40"))) {
+                        Toast.makeText(activity, "Value should be greater than " + prefs.getString("temp.value.start", "40"), Toast.LENGTH_LONG).show();
+                        return false;
+                    }
                     preference.setSummary("When temp. higher than: " + newValue + " °C");
                 }
                 return true;

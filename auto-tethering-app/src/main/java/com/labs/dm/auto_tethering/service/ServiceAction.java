@@ -16,8 +16,6 @@ public enum ServiceAction {
     TETHER_IDLE_OFF,
     INTERNET_IDLE_OFF,
     DATA_USAGE_EXCEED_LIMIT(true, true, false),
-    ROAMING_OFF(true, true, false),
-    SIMCARD_BLOCK(true, true, false),
     BLUETOOTH_INTERNET_TETHER_ON,
     BLUETOOTH_INTERNET_TETHER_OFF,
     CELL_INTERNET_TETHER_ON,

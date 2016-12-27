@@ -225,7 +225,7 @@ public class TetheringService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (isServiceActivated()) {
             showNotification(getString(R.string.service_started), getNotificationIcon());
-            if (commonCheck(true)) {
+            if (checkState(true)) {
                 onService();
             }
         }
@@ -233,7 +233,7 @@ public class TetheringService extends IntentService {
         while (flag) {
             try {
                 if (!(forceOff || forceOn) && (isServiceActivated() || keepService())) {
-                    if (enabled()) {
+                    if (checkState(true)) {
                         boolean idle = checkIdle();
                         ScheduleResult res = scheduler();
                         if (res == ScheduleResult.OFF) {
@@ -268,15 +268,12 @@ public class TetheringService extends IntentService {
                 }
 
                 long usage = ServiceHelper.getDataUsage() + prefs.getLong("data.usage.removeAllData.value", 0);
+                int dataLimit = Integer.parseInt(prefs.getString("data.limit.value", "0"));
 
-                if (prefs.getBoolean("data.limit.on", false)) {
-                    if (usage / (1048576f) > Integer.parseInt(prefs.getString("data.limit.value", "0"))) {
-                        execute(DATA_USAGE_EXCEED_LIMIT);
-                    }
-                } else {
-                    if (status == Status.DATA_USAGE_LIMIT_EXCEED) {
-                        setStatus(Status.DEFAULT);
-                    }
+                if (prefs.getBoolean("data.limit.on", false) && (usage / (1048576f) > dataLimit)) {
+                    execute(DATA_USAGE_EXCEED_LIMIT);
+                } else if (status == Status.DATA_USAGE_LIMIT_EXCEED) {
+                    setStatus(Status.DEFAULT);
                 }
 
                 TimeUnit.SECONDS.sleep(CHECK_DELAY);
@@ -339,7 +336,11 @@ public class TetheringService extends IntentService {
      * @return true if changed the state or false if not
      */
     private boolean tetheringAsyncTask(boolean state) {
-        if (serviceHelper.isTetheringWiFi() == state || !commonCheck(state)) {
+        if (serviceHelper.isTetheringWiFi() == state) {
+            return false;
+        }
+
+        if (state && !checkState(state)) {
             return false;
         }
 
@@ -369,7 +370,10 @@ public class TetheringService extends IntentService {
      * @return true if changed the state or false if not
      */
     private boolean internetAsyncTask(boolean state) {
-        if (serviceHelper.isConnectedToInternetThroughMobile() == state || !commonCheck(state)) {
+        if (serviceHelper.isConnectedToInternetThroughMobile() == state) {
+            return false;
+        }
+        if (state && !checkState(state)) {
             return false;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -381,7 +385,16 @@ public class TetheringService extends IntentService {
         return true;
     }
 
-    private boolean commonCheck(boolean state) {
+    private boolean checkState(boolean state) {
+        boolean res = doCheckState(state);
+        if (!res) {
+            internetAsyncTask(false);
+            tetheringAsyncTask(false);
+        }
+        return res;
+    }
+
+    private boolean doCheckState(boolean state) {
         if (!isCorrectSimCard()) {
             showNotification(getString(R.string.simcard_service_disabled), R.drawable.app_off);
             return false;
@@ -951,7 +964,7 @@ public class TetheringService extends IntentService {
     }
 
     private void onService() {
-        if (!tetheringProcessing) {
+        if (checkState(true) && !tetheringProcessing) {
             boolean tethering = serviceHelper.isTetheringWiFi();
             boolean mobileOn = serviceHelper.isConnectedToInternetThroughMobile();
 
@@ -980,15 +993,17 @@ public class TetheringService extends IntentService {
         boolean showNotify = false;
         if (serviceAction.isInternet()) {
             if (!internetAsyncTask(action)) {
-                return;
+                //return;
+            } else {
+                showNotify = true;
             }
-            showNotify = true;
         }
         if (serviceAction.isTethering()) {
             if (!tetheringAsyncTask(action)) {
-                return;
+                //return;
+            } else {
+                showNotify = true;
             }
-            showNotify = true;
         }
 
         MyLog.i(TAG, "Execute action: " + serviceAction.toString());
