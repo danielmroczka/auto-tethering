@@ -7,9 +7,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
+
 import com.labs.dm.auto_tethering.MyLog;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Daniel Mroczka on 2015-07-06.
@@ -37,11 +42,6 @@ public class DBManager extends SQLiteOpenHelper {
 
     private DBManager(Context context) {
         this(context, DB_NAME);
-    }
-
-    @Override
-    public synchronized void close() {
-        super.close();
     }
 
     @Override
@@ -91,11 +91,6 @@ public class DBManager extends SQLiteOpenHelper {
             importBluetooth(db);
         }
         MyLog.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
-    }
-
-    @Override
-    public void onOpen(SQLiteDatabase db) {
-        super.onOpen(db);
     }
 
     @Override

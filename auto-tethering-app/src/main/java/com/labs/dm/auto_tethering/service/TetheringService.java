@@ -303,10 +303,6 @@ public class TetheringService extends IntentService {
         }
     }
 
-    private boolean enabled() {
-        return isCorrectSimCard() && allowRoaming();
-    }
-
     private boolean batteryAboveLimit() {
         boolean chkBatteryLvl = prefs.getBoolean("usb.off.battery.lvl", false);
         boolean isConnected = serviceHelper.isPluggedToPower();
@@ -817,8 +813,7 @@ public class TetheringService extends IntentService {
 
                 case BT_CONNECTED:
                     if (!forceOff) {
-                        String deviceName = intent.getStringExtra("name");
-                        connectedDeviceName = deviceName;
+                        connectedDeviceName = intent.getStringExtra("name");
                         setStatus(Status.BT);
                         execute(BLUETOOTH_INTERNET_TETHER_ON);
                     }
@@ -992,16 +987,12 @@ public class TetheringService extends IntentService {
         boolean action = serviceAction.isOn();
         boolean showNotify = false;
         if (serviceAction.isInternet()) {
-            if (!internetAsyncTask(action)) {
-                //return;
-            } else {
+            if (internetAsyncTask(action)) {
                 showNotify = true;
             }
         }
         if (serviceAction.isTethering()) {
-            if (!tetheringAsyncTask(action)) {
-                //return;
-            } else {
+            if (tetheringAsyncTask(action)) {
                 showNotify = true;
             }
         }
