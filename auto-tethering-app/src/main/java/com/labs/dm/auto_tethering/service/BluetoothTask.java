@@ -189,9 +189,7 @@ class BluetoothTask {
                     socket.getInputStream().close();
                     socket.getOutputStream().close();
                     socket.close();
-                } catch (IOException e) {
-                    MyLog.e(TAG, "failed closing I/O streams");
-                } catch (InterruptedException e) {
+                } catch (IOException | InterruptedException e) {
                     MyLog.e(TAG, "failed closing I/O streams");
                 }
 
