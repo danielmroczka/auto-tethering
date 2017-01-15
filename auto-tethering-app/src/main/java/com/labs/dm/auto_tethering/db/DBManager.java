@@ -22,7 +22,7 @@ import java.util.Map;
 public class DBManager extends SQLiteOpenHelper {
 
     public final static String DB_NAME = "autowifi.db";
-    private static final int DB_VERSION = 6;
+    private static final int DB_VERSION = 7;
     //TODO to remove because of Lint performance warning: StaticFieldLeak: Static Field Leaks
     private Context context;
 
@@ -51,7 +51,7 @@ public class DBManager extends SQLiteOpenHelper {
         db.execSQL("create table CRON(id INTEGER PRIMARY KEY, hourOff INTEGER, minOff INTEGER, hourOn INTEGER, minOn INTEGER, mask INTEGER, status INTEGER)");
         db.execSQL("create table CELL_GROUP(id INTEGER PRIMARY KEY, name TEXT, type TEXT, status INTEGER)");
         db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, lat REAL, lon REAL, cellgroup INTEGER, status INTEGER, FOREIGN KEY(cellgroup) REFERENCES CELL_GROUP(id) ON DELETE CASCADE)");
-        db.execSQL("create table BLUETOOTH(id INTEGER PRIMARY KEY, name VARCHAR(40), address VARCHAR(20), used datetime, status INTEGER)");
+        db.execSQL("create table BLUETOOTH(id INTEGER PRIMARY KEY, name VARCHAR(40), address VARCHAR(20), used datetime, status INTEGER, parcelId INTEGER DEFAULT -1)");
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
         db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
@@ -89,6 +89,10 @@ public class DBManager extends SQLiteOpenHelper {
             // CREATE INDEX
             db.execSQL("create unique index BLUETOOTH_UNIQUE_IDX on bluetooth(name)");
             importBluetooth(db);
+        }
+        if (oldVersion < 7) {
+            // CREATE TABLE
+            db.execSQL("alter table BLUETOOTH add column parcelId INTEGER DEFAULT -1");
         }
         MyLog.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
     }
@@ -360,13 +364,14 @@ public class DBManager extends SQLiteOpenHelper {
         List<Bluetooth> list;
         Cursor cursor = null;
         try {
-            cursor = getReadableDatabase().rawQuery("SELECT id, name, address FROM BLUETOOTH order by used desc", null);
+            cursor = getReadableDatabase().rawQuery("SELECT id, name, address, parcelId FROM BLUETOOTH order by used desc", null);
             list = new ArrayList<>(cursor.getCount());
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {
                     Bluetooth p = new Bluetooth(cursor.getString(1), cursor.getString(2));
                     p.setId(cursor.getInt(0));
+                    p.setParcelId(cursor.getInt(3));
                     list.add(p);
                 }
                 while (cursor.moveToNext());
@@ -388,6 +393,7 @@ public class DBManager extends SQLiteOpenHelper {
         content.put("status", bluetooth.getStatus());
         content.put("name", bluetooth.getName());
         content.put("address", bluetooth.getAddress());
+        content.put("parcelId", bluetooth.getParcelId());
         content.put("used", bluetooth.getUsed());
         return addOrUpdate(bluetooth.getId(), Bluetooth.NAME, content);
     }

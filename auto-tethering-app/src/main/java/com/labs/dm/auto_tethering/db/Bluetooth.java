@@ -7,6 +7,7 @@ public class Bluetooth {
     public final static String NAME = "BLUETOOTH";
 
     private int id;
+    private int parcelId;
     private String name;
     private String address;
     private long used;
@@ -20,6 +21,7 @@ public class Bluetooth {
     public Bluetooth(String name, String address) {
         this.name = name;
         this.address = address;
+        this.parcelId = -1;
     }
 
     public void setId(int id) {
@@ -44,5 +46,13 @@ public class Bluetooth {
 
     public void setUsed(long used) {
         this.used = used;
+    }
+
+    public int getParcelId() {
+        return parcelId;
+    }
+
+    public void setParcelId(int parcelId) {
+        this.parcelId = parcelId;
     }
 }

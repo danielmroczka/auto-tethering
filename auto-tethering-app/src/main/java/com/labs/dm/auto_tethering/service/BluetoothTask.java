@@ -17,11 +17,11 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;
-import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_CONNECTED;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_DISCONNECTED;
 
@@ -87,6 +87,8 @@ class BluetoothTask {
             Intent btIntent = null;
             checkIfConnectedDeviceRemoved(devicesToCheck);
 
+            MyLog.d(TAG, "Start interrupting " + devicesToCheck.size() + " devices");
+
             for (BluetoothDevice device : devicesToCheck) {
                 /**
                  * If device is currently connected just only check this one without checking others.
@@ -96,6 +98,7 @@ class BluetoothTask {
                 }
 
                 try {
+
                     connect(device);
                     String previousConnectedDeviceName = connectedDeviceName;
                     connectedDeviceName = device.getName();
@@ -119,6 +122,11 @@ class BluetoothTask {
                     Utils.broadcast(context, btIntent);
                     break;
                 }
+            }
+
+            if (connectedDeviceName == null) {
+                serviceHelper.setBlockingBluetoothStatus(false);
+                serviceHelper.setBlockingBluetoothStatus(true);
             }
         }
 
@@ -148,12 +156,17 @@ class BluetoothTask {
             MyLog.d(TAG, "Connecting to " + device.getName());
 
             UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
-
+            int parcelId = getParcelId(device);
             if (parcelUuids != null && parcelUuids.length > 0) {
-                if (Build.VERSION.SDK_INT <= JELLY_BEAN) {
-                    uuid = parcelUuids[0].getUuid();
+
+                if (parcelId >= 0 && parcelUuids.length > parcelId) {
+                    uuid = parcelUuids[parcelId].getUuid();
+                    MyLog.d(TAG, "Using uuid " + parcelId + "/" + (parcelUuids.length - 1) + " " + parcelUuids[parcelId].getUuid());
                 } else {
-                    uuid = parcelUuids.length >= 8 ? parcelUuids[7].getUuid() : parcelUuids[0].getUuid();
+                    Random random = new Random();
+                    parcelId = random.nextInt(parcelUuids.length);
+                    uuid = parcelUuids[parcelId].getUuid();
+                    MyLog.d(TAG, "Selecting uuid " + parcelId + "/" + (parcelUuids.length - 1) + " " + parcelUuids[parcelId].getUuid());
                 }
             }
 
@@ -167,14 +180,14 @@ class BluetoothTask {
 
             boolean alreadyConnected = false;
             if (Build.VERSION.SDK_INT >= ICE_CREAM_SANDWICH && socket.isConnected()) {
-                updateTimestamp(device);
+                updateTimestamp(device, parcelId);
                 alreadyConnected = true;
                 MyLog.d(TAG, "Already connected to " + device.getName());
             }
             if (!alreadyConnected) {
                 try {
                     socket.connect();
-                    updateTimestamp(device);
+                    updateTimestamp(device, parcelId);
                     MyLog.d(TAG, "Connected to " + device.getName());
                 } finally {
                     close(socket);
@@ -194,14 +207,23 @@ class BluetoothTask {
                 } catch (InterruptedException e) {
                     MyLog.e(TAG, "failed closing I/O streams");
                 }
-
             }
         }
 
-        private void updateTimestamp(BluetoothDevice device) {
+        private int getParcelId(BluetoothDevice device) {
+            for (Bluetooth b : DBManager.getInstance(context).readBluetooth()) {
+                if (device.getName().equals(b.getName())) {
+                    return b.getParcelId();
+                }
+            }
+            return -1;
+        }
+
+        private void updateTimestamp(BluetoothDevice device, int parcelId) {
             for (Bluetooth b : DBManager.getInstance(context).readBluetooth()) {
                 if (device.getName().equals(b.getName())) {
                     b.setUsed(System.currentTimeMillis());
+                    b.setParcelId(parcelId);
                     DBManager.getInstance(context).addOrUpdateBluetooth(b);
                 }
             }
