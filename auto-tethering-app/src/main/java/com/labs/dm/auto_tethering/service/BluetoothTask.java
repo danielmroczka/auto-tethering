@@ -111,8 +111,8 @@ class BluetoothTask {
                         btIntent = new Intent(BT_CONNECTED);
                     }
 
-                } catch (Exception e) {
-                    MyLog.e(TAG, "[" + device.getName() + "] is not in range. " + e.getMessage());
+                } catch (Exception ex) {
+                    MyLog.e(TAG, "[" + device.getName() + "] is not in range. " + (ex != null ? ex.getMessage() : ""));
                     if (connectedDeviceName != null && connectedDeviceName.equals(device.getName())) {
                         MyLog.i(TAG, device.getName() + " device has been disconnected");
                         btIntent = new Intent(BT_DISCONNECTED);
