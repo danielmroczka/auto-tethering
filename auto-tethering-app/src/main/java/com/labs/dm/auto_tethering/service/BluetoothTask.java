@@ -104,7 +104,10 @@ class BluetoothTask {
                     connectedDeviceName = device.getName();
 
                     if (connectedDeviceName != null && (previousConnectedDeviceName == null || !connectedDeviceName.equals(previousConnectedDeviceName))) {
-                        MyLog.i(TAG, "Connected to " + device.getName());
+                        MyLog.i(TAG, "New connection to " + device.getName());
+                        btIntent = new Intent(BT_CONNECTED);
+                    } else if (connectedDeviceName != null && !serviceHelper.isTetheringWiFi()) {
+                        MyLog.i(TAG, "Restore connection to " + device.getName());
                         btIntent = new Intent(BT_CONNECTED);
                     }
 
@@ -151,33 +154,39 @@ class BluetoothTask {
             MyLog.d(TAG, "Connecting to " + device.getName());
 
             UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
-            int parcelId = -1;
+            int parcelIndex = -1;
             if (parcelUuids != null && parcelUuids.length > 0) {
 
                 for (ParcelUuid id : parcelUuids) {
                     MyLog.d(TAG, id.getUuid().toString());
                 }
 
-                parcelId = getParcelId(device);
-                if (parcelId >= 0 && parcelUuids.length > parcelId) {
-                    MyLog.d(TAG, "Using uuid " + parcelId + "/" + parcelUuids.length + " " + parcelUuids[parcelId].getUuid());
+                parcelIndex = getParcelIndex(device);
+                if (parcelIndex >= 0 && parcelUuids.length > parcelIndex) {
+                    MyLog.d(TAG, "Using uuid " + parcelIndex + "/" + parcelUuids.length + " " + parcelUuids[parcelIndex].getUuid());
                 } else {
                     // As a default try connect to SPP
                     for (int id = 0; id < parcelUuids.length; id++) {
                         if (parcelUuids[id].toString().startsWith("00001101")) {
-                            parcelId = id;
+                            parcelIndex = id;
                             break;
                         }
                     }
                     // If SPP is not present on the list try to connect with any other uuid
-                    if (parcelId < 0) {
-                        Random random = new Random();
-                        parcelId = random.nextInt(parcelUuids.length);
+                    if (parcelIndex < 0) {
+                        do {
+                            Random random = new Random();
+                            parcelIndex = random.nextInt(parcelUuids.length);
+                        }
+                        while (parcelUuids.length > 3 &&
+                                (parcelUuids[parcelIndex].getUuid().toString().startsWith("0000112f") ||
+                                        parcelUuids[parcelIndex].getUuid().toString().startsWith("0000112d") ||
+                                        parcelUuids[parcelIndex].getUuid().toString().startsWith("00001132")));
                     }
 
-                    MyLog.d(TAG, "Selecting uuid " + parcelId + "/" + parcelUuids.length + " " + parcelUuids[parcelId].getUuid());
+                    MyLog.d(TAG, "Selecting uuid " + parcelIndex + "/" + parcelUuids.length + " " + parcelUuids[parcelIndex].getUuid());
                 }
-                uuid = parcelUuids[parcelId].getUuid();
+                uuid = parcelUuids[parcelIndex].getUuid();
             }
 
             socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
@@ -190,15 +199,15 @@ class BluetoothTask {
 
             boolean alreadyConnected = false;
             if (Build.VERSION.SDK_INT >= ICE_CREAM_SANDWICH && socket.isConnected()) {
-                updateTimestamp(device, parcelId);
+                updateTimestamp(device, parcelIndex);
                 alreadyConnected = true;
                 MyLog.d(TAG, "Already connected to " + device.getName());
             }
             if (!alreadyConnected) {
                 try {
                     socket.connect();
-                    updateTimestamp(device, parcelId);
-                    //MyLog.d(TAG, "Connected to " + device.getName());
+                    updateTimestamp(device, parcelIndex);
+                    MyLog.d(TAG, "Connected to " + device.getName());
                 } finally {
                     close(socket);
                 }
@@ -220,10 +229,10 @@ class BluetoothTask {
             }
         }
 
-        private int getParcelId(BluetoothDevice device) {
-            for (Bluetooth b : DBManager.getInstance(context).readBluetooth()) {
-                if (device.getName().equals(b.getName())) {
-                    return b.getParcelId();
+        private int getParcelIndex(BluetoothDevice device) {
+            for (Bluetooth bluetooth : DBManager.getInstance(context).readBluetooth()) {
+                if (device.getName() != null && device.getName().equals(bluetooth.getName())) {
+                    return bluetooth.getParcelId();
                 }
             }
             return -1;
