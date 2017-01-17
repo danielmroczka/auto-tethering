@@ -49,8 +49,8 @@ android {
         minSdkVersion 9
         maxSdkVersion 23
         targetSdkVersion 21
-        versionCode 60
-        versionName "0.0.60"
+        versionCode 61
+        versionName "0.0.61"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + getDateAsMillis() + "L)"
         buildConfigField "String", "GOOGLE_API_KEY", getMyApiKey("GOOGLE_API_KEY")
