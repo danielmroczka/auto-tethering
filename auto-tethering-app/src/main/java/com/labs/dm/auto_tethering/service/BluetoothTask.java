@@ -189,7 +189,11 @@ class BluetoothTask {
                 uuid = parcelUuids[parcelIndex].getUuid();
             }
 
-            socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+                socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+            } else {
+                socket = device.createRfcommSocketToServiceRecord(uuid);
+            }
 
             try {
                 TimeUnit.MILLISECONDS.sleep(100);

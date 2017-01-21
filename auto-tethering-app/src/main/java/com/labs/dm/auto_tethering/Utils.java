@@ -304,9 +304,9 @@ public class Utils {
         return location;
     }
 
-    public static void resetDataUsageStat(SharedPreferences prefs, long resetValue, long value2) {
+    public static void resetDataUsageStat(SharedPreferences prefs, long resetValue, long lastValue) {
         long timestamp = System.currentTimeMillis();
-        prefs.edit().putLong("data.usage.last.value", value2).apply();
+        prefs.edit().putLong("data.usage.last.value", lastValue).apply();
         prefs.edit().putLong("data.usage.removeAllData.value", resetValue).apply();
         prefs.edit().putLong("data.usage.removeAllData.timestamp", timestamp).apply();
         prefs.edit().putLong("data.usage.update.timestamp", timestamp).apply();
