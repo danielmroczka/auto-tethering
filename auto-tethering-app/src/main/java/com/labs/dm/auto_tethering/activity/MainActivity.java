@@ -305,18 +305,31 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     prefs.edit().putBoolean(ACTIVATE_3G, false).apply();
                     prefs.edit().putBoolean(ACTIVATE_TETHERING, false).apply();
 
-                    new AlertDialog.Builder(MainActivity.this)
-                            .setTitle(R.string.warning)
-                            .setMessage(getString(R.string.initial_prompt))
-                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    prefs.edit().putBoolean(ACTIVATE_3G, true).apply();
-                                    prefs.edit().putBoolean(ACTIVATE_TETHERING, true).apply();
-                                }
-                            })
-                            .setNegativeButton(R.string.no, null)
-                            .show();
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle(R.string.warning)
+                                .setMessage(getString(R.string.initial_prompt))
+                                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        prefs.edit().putBoolean(ACTIVATE_3G, true).apply();
+                                        prefs.edit().putBoolean(ACTIVATE_TETHERING, true).apply();
+                                    }
+                                })
+                                .setNegativeButton(R.string.no, null)
+                                .show();
+                    } else {
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle(R.string.warning)
+                                .setMessage(getString(R.string.initial_prompt_lollipop))
+                                .setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                    }
+                                })
+                                .show();
+                    }
                     prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
                 }
 
