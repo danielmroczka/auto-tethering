@@ -710,7 +710,9 @@ public class TetheringService extends IntentService {
     private class TetheringServiceReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            MyLog.i(TAG, intent.getAction());
+            if (!Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
+                MyLog.i(TAG, intent.getAction());
+            }
             switch (intent.getAction()) {
                 case SERVICE_ON:
                     if (!forceOff && !forceOn) {

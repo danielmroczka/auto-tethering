@@ -136,6 +136,9 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                 } else {
                     activity.sendBroadcast(new Intent(TetherIntents.BT_START_TASKSEARCH));
                     Toast.makeText(activity, "You might be asked to approve Bluetooth connection on some preferred devices.", Toast.LENGTH_LONG).show();
+                    if (db.readBluetooth().isEmpty()) {
+                        Toast.makeText(activity, "List of configured devices is empty.\nBluetooth activation will not work until you add any device!", Toast.LENGTH_LONG).show();
+                    }
                 }
 
                 return true;
