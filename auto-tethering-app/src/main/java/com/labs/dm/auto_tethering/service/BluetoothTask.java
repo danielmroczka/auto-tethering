@@ -157,10 +157,6 @@ class BluetoothTask {
             int parcelIndex = -1;
             if (parcelUuids != null && parcelUuids.length > 0) {
 
-                for (ParcelUuid id : parcelUuids) {
-                    MyLog.d(TAG, id.getUuid().toString());
-                }
-
                 parcelIndex = getParcelIndex(device);
                 if (parcelIndex >= 0 && parcelUuids.length > parcelIndex) {
                     MyLog.d(TAG, "Using uuid " + parcelIndex + "/" + parcelUuids.length + " " + parcelUuids[parcelIndex].getUuid());

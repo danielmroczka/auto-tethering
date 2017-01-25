@@ -810,7 +810,9 @@ public class TetheringService extends IntentService {
                     }
                     connectedDeviceName = null;
                     revertToInitialStateAsync();
-                    execute(BLUETOOTH_INTERNET_TETHER_OFF);
+                    if (serviceHelper.isTetheringWiFi()) {
+                        execute(BLUETOOTH_INTERNET_TETHER_OFF);
+                    }
                     break;
 
                 case BT_CONNECTED:
@@ -1066,8 +1068,8 @@ public class TetheringService extends IntentService {
                 break;
             case BLUETOOTH_INTERNET_TETHER_OFF:
                 id = R.string.bluetooth_off;
+                showNotify = true;
                 setStatus(Status.DEFAULT);
-                showNotify = true; //TODO
                 break;
             case CELL_INTERNET_TETHER_ON:
                 id = R.string.cell_on;
