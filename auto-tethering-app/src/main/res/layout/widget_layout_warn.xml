@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/widget_shape"
     android:clickable="true"
+    android:padding="8dp"
     android:descendantFocusability="blocksDescendants"
     android:orientation="vertical">
 

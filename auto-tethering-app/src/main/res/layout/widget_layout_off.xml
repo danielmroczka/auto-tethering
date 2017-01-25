@@ -2,17 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@drawable/widget_shape"
     android:clickable="true"
+    android:padding="8dp"
     android:descendantFocusability="blocksDescendants"
     android:orientation="vertical">
 
     <ImageButton
+        android:padding="16dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_margin="2dp"
         android:background="@mipmap/ic_wifi_widget_off"
         android:clickable="false" />
 
