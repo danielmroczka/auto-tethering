@@ -22,7 +22,7 @@ import java.util.Map;
 public class DBManager extends SQLiteOpenHelper {
 
     public final static String DB_NAME = "autowifi.db";
-    private static final int DB_VERSION = 7;
+    private static final int DB_VERSION = 8;
     //TODO to remove because of Lint performance warning: StaticFieldLeak: Static Field Leaks
     private Context context;
 
@@ -52,12 +52,14 @@ public class DBManager extends SQLiteOpenHelper {
         db.execSQL("create table CELL_GROUP(id INTEGER PRIMARY KEY, name TEXT, type TEXT, status INTEGER)");
         db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, lat REAL, lon REAL, cellgroup INTEGER, status INTEGER, FOREIGN KEY(cellgroup) REFERENCES CELL_GROUP(id) ON DELETE CASCADE)");
         db.execSQL("create table BLUETOOTH(id INTEGER PRIMARY KEY, name VARCHAR(40), address VARCHAR(20), used datetime, status INTEGER, parcelId INTEGER DEFAULT -1)");
+        db.execSQL("create table WIFI_TETHERING(id INTEGER PRIMARY KEY, ssid VARCHAR(40), type VARCHAR(16), password VARCHAR(20), channel INTEGER, status INTEGER)");
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
         db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
         db.execSQL("create unique index CELLULAR_UNIQUE_IDX on cellular(mcc, mnc, lac, cid, cellgroup)");
         db.execSQL("create unique index CELL_GROUP_UNIQUE_IDX on cell_group(name, type)");
         db.execSQL("create unique index BLUETOOTH_UNIQUE_IDX on bluetooth(name)");
+        db.execSQL("create unique index WIFI_TETHERING_UNIQUE_IDX on wifi_tethering(ssid)");
     }
 
     @Override
@@ -93,6 +95,10 @@ public class DBManager extends SQLiteOpenHelper {
         if (oldVersion < 7) {
             // CREATE TABLE
             db.execSQL("alter table BLUETOOTH add column parcelId INTEGER DEFAULT -1");
+        }
+        if (oldVersion < 8) {
+            // CREATE TABLE
+            db.execSQL("create table WIFI_TETHERING(id INTEGER PRIMARY KEY, ssid VARCHAR(40), type VARCHAR(16), password VARCHAR(20), channel INTEGER, status INTEGER)");
         }
         MyLog.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
     }
@@ -413,5 +419,42 @@ public class DBManager extends SQLiteOpenHelper {
                 prefs.edit().remove(entry.getKey()).apply();
             }
         }
+    }
+
+    public List<WiFiTethering> readWiFiTethering() {
+        List<WiFiTethering> list;
+        Cursor cursor = null;
+        try {
+            cursor = getReadableDatabase().rawQuery("SELECT id, ssid, type, password, channel, status FROM WIFI_TETHERING order by status desc, ssid", null);
+            list = new ArrayList<>(cursor.getCount());
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                do {
+                    WiFiTethering p = new WiFiTethering(cursor.getString(1), WiFiTethering.SECURITY_TYPE.valueOf(cursor.getString(2)), cursor.getString(3), cursor.getInt(4), cursor.getInt(5));
+                    p.setId(cursor.getInt(0));
+                    list.add(p);
+                }
+                while (cursor.moveToNext());
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return list;
+    }
+
+    public int removeWiFiTethering(int id) {
+        return getWritableDatabase().delete(WiFiTethering.NAME, "id=" + id, null);
+    }
+
+    public long addOrUpdateWiFiTethering(WiFiTethering wiFiTethering) {
+        ContentValues content = new ContentValues();
+        content.put("ssid", wiFiTethering.getStatus());
+        content.put("type", wiFiTethering.getType().getName());
+        content.put("password", wiFiTethering.getPassword());
+        content.put("channel", wiFiTethering.getChannel());
+        content.put("status", wiFiTethering.getStatus());
+        return addOrUpdate(wiFiTethering.getId(), WiFiTethering.NAME, content);
     }
 }

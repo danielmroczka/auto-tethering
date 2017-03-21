@@ -45,6 +45,8 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
             }
         });
 
+        final PreferenceCategory list = getPreferenceCategory("bt.list");
+
         getPreferenceScreen("bt.add.device").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
@@ -54,8 +56,6 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                             Toast.makeText(activity, "Exceeded the limit of max. " + MAX_BT_DEVICES + " devices!", Toast.LENGTH_LONG).show();
                             return false;
                         }
-
-                        final PreferenceCategory category = getPreferenceCategory("bt.list");
 
                         AlertDialog.Builder builderSingle = new AlertDialog.Builder(activity);
                         builderSingle.setIcon(R.drawable.ic_bluetooth);
@@ -86,7 +86,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                         builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        buildAdapter(dialog, which, arrayAdapter, devices, pairedDevices, category);
+                                        buildAdapter(dialog, which, arrayAdapter, devices, pairedDevices, list);
                                     }
                                 }
                         );
@@ -101,23 +101,22 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        PreferenceCategory p = getPreferenceCategory("bt.list");
                         boolean changed = false;
 
-                        for (int idx = p.getPreferenceCount() - 1; idx >= 0; idx--) {
-                            Preference pref = p.getPreference(idx);
+                        for (int idx = list.getPreferenceCount() - 1; idx >= 0; idx--) {
+                            Preference pref = list.getPreference(idx);
                             if (pref instanceof CheckBoxPreference) {
                                 boolean status = ((CheckBoxPreference) pref).isChecked();
                                 if (status) {
                                     if (db.removeBluetooth(Integer.parseInt(pref.getKey())) > 0) {
-                                        p.removePreference(pref);
+                                        list.removePreference(pref);
                                         changed = true;
                                     }
                                 }
                             }
                         }
 
-                        remove.setEnabled(p.getPreferenceCount() > 2);
+                        remove.setEnabled(list.getPreferenceCount() > 2);
 
                         if (!changed) {
                             Toast.makeText(activity, "Please select any item", Toast.LENGTH_LONG).show();
@@ -186,7 +185,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
     }
 
     private void prepareBTList() {
-        clean();
+        clean("bt.list");
         PreferenceCategory pc = getPreferenceCategory("bt.list");
         Set<BluetoothDevice> bondedDevices = new ServiceHelper(activity).getBondedDevices(false);
         List<Bluetooth> preferredDevices = db.readBluetooth();
@@ -216,16 +215,6 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
         }
 
         getPreferenceScreen("bt.remove.device").setEnabled(pc.getPreferenceCount() > 2);
-    }
-
-    private void clean() {
-        PreferenceCategory p = getPreferenceCategory("bt.list");
-        for (int idx = p.getPreferenceCount() - 1; idx >= 0; idx--) {
-            Preference pref = p.getPreference(idx);
-            if (pref instanceof CheckBoxPreference) {
-                p.removePreference(pref);
-            }
-        }
     }
 }
 

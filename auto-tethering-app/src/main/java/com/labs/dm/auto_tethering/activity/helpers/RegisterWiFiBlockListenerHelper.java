@@ -2,14 +2,15 @@ package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
+
 import com.labs.dm.auto_tethering.activity.MainActivity;
 
 /**
  * Created by Daniel Mroczka on 10/4/2016.
  */
-public class RegisterWifiBlockListenerHelper extends AbstractRegisterHelper {
+public class RegisterWiFiBlockListenerHelper extends AbstractRegisterHelper {
 
-    protected RegisterWifiBlockListenerHelper(MainActivity activity) {
+    protected RegisterWiFiBlockListenerHelper(MainActivity activity) {
         super(activity);
     }
 

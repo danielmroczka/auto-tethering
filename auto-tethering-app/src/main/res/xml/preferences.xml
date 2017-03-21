@@ -341,16 +341,32 @@
 
     <PreferenceCategory
         android:icon="@drawable/ic_wifi"
-        android:key="ssid.screen"
         android:title="@string/ssid.conf">
         <PreferenceScreen
             android:icon="@drawable/ic_wifi"
-            android:key="ssid"
-            android:summary=""
-            android:title="@string/ssid">
-            <intent
-                android:targetClass="com.android.settings.TetherSettings"
-                android:targetPackage="com.android.settings" />
+            android:key="ssid.screen"
+            android:title="@string/ssid.conf">
+            <PreferenceScreen
+                android:icon="@drawable/ic_wifi"
+                android:key="ssid"
+                android:summary=""
+                android:title="@string/ssid">
+                <intent
+                    android:targetClass="com.android.settings.TetherSettings"
+                    android:targetPackage="com.android.settings" />
+            </PreferenceScreen>
+            <PreferenceCategory
+                android:key="wifi.list"
+                android:title="WiFi tethering network list">
+                <PreferenceScreen
+                    android:icon="@drawable/ic_add"
+                    android:key="wifi.add.device"
+                    android:title="Add WiFi network" />
+                <PreferenceScreen
+                    android:icon="@drawable/ic_remove"
+                    android:key="wifi.remove.device"
+                    android:title="Remove selected" />
+            </PreferenceCategory>
         </PreferenceScreen>
     </PreferenceCategory>
 </PreferenceScreen>
