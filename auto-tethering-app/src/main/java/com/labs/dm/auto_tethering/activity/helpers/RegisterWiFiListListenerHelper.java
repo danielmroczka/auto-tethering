@@ -31,10 +31,11 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
         List<WiFiTethering> nets = db.readWiFiTethering();
         clean("wifi.list");
         for (WiFiTethering net : nets) {
-            Preference item = new CheckBoxPreference(activity);
+            CheckBoxPreference item = new CheckBoxPreference(activity);
             item.setKey(String.valueOf(net.getId()));
             item.setTitle("SSID: " + net.getSsid());
             item.setSummary("Security: " + net.getType().name() + " Channel: " + net.getChannel());
+            item.setPersistent(false);
             list.addPreference(item);
         }
 
@@ -94,9 +95,4 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
 
         });
     }
-
-    void load() {
-
-    }
-
 }

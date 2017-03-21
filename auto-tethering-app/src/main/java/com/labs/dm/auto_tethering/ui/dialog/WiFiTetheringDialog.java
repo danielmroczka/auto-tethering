@@ -2,9 +2,12 @@ package com.labs.dm.auto_tethering.ui.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -32,8 +35,9 @@ public class WiFiTetheringDialog extends Dialog {
     private void init() {
         final EditText ssid = (EditText) findViewById(R.id.ssid);
         final EditText password = (EditText) findViewById(R.id.password);
-        Spinner channels = (Spinner) findViewById(R.id.channel);
-        Spinner types = (Spinner) findViewById(R.id.securityType);
+        final Spinner channels = (Spinner) findViewById(R.id.channel);
+        final Spinner types = (Spinner) findViewById(R.id.securityType);
+        final CheckBox defaultWifi = (CheckBox) findViewById(R.id.defaultWifi);
 
         if (entity != null) {
             ssid.setText(entity.getSsid());
@@ -48,7 +52,15 @@ public class WiFiTetheringDialog extends Dialog {
                     Toast.makeText(getContext(), "Fill all fields!", Toast.LENGTH_LONG).show();
                 } else {
                     if (entity == null) {
-                        entity = new WiFiTethering(ssid.getText().toString(), WiFiTethering.SECURITY_TYPE.OPEN, password.getText().toString(), 1, 1);
+                        entity = new WiFiTethering(ssid.getText().toString(),
+                                WiFiTethering.SECURITY_TYPE.valueOf((String) types.getSelectedItem()),
+                                password.getText().toString(),
+                                Integer.valueOf(channels.getSelectedItem().toString()),
+                                0);
+                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+                        if (defaultWifi.isChecked()) {
+                            prefs.edit().putString("default.wifi.network", ssid.getText().toString()).apply();
+                        }
                     }
                     dismiss();
                 }

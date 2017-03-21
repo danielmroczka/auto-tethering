@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.wifi.WifiConfiguration;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
@@ -28,6 +29,7 @@ import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.Cron.STATUS;
 import com.labs.dm.auto_tethering.db.DBManager;
+import com.labs.dm.auto_tethering.db.WiFiTethering;
 
 import java.util.Calendar;
 import java.util.List;
@@ -573,9 +575,30 @@ public class TetheringService extends IntentService {
         @Override
         protected Void doInBackground(Boolean... params) {
             updateLastAccess();
-            serviceHelper.setWifiTethering(params[0]);
+            serviceHelper.setWifiTethering(params[0], getDefaultWifiConfiguration());
             return null;
         }
+    }
+
+    private WifiConfiguration getDefaultWifiConfiguration() {
+        String ssid = prefs.getString("default.wifi.network", null);
+        WifiConfiguration netConfig = null;
+        if (ssid != null) {
+            List<WiFiTethering> list = DBManager.getInstance(getApplicationContext()).readWiFiTethering();
+            for (WiFiTethering item : list) {
+                if (ssid.equals(item.getSsid())) {
+                    netConfig = new WifiConfiguration();
+                    netConfig.SSID = item.getSsid();
+                    netConfig.preSharedKey = item.getPassword();
+                    netConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+                    netConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+                    netConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+                    netConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+                    break;
+                }
+            }
+        }
+        return netConfig;
     }
 
     private void runAsForeground() {

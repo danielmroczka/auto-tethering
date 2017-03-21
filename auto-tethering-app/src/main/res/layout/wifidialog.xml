@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:padding="8dp"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp">
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:maxLength="32"
         android:text="Network SSID" />
 
     <EditText
@@ -16,8 +17,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:inputType="textPersonName"
         android:hint="Network SSID"
+        android:inputType="textPersonName"
         android:text="" />
 
     <TextView
@@ -29,22 +30,22 @@
     <Spinner
         android:id="@+id/securityType"
         android:layout_width="match_parent"
-        android:entries="@array/securityTypes"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:entries="@array/securityTypes" />
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Password"
-        android:text="" />
+        android:text="Password" />
 
     <EditText
         android:id="@+id/password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:inputType="textPassword" />
+        android:inputType="textPassword"
+        android:maxLength="63" />
 
     <TextView
         android:id="@+id/textView5"
@@ -55,14 +56,27 @@
     <Spinner
         android:id="@+id/channel"
         android:layout_width="match_parent"
-        android:entries="@array/channels"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:entries="@array/channels" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Default network?" />
+
+    <CheckBox
+        android:id="@+id/defaultWifi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:entries="@array/channels" />
 
     <LinearLayout
-        android:paddingTop="8dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingTop="8dp">
 
         <Button
             android:id="@+id/closeBtn"

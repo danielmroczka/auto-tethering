@@ -134,11 +134,6 @@
             android:exported="false" />
 
         <activity android:name=".LogActivity" />
-
-
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="73213470f134283bc8c44f2046885e6bd53f6b66" />
     </application>
 
 </manifest>

@@ -52,7 +52,7 @@ public class DBManager extends SQLiteOpenHelper {
         db.execSQL("create table CELL_GROUP(id INTEGER PRIMARY KEY, name TEXT, type TEXT, status INTEGER)");
         db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, lat REAL, lon REAL, cellgroup INTEGER, status INTEGER, FOREIGN KEY(cellgroup) REFERENCES CELL_GROUP(id) ON DELETE CASCADE)");
         db.execSQL("create table BLUETOOTH(id INTEGER PRIMARY KEY, name VARCHAR(40), address VARCHAR(20), used datetime, status INTEGER, parcelId INTEGER DEFAULT -1)");
-        db.execSQL("create table WIFI_TETHERING(id INTEGER PRIMARY KEY, ssid VARCHAR(40), type VARCHAR(16), password VARCHAR(20), channel INTEGER, status INTEGER)");
+        db.execSQL("create table WIFI_TETHERING(id INTEGER PRIMARY KEY, ssid VARCHAR(32), type VARCHAR(16), password VARCHAR(63), channel INTEGER, status INTEGER)");
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
         db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
@@ -98,7 +98,7 @@ public class DBManager extends SQLiteOpenHelper {
         }
         if (oldVersion < 8) {
             // CREATE TABLE
-            db.execSQL("create table WIFI_TETHERING(id INTEGER PRIMARY KEY, ssid VARCHAR(40), type VARCHAR(16), password VARCHAR(20), channel INTEGER, status INTEGER)");
+            db.execSQL("create table WIFI_TETHERING(id INTEGER PRIMARY KEY, ssid VARCHAR(32), type VARCHAR(16), password VARCHAR(63), channel INTEGER, status INTEGER)");
         }
         MyLog.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
     }
@@ -450,7 +450,7 @@ public class DBManager extends SQLiteOpenHelper {
 
     public long addOrUpdateWiFiTethering(WiFiTethering wiFiTethering) {
         ContentValues content = new ContentValues();
-        content.put("ssid", wiFiTethering.getStatus());
+        content.put("ssid", wiFiTethering.getSsid());
         content.put("type", wiFiTethering.getType().getName());
         content.put("password", wiFiTethering.getPassword());
         content.put("channel", wiFiTethering.getChannel());

@@ -13,6 +13,7 @@ public class WiFiTethering {
     private String password;
     private int channel;
     private int status;
+    private boolean defaultWiFi;
 
     public WiFiTethering(String ssid, SECURITY_TYPE type, String password, int channel, int status) {
         this.ssid = ssid;
@@ -70,9 +71,17 @@ public class WiFiTethering {
         this.status = status;
     }
 
+    public boolean isDefaultWiFi() {
+        return defaultWiFi;
+    }
+
+    public void setDefaultWiFi(boolean defaultWiFi) {
+        this.defaultWiFi = defaultWiFi;
+    }
+
     public enum SECURITY_TYPE {
 
-        OPEN("open"), WPAPSK("wpapsk"), WPA2PSK("wpa2psk"), NONE(null);
+        OPEN("OPEN"), WPAPSK("WPAPSK"), WPA2PSK("WPA2PSK"), NONE(""), NULL(null);
 
         private final String name;
 

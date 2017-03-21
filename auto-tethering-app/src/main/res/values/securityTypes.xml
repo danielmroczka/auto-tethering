@@ -2,7 +2,7 @@
 <resources>
     <string-array name="securityTypes">
         <item>OPEN</item>
-        <item>WSK2</item>
-        <item>WSK</item>
+        <item>WPAPSK</item>
+        <item>WPA2PSK</item>
     </string-array>
 </resources>

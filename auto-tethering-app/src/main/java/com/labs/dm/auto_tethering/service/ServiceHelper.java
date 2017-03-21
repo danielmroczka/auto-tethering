@@ -126,20 +126,16 @@ public class ServiceHelper {
      *
      * @param enable
      */
-    public void setWifiTethering(boolean enable) {
+    public void setWifiTethering(boolean enable, WifiConfiguration netConfig) {
         if (enable) {
             wifiManager.setWifiEnabled(false);
-            //long time = currentThreadTimeMillis();
-            //while (isConnectedToInternetThroughWiFi() && currentThreadTimeMillis() - time < TIMEOUT) {
-            // WAIT
-            //}
         }
         Method[] methods = wifiManager.getClass().getDeclaredMethods();
         for (Method method : methods) {
             if (method.getName().equals("setWifiApEnabled")) {
                 try {
                     MyLog.i(TAG, "setWifiTethering to " + enable);
-                    method.invoke(wifiManager, null, enable);
+                    method.invoke(wifiManager, netConfig, enable);
                 } catch (Exception ex) {
                     MyLog.e(TAG, "Switch on tethering", ex);
                     Toast.makeText(context, ex.getMessage(), Toast.LENGTH_LONG).show();
