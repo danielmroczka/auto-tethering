@@ -357,6 +357,7 @@ public class Utils {
             netConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
             netConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN | WifiConfiguration.Protocol.WPA);
             netConfig.allowedKeyManagement.set(wifiTethering.getType().getCode());
+            netConfig.hiddenSSID = wifiTethering.isHidden();
         }
         WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         wifi.saveConfiguration();

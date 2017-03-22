@@ -114,27 +114,26 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
                         @Override
                         public void onDismiss(DialogInterface dlg) {
                             WiFiTethering entity = dialog.getEntity();
-                            if (entity != null) {
-                                try {
-                                    db.addOrUpdateWiFiTethering(entity);
+                            try {
+                                db.addOrUpdateWiFiTethering(entity);
 
-                                    finalPref.setKey(String.valueOf(entity.getId()));
-                                    finalPref.setTitle("SSID: " + entity.getSsid());
-                                    finalPref.setSummary("Security: " + entity.getType().name() + " Channel: " + entity.getChannel());
-                                    finalPref.setPersistent(false);
+                                finalPref.setKey(String.valueOf(entity.getId()));
+                                finalPref.setTitle("SSID: " + entity.getSsid());
+                                finalPref.setSummary("Security: " + entity.getType().name() + " Channel: " + entity.getChannel());
+                                finalPref.setPersistent(false);
 
-                                    if (entity.isDefaultWiFi()) {
-                                        Utils.saveWifiConfiguration(activity, entity);
-                                        prefs.edit().putString("default.wifi.network", entity.getSsid()).apply();
-                                        activity.sendBroadcast(new Intent(TetherIntents.WIFI_DEFAULT_REFRESH));
-                                    }
-                                } catch (SQLiteException e) {
-                                    Toast.makeText(activity, "Add network failed. Please check if SSID name is unique and already on the list", Toast.LENGTH_LONG).show();
+                                if (entity.isDefaultWiFi() && !prefs.getString("default.wifi.network", "").equals(entity.getSsid())) {
+                                    Utils.saveWifiConfiguration(activity, entity);
+                                    prefs.edit().putString("default.wifi.network", entity.getSsid()).apply();
+                                    activity.sendBroadcast(new Intent(TetherIntents.WIFI_DEFAULT_REFRESH));
                                 }
+                            } catch (SQLiteException e) {
+                                Toast.makeText(activity, "Add network failed. Please check if SSID name is unique and already on the list", Toast.LENGTH_LONG).show();
                             }
                         }
                     });
                     dialog.show();
+                    unselectAll();
                 }
                 return true;
             }
@@ -177,5 +176,16 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
             }
 
         });
+    }
+
+    private void unselectAll() {
+        final PreferenceCategory list = getPreferenceCategory("wifi.list");
+
+        for (int idx = list.getPreferenceCount() - 1; idx >= 0; idx--) {
+            Preference pref = list.getPreference(idx);
+            if (pref instanceof CheckBoxPreference) {
+                ((CheckBoxPreference) pref).setChecked(false);
+            }
+        }
     }
 }

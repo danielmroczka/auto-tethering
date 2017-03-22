@@ -36,11 +36,20 @@ public class WiFiTetheringDialog extends Dialog {
         final Spinner channels = (Spinner) findViewById(R.id.channel);
         final Spinner types = (Spinner) findViewById(R.id.securityType);
         final CheckBox defaultWifi = (CheckBox) findViewById(R.id.defaultWifi);
+        final CheckBox hiddenWifi = (CheckBox) findViewById(R.id.hiddenWifi);
 
         if (entity != null) {
             ssid.setText(entity.getSsid());
             password.setText(entity.getPassword());
             defaultWifi.setChecked(entity.isDefaultWiFi());
+            hiddenWifi.setChecked(entity.isHidden());
+            String[] countryValue = getContext().getResources().getStringArray(R.array.securityTypes);
+            for (int i = 0; i < countryValue.length; i++) {
+                if (countryValue[i].equals(entity.getType().name())) {
+                    types.setSelection(i, true);
+                    break;
+                }
+            }
         }
 
         Button btn = (Button) findViewById(R.id.saveBtn);
@@ -55,12 +64,14 @@ public class WiFiTetheringDialog extends Dialog {
                                 WiFiTethering.SECURITY_TYPE.valueOf((String) types.getSelectedItem()),
                                 password.getText().toString(),
                                 Integer.valueOf(channels.getSelectedItem().toString()),
+                                hiddenWifi.isChecked(),
                                 0);
                     } else {
                         entity.setSsid(ssid.getText().toString());
                         entity.setPassword(password.getText().toString());
                         entity.setType(WiFiTethering.SECURITY_TYPE.valueOf((String) types.getSelectedItem()));
                         entity.setChannel(Integer.valueOf(channels.getSelectedItem().toString()));
+                        entity.setHidden(hiddenWifi.isChecked());
                     }
                     entity.setDefaultWiFi(defaultWifi.isChecked());
 

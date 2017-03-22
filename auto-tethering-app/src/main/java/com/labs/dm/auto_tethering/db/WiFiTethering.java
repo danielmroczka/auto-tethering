@@ -13,14 +13,16 @@ public class WiFiTethering {
     private String password;
     private int channel;
     private int status;
+    private boolean hidden;
     private boolean defaultWiFi;
 
-    public WiFiTethering(String ssid, SECURITY_TYPE type, String password, int channel, int status) {
+    public WiFiTethering(String ssid, SECURITY_TYPE type, String password, int channel, boolean hidden, int status) {
         this.ssid = ssid;
         this.type = type;
         this.password = password;
         this.channel = channel;
         this.status = status;
+        this.hidden = hidden;
     }
 
     public int getId() {
@@ -77,6 +79,14 @@ public class WiFiTethering {
 
     public void setDefaultWiFi(boolean defaultWiFi) {
         this.defaultWiFi = defaultWiFi;
+    }
+
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
 
     public enum SECURITY_TYPE {
