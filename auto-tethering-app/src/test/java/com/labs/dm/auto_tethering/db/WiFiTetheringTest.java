@@ -15,7 +15,6 @@ public class WiFiTetheringTest {
         assertEquals(SECURITY_TYPE.WPAPSK, SECURITY_TYPE.valueOf("WPAPSK"));
         assertEquals(SECURITY_TYPE.WPA2PSK, SECURITY_TYPE.valueOf("WPA2PSK"));
         assertEquals(SECURITY_TYPE.OPEN, SECURITY_TYPE.valueOf("OPEN"));
-        assertEquals(SECURITY_TYPE.NONE, SECURITY_TYPE.valueOf(""));
     }
 
     @Test

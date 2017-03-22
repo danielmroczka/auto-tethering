@@ -39,7 +39,7 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
         List<WiFiTethering> nets = db.readWiFiTethering();
         clean("wifi.list");
         for (WiFiTethering net : nets) {
-            createCheckBoxPreference(list, activity, String.valueOf(net.getId()), "SSID: " + net.getSsid(), "Security: " + net.getType().name() + " Channel: " + net.getChannel());
+            createCheckBoxPreference(list, activity, String.valueOf(net.getId()), "SSID: " + net.getSsid(), "Security: " + net.getType().name());
         }
 
         remove.setEnabled(list.getPreferenceCount() > CONST_ITEMS);
@@ -62,7 +62,7 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
                             long id = db.addOrUpdateWiFiTethering(entity);
 
                             if (id > 0) {
-                                createCheckBoxPreference(list, activity, String.valueOf(id), "SSID: " + entity.getSsid(), "Security: " + entity.getType().name() + " Channel: " + entity.getChannel());
+                                createCheckBoxPreference(list, activity, String.valueOf(id), "SSID: " + entity.getSsid(), "Security: " + entity.getType().name());
                                 remove.setEnabled(list.getPreferenceCount() > CONST_ITEMS);
                                 modify.setEnabled(list.getPreferenceCount() > CONST_ITEMS);
 
@@ -114,7 +114,7 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
                             try {
                                 db.addOrUpdateWiFiTethering(entity);
 
-                                setPreferenceCheckBox(finalPref, String.valueOf(entity.getId()), "SSID: " + entity.getSsid(), "Security: " + entity.getType().name() + " Channel: " + entity.getChannel());
+                                setPreferenceCheckBox(finalPref, String.valueOf(entity.getId()), "SSID: " + entity.getSsid(), "Security: " + entity.getType().name());
 
                                 if (entity.isDefaultWiFi() && !prefs.getString("default.wifi.network", "").equals(entity.getSsid())) {
                                     Utils.saveWifiConfiguration(activity, entity);

@@ -359,7 +359,6 @@ public class Utils {
             netConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN | WifiConfiguration.Protocol.WPA);
             netConfig.allowedKeyManagement.set(wifiTethering.getType().getCode());
             netConfig.hiddenSSID = wifiTethering.isHidden();
-            wifi.addNetwork(netConfig);
         }
         wifi.saveConfiguration();
         return netConfig;
