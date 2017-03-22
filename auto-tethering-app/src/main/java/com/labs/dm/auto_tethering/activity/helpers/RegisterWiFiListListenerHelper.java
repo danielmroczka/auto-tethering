@@ -2,6 +2,7 @@ package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteException;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
@@ -114,10 +115,10 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
                         public void onDismiss(DialogInterface dlg) {
                             WiFiTethering entity = dialog.getEntity();
                             if (entity != null) {
-                                long id = db.addOrUpdateWiFiTethering(entity);
+                                try {
+                                    db.addOrUpdateWiFiTethering(entity);
 
-                                if (id > 0) {
-                                    finalPref.setKey(String.valueOf(id));
+                                    finalPref.setKey(String.valueOf(entity.getId()));
                                     finalPref.setTitle("SSID: " + entity.getSsid());
                                     finalPref.setSummary("Security: " + entity.getType().name() + " Channel: " + entity.getChannel());
                                     finalPref.setPersistent(false);
@@ -127,7 +128,7 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
                                         prefs.edit().putString("default.wifi.network", entity.getSsid()).apply();
                                         activity.sendBroadcast(new Intent(TetherIntents.WIFI_DEFAULT_REFRESH));
                                     }
-                                } else {
+                                } catch (SQLiteException e) {
                                     Toast.makeText(activity, "Add network failed. Please check if SSID name is unique and already on the list", Toast.LENGTH_LONG).show();
                                 }
                             }
