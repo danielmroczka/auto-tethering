@@ -16,7 +16,11 @@ public class WiFiTethering {
     private boolean hidden;
     private boolean defaultWiFi;
 
+    public WiFiTethering() {
+    }
+
     public WiFiTethering(String ssid, SECURITY_TYPE type, String password, int channel, boolean hidden, int status) {
+        this();
         this.ssid = ssid;
         this.type = type;
         this.password = password;

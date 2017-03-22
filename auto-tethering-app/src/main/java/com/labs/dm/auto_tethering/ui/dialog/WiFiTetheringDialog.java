@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.db.WiFiTethering;
+import com.labs.dm.auto_tethering.db.WiFiTethering.SECURITY_TYPE;
 
 
 /**
@@ -23,8 +24,7 @@ public class WiFiTetheringDialog extends Dialog {
     private WiFiTethering entity;
 
     public WiFiTetheringDialog(PreferenceActivity context, WiFiTethering entity) {
-        super(context, R.style.AppTheme);
-
+        super(context);
         this.setContentView(R.layout.wifidialog);
         this.entity = entity;
         init();
@@ -38,6 +38,42 @@ public class WiFiTetheringDialog extends Dialog {
         final CheckBox defaultWifi = (CheckBox) findViewById(R.id.defaultWifi);
         final CheckBox hiddenWifi = (CheckBox) findViewById(R.id.hiddenWifi);
 
+        initComponents(ssid, password, types, defaultWifi, hiddenWifi);
+        setTitle(entity == null ? "New WiFi Hotspot" : "Modify WiFi Hotspot");
+
+        final Button btn = (Button) findViewById(R.id.saveBtn);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (validate()) {
+                    if (entity == null) {
+                        entity = new WiFiTethering();
+                    }
+
+                    entity.setSsid(ssid.getText().toString());
+                    entity.setPassword(password.getText().toString());
+                    entity.setType(SECURITY_TYPE.valueOf((String) types.getSelectedItem()));
+                    entity.setChannel(Integer.valueOf(channels.getSelectedItem().toString()));
+                    entity.setHidden(hiddenWifi.isChecked());
+                    entity.setDefaultWiFi(defaultWifi.isChecked());
+
+                    dismiss();
+                } else {
+                    Toast.makeText(getContext(), "Please fill all required fields!\nMinimal length of password is 8, maximal length is 63", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        final Button closeBtn = (Button) findViewById(R.id.closeBtn);
+        closeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hide();
+            }
+        });
+    }
+
+    private void initComponents(EditText ssid, EditText password, Spinner types, CheckBox defaultWifi, CheckBox hiddenWifi) {
         if (entity != null) {
             ssid.setText(entity.getSsid());
             password.setText(entity.getPassword());
@@ -51,41 +87,6 @@ public class WiFiTetheringDialog extends Dialog {
                 }
             }
         }
-
-        Button btn = (Button) findViewById(R.id.saveBtn);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!validate()) {
-                    Toast.makeText(getContext(), "Please fill all required fields!", Toast.LENGTH_LONG).show();
-                } else {
-                    if (entity == null) {
-                        entity = new WiFiTethering(ssid.getText().toString(),
-                                WiFiTethering.SECURITY_TYPE.valueOf((String) types.getSelectedItem()),
-                                password.getText().toString(),
-                                Integer.valueOf(channels.getSelectedItem().toString()),
-                                hiddenWifi.isChecked(),
-                                0);
-                    } else {
-                        entity.setSsid(ssid.getText().toString());
-                        entity.setPassword(password.getText().toString());
-                        entity.setType(WiFiTethering.SECURITY_TYPE.valueOf((String) types.getSelectedItem()));
-                        entity.setChannel(Integer.valueOf(channels.getSelectedItem().toString()));
-                        entity.setHidden(hiddenWifi.isChecked());
-                    }
-                    entity.setDefaultWiFi(defaultWifi.isChecked());
-
-                    dismiss();
-                }
-            }
-        });
-        Button closeBtn = (Button) findViewById(R.id.closeBtn);
-        closeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                hide();
-            }
-        });
     }
 
     private boolean validate() {

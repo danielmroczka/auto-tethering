@@ -23,7 +23,8 @@ import java.util.List;
 
 public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
 
-    private final int CONST_ITEMS = 3; // Skip constant elements on list ADD, MODIFY, REMOVE
+    private static final int CONST_ITEMS = 3; // Skip constant elements on list ADD, MODIFY, REMOVE
+    private static final int MAX_WIFI_NETWORKS = 10;
 
     public RegisterWiFiListListenerHelper(MainActivity activity) {
         super(activity);
@@ -38,12 +39,7 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
         List<WiFiTethering> nets = db.readWiFiTethering();
         clean("wifi.list");
         for (WiFiTethering net : nets) {
-            CheckBoxPreference item = new CheckBoxPreference(activity);
-            item.setKey(String.valueOf(net.getId()));
-            item.setTitle("SSID: " + net.getSsid());
-            item.setSummary("Security: " + net.getType().name() + " Channel: " + net.getChannel());
-            item.setPersistent(false);
-            list.addPreference(item);
+            createCheckBoxPreference(list, activity, String.valueOf(net.getId()), "SSID: " + net.getSsid(), "Security: " + net.getType().name() + " Channel: " + net.getChannel());
         }
 
         remove.setEnabled(list.getPreferenceCount() > CONST_ITEMS);
@@ -52,6 +48,10 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
         getPreferenceScreen("wifi.add.device").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
+                if (list.getPreferenceCount() >= MAX_WIFI_NETWORKS + CONST_ITEMS) {
+                    Toast.makeText(activity, "Exceeded the limit of max. " + MAX_WIFI_NETWORKS + " networks!", Toast.LENGTH_LONG).show();
+                    return false;
+                }
 
                 final WiFiTetheringDialog dialog = new WiFiTetheringDialog(activity, null);
                 dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -62,12 +62,7 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
                             long id = db.addOrUpdateWiFiTethering(entity);
 
                             if (id > 0) {
-                                Preference item = new CheckBoxPreference(activity);
-                                item.setKey(String.valueOf(id));
-                                item.setTitle("SSID: " + entity.getSsid());
-                                item.setSummary("Security: " + entity.getType().name() + " Channel: " + entity.getChannel());
-                                item.setPersistent(false);
-                                list.addPreference(item);
+                                createCheckBoxPreference(list, activity, String.valueOf(id), "SSID: " + entity.getSsid(), "Security: " + entity.getType().name() + " Channel: " + entity.getChannel());
                                 remove.setEnabled(list.getPreferenceCount() > CONST_ITEMS);
                                 modify.setEnabled(list.getPreferenceCount() > CONST_ITEMS);
 
@@ -103,7 +98,9 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
                     }
                 }
 
-                if (selected != 1) {
+                if (selected == 0) {
+                    Toast.makeText(activity, "Please select any item!", Toast.LENGTH_LONG).show();
+                } else if (selected > 1) {
                     Toast.makeText(activity, "Please select only one item!", Toast.LENGTH_LONG).show();
                 } else {
                     WiFiTethering entity = db.getWifiTethering(Integer.valueOf(pref.getKey()));
@@ -117,10 +114,7 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
                             try {
                                 db.addOrUpdateWiFiTethering(entity);
 
-                                finalPref.setKey(String.valueOf(entity.getId()));
-                                finalPref.setTitle("SSID: " + entity.getSsid());
-                                finalPref.setSummary("Security: " + entity.getType().name() + " Channel: " + entity.getChannel());
-                                finalPref.setPersistent(false);
+                                setPreferenceCheckBox(finalPref, String.valueOf(entity.getId()), "SSID: " + entity.getSsid(), "Security: " + entity.getType().name() + " Channel: " + entity.getChannel());
 
                                 if (entity.isDefaultWiFi() && !prefs.getString("default.wifi.network", "").equals(entity.getSsid())) {
                                     Utils.saveWifiConfiguration(activity, entity);
@@ -176,6 +170,19 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
             }
 
         });
+    }
+
+    private void setPreferenceCheckBox(Preference finalPref, String key, String title, String summary) {
+        finalPref.setKey(key);
+        finalPref.setTitle(title);
+        finalPref.setSummary(summary);
+        finalPref.setPersistent(false);
+    }
+
+    private void createCheckBoxPreference(PreferenceCategory list, MainActivity activity, String key, String title, String summary) {
+        CheckBoxPreference item = new CheckBoxPreference(activity);
+        setPreferenceCheckBox(item, key, title, summary);
+        list.addPreference(item);
     }
 
     private void unselectAll() {
