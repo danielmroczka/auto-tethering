@@ -52,7 +52,7 @@ public class DBManager extends SQLiteOpenHelper {
         db.execSQL("create table CELL_GROUP(id INTEGER PRIMARY KEY, name TEXT, type TEXT, status INTEGER)");
         db.execSQL("create table CELLULAR(id INTEGER PRIMARY KEY, mcc INTEGER, mnc INTEGER, lac INTEGER, cid INTEGER, lat REAL, lon REAL, cellgroup INTEGER, status INTEGER, FOREIGN KEY(cellgroup) REFERENCES CELL_GROUP(id) ON DELETE CASCADE)");
         db.execSQL("create table BLUETOOTH(id INTEGER PRIMARY KEY, name VARCHAR(40), address VARCHAR(20), used datetime, status INTEGER, parcelId INTEGER DEFAULT -1)");
-        db.execSQL("create table WIFI_TETHERING(id INTEGER PRIMARY KEY, ssid VARCHAR(32), type VARCHAR(16), password VARCHAR(63), channel INTEGER, status INTEGER)");
+        db.execSQL("create table WIFI_TETHERING(id INTEGER PRIMARY KEY, ssid VARCHAR(32), type INTEGER, password VARCHAR(63), channel INTEGER, status INTEGER)");
         // CREATE INDEX
         db.execSQL("create unique index SIMCARD_UNIQUE_IDX on simcard(ssn, number)");
         db.execSQL("create unique index CRON_UNIQUE_IDX on cron(hourOff ,minOff , hourOn, minOn, mask)");
@@ -98,7 +98,9 @@ public class DBManager extends SQLiteOpenHelper {
         }
         if (oldVersion < 8) {
             // CREATE TABLE
-            db.execSQL("create table WIFI_TETHERING(id INTEGER PRIMARY KEY, ssid VARCHAR(32), type VARCHAR(16), password VARCHAR(63), channel INTEGER, status INTEGER)");
+            db.execSQL("create table WIFI_TETHERING(id INTEGER PRIMARY KEY, ssid VARCHAR(32), type INTEGER, password VARCHAR(63), channel INTEGER, status INTEGER)");
+            // CREATE INDEX
+            db.execSQL("create unique index WIFI_TETHERING_UNIQUE_IDX on wifi_tethering(ssid)");
         }
         MyLog.i("DBManager", "DB upgraded from version " + oldVersion + " to " + newVersion);
     }
@@ -430,7 +432,7 @@ public class DBManager extends SQLiteOpenHelper {
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {
-                    WiFiTethering p = new WiFiTethering(cursor.getString(1), WiFiTethering.SECURITY_TYPE.valueOf(cursor.getString(2)), cursor.getString(3), cursor.getInt(4), cursor.getInt(5));
+                    WiFiTethering p = new WiFiTethering(cursor.getString(1), WiFiTethering.SECURITY_TYPE.valueOf(cursor.getInt(2)), cursor.getString(3), cursor.getInt(4), cursor.getInt(5));
                     p.setId(cursor.getInt(0));
                     list.add(p);
                 }
@@ -451,7 +453,7 @@ public class DBManager extends SQLiteOpenHelper {
             cursor = getReadableDatabase().query(WiFiTethering.NAME, null, "id=" + id, null, null, null, null);
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
-                wiFiTethering = new WiFiTethering(cursor.getString(1), WiFiTethering.SECURITY_TYPE.valueOf(cursor.getString(2)), cursor.getString(3), cursor.getInt(4), cursor.getInt(5));
+                wiFiTethering = new WiFiTethering(cursor.getString(1), WiFiTethering.SECURITY_TYPE.valueOf(cursor.getInt(2)), cursor.getString(3), cursor.getInt(4), cursor.getInt(5));
                 wiFiTethering.setId(cursor.getInt(0));
             }
         } finally {
@@ -470,7 +472,7 @@ public class DBManager extends SQLiteOpenHelper {
     public long addOrUpdateWiFiTethering(WiFiTethering wiFiTethering) {
         ContentValues content = new ContentValues();
         content.put("ssid", wiFiTethering.getSsid());
-        content.put("type", wiFiTethering.getType().getName());
+        content.put("type", wiFiTethering.getType().getCode());
         content.put("password", wiFiTethering.getPassword());
         content.put("channel", wiFiTethering.getChannel());
         content.put("status", wiFiTethering.getStatus());

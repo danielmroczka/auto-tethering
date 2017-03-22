@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -338,17 +339,24 @@ public class Utils {
             List<WiFiTethering> list = DBManager.getInstance(context).readWiFiTethering();
             for (WiFiTethering item : list) {
                 if (ssid.equals(item.getSsid())) {
-                    netConfig = new WifiConfiguration();
-                    netConfig.SSID = item.getSsid();
-                    netConfig.preSharedKey = item.getPassword();
-                    netConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
-                    netConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
-                    netConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
-                    netConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+                    netConfig = saveWifiConfiguration(context, item);
                     break;
                 }
             }
         }
+        return netConfig;
+    }
+
+    public static WifiConfiguration saveWifiConfiguration(Context context, WiFiTethering wifiTethering) {
+        WifiConfiguration netConfig = new WifiConfiguration();
+
+        netConfig.SSID = wifiTethering.getSsid();
+        netConfig.preSharedKey = wifiTethering.getPassword();
+        netConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+        netConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN | WifiConfiguration.Protocol.WPA);
+        netConfig.allowedKeyManagement.set(wifiTethering.getType().getCode());
+        WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        wifi.saveConfiguration();
         return netConfig;
     }
 }

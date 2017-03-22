@@ -363,6 +363,10 @@
                     android:key="wifi.add.device"
                     android:title="Add WiFi network" />
                 <PreferenceScreen
+                    android:icon="@drawable/ic_edit"
+                    android:key="wifi.modify.device"
+                    android:title="Modify WiFi network" />
+                <PreferenceScreen
                     android:icon="@drawable/ic_remove"
                     android:key="wifi.remove.device"
                     android:title="Remove selected" />

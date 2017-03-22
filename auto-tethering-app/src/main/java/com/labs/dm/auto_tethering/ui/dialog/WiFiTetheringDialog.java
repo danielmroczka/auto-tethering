@@ -40,14 +40,15 @@ public class WiFiTetheringDialog extends Dialog {
         if (entity != null) {
             ssid.setText(entity.getSsid());
             password.setText(entity.getPassword());
+            defaultWifi.setSelected(entity.isDefaultWiFi());
         }
 
         Button btn = (Button) findViewById(R.id.saveBtn);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (TextUtils.isEmpty(ssid.getText())) {
-                    Toast.makeText(getContext(), "Fill all fields!", Toast.LENGTH_LONG).show();
+                if (!validate()) {
+                    Toast.makeText(getContext(), "Please fill all required fields!", Toast.LENGTH_LONG).show();
                 } else {
                     if (entity == null) {
                         entity = new WiFiTethering(ssid.getText().toString(),
@@ -56,6 +57,11 @@ public class WiFiTetheringDialog extends Dialog {
                                 Integer.valueOf(channels.getSelectedItem().toString()),
                                 0);
                         entity.setDefaultWiFi(defaultWifi.isChecked());
+                    } else {
+                        entity.setSsid(ssid.getText().toString());
+                        entity.setPassword(password.getText().toString());
+                        entity.setType(WiFiTethering.SECURITY_TYPE.valueOf((String) types.getSelectedItem()));
+                        entity.setChannel(Integer.valueOf(channels.getSelectedItem().toString()));
                     }
                     dismiss();
                 }
@@ -68,6 +74,14 @@ public class WiFiTetheringDialog extends Dialog {
                 hide();
             }
         });
+    }
+
+    private boolean validate() {
+        final EditText ssid = (EditText) findViewById(R.id.ssid);
+        final EditText password = (EditText) findViewById(R.id.password);
+        final Spinner types = (Spinner) findViewById(R.id.securityType);
+
+        return !(TextUtils.isEmpty(ssid.getText()) || (!types.getSelectedItem().equals("OPEN") && (TextUtils.isEmpty(password.getText()) || password.getText().length() < 8)));
     }
 
     public WiFiTethering getEntity() {
