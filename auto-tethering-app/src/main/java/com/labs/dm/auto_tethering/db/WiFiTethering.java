@@ -80,18 +80,31 @@ public class WiFiTethering {
     }
 
     public enum SECURITY_TYPE {
-
-        OPEN("OPEN"), WPAPSK("WPAPSK"), WPA2PSK("WPA2PSK"), NONE(""), NULL(null);
+        OPEN("OPEN", 0), WPAPSK("WPAPSK", 1), WPA2PSK("WPA2PSK", 4), NONE("", 0);
 
         private final String name;
+        private final int code;
 
-        SECURITY_TYPE(String name) {
+        SECURITY_TYPE(String name, int code) {
             this.name = name;
+            this.code = code;
         }
 
         String getName() {
             return name;
         }
 
+        public int getCode() {
+            return code;
+        }
+
+        public static SECURITY_TYPE valueOf(int code) {
+            for (SECURITY_TYPE item : values()) {
+                if (item.getCode() == code) {
+                    return item;
+                }
+            }
+            return SECURITY_TYPE.NONE;
+        }
     }
 }

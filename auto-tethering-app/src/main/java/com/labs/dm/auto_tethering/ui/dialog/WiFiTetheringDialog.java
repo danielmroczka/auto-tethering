@@ -46,8 +46,8 @@ public class WiFiTetheringDialog extends Dialog {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (TextUtils.isEmpty(ssid.getText())) {
-                    Toast.makeText(getContext(), "Fill all fields!", Toast.LENGTH_LONG).show();
+                if (!validate()) {
+                    Toast.makeText(getContext(), "Please fill all required fields!", Toast.LENGTH_LONG).show();
                 } else {
                     if (entity == null) {
                         entity = new WiFiTethering(ssid.getText().toString(),
@@ -68,6 +68,14 @@ public class WiFiTetheringDialog extends Dialog {
                 hide();
             }
         });
+    }
+
+    private boolean validate() {
+        final EditText ssid = (EditText) findViewById(R.id.ssid);
+        final EditText password = (EditText) findViewById(R.id.password);
+        final Spinner types = (Spinner) findViewById(R.id.securityType);
+
+        return !(TextUtils.isEmpty(ssid.getText()) || (!types.getSelectedItem().equals("OPEN") && (TextUtils.isEmpty(password.getText()) || password.getText().length() < 8)));
     }
 
     public WiFiTethering getEntity() {
