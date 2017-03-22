@@ -159,6 +159,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                         serviceHelper.setWifiTethering(false, null);
                         serviceHelper.setWifiTethering(true, Utils.getDefaultWifiConfiguration(getApplicationContext(), prefs));
                     }
+                    Toast.makeText(getApplicationContext(), "Default WiFi Network has changed to " + p.getSummary(), Toast.LENGTH_LONG).show();
                 }
             }
         };

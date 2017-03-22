@@ -46,6 +46,7 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
         }
 
         remove.setEnabled(list.getPreferenceCount() > CONST_ITEMS);
+        modify.setEnabled(list.getPreferenceCount() > CONST_ITEMS);
 
         getPreferenceScreen("wifi.add.device").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -67,6 +68,7 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
                                 item.setPersistent(false);
                                 list.addPreference(item);
                                 remove.setEnabled(list.getPreferenceCount() > CONST_ITEMS);
+                                modify.setEnabled(list.getPreferenceCount() > CONST_ITEMS);
 
                                 if (entity.isDefaultWiFi()) {
                                     Utils.saveWifiConfiguration(activity, entity);
@@ -92,12 +94,10 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
 
                 for (int idx = list.getPreferenceCount() - 1; idx >= 0; idx--) {
                     if (list.getPreference(idx) instanceof CheckBoxPreference) {
-                        pref = list.getPreference(idx);
-                        boolean status = ((CheckBoxPreference) pref).isChecked();
+                        boolean status = ((CheckBoxPreference) list.getPreference(idx)).isChecked();
                         if (status) {
                             selected++;
-                        } else {
-                            pref = null;
+                            pref = list.getPreference(idx);
                         }
                     }
                 }
@@ -106,6 +106,7 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
                     Toast.makeText(activity, "Please select only one item!", Toast.LENGTH_LONG).show();
                 } else {
                     WiFiTethering entity = db.getWifiTethering(Integer.valueOf(pref.getKey()));
+                    entity.setDefaultWiFi(prefs.getString("default.wifi.network", "").equals(entity.getSsid()));
                     final WiFiTetheringDialog dialog = new WiFiTetheringDialog(activity, entity);
                     final Preference finalPref = pref;
                     dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -149,17 +150,16 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
                     if (pref instanceof CheckBoxPreference) {
                         boolean status = ((CheckBoxPreference) pref).isChecked();
                         if (status) {
+                            WiFiTethering item = db.getWifiTethering(Integer.valueOf(pref.getKey()));
                             if (db.removeWiFiTethering(Integer.parseInt(pref.getKey())) > 0) {
                                 list.removePreference(pref);
                                 changed = true;
-                                String defaultSsid = prefs.getString("default.wifi.network", null);
-                                List<WiFiTethering> list = db.readWiFiTethering();
-                                for (WiFiTethering item : list) {
-                                    if (pref.getKey().equals(item.getId())) {
-                                        if (defaultSsid != null && defaultSsid.equals(item.getSsid())) {
-                                            prefs.edit().remove("default.wifi.network");
-                                        }
-                                    }
+                                String defaultSsid = prefs.getString("default.wifi.network", "");
+
+                                if (defaultSsid.equals(item.getSsid())) {
+                                    prefs.edit().remove("default.wifi.network");
+                                    Utils.saveWifiConfiguration(activity, null);
+                                    activity.sendBroadcast(new Intent(TetherIntents.WIFI_DEFAULT_REFRESH));
                                 }
                             }
                         }
@@ -167,6 +167,7 @@ public class RegisterWiFiListListenerHelper extends AbstractRegisterHelper {
                 }
 
                 remove.setEnabled(list.getPreferenceCount() > CONST_ITEMS);
+                modify.setEnabled(list.getPreferenceCount() > CONST_ITEMS);
 
                 if (!changed) {
                     Toast.makeText(activity, "Please select any item", Toast.LENGTH_LONG).show();

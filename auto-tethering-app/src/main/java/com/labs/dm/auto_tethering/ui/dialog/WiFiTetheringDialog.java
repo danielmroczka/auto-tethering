@@ -40,7 +40,7 @@ public class WiFiTetheringDialog extends Dialog {
         if (entity != null) {
             ssid.setText(entity.getSsid());
             password.setText(entity.getPassword());
-            defaultWifi.setSelected(entity.isDefaultWiFi());
+            defaultWifi.setChecked(entity.isDefaultWiFi());
         }
 
         Button btn = (Button) findViewById(R.id.saveBtn);
@@ -56,13 +56,14 @@ public class WiFiTetheringDialog extends Dialog {
                                 password.getText().toString(),
                                 Integer.valueOf(channels.getSelectedItem().toString()),
                                 0);
-                        entity.setDefaultWiFi(defaultWifi.isChecked());
                     } else {
                         entity.setSsid(ssid.getText().toString());
                         entity.setPassword(password.getText().toString());
                         entity.setType(WiFiTethering.SECURITY_TYPE.valueOf((String) types.getSelectedItem()));
                         entity.setChannel(Integer.valueOf(channels.getSelectedItem().toString()));
                     }
+                    entity.setDefaultWiFi(defaultWifi.isChecked());
+
                     dismiss();
                 }
             }

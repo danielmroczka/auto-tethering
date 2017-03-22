@@ -89,7 +89,7 @@
     <string name="summary">Summary</string>
     <string name="widget.conf.title">Widget Configuration</string>
     <!-- RELEASE NOTES -->
-    <string name="release_notes">[x] Small bug fixing</string>
+    <string name="release_notes">[x] Add option to select WiFi Tethering networks\n\n[x] Add fabric bug report support [Tech]</string>
     <string name="activate_tethering_usb_on">Tethering activated on USB connection</string>
     <string name="activate_internet_usb_on">Internet activated on USB connection</string>
     <string name="activate_tethering_usb_off">Tethering deactivated on USB disconnect</string>

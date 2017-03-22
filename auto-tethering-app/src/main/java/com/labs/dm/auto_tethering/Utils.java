@@ -348,13 +348,16 @@ public class Utils {
     }
 
     public static WifiConfiguration saveWifiConfiguration(Context context, WiFiTethering wifiTethering) {
-        WifiConfiguration netConfig = new WifiConfiguration();
+        WifiConfiguration netConfig = null;
+        if (wifiTethering != null) {
+            netConfig = new WifiConfiguration();
 
-        netConfig.SSID = wifiTethering.getSsid();
-        netConfig.preSharedKey = wifiTethering.getPassword();
-        netConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
-        netConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN | WifiConfiguration.Protocol.WPA);
-        netConfig.allowedKeyManagement.set(wifiTethering.getType().getCode());
+            netConfig.SSID = wifiTethering.getSsid();
+            netConfig.preSharedKey = wifiTethering.getPassword();
+            netConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+            netConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN | WifiConfiguration.Protocol.WPA);
+            netConfig.allowedKeyManagement.set(wifiTethering.getType().getCode());
+        }
         WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         wifi.saveConfiguration();
         return netConfig;
