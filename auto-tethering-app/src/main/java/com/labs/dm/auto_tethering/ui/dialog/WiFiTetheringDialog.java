@@ -1,9 +1,7 @@
 package com.labs.dm.auto_tethering.ui.dialog;
 
 import android.app.Dialog;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import android.preference.PreferenceActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -24,7 +22,7 @@ public class WiFiTetheringDialog extends Dialog {
 
     private WiFiTethering entity;
 
-    public WiFiTetheringDialog(Context context, WiFiTethering entity) {
+    public WiFiTetheringDialog(PreferenceActivity context, WiFiTethering entity) {
         super(context, R.style.AppTheme);
 
         this.setContentView(R.layout.wifidialog);
@@ -57,10 +55,7 @@ public class WiFiTetheringDialog extends Dialog {
                                 password.getText().toString(),
                                 Integer.valueOf(channels.getSelectedItem().toString()),
                                 0);
-                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-                        if (defaultWifi.isChecked()) {
-                            prefs.edit().putString("default.wifi.network", ssid.getText().toString()).apply();
-                        }
+                        entity.setDefaultWiFi(defaultWifi.isChecked());
                     }
                     dismiss();
                 }

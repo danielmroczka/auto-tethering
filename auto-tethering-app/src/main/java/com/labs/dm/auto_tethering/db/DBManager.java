@@ -444,6 +444,25 @@ public class DBManager extends SQLiteOpenHelper {
         return list;
     }
 
+    public WiFiTethering getWifiTethering(int id) {
+        Cursor cursor = null;
+        WiFiTethering wiFiTethering = null;
+        try {
+            cursor = getReadableDatabase().query(WiFiTethering.NAME, null, "id=" + id, null, null, null, null);
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                wiFiTethering = new WiFiTethering(cursor.getString(1), WiFiTethering.SECURITY_TYPE.valueOf(cursor.getString(2)), cursor.getString(3), cursor.getInt(4), cursor.getInt(5));
+                wiFiTethering.setId(cursor.getInt(0));
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return wiFiTethering;
+    }
+
     public int removeWiFiTethering(int id) {
         return getWritableDatabase().delete(WiFiTethering.NAME, "id=" + id, null);
     }
