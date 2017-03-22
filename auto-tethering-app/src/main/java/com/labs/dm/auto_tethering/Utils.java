@@ -348,6 +348,7 @@ public class Utils {
     }
 
     public static WifiConfiguration saveWifiConfiguration(Context context, WiFiTethering wifiTethering) {
+        WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiConfiguration netConfig = null;
         if (wifiTethering != null) {
             netConfig = new WifiConfiguration();
@@ -358,8 +359,8 @@ public class Utils {
             netConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN | WifiConfiguration.Protocol.WPA);
             netConfig.allowedKeyManagement.set(wifiTethering.getType().getCode());
             netConfig.hiddenSSID = wifiTethering.isHidden();
+            wifi.addNetwork(netConfig);
         }
-        WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         wifi.saveConfiguration();
         return netConfig;
     }
