@@ -63,7 +63,7 @@ public class WidgetService extends IntentService {
     private class TurnOnTetheringAsyncTask extends AsyncTask<Boolean, Void, Void> {
         @Override
         protected Void doInBackground(Boolean... params) {
-            serviceHelper.setWifiTethering(params[0]);
+            serviceHelper.setWifiTethering(params[0], null);
             return null;
         }
     }

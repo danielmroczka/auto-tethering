@@ -73,6 +73,7 @@ import static com.labs.dm.auto_tethering.TetherIntents.USB_OFF;
 import static com.labs.dm.auto_tethering.TetherIntents.USB_ON;
 import static com.labs.dm.auto_tethering.TetherIntents.WIDGET;
 import static com.labs.dm.auto_tethering.Utils.adapterDayOfWeek;
+import static com.labs.dm.auto_tethering.Utils.getDefaultWifiConfiguration;
 import static com.labs.dm.auto_tethering.service.ServiceAction.BLUETOOTH_INTERNET_TETHER_OFF;
 import static com.labs.dm.auto_tethering.service.ServiceAction.BLUETOOTH_INTERNET_TETHER_ON;
 import static com.labs.dm.auto_tethering.service.ServiceAction.CELL_INTERNET_TETHER_OFF;
@@ -573,7 +574,7 @@ public class TetheringService extends IntentService {
         @Override
         protected Void doInBackground(Boolean... params) {
             updateLastAccess();
-            serviceHelper.setWifiTethering(params[0]);
+            serviceHelper.setWifiTethering(params[0], getDefaultWifiConfiguration(TetheringService.this, prefs));
             return null;
         }
     }

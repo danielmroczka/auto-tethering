@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +25,7 @@ import android.widget.Toast;
 import com.labs.dm.auto_tethering.db.Bluetooth;
 import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.db.DBManager;
+import com.labs.dm.auto_tethering.db.WiFiTethering;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
 import java.io.BufferedReader;
@@ -327,5 +330,37 @@ public class Utils {
             return String.format("%.2fkm", bytes / 1000d);
         }
         return String.format("%.0fkm", bytes / 1000d);
+    }
+
+    public static WifiConfiguration getDefaultWifiConfiguration(Context context, SharedPreferences prefs) {
+        String ssid = prefs.getString("default.wifi.network", null);
+        WifiConfiguration netConfig = null;
+        if (ssid != null) {
+            List<WiFiTethering> list = DBManager.getInstance(context).readWiFiTethering();
+            for (WiFiTethering item : list) {
+                if (ssid.equals(item.getSsid())) {
+                    netConfig = saveWifiConfiguration(context, item);
+                    break;
+                }
+            }
+        }
+        return netConfig;
+    }
+
+    public static WifiConfiguration saveWifiConfiguration(Context context, WiFiTethering wifiTethering) {
+        WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiConfiguration netConfig = null;
+        if (wifiTethering != null) {
+            netConfig = new WifiConfiguration();
+
+            netConfig.SSID = wifiTethering.getSsid();
+            netConfig.preSharedKey = wifiTethering.getPassword();
+            netConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+            netConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN | WifiConfiguration.Protocol.WPA);
+            netConfig.allowedKeyManagement.set(wifiTethering.getType().getCode());
+            netConfig.hiddenSSID = wifiTethering.isHidden();
+        }
+        wifi.saveConfiguration();
+        return netConfig;
     }
 }

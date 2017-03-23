@@ -64,6 +64,7 @@ import static com.labs.dm.auto_tethering.AppProperties.LATEST_VERSION;
 import static com.labs.dm.auto_tethering.AppProperties.SSID;
 import static com.labs.dm.auto_tethering.TetherIntents.CHANGE_CELL_FORM;
 import static com.labs.dm.auto_tethering.TetherIntents.SERVICE_ON;
+import static com.labs.dm.auto_tethering.TetherIntents.WIFI_DEFAULT_REFRESH;
 
 /**
  * Created by Daniel Mroczka
@@ -151,6 +152,17 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     String styledText = String.format("<small>CID:</small><font color='#00FF40'>%s</font> <small>LAC:</small><font color='#00FF40'>%s</font>", current.getCid(), current.getLac());
                     cell.setTitle("Current Cellular Network:");
                     cell.setSummary(Html.fromHtml(styledText));
+                } else if (WIFI_DEFAULT_REFRESH.equals(intent.getAction())) {
+                    Preference p = findPreference(SSID);
+                    p.setSummary(prefs.getString("default.wifi.network", serviceHelper.getTetheringSSID()));
+                    if (serviceHelper.isTetheringWiFi()) {
+                        serviceHelper.setWifiTethering(false, null);
+                        serviceHelper.setWifiTethering(true, Utils.getDefaultWifiConfiguration(getApplicationContext(), prefs));
+                    } else {
+                        serviceHelper.setWifiTethering(true, Utils.getDefaultWifiConfiguration(getApplicationContext(), prefs));
+                        serviceHelper.setWifiTethering(false, null);
+                    }
+                    Toast.makeText(getApplicationContext(), "Default WiFi Network has been changed to " + p.getSummary(), Toast.LENGTH_LONG).show();
                 }
             }
         };
@@ -159,6 +171,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         filter.addAction(TetherIntents.CLIENTS);
         filter.addAction(TetherIntents.DATA_USAGE);
         filter.addAction(TetherIntents.UNLOCK);
+        filter.addAction(TetherIntents.WIFI_DEFAULT_REFRESH);
         filter.addAction(CHANGE_CELL_FORM);
         registerReceiver(receiver, filter);
     }

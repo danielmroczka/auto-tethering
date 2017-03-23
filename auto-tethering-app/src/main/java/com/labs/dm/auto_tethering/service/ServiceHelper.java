@@ -7,12 +7,14 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.TrafficStats;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.MyLog;
@@ -90,7 +92,9 @@ public class ServiceHelper {
      */
     public String getTetheringSSID() {
         WifiConfiguration cfg = getWifiApConfiguration(context);
-        return cfg != null ? cfg.SSID : "";
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String defaultNetwork = prefs.getString("default.wifi.network", cfg != null ? cfg.SSID : "");
+        return defaultNetwork;
     }
 
     /**
@@ -126,20 +130,16 @@ public class ServiceHelper {
      *
      * @param enable
      */
-    public void setWifiTethering(boolean enable) {
+    public void setWifiTethering(boolean enable, WifiConfiguration netConfig) {
         if (enable) {
             wifiManager.setWifiEnabled(false);
-            //long time = currentThreadTimeMillis();
-            //while (isConnectedToInternetThroughWiFi() && currentThreadTimeMillis() - time < TIMEOUT) {
-            // WAIT
-            //}
         }
         Method[] methods = wifiManager.getClass().getDeclaredMethods();
         for (Method method : methods) {
             if (method.getName().equals("setWifiApEnabled")) {
                 try {
                     MyLog.i(TAG, "setWifiTethering to " + enable);
-                    method.invoke(wifiManager, null, enable);
+                    method.invoke(wifiManager, netConfig, enable);
                 } catch (Exception ex) {
                     MyLog.e(TAG, "Switch on tethering", ex);
                     Toast.makeText(context, ex.getMessage(), Toast.LENGTH_LONG).show();

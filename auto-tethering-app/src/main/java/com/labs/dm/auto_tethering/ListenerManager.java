@@ -1,7 +1,16 @@
 package com.labs.dm.auto_tethering;
 
 import com.labs.dm.auto_tethering.activity.MainActivity;
-import com.labs.dm.auto_tethering.activity.helpers.*;
+import com.labs.dm.auto_tethering.activity.helpers.AbstractRegisterHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterAddSimCardListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterBatteryTemperatureListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterBluetoothListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterCellularListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterDataLimitListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterGeneralListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterIdleListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterSchedulerListenerHelper;
+import com.labs.dm.auto_tethering.activity.helpers.RegisterWiFiListListenerHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +38,7 @@ public class ListenerManager {
         map.put(RegisterGeneralListenerHelper.class, new RegisterGeneralListenerHelper(activity));
         map.put(RegisterDataLimitListenerHelper.class, new RegisterDataLimitListenerHelper(activity));
         map.put(RegisterIdleListenerHelper.class, new RegisterIdleListenerHelper(activity));
+        map.put(RegisterWiFiListListenerHelper.class, new RegisterWiFiListListenerHelper(activity));
         created = true;
     }
 

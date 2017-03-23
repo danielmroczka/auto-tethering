@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="securityTypes">
+        <item>OPEN</item>
+        <item>WPAPSK</item>
+        <item>WPA2PSK</item>
+    </string-array>
+</resources>
