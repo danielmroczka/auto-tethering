@@ -76,6 +76,7 @@ public class WiFiTetheringDialog extends Dialog {
             ssid.setText(entity.getSsid());
             password.setText(entity.getPassword());
             defaultWifi.setChecked(entity.isDefaultWiFi());
+            defaultWifi.setEnabled(!defaultWifi.isChecked());
             hiddenWifi.setChecked(entity.isHidden());
             String[] countryValue = getContext().getResources().getStringArray(R.array.securityTypes);
             for (int i = 0; i < countryValue.length; i++) {
