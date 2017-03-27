@@ -25,12 +25,12 @@ public class WiFiTetheringDialog extends Dialog {
 
     public WiFiTetheringDialog(PreferenceActivity context, WiFiTethering entity) {
         super(context);
-        this.setContentView(R.layout.wifidialog);
+        this.setContentView(R.layout.wifi_dialog);
         this.entity = entity;
-        init();
+        initDialog();
     }
 
-    private void init() {
+    private void initDialog() {
         final EditText ssid = (EditText) findViewById(R.id.ssid);
         final EditText password = (EditText) findViewById(R.id.password);
         final Spinner types = (Spinner) findViewById(R.id.securityType);
