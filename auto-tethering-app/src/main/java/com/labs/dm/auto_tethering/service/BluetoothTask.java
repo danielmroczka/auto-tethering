@@ -63,11 +63,11 @@ class BluetoothTask {
 
         @Override
         public void run() {
-            if (connectedDeviceName == null) {
+            //if (connectedDeviceName == null) {
                 startDiscovery();
-            } else {
-                startConnect(null);
-            }
+            // } else {
+            //     startConnect(Collections.<BluetoothDevice>emptyList());
+            // }
         }
 
         private void startDiscovery() {
@@ -83,11 +83,11 @@ class BluetoothTask {
             context.registerReceiver(btReceiver, filter);
         }
 
-        private void startConnect(List<BluetoothDevice> discoveredDeveices) {
+        private void startConnect(List<BluetoothDevice> discoveredDevices) {
             /* Prepare a list with BluetoothDevice items */
             List<BluetoothDevice> devicesToCheck = Utils.getBluetoothDevices(context, true);
 
-            for (BluetoothDevice discoveredDevice : discoveredDeveices) {
+            for (BluetoothDevice discoveredDevice : discoveredDevices) {
                 for (BluetoothDevice device : devicesToCheck) {
                     if (device.getName() != null && device.getName().equals(discoveredDevice.getName())) {
                         String previousConnectedDeviceName = connectedDeviceName;
