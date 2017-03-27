@@ -3,8 +3,10 @@ package com.labs.dm.auto_tethering.service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.ParcelUuid;
 
@@ -16,6 +18,7 @@ import com.labs.dm.auto_tethering.db.DBManager;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -60,10 +63,45 @@ class BluetoothTask {
 
         @Override
         public void run() {
-            /**
-             * Prepare a list with BluetoothDevice items
-             */
+            if (connectedDeviceName == null) {
+                startDiscovery();
+            } else {
+                startConnect(null);
+            }
+        }
+
+        private void startDiscovery() {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(BluetoothDevice.ACTION_FOUND);
+            filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+            filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+
+            if (BluetoothAdapter.getDefaultAdapter().isDiscovering()) {
+                BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+            }
+            BluetoothAdapter.getDefaultAdapter().startDiscovery();
+            context.registerReceiver(btReceiver, filter);
+        }
+
+        private void startConnect(List<BluetoothDevice> discoveredDeveices) {
+            /* Prepare a list with BluetoothDevice items */
             List<BluetoothDevice> devicesToCheck = Utils.getBluetoothDevices(context, true);
+
+            for (BluetoothDevice discoveredDevice : discoveredDeveices) {
+                for (BluetoothDevice device : devicesToCheck) {
+                    if (device.getName() != null && device.getName().equals(discoveredDevice.getName())) {
+                        String previousConnectedDeviceName = connectedDeviceName;
+                        connectedDeviceName = device.getName();
+                        if (connectedDeviceName != null && (previousConnectedDeviceName == null || !connectedDeviceName.equals(previousConnectedDeviceName))) {
+                            MyLog.i(TAG, "[Discovery] New connection to " + device.getName());
+                            Intent btIntent = new Intent(BT_CONNECTED);
+                            btIntent.putExtra("name", device.getName());
+                            Utils.broadcast(context, btIntent);
+                            return;
+                        }
+                    }
+                }
+            }
 
             if (devicesToCheck.isEmpty() && connectedDeviceName != null) {
                 Intent btIntent = new Intent(BT_DISCONNECTED);
@@ -247,6 +285,34 @@ class BluetoothTask {
                 }
             }
         }
+
+        private final BroadcastReceiver btReceiver = new BroadcastReceiver() {
+
+            private List<BluetoothDevice> devices = new ArrayList<>();
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+
+                switch (action) {
+                    case BluetoothDevice.ACTION_FOUND:
+                        BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                        if (device.getName() != null) {
+                            devices.add(device);
+                        }
+                        MyLog.i(TAG, "Found: " + device.getName() + " " + device.getAddress());
+                        break;
+                    case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
+                        MyLog.i(TAG, "Finished: " + devices.size());
+                        context.unregisterReceiver(this);
+                        startConnect(devices);
+                        break;
+                    case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
+                        MyLog.i(TAG, "Started: ");
+                        break;
+                }
+            }
+        };
     }
 }
 
