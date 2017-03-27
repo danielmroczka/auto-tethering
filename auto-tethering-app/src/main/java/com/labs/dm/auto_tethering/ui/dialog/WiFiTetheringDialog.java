@@ -33,7 +33,6 @@ public class WiFiTetheringDialog extends Dialog {
     private void init() {
         final EditText ssid = (EditText) findViewById(R.id.ssid);
         final EditText password = (EditText) findViewById(R.id.password);
-        final Spinner channels = (Spinner) findViewById(R.id.channel);
         final Spinner types = (Spinner) findViewById(R.id.securityType);
         final CheckBox defaultWifi = (CheckBox) findViewById(R.id.defaultWifi);
         final CheckBox hiddenWifi = (CheckBox) findViewById(R.id.hiddenWifi);
@@ -53,7 +52,6 @@ public class WiFiTetheringDialog extends Dialog {
                     entity.setSsid(ssid.getText().toString());
                     entity.setPassword(password.getText().toString());
                     entity.setType(SECURITY_TYPE.valueOf((String) types.getSelectedItem()));
-                    entity.setChannel(Integer.valueOf(channels.getSelectedItem().toString()));
                     entity.setHidden(hiddenWifi.isChecked());
                     entity.setDefaultWiFi(defaultWifi.isChecked());
 
