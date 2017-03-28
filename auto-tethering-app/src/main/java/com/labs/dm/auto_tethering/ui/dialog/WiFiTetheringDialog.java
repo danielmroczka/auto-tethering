@@ -78,12 +78,15 @@ public class WiFiTetheringDialog extends Dialog {
             defaultWifi.setChecked(entity.isDefaultWiFi());
             defaultWifi.setEnabled(!defaultWifi.isChecked());
             hiddenWifi.setChecked(entity.isHidden());
-            String[] countryValue = getContext().getResources().getStringArray(R.array.securityTypes);
-            for (int i = 0; i < countryValue.length; i++) {
-                if (countryValue[i].equals(entity.getType().name())) {
-                    types.setSelection(i, true);
-                    break;
-                }
+        }
+
+        String defaultSelection = entity != null ? entity.getType().name() : "WPA2PSK";
+
+        String[] securityValues = getContext().getResources().getStringArray(R.array.securityTypes);
+        for (int i = 0; i < securityValues.length; i++) {
+            if (securityValues[i].equals(defaultSelection)) {
+                types.setSelection(i, true);
+                break;
             }
         }
     }

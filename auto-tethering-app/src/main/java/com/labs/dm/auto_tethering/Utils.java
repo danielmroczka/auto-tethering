@@ -352,10 +352,9 @@ public class Utils {
         WifiConfiguration netConfig = null;
         if (wifiTethering != null) {
             netConfig = new WifiConfiguration();
-
             netConfig.SSID = wifiTethering.getSsid();
             netConfig.preSharedKey = wifiTethering.getPassword();
-            netConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+            netConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN | WifiConfiguration.AuthAlgorithm.SHARED);
             netConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN | WifiConfiguration.Protocol.WPA);
             netConfig.allowedKeyManagement.set(wifiTethering.getType().getCode());
             netConfig.hiddenSSID = wifiTethering.isHidden();

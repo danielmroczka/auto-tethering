@@ -1097,7 +1097,11 @@ public class TetheringService extends IntentService {
                 id = msg;
             }
             if (id > 0) {
-                showNotification(getString(id), icon);
+                String text = getString(id);
+                if (id == R.string.notification_tethering_restored) {
+                    text += ": " + prefs.getString("default.wifi.network", "");
+                }
+                showNotification(text, icon);
             }
         }
     }

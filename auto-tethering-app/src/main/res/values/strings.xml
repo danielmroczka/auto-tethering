@@ -51,7 +51,7 @@
     <string name="notification.idle.tethering.off">Turned off WiFi tethering due to clients inactivity</string>
     <string name="notification.internet.restored">Restored internet connection</string>
     <string name="notification.internet.off">Turned off internet connection</string>
-    <string name="notification.tethering.restored">Restored WiFi tethering</string>
+    <string name="notification.tethering.restored">Started WiFi tethering</string>
     <string name="notification.tethering.off">Turned off WiFi tethering</string>
     <string name="notification_scheduled_internet_on">Turned on internet connection at scheduled time</string>
     <string name="notification_scheduled_tethering_on">Turned on WiFi tethering at scheduled time</string>
