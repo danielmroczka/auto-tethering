@@ -47,27 +47,20 @@ class BluetoothTask {
     }
 
     public void execute() {
-        new Thread(new BluetoothThread(context, connectedDeviceName)).start();
+        new Thread(new DiscoveryThread(connectedDeviceName)).start();
+
     }
 
-    private class BluetoothThread implements Runnable {
-        private final ServiceHelper serviceHelper;
-        private final Context context;
+    private class DiscoveryThread implements Runnable {
         private String connectedDeviceName;
 
-        public BluetoothThread(Context context, String connectedDeviceName) {
-            this.serviceHelper = new ServiceHelper(context);
-            this.context = context;
+        public DiscoveryThread(String connectedDeviceName) {
             this.connectedDeviceName = connectedDeviceName;
         }
 
         @Override
         public void run() {
-            if (connectedDeviceName == null) {
-                startDiscovery();
-            } else {
-                startConnect(null);
-            }
+            startDiscovery();
         }
 
         private void startDiscovery() {
@@ -82,6 +75,51 @@ class BluetoothTask {
             BluetoothAdapter.getDefaultAdapter().startDiscovery();
             context.registerReceiver(btReceiver, filter);
         }
+
+        private final BroadcastReceiver btReceiver = new BroadcastReceiver() {
+
+            private List<BluetoothDevice> devices = new ArrayList<>();
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                switch (intent.getAction()) {
+                    case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
+                        MyLog.d(TAG, "BT discovery started");
+                        break;
+                    case BluetoothDevice.ACTION_FOUND:
+                        BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                        if (device.getName() != null) {
+                            devices.add(device);
+                        }
+                        MyLog.d(TAG, "Found: " + device.getName() + " " + device.getAddress());
+                        break;
+                    case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
+                        MyLog.d(TAG, "Finished discovery, found devices: " + devices.size());
+                        context.unregisterReceiver(this);
+                        new Thread(new BluetoothThread(connectedDeviceName, devices)).start();
+                        break;
+                }
+            }
+        };
+    }
+
+    private class BluetoothThread implements Runnable {
+        private final ServiceHelper serviceHelper;
+        private String connectedDeviceName;
+        private List<BluetoothDevice> discoveredDevices;
+
+        public BluetoothThread(String connectedDeviceName, List<BluetoothDevice> discoveredDevices) {
+            this.serviceHelper = new ServiceHelper(context);
+            this.connectedDeviceName = connectedDeviceName;
+            this.discoveredDevices = discoveredDevices;
+        }
+
+        @Override
+        public void run() {
+            startConnect(discoveredDevices);
+        }
+
 
         private void startConnect(List<BluetoothDevice> discoveredDeveices) {
             /* Prepare a list with BluetoothDevice items */
@@ -286,33 +324,7 @@ class BluetoothTask {
             }
         }
 
-        private final BroadcastReceiver btReceiver = new BroadcastReceiver() {
 
-            private List<BluetoothDevice> devices = new ArrayList<>();
-
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-
-                switch (action) {
-                    case BluetoothDevice.ACTION_FOUND:
-                        BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                        if (device.getName() != null) {
-                            devices.add(device);
-                        }
-                        MyLog.i(TAG, "Found: " + device.getName() + " " + device.getAddress());
-                        break;
-                    case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
-                        MyLog.i(TAG, "Finished: " + devices.size());
-                        context.unregisterReceiver(this);
-                        startConnect(devices);
-                        break;
-                    case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
-                        MyLog.i(TAG, "Started: ");
-                        break;
-                }
-            }
-        };
     }
 }
 
