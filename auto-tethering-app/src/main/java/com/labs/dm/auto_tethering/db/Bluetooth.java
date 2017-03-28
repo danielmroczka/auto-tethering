@@ -8,8 +8,8 @@ public class Bluetooth {
 
     private int id;
     private int parcelId;
-    private String name;
-    private String address;
+    private final String name;
+    private final String address;
     private long used;
 
     public int getId() {

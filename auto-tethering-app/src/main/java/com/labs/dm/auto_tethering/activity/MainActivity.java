@@ -47,6 +47,7 @@ import com.labs.dm.auto_tethering.db.DBManager;
 import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
+import com.labs.dm.auto_tethering.ui.dialog.ReleaseDialog;
 
 import java.text.Format;
 import java.util.Date;
@@ -352,17 +353,15 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
                 if (version < BuildConfig.VERSION_CODE) {
                     /** First start after update **/
-                    new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("Release notes " + BuildConfig.VERSION_NAME)
-                            .setMessage(getString(R.string.release_notes))
-                            .setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
-                                    dialog.dismiss();
-                                }
-                            })
-                            .show();
+                    ReleaseDialog dlg = new ReleaseDialog(MainActivity.this);
+                    dlg.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
+                        }
+                    });
+                    dlg.show();
+
                 } else if (version == BuildConfig.VERSION_CODE) {
                     /** Another execution **/
                 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="current">
+        <item>• Modify UI for form default WiFi Network</item>
+        <item>• Change \'release notes\' page</item>
+    </string-array>
+</resources>

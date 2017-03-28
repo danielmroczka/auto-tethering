@@ -25,15 +25,14 @@ public class WiFiTetheringDialog extends Dialog {
 
     public WiFiTetheringDialog(PreferenceActivity context, WiFiTethering entity) {
         super(context);
-        this.setContentView(R.layout.wifidialog);
+        this.setContentView(R.layout.wifi_dialog);
         this.entity = entity;
-        init();
+        initDialog();
     }
 
-    private void init() {
+    private void initDialog() {
         final EditText ssid = (EditText) findViewById(R.id.ssid);
         final EditText password = (EditText) findViewById(R.id.password);
-        final Spinner channels = (Spinner) findViewById(R.id.channel);
         final Spinner types = (Spinner) findViewById(R.id.securityType);
         final CheckBox defaultWifi = (CheckBox) findViewById(R.id.defaultWifi);
         final CheckBox hiddenWifi = (CheckBox) findViewById(R.id.hiddenWifi);
@@ -53,7 +52,6 @@ public class WiFiTetheringDialog extends Dialog {
                     entity.setSsid(ssid.getText().toString());
                     entity.setPassword(password.getText().toString());
                     entity.setType(SECURITY_TYPE.valueOf((String) types.getSelectedItem()));
-                    entity.setChannel(Integer.valueOf(channels.getSelectedItem().toString()));
                     entity.setHidden(hiddenWifi.isChecked());
                     entity.setDefaultWiFi(defaultWifi.isChecked());
 
@@ -78,13 +76,17 @@ public class WiFiTetheringDialog extends Dialog {
             ssid.setText(entity.getSsid());
             password.setText(entity.getPassword());
             defaultWifi.setChecked(entity.isDefaultWiFi());
+            defaultWifi.setEnabled(!defaultWifi.isChecked());
             hiddenWifi.setChecked(entity.isHidden());
-            String[] countryValue = getContext().getResources().getStringArray(R.array.securityTypes);
-            for (int i = 0; i < countryValue.length; i++) {
-                if (countryValue[i].equals(entity.getType().name())) {
-                    types.setSelection(i, true);
-                    break;
-                }
+        }
+
+        String defaultSelection = entity != null ? entity.getType().name() : "WPA2PSK";
+
+        String[] securityValues = getContext().getResources().getStringArray(R.array.securityTypes);
+        for (int i = 0; i < securityValues.length; i++) {
+            if (securityValues[i].equals(defaultSelection)) {
+                types.setSelection(i, true);
+                break;
             }
         }
     }

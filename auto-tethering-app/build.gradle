@@ -49,7 +49,7 @@ android {
         }
     }
 
-    compileSdkVersion 25
+    compileSdkVersion 22
     buildToolsVersion '25.0.2'
 
     defaultConfig {
@@ -57,8 +57,8 @@ android {
         minSdkVersion 9
         maxSdkVersion 23
         targetSdkVersion 21
-        versionCode 63
-        versionName "0.0.63"
+        versionCode 64
+        versionName "0.0.64"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + getDateAsMillis() + "L)"
         buildConfigField "String", "GOOGLE_API_KEY", getMyApiKey("GOOGLE_API_KEY")
@@ -136,7 +136,7 @@ ext {
     ANDROID_BUILD_MIN_SDK_VERSION = 9
     ANDROID_BUILD_TARGET_SDK_VERSION = 22
     ANDROID_BUILD_TOOLS_VERSION = '25.0.2'
-    ANDROID_BUILD_SDK_VERSION = 25
+    ANDROID_BUILD_SDK_VERSION = 22
     SUPPORT_VERSION = '22.2.1'
     MAVEN_VERSION = '1.1.3'
 }

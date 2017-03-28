@@ -21,10 +21,10 @@ import java.util.Map;
  */
 public class DBManager extends SQLiteOpenHelper {
 
-    public final static String DB_NAME = "autowifi.db";
+    private final static String DB_NAME = "autowifi.db";
     private static final int DB_VERSION = 8;
     //TODO to remove because of Lint performance warning: StaticFieldLeak: Static Field Leaks
-    private Context context;
+    private final Context context;
 
     private static DBManager instance;
 

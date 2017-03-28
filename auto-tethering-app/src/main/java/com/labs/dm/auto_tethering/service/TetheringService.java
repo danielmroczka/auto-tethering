@@ -44,6 +44,10 @@ import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_ROAMING_HC;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
+import static com.labs.dm.auto_tethering.AppProperties.BT_TIMER_INTERVAL;
+import static com.labs.dm.auto_tethering.AppProperties.BT_TIMER_START_DELAY;
+import static com.labs.dm.auto_tethering.AppProperties.DATAUSAGE_TIMER_INTERVAL;
+import static com.labs.dm.auto_tethering.AppProperties.DATAUSAGE_TIMER_START_DELAY;
 import static com.labs.dm.auto_tethering.AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
@@ -165,9 +169,9 @@ public class TetheringService extends IntentService {
         bluetoothTask = new BluetoothTimerTask(getApplicationContext());
         bluetoothTimer = new Timer();
         dataUsageTimer = new Timer();
-        dataUsageTimer.schedule(dataUsageTask, 1000, 10000);
+        dataUsageTimer.schedule(dataUsageTask, DATAUSAGE_TIMER_START_DELAY, DATAUSAGE_TIMER_INTERVAL);
         if (prefs.getBoolean("bt.start.discovery", false)) {
-            bluetoothTimer.schedule(bluetoothTask, 5000, 30000);
+            bluetoothTimer.schedule(bluetoothTask, BT_TIMER_START_DELAY, BT_TIMER_INTERVAL);
         }
     }
 
@@ -835,7 +839,7 @@ public class TetheringService extends IntentService {
                 case BT_START_TASKSEARCH:
                     bluetoothTask = new BluetoothTimerTask(getApplicationContext());
                     bluetoothTimer = new Timer();
-                    bluetoothTimer.schedule(bluetoothTask, 0, 30000);
+                    bluetoothTimer.schedule(bluetoothTask, 0, BT_TIMER_INTERVAL);
                     break;
 
                 case BT_START_SEARCH:
@@ -1097,12 +1101,18 @@ public class TetheringService extends IntentService {
                 id = msg;
             }
             if (id > 0) {
-                showNotification(getString(id), icon);
+                String text = getString(id);
+                if (id == R.string.notification_tethering_restored) {
+                    text += ": " + prefs.getString("default.wifi.network", "");
+                } else if (id == R.string.bluetooth_on && connectedDeviceName != null) {
+                    text += " (" + connectedDeviceName + ")";
+                }
+                showNotification(text, icon);
             }
         }
     }
 
-    public void setStatus(Status status) {
+    private void setStatus(Status status) {
         MyLog.d(TAG, "New status = " + status.name());
         previousStatus = this.status;
         this.status = status;

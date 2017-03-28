@@ -93,8 +93,7 @@ public class ServiceHelper {
     public String getTetheringSSID() {
         WifiConfiguration cfg = getWifiApConfiguration(context);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String defaultNetwork = prefs.getString("default.wifi.network", cfg != null ? cfg.SSID : "");
-        return defaultNetwork;
+        return prefs.getString("default.wifi.network", cfg != null ? cfg.SSID : "");
     }
 
     /**

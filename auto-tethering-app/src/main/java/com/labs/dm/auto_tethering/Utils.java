@@ -52,6 +52,9 @@ import static android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID;
  */
 public class Utils {
 
+    private Utils() {
+    }
+
     public static boolean validateTime(final String time) {
         final String TIME24HOURS_PATTERN = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
         Pattern pattern = Pattern.compile(TIME24HOURS_PATTERN);
@@ -209,10 +212,7 @@ public class Utils {
                 Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
                 TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
                 if (v != null) {
-                    //v.setGravity(Gravity.LEFT);
-                    //v.setEllipsize(TextUtils.TruncateAt.MARQUEE);
                     v.setPadding(2, 2, 2, 2);
-
                 }
                 toast.show();
             }
@@ -284,7 +284,7 @@ public class Utils {
             return gpsLocation;
         }
 
-        MyLog.d("Location", "GPS-Network [s]: " + ((gpsLocation.getTime() - networkLocation.getTime())) / 1000);
+        MyLog.d("Location", "GPS-Network [s]: " + (gpsLocation.getTime() - networkLocation.getTime()) / 1000);
 
         if (gpsLocation.getTime() >= networkLocation.getTime()) {
             MyLog.d("Location GPS", "Loc: " + gpsLocation.getLatitude() + " " + gpsLocation.getLongitude());
@@ -352,10 +352,9 @@ public class Utils {
         WifiConfiguration netConfig = null;
         if (wifiTethering != null) {
             netConfig = new WifiConfiguration();
-
             netConfig.SSID = wifiTethering.getSsid();
             netConfig.preSharedKey = wifiTethering.getPassword();
-            netConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+            netConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN | WifiConfiguration.AuthAlgorithm.SHARED);
             netConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN | WifiConfiguration.Protocol.WPA);
             netConfig.allowedKeyManagement.set(wifiTethering.getType().getCode());
             netConfig.hiddenSSID = wifiTethering.isHidden();

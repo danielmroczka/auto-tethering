@@ -37,7 +37,7 @@ public class SimCard {
     public enum STATUS {
         DEFAULT(0), ACTIVE(1);
 
-        private int status;
+        private final int status;
 
         STATUS(int id) {
             this.status = id;

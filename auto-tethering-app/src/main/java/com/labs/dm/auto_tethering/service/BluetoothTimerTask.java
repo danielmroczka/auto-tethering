@@ -10,7 +10,7 @@ import static com.labs.dm.auto_tethering.TetherIntents.BT_START_SEARCH;
 /**
  * Created by Daniel Mroczka on 6/3/2016.
  */
-public class BluetoothTimerTask extends TimerTask {
+class BluetoothTimerTask extends TimerTask {
 
     private final Context context;
 

@@ -51,10 +51,10 @@ import static com.labs.dm.auto_tethering.TetherIntents.CHANGE_CELL;
 public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     private final static int ITEM_COUNT = 2;
-    private PreferenceScreen activateGroupAdd = getPreferenceScreen("cell.activate.group.add");
-    private PreferenceScreen deactivateGroupAdd = getPreferenceScreen("cell.deactivate.group.add");
-    private PreferenceCategory activateList = getPreferenceCategory("cell.activate.list");
-    private PreferenceCategory deactivateList = getPreferenceCategory("cell.deactivate.list");
+    private final PreferenceScreen activateGroupAdd = getPreferenceScreen("cell.activate.group.add");
+    private final PreferenceScreen deactivateGroupAdd = getPreferenceScreen("cell.deactivate.group.add");
+    private final PreferenceCategory activateList = getPreferenceCategory("cell.activate.list");
+    private final PreferenceCategory deactivateList = getPreferenceCategory("cell.deactivate.list");
     private ProgressDialog progress;
 
     public RegisterCellularListenerHelper(MainActivity activity) {
@@ -181,9 +181,9 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     private class AddCellTask extends AsyncTask<Void, Void, Void> {
 
-        private PreferenceGroup list;
-        private CellGroup cellGroup;
-        private PreferenceScreen remove;
+        private final PreferenceGroup list;
+        private final CellGroup cellGroup;
+        private final PreferenceScreen remove;
 
         public AddCellTask(PreferenceGroup list, CellGroup cellGroup, PreferenceScreen remove) {
             this.list = list;
@@ -459,7 +459,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
     }
 
     private class MyLocationListener implements LocationListener {
-        private String TAG;
+        private final String TAG;
 
         public MyLocationListener(String TAG) {
             this.TAG = TAG;
