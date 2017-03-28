@@ -25,6 +25,20 @@ public class AppProperties {
     public static final int GPS_ACCURACY_LIMIT = 10;
 
     /**
+     * Bluetooth timer
+     */
+    public static final int BT_TIMER_INTERVAL = 30000;
+
+    public static final int BT_TIMER_START_DELAY = 5000;
+
+    /**
+     * Data usage timer
+     */
+    public static final int DATAUSAGE_TIMER_INTERVAL = 10000;
+
+    public static final int DATAUSAGE_TIMER_START_DELAY = 1000;
+
+    /**
      * Time when GPS request update has been switched off
      */
     public static final int GPS_UPDATE_TIMEOUT = 5000; //ms
