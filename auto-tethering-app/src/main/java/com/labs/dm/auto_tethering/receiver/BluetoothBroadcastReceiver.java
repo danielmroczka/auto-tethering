@@ -1,14 +1,11 @@
 package com.labs.dm.auto_tethering.receiver;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.Utils;
@@ -31,35 +28,16 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if (prefs.getBoolean("bt.incoming.listen", false)) {
-            int state;
             BluetoothDevice bluetoothDevice;
-
+            boolean isTethering = new ServiceHelper(context).isTetheringWiFi();
             switch (intent.getAction()) {
-                case BluetoothAdapter.ACTION_STATE_CHANGED:
-                    //case BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED:
-                    state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
-                    if (state == BluetoothAdapter.STATE_OFF) {
-                        Toast.makeText(context, "Bluetooth is off", Toast.LENGTH_SHORT).show();
-                        Log.d("BroadcastActions", "Bluetooth is off");
-                    } else if (state == BluetoothAdapter.STATE_TURNING_OFF) {
-                        Toast.makeText(context, "Bluetooth is turning off", Toast.LENGTH_SHORT).show();
-                        Log.d("BroadcastActions", "Bluetooth is turning off");
-                    } else if (state == BluetoothAdapter.STATE_ON) {
-                        Log.d("BroadcastActions", "Bluetooth is on");
-                    }
-                    break;
-
                 case BluetoothDevice.ACTION_ACL_CONNECTED:
                     bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    Toast.makeText(context, "Connected to " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
-                    Log.d("BroadcastActions", "Connected to " + bluetoothDevice.getName());
-
-                    if (!new ServiceHelper(context).isTetheringWiFi()) {
-
+                    if (!isTethering) {
                         List<BluetoothDevice> devicesToCheck = Utils.getBluetoothDevices(context, true);
                         for (BluetoothDevice device : devicesToCheck) {
                             if (device.getName() != null && device.getName().equals(bluetoothDevice.getName())) {
-                                MyLog.i(TAG, "[Discovery] New connection to " + bluetoothDevice.getName());
+                                MyLog.i(TAG, "New connection to " + bluetoothDevice.getName());
                                 Intent btIntent = new Intent(BT_CONNECTED);
                                 btIntent.putExtra("name", bluetoothDevice.getName());
                                 Utils.broadcast(context, btIntent);
@@ -70,13 +48,12 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
                     break;
 
                 case BluetoothDevice.ACTION_ACL_DISCONNECTED:
-                    bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    Toast.makeText(context, "Disconnected from " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
-
-                    Intent btIntent = new Intent(BT_DISCONNECTED);
-                    btIntent.putExtra("name", bluetoothDevice.getName());
-                    Utils.broadcast(context, btIntent);
-                    //connectedDeviceName = null;
+                    if (isTethering) {
+                        bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                        Intent btIntent = new Intent(BT_DISCONNECTED);
+                        btIntent.putExtra("name", bluetoothDevice.getName());
+                        Utils.broadcast(context, btIntent);
+                    }
                     break;
             }
         }
