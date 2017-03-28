@@ -324,7 +324,33 @@ class BluetoothTask {
             }
         }
 
+        private final BroadcastReceiver btReceiver = new BroadcastReceiver() {
 
+            private List<BluetoothDevice> devices = new ArrayList<>();
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+
+                switch (action) {
+                    case BluetoothDevice.ACTION_FOUND:
+                        BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                        if (device.getName() != null) {
+                            devices.add(device);
+                        }
+                        MyLog.i(TAG, "Found: " + device.getName() + " " + device.getAddress());
+                        break;
+                    case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
+                        MyLog.i(TAG, "Finished: " + devices.size());
+                        context.unregisterReceiver(this);
+                        startConnect(devices);
+                        break;
+                    case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
+                        MyLog.i(TAG, "Started: ");
+                        break;
+                }
+            }
+        };
     }
 }
 
