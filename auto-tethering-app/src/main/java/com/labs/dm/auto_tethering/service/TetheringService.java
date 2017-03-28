@@ -1102,7 +1102,7 @@ public class TetheringService extends IntentService {
         }
     }
 
-    public void setStatus(Status status) {
+    private void setStatus(Status status) {
         MyLog.d(TAG, "New status = " + status.name());
         previousStatus = this.status;
         this.status = status;

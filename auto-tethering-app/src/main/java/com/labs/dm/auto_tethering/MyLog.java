@@ -17,11 +17,11 @@ import java.util.List;
 
 public class MyLog {
     private static final DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
-    private static List<Item> log = new ArrayList<>();
+    private static final List<Item> log = new ArrayList<>();
 
     static class Item {
         private final int level;
-        private String content;
+        private final String content;
 
         Item(int level, String content) {
             this.level = level;

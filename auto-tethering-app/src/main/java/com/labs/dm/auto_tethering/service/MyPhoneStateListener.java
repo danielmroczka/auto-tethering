@@ -11,9 +11,9 @@ import static com.labs.dm.auto_tethering.TetherIntents.CHANGE_CELL;
  * Created by Daniel Mroczka on 20-Dec-16.
  */
 
-public class MyPhoneStateListener extends PhoneStateListener {
+class MyPhoneStateListener extends PhoneStateListener {
 
-    private Context context;
+    private final Context context;
 
     public MyPhoneStateListener(Context context) {
         this.context = context;

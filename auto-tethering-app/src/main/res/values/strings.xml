@@ -6,7 +6,7 @@
     <string name="activate.title">Activation</string>
     <string name="scheduler">Turn off tethering and internet connection for specified hours</string>
     <string name="enter.value">Enter value</string>
-    <string name="ssid">SSID Tethering network</string>
+    <string name="ssid">SSID WiFi hotspot</string>
     <string name="activate3g.summary">Force to activate mobile data after startup</string>
     <string name="activate3g.title">Mobile connection</string>
     <string name="activateTethering.summary">Force to activate WiFi tethering after startup</string>
@@ -26,7 +26,7 @@
     <string name="adv.activity.setting.summary">Advanced activity settings</string>
     <string name="startup.activity.screen.summary">Startup activity settings</string>
     <string name="revert.to.default">Revert to default settings</string>
-    <string name="ssid.conf">SSID Configuration</string>
+    <string name="ssid.conf">WiFi hotspot configuration</string>
     <string name="other.settings">Administration</string>
     <string name="enter.value.minutes">Enter value in minutes</string>
     <string name="turn.off.internet.idle.title">Internet connection</string>

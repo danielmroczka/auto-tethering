@@ -357,15 +357,15 @@
             </PreferenceScreen>
             <PreferenceCategory
                 android:key="wifi.list"
-                android:title="WiFi tethering network list">
+                android:title="Portable Wi-Fi hotspot list">
                 <PreferenceScreen
                     android:icon="@drawable/ic_add"
                     android:key="wifi.add.device"
-                    android:title="Add WiFi network" />
+                    android:title="Add WiFi hotspot" />
                 <PreferenceScreen
                     android:icon="@drawable/ic_edit"
                     android:key="wifi.modify.device"
-                    android:title="Modify WiFi network" />
+                    android:title="Modify WiFi hotspot" />
                 <PreferenceScreen
                     android:icon="@drawable/ic_remove"
                     android:key="wifi.remove.device"

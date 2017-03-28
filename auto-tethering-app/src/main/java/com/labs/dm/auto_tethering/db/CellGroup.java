@@ -6,7 +6,8 @@ package com.labs.dm.auto_tethering.db;
 public class CellGroup {
     public final static String NAME = "CELL_GROUP";
     private int id, status;
-    private String name, type;
+    private final String name;
+    private final String type;
 
     public CellGroup(String name, String type, int status) {
         this.type = type;

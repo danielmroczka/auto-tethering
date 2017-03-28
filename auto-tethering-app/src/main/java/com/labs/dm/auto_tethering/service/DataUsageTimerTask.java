@@ -16,7 +16,7 @@ import java.util.TimerTask;
 /**
  * Created by Daniel Mroczka on 6/3/2016.
  */
-public class DataUsageTimerTask extends TimerTask {
+class DataUsageTimerTask extends TimerTask {
     private static final String TAG = "DataUsageTimerTask";
     private final Context context;
     private final SharedPreferences prefs;
