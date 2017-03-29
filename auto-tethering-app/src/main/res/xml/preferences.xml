@@ -143,13 +143,13 @@
                 <CheckBoxPreference
                     android:defaultValue="false"
                     android:key="bt.incoming.listen"
-                    android:summary="Listen for BT connection"
+                    android:summary="Activate tethering once Bluetooth connection with preferred devices has been established"
                     android:title="Listen for BT connection" />
                 <CheckBoxPreference
                     android:defaultValue="false"
                     android:key="bt.start.discovery"
-                    android:summary="Check periodically preferred devices if they are available"
-                    android:title="Find Bluetooth devices" />
+                    android:summary="Check periodically if preferred Bluetooth devices are nearby"
+                    android:title="Scan for BT devices" />
                 <PreferenceCategory
                     android:key="bt.list"
                     android:title="Bluetooth devices whitelist">
