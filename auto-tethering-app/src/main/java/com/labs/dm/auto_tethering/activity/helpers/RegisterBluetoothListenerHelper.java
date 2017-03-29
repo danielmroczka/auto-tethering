@@ -2,8 +2,10 @@ package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -18,6 +20,7 @@ import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.db.Bluetooth;
+import com.labs.dm.auto_tethering.receiver.BluetoothBroadcastReceiver;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
 import java.util.Date;
@@ -147,6 +150,22 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
             }
         });
         btCheckBox.setChecked(prefs.getBoolean("bt.start.discovery", false));
+
+        final CheckBoxPreference listenCheckBox = getCheckBoxPreference("bt.incoming.listen");
+        listenCheckBox.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                final ComponentName componentName = new ComponentName(activity, BluetoothBroadcastReceiver.class);
+                int state = activity.getPackageManager().getComponentEnabledSetting(componentName);
+
+                if (state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+                    activity.getApplicationContext().getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DEFAULT, PackageManager.DONT_KILL_APP);
+                    Toast.makeText(activity, R.string.on_startup_enable, Toast.LENGTH_LONG).show();
+                }
+
+                return true;
+            }
+        });
     }
 
     private void buildAdapter(DialogInterface dialog, int which, ArrayAdapter<String> arrayAdapter, List<Bluetooth> devices, Set<BluetoothDevice> pairedDevices, PreferenceCategory category) {

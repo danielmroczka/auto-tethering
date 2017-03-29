@@ -12,6 +12,7 @@ import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.db.Bluetooth;
 import com.labs.dm.auto_tethering.db.DBManager;
+import com.labs.dm.auto_tethering.ui.BluetoothLock;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -37,6 +38,7 @@ class BluetoothTask {
     private final String TAG = "FindBT";
     private final String connectedDeviceName;
     private final Context context;
+    private boolean cancel;
 
     public BluetoothTask(Context context, String connectedDeviceName) {
         this.context = context;
@@ -60,6 +62,10 @@ class BluetoothTask {
 
         @Override
         public void run() {
+            if (BluetoothLock.connectedFromReceiver) {
+                return;
+            }
+
             /**
              * Prepare a list with BluetoothDevice items
              */
@@ -98,7 +104,6 @@ class BluetoothTask {
                 }
 
                 try {
-
                     connect(device);
                     String previousConnectedDeviceName = connectedDeviceName;
                     connectedDeviceName = device.getName();
@@ -122,6 +127,8 @@ class BluetoothTask {
 
                 if (btIntent != null) {
                     btIntent.putExtra("name", device.getName());
+                    btIntent.putExtra("source", "task");
+                    BluetoothLock.fromTask = true;
                     Utils.broadcast(context, btIntent);
                     break;
                 }

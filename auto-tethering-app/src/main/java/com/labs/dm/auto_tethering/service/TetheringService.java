@@ -35,6 +35,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
+import static android.content.Intent.ACTION_BATTERY_CHANGED;
 import static android.os.Build.VERSION;
 import static android.os.Build.VERSION_CODES;
 import static android.telephony.PhoneStateListener.LISTEN_NONE;
@@ -146,7 +147,7 @@ public class TetheringService extends IntentService {
 
     private final String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF,
             BT_STOP, BT_CONNECTED, BT_DISCONNECTED, BT_START_SEARCH, BT_START_TASKSEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPERATURE_BELOW_LIMIT, CHANGE_NETWORK_STATE, TetherIntents.TETHER_ON, TetherIntents.TETHER_OFF, TetherIntents.INTERNET_ON, TetherIntents.INTERNET_OFF,
-            EVENT_TETHER_OFF, EVENT_TETHER_ON, EVENT_MOBILE_OFF, EVENT_MOBILE_ON, EVENT_WIFI_OFF, EVENT_WIFI_ON, SERVICE_ON, CHANGE_CELL, Intent.ACTION_BATTERY_CHANGED
+            EVENT_TETHER_OFF, EVENT_TETHER_ON, EVENT_MOBILE_OFF, EVENT_MOBILE_ON, EVENT_WIFI_OFF, EVENT_WIFI_ON, SERVICE_ON, CHANGE_CELL, ACTION_BATTERY_CHANGED
     };
 
     public TetheringService() {
@@ -715,7 +716,7 @@ public class TetheringService extends IntentService {
     private class TetheringServiceReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (!Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
+            if (!ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
                 MyLog.i(TAG, intent.getAction());
             }
             switch (intent.getAction()) {
@@ -899,7 +900,7 @@ public class TetheringService extends IntentService {
                     sendBroadcast(new Intent(TetherIntents.CHANGE_CELL_FORM));
                     break;
 
-                case Intent.ACTION_BATTERY_CHANGED:
+                case ACTION_BATTERY_CHANGED:
                     if (prefs.getBoolean("usb.off.battery.lvl", false)) {
                         int declaredLevel = Integer.parseInt(prefs.getString("usb.off.battery.lvl.value", "15"));
                         int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);

@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
+import com.labs.dm.auto_tethering.ui.BluetoothLock;
 
 import java.util.List;
 
@@ -25,6 +26,10 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        if (BluetoothLock.fromTask) {
+            BluetoothLock.fromTask = false;
+            return;
+        }
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if (prefs.getBoolean("bt.incoming.listen", false)) {
@@ -32,6 +37,7 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
             boolean isTethering = new ServiceHelper(context).isTetheringWiFi();
             switch (intent.getAction()) {
                 case BluetoothDevice.ACTION_ACL_CONNECTED:
+                    BluetoothLock.connectedFromReceiver = true;
                     bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     if (!isTethering) {
                         List<BluetoothDevice> devicesToCheck = Utils.getBluetoothDevices(context, true);
@@ -44,6 +50,9 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
                                 break;
                             }
                         }
+                        if (devicesToCheck.isEmpty()) {
+                            Utils.showToast(context, "Bluetooth connection established but there are no preferred devices!");
+                        }
                     }
                     break;
 
@@ -54,6 +63,7 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
                         btIntent.putExtra("name", bluetoothDevice.getName());
                         Utils.broadcast(context, btIntent);
                     }
+                    BluetoothLock.connectedFromReceiver = false;
                     break;
             }
         }
