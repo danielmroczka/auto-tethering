@@ -143,7 +143,7 @@
                 <CheckBoxPreference
                     android:defaultValue="false"
                     android:key="bt.incoming.listen"
-                    android:summary="Activate tethering once Bluetooth connection with preferred devices has been established"
+                    android:summary="Activate tethering once Bluetooth connection to preferred devices has been established"
                     android:title="Listen for BT connection" />
                 <CheckBoxPreference
                     android:defaultValue="false"
