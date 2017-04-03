@@ -38,7 +38,6 @@ class BluetoothTask {
     private final String TAG = "FindBT";
     private final String connectedDeviceName;
     private final Context context;
-    private boolean cancel;
 
     public BluetoothTask(Context context, String connectedDeviceName) {
         this.context = context;
