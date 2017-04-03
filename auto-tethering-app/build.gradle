@@ -57,8 +57,8 @@ android {
         minSdkVersion 9
         maxSdkVersion 23
         targetSdkVersion 21
-        versionCode 64
-        versionName "0.0.64"
+        versionCode 65
+        versionName "0.0.65"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + getDateAsMillis() + "L)"
         buildConfigField "String", "GOOGLE_API_KEY", getMyApiKey("GOOGLE_API_KEY")
@@ -69,8 +69,8 @@ android {
     }
 }
 
-static def getDateAsMillis() {
-    def Calendar cal = Calendar.getInstance();
+static getDateAsMillis() {
+    Calendar cal = Calendar.getInstance()
     return cal.getTimeInMillis().toString()
 }
 
@@ -82,7 +82,7 @@ dependencies {
 //    compile 'com.jakewharton:butterknife:8.5.1'
 //    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
     compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
-        transitive = true;
+        transitive = true
     }
     //testCompile -->
     testCompile 'junit:junit:4.12'
@@ -96,7 +96,7 @@ dependencies {
     androidTestCompile 'org.mockito:mockito-core:2.7.14'
 }
 
-def Properties props = new Properties()
+Properties props = new Properties()
 def propFile = new File(System.properties['user.home'] + '/.gradle/gradle.properties')
 
 if (propFile.canRead()) {
