@@ -57,8 +57,8 @@ android {
         minSdkVersion 9
         maxSdkVersion 23
         targetSdkVersion 21
-        versionCode 65
-        versionName "0.0.65"
+        versionCode 66
+        versionName "0.0.66"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + getDateAsMillis() + "L)"
         buildConfigField "String", "GOOGLE_API_KEY", getMyApiKey("GOOGLE_API_KEY")
@@ -81,6 +81,7 @@ dependencies {
 //    annotationProcessor 'com.google.dagger:dagger-compiler:2.9'
 //    compile 'com.jakewharton:butterknife:8.5.1'
 //    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+    compile 'de.cketti.library.changelog:ckchangelog:1.2.2@aar'
     compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
         transitive = true
     }

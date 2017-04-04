@@ -47,12 +47,12 @@ import com.labs.dm.auto_tethering.db.DBManager;
 import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 import com.labs.dm.auto_tethering.service.TetheringService;
-import com.labs.dm.auto_tethering.ui.dialog.ReleaseDialog;
 
 import java.text.Format;
 import java.util.Date;
 import java.util.Map;
 
+import de.cketti.library.changelog.ChangeLog;
 import io.fabric.sdk.android.Fabric;
 
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
@@ -351,16 +351,16 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
                 }
 
-                if (version < BuildConfig.VERSION_CODE) {
+                if (true) {
                     /** First start after update **/
-                    ReleaseDialog dlg = new ReleaseDialog(MainActivity.this);
-                    dlg.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    ChangeLog cl = new ChangeLog(MainActivity.this);
+                    cl.getLogDialog().show();
+                    cl.getLogDialog().setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialog) {
                             prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
                         }
                     });
-                    dlg.show();
 
                 } else if (version == BuildConfig.VERSION_CODE) {
                     /** Another execution **/

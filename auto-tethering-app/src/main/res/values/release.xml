@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string-array name="current">
-        <item>• Add \'Listen for Bluetooth connection\' feature. Triggers tethering once connection to Bluetooth device has been established</item>
-        <item>• Add info in status bar about source (device name) of Bluetooth activation</item>
-        <item>• Add info in status bar about WiFi hotspot name</item>
-    </string-array>
-</resources>
