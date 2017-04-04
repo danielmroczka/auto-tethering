@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
-        version="0.0.66"
-        versioncode="66">
+        version="0.0.67"
+        versioncode="67">
         <change>New changelog dialog</change>
     </release>
     <release

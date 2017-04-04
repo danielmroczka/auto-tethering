@@ -351,17 +351,13 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                     prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
                 }
 
-                if (true) {
+                if (version < BuildConfig.VERSION_CODE) {
                     /** First start after update **/
                     ChangeLog cl = new ChangeLog(MainActivity.this);
-                    cl.getLogDialog().show();
-                    cl.getLogDialog().setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
-                        }
-                    });
-
+                    if (cl.isFirstRun()) {
+                        cl.getLogDialog().show();
+                    }
+                    prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
                 } else if (version == BuildConfig.VERSION_CODE) {
                     /** Another execution **/
                 }
