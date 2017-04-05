@@ -9,6 +9,10 @@ android:
     - android-25
 jdk:
   - oraclejdk8
+licenses:
+  - 'android-sdk-preview-license-.+'
+  - 'android-sdk-license-.+'
+  - 'google-gdk-license-.+'
 before_install:
   # Gradle
   - echo y | android update sdk --no-ui --all --filter "tools"
