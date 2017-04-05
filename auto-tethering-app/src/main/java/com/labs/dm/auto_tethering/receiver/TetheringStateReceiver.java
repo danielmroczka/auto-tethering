@@ -54,9 +54,9 @@ public class TetheringStateReceiver extends BroadcastReceiver {
     private void vibrate(Context context, int state) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if (prefs.getBoolean("vibrate.on.tethering", false)) {
-            Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-            if (v != null && (state == WIFI_STATE_DISABLED || state == WIFI_STATE_ENABLED)) {
-                v.vibrate(200);
+            Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+            if (vibrator != null && (state == WIFI_STATE_DISABLED || state == WIFI_STATE_ENABLED)) {
+                vibrator.vibrate(200);
             }
         }
     }

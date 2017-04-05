@@ -65,8 +65,8 @@ class BluetoothTask {
                 return;
             }
 
-            /**
-             * Prepare a list with BluetoothDevice items
+            /*
+              Prepare a list with BluetoothDevice items
              */
             List<BluetoothDevice> devicesToCheck = Utils.getBluetoothDevices(context, true);
 
@@ -79,8 +79,8 @@ class BluetoothTask {
             }
 
             if (!devicesToCheck.isEmpty() && !BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                /**
-                 * Make sure that BT is enabled.
+                /*
+                  Make sure that BT is enabled.
                  */
                 serviceHelper.setBluetoothStatus(true);
             }
@@ -95,8 +95,8 @@ class BluetoothTask {
             MyLog.d(TAG, "Start interrupting " + devicesToCheck.size() + " devices");
 
             for (BluetoothDevice device : devicesToCheck) {
-                /**
-                 * If device is currently connected just only check this one without checking others to improve performance
+                /*
+                  If device is currently connected just only check this one without checking others to improve performance
                  */
                 if (connectedDeviceName != null && !connectedDeviceName.equals(device.getName())) {
                     continue;
