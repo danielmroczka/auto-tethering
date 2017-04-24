@@ -23,14 +23,6 @@ public class CellGroup {
         return id;
     }
 
-    public void toggle() {
-        if (getStatus() == STATUS.ENABLED.getValue()) {
-            status = STATUS.DISABLED.getValue();
-        } else if (getStatus() == STATUS.DISABLED.getValue()) {
-            status = STATUS.ENABLED.getValue();
-        }
-    }
-
     public void setId(int id) {
         this.id = id;
     }

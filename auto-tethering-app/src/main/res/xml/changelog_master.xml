@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
+        version="0.0.68"
+        versioncode="68">
+        <change>Fixed WiFi network validation dialog</change>
+        <change>Fixed Listen for BT connection setting</change>
+    </release>
+    <release
         version="0.0.67"
         versioncode="67">
         <change>New changelog dialog</change>

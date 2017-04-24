@@ -156,11 +156,12 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 final ComponentName componentName = new ComponentName(activity, BluetoothBroadcastReceiver.class);
-                int state = activity.getPackageManager().getComponentEnabledSetting(componentName);
 
-                if (state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
-                    activity.getApplicationContext().getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DEFAULT, PackageManager.DONT_KILL_APP);
-                    Toast.makeText(activity, R.string.on_startup_enable, Toast.LENGTH_LONG).show();
+                if (listenCheckBox.isChecked()) {
+                    activity.getApplicationContext().getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+                    Toast.makeText(activity, "Listen to Bluetooth Connection activated", Toast.LENGTH_LONG).show();
+                } else {
+                    activity.getApplicationContext().getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
                 }
 
                 return true;

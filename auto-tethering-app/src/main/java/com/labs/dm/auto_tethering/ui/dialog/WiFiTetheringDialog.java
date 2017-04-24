@@ -4,11 +4,11 @@ import android.app.Dialog;
 import android.preference.PreferenceActivity;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.db.WiFiTethering;
@@ -37,11 +37,10 @@ public class WiFiTetheringDialog extends Dialog {
         final CheckBox defaultWifi = (CheckBox) findViewById(R.id.defaultWifi);
         final CheckBox hiddenWifi = (CheckBox) findViewById(R.id.hiddenWifi);
 
-        initComponents(ssid, password, types, defaultWifi, hiddenWifi);
         setTitle(entity == null ? "New WiFi Hotspot" : "Modify WiFi Hotspot");
 
-        final Button btn = (Button) findViewById(R.id.saveBtn);
-        btn.setOnClickListener(new View.OnClickListener() {
+        final Button saveBtn = (Button) findViewById(R.id.saveBtn);
+        saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (validate()) {
@@ -56,8 +55,6 @@ public class WiFiTetheringDialog extends Dialog {
                     entity.setDefaultWiFi(defaultWifi.isChecked());
 
                     dismiss();
-                } else {
-                    Toast.makeText(getContext(), "Please fill all required fields!\nMinimal length of password is 8, maximal length is 63", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -69,6 +66,19 @@ public class WiFiTetheringDialog extends Dialog {
                 hide();
             }
         });
+
+        types.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                password.setEnabled(!"OPEN".equalsIgnoreCase(parent.getSelectedItem().toString()));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        initComponents(ssid, password, types, defaultWifi, hiddenWifi);
     }
 
     private void initComponents(EditText ssid, EditText password, Spinner types, CheckBox defaultWifi, CheckBox hiddenWifi) {
@@ -96,7 +106,19 @@ public class WiFiTetheringDialog extends Dialog {
         final EditText password = (EditText) findViewById(R.id.password);
         final Spinner types = (Spinner) findViewById(R.id.securityType);
 
-        return !(TextUtils.isEmpty(ssid.getText()) || (!types.getSelectedItem().equals("OPEN") && (TextUtils.isEmpty(password.getText()) || password.getText().length() < 8)));
+        if (TextUtils.isEmpty(ssid.getText())) {
+            ssid.requestFocus();
+            ssid.setError("SSID cannot be empty");
+            return false;
+        }
+
+        if (!types.getSelectedItem().equals("OPEN") && (TextUtils.getTrimmedLength(password.getText()) < 8)) {
+            password.requestFocus();
+            password.setError("Password cannot be empty");
+            return false;
+        }
+
+        return true;
     }
 
     public WiFiTethering getEntity() {
