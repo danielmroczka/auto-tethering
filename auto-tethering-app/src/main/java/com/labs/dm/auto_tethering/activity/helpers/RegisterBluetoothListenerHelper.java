@@ -40,6 +40,8 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
 
     @Override
     public void registerUIListeners() {
+        final ServiceHelper serviceHelper = new ServiceHelper(activity);
+
         getPreferenceScreen("screen.bluetooth").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -160,14 +162,25 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                 if (listenCheckBox.isChecked()) {
                     activity.getApplicationContext().getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
                     Toast.makeText(activity, "Listen to Bluetooth Connection activated", Toast.LENGTH_LONG).show();
+
+                    if (!serviceHelper.isBluetoothActive()) {
+                        serviceHelper.setBluetoothStatus(true);
+                        activated = true;
+                    }
                 } else {
                     activity.getApplicationContext().getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+                    if (activated && serviceHelper.isBluetoothActive()) {
+                        serviceHelper.setBluetoothStatus(false);
+                        activated = false;
+                    }
                 }
 
                 return true;
             }
         });
     }
+
+    boolean activated;
 
     private void buildAdapter(DialogInterface dialog, int which, ArrayAdapter<String> arrayAdapter, List<Bluetooth> devices, Set<BluetoothDevice> pairedDevices, PreferenceCategory category) {
         if (which >= 0) {
