@@ -34,6 +34,8 @@ import static com.labs.dm.auto_tethering.AppProperties.MAX_BT_DEVICES;
  */
 public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
 
+    private boolean activated;
+
     public RegisterBluetoothListenerHelper(MainActivity activity) {
         super(activity);
     }
@@ -179,8 +181,6 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
             }
         });
     }
-
-    boolean activated;
 
     private void buildAdapter(DialogInterface dialog, int which, ArrayAdapter<String> arrayAdapter, List<Bluetooth> devices, Set<BluetoothDevice> pairedDevices, PreferenceCategory category) {
         if (which >= 0) {

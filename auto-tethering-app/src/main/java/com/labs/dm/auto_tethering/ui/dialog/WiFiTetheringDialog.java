@@ -108,13 +108,13 @@ public class WiFiTetheringDialog extends Dialog {
 
         if (TextUtils.isEmpty(ssid.getText())) {
             ssid.requestFocus();
-            ssid.setError("SSID cannot be empty");
+            ssid.setError("SSID name cannot be empty!");
             return false;
         }
 
         if (!types.getSelectedItem().equals("OPEN") && (TextUtils.getTrimmedLength(password.getText()) < 8)) {
             password.requestFocus();
-            password.setError("Password cannot be empty");
+            password.setError("Password cannot be shorter than 8 characters!");
             return false;
         }
 
