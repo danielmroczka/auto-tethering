@@ -36,13 +36,13 @@ RELEASE_KEY_PASSWORD=*****
 ```
 Build app: gradle build
 
-Example of [gradle.properties] (https://gist.github.com/danielmroczka/b93eb61e4583c21da2a3) and [local.properties] (https://gist.github.com/danielmroczka/246afe588f1841f6ffef) templates.
+Example of [gradle.properties](https://gist.github.com/danielmroczka/b93eb61e4583c21da2a3) and [local.properties](https://gist.github.com/danielmroczka/246afe588f1841f6ffef) templates.
 
-More about signing apk files you may find [here] (http://developer.android.com/tools/publishing/app-signing.html)
+More about signing apk files you may find [here](http://developer.android.com/tools/publishing/app-signing.html)
 
-Application is using [OpenCellID API] (http://opencellid.org/) and therefore it requires to create account and provide API_KEY.
-Once you get a key you need create a file in root folder of project [api.key] (https://gist.github.com/danielmroczka/e9eaf9baf821eb5ad180913485018c6d) and add line OPEN_CELL_ID_API_KEY=<your key>
+Application is using [OpenCellID API](http://opencellid.org/) and therefore it requires to create account and provide API_KEY.
+Once you get a key you need create a file in root folder of project [api.key](https://gist.github.com/danielmroczka/e9eaf9baf821eb5ad180913485018c6d) and add line OPEN_CELL_ID_API_KEY=<your key>
 Otherwise application cannot retrieve cellular towers location.
 
 ## Google Play app
-Built application you may install here: [Auto WiFi Tethering] (https://play.google.com/store/apps/details?id=com.labs.dm.auto_tethering)
+Built application you may install here: [Auto WiFi Tethering](https://play.google.com/store/apps/details?id=com.labs.dm.auto_tethering)
