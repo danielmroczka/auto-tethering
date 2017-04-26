@@ -25,6 +25,7 @@ Features still under development:
 - [x] control data usage and deactivates tethering once the limit is exceeded
 - [x] monitoring battery temperature and suspend tethering if limit exceeds
 - [x] activate/deactivate tethering on configured cellular networks
+- [x] stores up to 10 WiFi tethering settings and selects one as default
 
 ## Usage
 Signing apk needs to set credentials in local file gradle.properties (expected location in folder ~/.gradle) and add following settings:
