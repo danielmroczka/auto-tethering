@@ -49,14 +49,14 @@ android {
         }
     }
 
-    compileSdkVersion 25
+    compileSdkVersion 22
     buildToolsVersion '25.0.2'
 
     defaultConfig {
         applicationId "com.labs.dm.auto_tethering"
         minSdkVersion 9
         maxSdkVersion 23
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode 68
         versionName "0.0.68"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
