@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
+        version="0.0.69"
+        versioncode="69">
+        <change>Added support for Android 7.x</change>
+    </release>
+    <release
         version="0.0.68"
         versioncode="68">
         <change>Fixed WiFi network validation dialog</change>

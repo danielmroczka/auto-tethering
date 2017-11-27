@@ -95,7 +95,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                                     public void onClick(DialogInterface dialog, int which) {
                                         buildAdapter(dialog, which, arrayAdapter, devices, pairedDevices, list);
                                         if (!prefs.getBoolean("bt.start.discovery", false)) {
-                                            Toast.makeText(activity, "You have successfully added device but you haven't select 'Find Bluetooth devices'\nSo long this option is unselected background service won't find Bluetooth devices!", Toast.LENGTH_LONG).show();
+                                            Toast.makeText(activity, "You have successfully added device but you haven't select 'Scan for Bluetooth devices'\nUntil this option is selected, background service won't find Bluetooth devices!", Toast.LENGTH_LONG).show();
                                         }
                                     }
                                 }

@@ -55,10 +55,10 @@ android {
     defaultConfig {
         applicationId "com.labs.dm.auto_tethering"
         minSdkVersion 9
-        maxSdkVersion 23
+        maxSdkVersion 25
         targetSdkVersion 22
-        versionCode 68
-        versionName "0.0.68"
+        versionCode 69
+        versionName "0.0.69"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + getDateAsMillis() + "L)"
         buildConfigField "String", "GOOGLE_API_KEY", getMyApiKey("GOOGLE_API_KEY")
