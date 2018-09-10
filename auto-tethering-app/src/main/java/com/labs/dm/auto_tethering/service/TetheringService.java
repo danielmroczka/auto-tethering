@@ -941,7 +941,6 @@ public class TetheringService extends IntentService {
     }
 
     private void onWifiOff() {
-
     }
 
     private void onMobileOn() {

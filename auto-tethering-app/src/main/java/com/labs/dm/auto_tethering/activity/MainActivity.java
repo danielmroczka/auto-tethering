@@ -481,8 +481,10 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         switch (key) {
             case ACTIVATE_3G:
                 sendBroadcast(new Intent(SERVICE_ON));
+                break;
             case ACTIVATE_TETHERING:
                 sendBroadcast(new Intent(SERVICE_ON));
+                break;
             case ACTIVATE_ON_STARTUP: {
                 ((CheckBoxPreference) findPreference(key)).setChecked(sharedPreferences.getBoolean(key, false));
                 break;

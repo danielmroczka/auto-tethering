@@ -120,7 +120,7 @@ public class Utils {
             try {
                 onPendingIntent.send();
             } catch (PendingIntent.CanceledException e) {
-                MyLog.e("Util", e.getMessage());
+                MyLog.e("Util", "" + e.getMessage());
             }
         }
     }
