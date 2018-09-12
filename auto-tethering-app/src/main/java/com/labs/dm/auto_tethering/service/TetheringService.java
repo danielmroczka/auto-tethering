@@ -655,9 +655,17 @@ public class TetheringService extends IntentService {
 
             builder.addAction(R.drawable.ic_exit24, "Exit", exitPendingIntent);
             notify = builder.build();
+            //} //else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            //notify = new Notification(icon, caption, System.currentTimeMillis());
+            //notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
         } else {
-            notify = new Notification(icon, caption, System.currentTimeMillis());
-            notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
+            Notification.Builder builder = new Notification.Builder(getApplicationContext())
+                    .setWhen(System.currentTimeMillis())
+                    .setContentIntent(pendingIntent)
+                    .setSmallIcon(icon)
+                    .setContentTitle(caption);
+            notify = builder.build();
+
         }
         return notify;
     }

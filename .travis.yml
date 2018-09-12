@@ -4,9 +4,9 @@ script: gradle clean assemble
 android:
   components:
     - tools
-    - build-tools-25.0.2
+    - build-tools-26.0.3
     - extra
-    - android-25
+    - android-26
 jdk:
   - oraclejdk8
 licenses:
@@ -16,7 +16,7 @@ licenses:
 before_install:
   # Gradle
   - echo y | android update sdk --no-ui --all --filter "tools"
-  - echo y | android update sdk --no-ui --all --filter "build-tools-25.0.2"
+  - echo y | android update sdk --no-ui --all --filter "build-tools-26.0.3"
   - wget http://services.gradle.org/distributions/gradle-3.4.1-bin.zip
   - unzip gradle-3.4.1-bin.zip
   - export GRADLE_HOME=$PWD/gradle-3.4.1

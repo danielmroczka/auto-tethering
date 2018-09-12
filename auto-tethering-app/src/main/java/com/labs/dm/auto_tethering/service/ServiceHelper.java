@@ -1,5 +1,6 @@
 package com.labs.dm.auto_tethering.service;
 
+import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -14,7 +15,9 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
+import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.MyLog;
@@ -124,6 +127,7 @@ public class ServiceHelper {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         return cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnectedOrConnecting();
     }
+
     /**
      * Changing Wifi Tethering state
      *
@@ -133,18 +137,63 @@ public class ServiceHelper {
         if (enable) {
             wifiManager.setWifiEnabled(false);
         }
-        Method[] methods = wifiManager.getClass().getDeclaredMethods();
-        for (Method method : methods) {
-            if (method.getName().equals("setWifiApEnabled")) {
-                try {
-                    MyLog.i(TAG, "setWifiTethering to " + enable);
-                    method.invoke(wifiManager, netConfig, enable);
-                } catch (Exception ex) {
-                    MyLog.e(TAG, "Switch on tethering", ex);
-                    Toast.makeText(context, ex.getMessage(), Toast.LENGTH_LONG).show();
-                }
-                break;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (enable) {
+                turnOnWifiTethering();
+            } else {
+                turnOffWifiTethering();
             }
+        } else {
+            Method[] methods = wifiManager.getClass().getDeclaredMethods();
+            for (Method method : methods) {
+                if (method.getName().equals("setWifiApEnabled")) {
+                    try {
+                        MyLog.i(TAG, "setWifiTethering to " + enable);
+                        method.invoke(wifiManager, netConfig, enable);
+                    } catch (Exception ex) {
+                        MyLog.e(TAG, "Switch on tethering", ex);
+                        Toast.makeText(context, ex.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    private WifiManager.LocalOnlyHotspotReservation mReservation;
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private void turnOnWifiTethering() {
+        WifiManager manager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+
+        manager.startLocalOnlyHotspot(new WifiManager.LocalOnlyHotspotCallback() {
+
+            @Override
+            public void onStarted(WifiManager.LocalOnlyHotspotReservation reservation) {
+                super.onStarted(reservation);
+                Log.d(TAG, "Wifi Hotspot is on now");
+                mReservation = reservation;
+            }
+
+            @Override
+            public void onStopped() {
+                super.onStopped();
+                Log.d(TAG, "onStopped: ");
+            }
+
+            @Override
+            public void onFailed(int reason) {
+                super.onFailed(reason);
+                Log.d(TAG, "onFailed: ");
+            }
+        }, new Handler());
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private void turnOffWifiTethering() {
+        if (mReservation != null) {
+            mReservation.close();
         }
     }
 
