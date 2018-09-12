@@ -84,7 +84,7 @@ dependencies {
 //    compile 'com.jakewharton:butterknife:8.5.1'
 //    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
     compile 'de.cketti.library.changelog:ckchangelog:1.2.2@aar'
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.9.3@aar') {
         transitive = true
     }
     //testCompile -->
