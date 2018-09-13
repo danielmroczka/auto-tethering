@@ -1,6 +1,9 @@
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
+def VERSION_CODE = 69
+def BUILD_TOOL_VERSION = '26.0.3'
+
 repositories {
     maven { url 'https://maven.fabric.io/public' }
 }
@@ -41,6 +44,7 @@ android {
         debug {
             debuggable true
             buildConfigField "String", "GOOGLE_API_KEY", getMyApiKey("GOOGLE_API_KEY_DEBUG")
+            ext.enableCrashlytics = false
         }
         coverage {
             debuggable true
@@ -49,16 +53,16 @@ android {
         }
     }
 
-    compileSdkVersion 22
-    buildToolsVersion '25.0.2'
+    compileSdkVersion 26
+    buildToolsVersion BUILD_TOOL_VERSION
 
     defaultConfig {
         applicationId "com.labs.dm.auto_tethering"
         minSdkVersion 9
-        maxSdkVersion 25
+        maxSdkVersion 26
         targetSdkVersion 22
-        versionCode 69
-        versionName "0.0.69"
+        versionCode VERSION_CODE
+        versionName "0.0." + VERSION_CODE
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + getDateAsMillis() + "L)"
         buildConfigField "String", "GOOGLE_API_KEY", getMyApiKey("GOOGLE_API_KEY")
@@ -67,11 +71,8 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
-}
 
-static getDateAsMillis() {
-    Calendar cal = Calendar.getInstance()
-    return cal.getTimeInMillis().toString()
+    useLibrary 'org.apache.http.legacy'
 }
 
 dependencies {
@@ -82,7 +83,7 @@ dependencies {
 //    compile 'com.jakewharton:butterknife:8.5.1'
 //    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
     compile 'de.cketti.library.changelog:ckchangelog:1.2.2@aar'
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.9.3@aar') {
         transitive = true
     }
     //testCompile -->
@@ -133,11 +134,16 @@ def getMyApiKey(String property) {
     }
 }
 
+static getDateAsMillis() {
+    Calendar cal = Calendar.getInstance()
+    return cal.getTimeInMillis().toString()
+}
+
 ext {
     ANDROID_BUILD_MIN_SDK_VERSION = 9
-    ANDROID_BUILD_TARGET_SDK_VERSION = 25
-    ANDROID_BUILD_TOOLS_VERSION = '25.0.2'
-    ANDROID_BUILD_SDK_VERSION = 25
-    SUPPORT_VERSION = '25.0.0'
+    ANDROID_BUILD_TARGET_SDK_VERSION = 26
+    ANDROID_BUILD_TOOLS_VERSION = BUILD_TOOL_VERSION
+    ANDROID_BUILD_SDK_VERSION = 26
+    SUPPORT_VERSION = '22.2.1'
     MAVEN_VERSION = '1.1.3'
 }
