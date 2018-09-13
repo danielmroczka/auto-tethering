@@ -1,6 +1,6 @@
 language: android
 install: true
-script: gradle clean assemble
+script: gradle clean assembleDebug
 android:
   components:
     - tools
