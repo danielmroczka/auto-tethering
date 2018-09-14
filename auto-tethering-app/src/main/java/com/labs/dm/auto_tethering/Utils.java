@@ -337,14 +337,20 @@ public class Utils {
     }
 
     public static WifiConfiguration getDefaultWifiConfiguration(Context context, SharedPreferences prefs) {
-        String ssid = prefs.getString("default.wifi.network", null);
         WifiConfiguration netConfig = null;
-        if (ssid != null) {
-            List<WiFiTethering> list = DBManager.getInstance(context).readWiFiTethering();
-            for (WiFiTethering item : list) {
-                if (ssid.equals(item.getSsid())) {
-                    netConfig = saveWifiConfiguration(context, item);
-                    break;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            WifiManager manager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            netConfig = manager.getConfiguredNetworks().get(0);
+
+        } else {
+            String ssid = prefs.getString("default.wifi.network", null);
+            if (ssid != null) {
+                List<WiFiTethering> list = DBManager.getInstance(context).readWiFiTethering();
+                for (WiFiTethering item : list) {
+                    if (ssid.equals(item.getSsid())) {
+                        netConfig = saveWifiConfiguration(context, item);
+                        break;
+                    }
                 }
             }
         }

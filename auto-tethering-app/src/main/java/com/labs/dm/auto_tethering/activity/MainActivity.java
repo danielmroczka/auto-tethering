@@ -104,6 +104,10 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             switchOffPreferences("activate.3g", "idle.3g.off", "usb.internet.force.off", "usb.internet.force.on");
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            final PreferenceScreen ssid = (PreferenceScreen) findPreference("ssid.screen");
+            ssid.setEnabled(false);
+        }
     }
 
     private void switchOffPreferences(String... names) {
