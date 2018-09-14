@@ -284,7 +284,7 @@ public class TetheringService extends IntentService {
 
                 TimeUnit.SECONDS.sleep(CHECK_DELAY);
             } catch (InterruptedException e) {
-                MyLog.e(TAG, e.getMessage());
+                MyLog.e(TAG, e);
             }
         }
     }

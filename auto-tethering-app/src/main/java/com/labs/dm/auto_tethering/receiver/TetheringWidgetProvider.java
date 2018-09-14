@@ -86,7 +86,7 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
                         }
                         handler.sendEmptyMessage(0);
                     } catch (InterruptedException ex) {
-                        MyLog.e(TAG, "" + ex.getMessage());
+                        MyLog.e(TAG, ex);
                     }
                 }
             }.start();

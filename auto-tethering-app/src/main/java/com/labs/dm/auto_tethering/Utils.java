@@ -120,7 +120,7 @@ public class Utils {
             try {
                 onPendingIntent.send();
             } catch (PendingIntent.CanceledException e) {
-                MyLog.e("Util", "" + e.getMessage());
+                MyLog.e("Util", e);
             }
         }
     }
@@ -210,7 +210,7 @@ public class Utils {
             @Override
             public void run() {
                 Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
-                TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
+                TextView v = toast.getView().findViewById(android.R.id.message);
                 if (v != null) {
                     v.setPadding(2, 2, 2, 2);
                 }
@@ -225,8 +225,12 @@ public class Utils {
         String networkOperator = tel.getNetworkOperator();
 
         if (!TextUtils.isEmpty(networkOperator) && networkOperator.length() >= 3) {
-            mcc = Integer.parseInt(networkOperator.substring(0, 3));
-            mnc = Integer.parseInt(networkOperator.substring(3));
+            try {
+                mcc = Integer.parseInt(networkOperator.substring(0, 3));
+                mnc = Integer.parseInt(networkOperator.substring(3));
+            } catch (NumberFormatException nfe) {
+                MyLog.e("Utils", nfe);
+            }
         }
 
         CellLocation cell = tel.getCellLocation();

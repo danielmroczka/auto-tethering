@@ -61,9 +61,13 @@ public class MyLog {
         add(new Item(3, formatMsg(msg)));
     }
 
+    public static void e(String tag, Exception ex) {
+        e(tag, ex != null ? ex.getMessage() : "exception is null!");
+    }
+
     public static void e(String tag, String msg, Exception e) {
         Log.e(tag, msg, e);
-        String context = formatMsg(msg) + "\n" + e.getMessage();
+        String context = formatMsg(msg) + "\n" + (e != null ? e.getMessage() : "exception is null!");
         add(new Item(3, context));
     }
 
@@ -89,7 +93,7 @@ public class MyLog {
     }
 
     private static String formatMsg(String msg) {
-        return msg;
+        return msg == null ? "" : msg;
     }
 
     public static void clean() {

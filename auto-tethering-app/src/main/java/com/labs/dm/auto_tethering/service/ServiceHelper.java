@@ -58,11 +58,11 @@ public class ServiceHelper {
             method.setAccessible(true);
             return (Boolean) method.invoke(wifiManager);
         } catch (IllegalAccessException ex) {
-            MyLog.e(TAG, "" + ex.getMessage());
+            MyLog.e(TAG, ex);
         } catch (InvocationTargetException ex) {
-            MyLog.e(TAG, "" + ex.getMessage());
+            MyLog.e(TAG, ex);
         } catch (NoSuchMethodException ex) {
-            MyLog.e(TAG, "" + ex.getMessage());
+            MyLog.e(TAG, ex);
         }
 
         return false;
@@ -232,7 +232,7 @@ public class ServiceHelper {
             try {
                 return (WifiConfiguration) method.invoke(wifiManager);
             } catch (Exception e) {
-                MyLog.e(TAG, "" + e.getMessage());
+                MyLog.e(TAG, e);
             }
         }
         return null;
