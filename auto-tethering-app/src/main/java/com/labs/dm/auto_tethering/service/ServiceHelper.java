@@ -1,6 +1,5 @@
 package com.labs.dm.auto_tethering.service;
 
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -10,14 +9,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
-import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.MyLog;
@@ -105,13 +103,17 @@ public class ServiceHelper {
      * @return
      */
     public boolean isConnectedToInternetThroughMobile() {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnected();
+        return isConnectedToInternetThroughNetworkType(ConnectivityManager.TYPE_MOBILE);
     }
 
     public boolean isConnectedToInternetThroughWiFi() {
+        return isConnectedToInternetThroughNetworkType(ConnectivityManager.TYPE_WIFI);
+    }
+
+    private boolean isConnectedToInternetThroughNetworkType(int networkType) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected();
+        NetworkInfo info = cm != null ? cm.getNetworkInfo(networkType) : null;
+        return info != null && info.isConnected();
     }
 
     public boolean isConnectedtToInternet() {
@@ -137,63 +139,18 @@ public class ServiceHelper {
         if (enable) {
             wifiManager.setWifiEnabled(false);
         }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (enable) {
-                turnOnWifiTethering();
-            } else {
-                turnOffWifiTethering();
-            }
-        } else {
-            Method[] methods = wifiManager.getClass().getDeclaredMethods();
-            for (Method method : methods) {
-                if (method.getName().equals("setWifiApEnabled")) {
-                    try {
-                        MyLog.i(TAG, "setWifiTethering to " + enable);
-                        method.invoke(wifiManager, netConfig, enable);
-                    } catch (Exception ex) {
-                        MyLog.e(TAG, "Switch on tethering", ex);
-                        Toast.makeText(context, ex.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                    break;
+        Method[] methods = wifiManager.getClass().getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.getName().equals("setWifiApEnabled")) {
+                try {
+                    MyLog.i(TAG, "setWifiTethering to " + enable);
+                    method.invoke(wifiManager, netConfig, enable);
+                } catch (Exception ex) {
+                    MyLog.e(TAG, "Switch on tethering", ex);
+                    Toast.makeText(context, ex.getMessage(), Toast.LENGTH_LONG).show();
                 }
+                break;
             }
-        }
-    }
-
-    private WifiManager.LocalOnlyHotspotReservation mReservation;
-
-    @TargetApi(Build.VERSION_CODES.O)
-    private void turnOnWifiTethering() {
-        WifiManager manager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-
-        manager.startLocalOnlyHotspot(new WifiManager.LocalOnlyHotspotCallback() {
-
-            @Override
-            public void onStarted(WifiManager.LocalOnlyHotspotReservation reservation) {
-                super.onStarted(reservation);
-                Log.d(TAG, "Wifi Hotspot is on now");
-                mReservation = reservation;
-            }
-
-            @Override
-            public void onStopped() {
-                super.onStopped();
-                Log.d(TAG, "onStopped: ");
-            }
-
-            @Override
-            public void onFailed(int reason) {
-                super.onFailed(reason);
-                Log.d(TAG, "onFailed: ");
-            }
-        }, new Handler());
-    }
-
-    @TargetApi(Build.VERSION_CODES.O)
-    private void turnOffWifiTethering() {
-        if (mReservation != null) {
-            mReservation.close();
         }
     }
 

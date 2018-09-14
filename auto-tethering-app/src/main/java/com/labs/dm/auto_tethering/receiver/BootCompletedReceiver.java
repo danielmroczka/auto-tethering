@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+
+import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
 /**
@@ -21,7 +23,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
         final Intent serviceIntent = new Intent(context, TetheringService.class);
-        int delay = Integer.parseInt(prefs.getString("activate.on.startup.delay", "0"));
+        int delay = Utils.strToInt(prefs.getString("activate.on.startup.delay", "0"));
         if (delay == 0) {
             context.startService(serviceIntent);
         } else {

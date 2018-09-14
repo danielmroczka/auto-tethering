@@ -37,34 +37,44 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
             boolean isTethering = new ServiceHelper(context).isTetheringWiFi();
             switch (intent.getAction()) {
                 case BluetoothDevice.ACTION_ACL_CONNECTED:
-                    BluetoothLock.connectedFromReceiver = true;
-                    bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    if (!isTethering) {
-                        List<BluetoothDevice> devicesToCheck = Utils.getBluetoothDevices(context, true);
-                        for (BluetoothDevice device : devicesToCheck) {
-                            if (device.getName() != null && device.getName().equals(bluetoothDevice.getName())) {
-                                MyLog.i(TAG, "New connection to " + bluetoothDevice.getName());
-                                Intent btIntent = new Intent(BT_CONNECTED);
-                                btIntent.putExtra("name", bluetoothDevice.getName());
-                                Utils.broadcast(context, btIntent);
-                                break;
-                            }
-                        }
-                        if (devicesToCheck.isEmpty()) {
-                            Utils.showToast(context, "Bluetooth connection established but there are no preferred devices!");
-                        }
-                    }
+                    onActionConnected(context, intent, isTethering);
                     break;
 
                 case BluetoothDevice.ACTION_ACL_DISCONNECTED:
-                    if (isTethering) {
-                        bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                        Intent btIntent = new Intent(BT_DISCONNECTED);
-                        btIntent.putExtra("name", bluetoothDevice.getName());
-                        Utils.broadcast(context, btIntent);
-                    }
-                    BluetoothLock.connectedFromReceiver = false;
+                    onActionDisconnected(context, intent, isTethering);
                     break;
+            }
+        }
+    }
+
+    private void onActionDisconnected(Context context, Intent intent, boolean isTethering) {
+        BluetoothDevice bluetoothDevice;
+        if (isTethering) {
+            bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            Intent btIntent = new Intent(BT_DISCONNECTED);
+            btIntent.putExtra("name", bluetoothDevice.getName());
+            Utils.broadcast(context, btIntent);
+        }
+        BluetoothLock.connectedFromReceiver = false;
+    }
+
+    private void onActionConnected(Context context, Intent intent, boolean isTethering) {
+        BluetoothDevice bluetoothDevice;
+        BluetoothLock.connectedFromReceiver = true;
+        bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+        if (!isTethering) {
+            List<BluetoothDevice> devicesToCheck = Utils.getBluetoothDevices(context, true);
+            for (BluetoothDevice device : devicesToCheck) {
+                if (device.getName() != null && device.getName().equals(bluetoothDevice.getName())) {
+                    MyLog.i(TAG, "New connection to " + bluetoothDevice.getName());
+                    Intent btIntent = new Intent(BT_CONNECTED);
+                    btIntent.putExtra("name", bluetoothDevice.getName());
+                    Utils.broadcast(context, btIntent);
+                    break;
+                }
+            }
+            if (devicesToCheck.isEmpty()) {
+                Utils.showToast(context, "Bluetooth connection established but there are no preferred devices!");
             }
         }
     }

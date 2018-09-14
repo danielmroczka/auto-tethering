@@ -4,7 +4,7 @@ package com.labs.dm.auto_tethering.db;
  * Created by Daniel Mroczka on 10/6/2016.
  */
 public class Bluetooth {
-    public final static String NAME = "BLUETOOTH";
+    public static final String NAME = "BLUETOOTH";
 
     private int id;
     private int parcelId;

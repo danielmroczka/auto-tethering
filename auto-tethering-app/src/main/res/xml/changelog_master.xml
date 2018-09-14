@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
+        version="0.0.70"
+        versioncode="70">
+        <change>Fixed several minor bugs</change>
+    </release>
+    <release
         version="0.0.69"
         versioncode="69">
         <change>Added support for Android 7.x</change>

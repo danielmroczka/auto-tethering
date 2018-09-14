@@ -4,7 +4,7 @@ package com.labs.dm.auto_tethering.db;
  * Created by Daniel Mroczka on 2016-09-27.
  */
 public class CellGroup {
-    public final static String NAME = "CELL_GROUP";
+    public static final String NAME = "CELL_GROUP";
     private int id, status;
     private final String name;
     private final String type;

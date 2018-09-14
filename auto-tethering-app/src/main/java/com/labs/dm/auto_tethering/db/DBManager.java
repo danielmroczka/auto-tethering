@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
 
 import com.labs.dm.auto_tethering.MyLog;
+import com.labs.dm.auto_tethering.Utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -268,7 +269,7 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
     public int removeCellular(final String id) {
-        return getWritableDatabase().delete(Cellular.NAME, "id=" + Integer.valueOf(id), null);
+        return getWritableDatabase().delete(Cellular.NAME, "id=" + Utils.strToInt(id), null);
     }
 
     public long addOrUpdateCellGroup(CellGroup cellGroup) {

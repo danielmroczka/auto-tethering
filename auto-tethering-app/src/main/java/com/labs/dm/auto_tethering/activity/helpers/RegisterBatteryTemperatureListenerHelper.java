@@ -29,6 +29,8 @@ import static com.labs.dm.auto_tethering.TetherIntents.TEMPERATURE_BELOW_LIMIT;
  */
 public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHelper {
 
+    public static final String TEMP_VALUE_STOP = "temp.value.stop";
+    public static final String TEMP_VALUE_START = "temp.value.start";
     private float lastTemperature;
     private final BatteryReceiver batteryReceiver;
 
@@ -41,15 +43,15 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
     public void registerUIListeners() {
         Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if ("temp.value.start".equals(preference.getKey())) {
-                    if (Integer.parseInt((String) newValue) >= Integer.parseInt(prefs.getString("temp.value.stop", "40"))) {
-                        Toast.makeText(activity, "Value should be less than " + prefs.getString("temp.value.stop", "40"), Toast.LENGTH_LONG).show();
+                if (TEMP_VALUE_START.equals(preference.getKey())) {
+                    if (Integer.parseInt((String) newValue) >= Integer.parseInt(prefs.getString(TEMP_VALUE_STOP, "40"))) {
+                        Toast.makeText(activity, "Value should be less than " + prefs.getString(TEMP_VALUE_STOP, "40"), Toast.LENGTH_LONG).show();
                         return false;
                     }
                     preference.setSummary("When temp. returns to: " + newValue + " °C");
-                } else if ("temp.value.stop".equals(preference.getKey())) {
-                    if (Integer.parseInt((String) newValue) <= Integer.parseInt(prefs.getString("temp.value.start", "40"))) {
-                        Toast.makeText(activity, "Value should be greater than " + prefs.getString("temp.value.start", "40"), Toast.LENGTH_LONG).show();
+                } else if (TEMP_VALUE_STOP.equals(preference.getKey())) {
+                    if (Integer.parseInt((String) newValue) <= Integer.parseInt(prefs.getString(TEMP_VALUE_START, "40"))) {
+                        Toast.makeText(activity, "Value should be greater than " + prefs.getString(TEMP_VALUE_START, "40"), Toast.LENGTH_LONG).show();
                         return false;
                     }
                     preference.setSummary("When temp. higher than: " + newValue + " °C");
@@ -58,10 +60,10 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
             }
         };
         batteryReceiver.register(activity, new IntentFilter(ACTION_BATTERY_CHANGED));
-        EditTextPreference tempStart = getEditTextPreference("temp.value.start");
+        EditTextPreference tempStart = getEditTextPreference(TEMP_VALUE_START);
         tempStart.setOnPreferenceChangeListener(changeListener);
         tempStart.getEditText().setFilters(new InputFilter[]{new InputFilterMinMax(0, 100)});
-        EditTextPreference tempStop = getEditTextPreference("temp.value.stop");
+        EditTextPreference tempStop = getEditTextPreference(TEMP_VALUE_STOP);
         tempStop.setOnPreferenceChangeListener(changeListener);
         tempStop.getEditText().setFilters(new InputFilter[]{new InputFilterMinMax(0, 100)});
 
@@ -83,14 +85,14 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
     }
 
     private class BatteryReceiver extends BroadcastReceiver {
-        public boolean isRegistered;
+        boolean isRegistered;
 
-        public Intent register(Context context, IntentFilter filter) {
+        Intent register(Context context, IntentFilter filter) {
             isRegistered = true;
             return context.registerReceiver(this, filter);
         }
 
-        public boolean unregister(Context context) {
+        boolean unregister(Context context) {
             if (isRegistered) {
                 context.unregisterReceiver(this);
                 isRegistered = false;
@@ -115,8 +117,8 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
             current.setSummary(summary);
 
             if (prefs.getBoolean("temp.monitoring.enable", false)) {
-                int start = Integer.parseInt(prefs.getString("temp.value.start", "50"));
-                int stop = Integer.parseInt(prefs.getString("temp.value.stop", "40"));
+                int start = Integer.parseInt(prefs.getString(TEMP_VALUE_START, "50"));
+                int stop = Integer.parseInt(prefs.getString(TEMP_VALUE_STOP, "40"));
 
                 if (temperature >= stop) {
                     activity.sendBroadcast(new Intent(TEMPERATURE_ABOVE_LIMIT));

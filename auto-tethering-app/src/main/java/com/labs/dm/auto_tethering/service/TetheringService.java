@@ -274,7 +274,8 @@ public class TetheringService extends IntentService {
                 }
 
                 long usage = ServiceHelper.getDataUsage() + prefs.getLong("data.usage.removeAllData.value", 0);
-                int dataLimit = Integer.parseInt(prefs.getString("data.limit.value", "0"));
+                String dataLimitValue = prefs.getString("data.limit.value", "0");
+                int dataLimit = Integer.parseInt(dataLimitValue.isEmpty() ? "0" : dataLimitValue);
 
                 if (prefs.getBoolean("data.limit.on", false) && (usage / (1048576f) > dataLimit)) {
                     execute(DATA_USAGE_EXCEED_LIMIT);
@@ -312,7 +313,7 @@ public class TetheringService extends IntentService {
     private boolean batteryAboveLimit() {
         boolean chkBatteryLvl = prefs.getBoolean("usb.off.battery.lvl", false);
         boolean isConnected = serviceHelper.isPluggedToPower();
-        int lvlValue = Integer.valueOf(prefs.getString("usb.off.battery.lvl.value", "15"));
+        int lvlValue = Utils.strToInt(prefs.getString("usb.off.battery.lvl.value", "15"), 15);
         return isConnected || !chkBatteryLvl || 100f * serviceHelper.batteryLevel() >= lvlValue;
     }
 
@@ -509,7 +510,8 @@ public class TetheringService extends IntentService {
 
     private boolean check3GIdle() {
         if (prefs.getBoolean(IDLE_3G_OFF, false)) {
-            if (getTime().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_3G_OFF_TIME, "60")) * MINUTE_IN_MS) {
+            int idle3gOffTime = Utils.strToInt(prefs.getString(IDLE_3G_OFF_TIME, "60"), 60);
+            if (getTime().getTimeInMillis() - lastAccess > idle3gOffTime * MINUTE_IN_MS) {
                 return true;
             }
         }
@@ -519,7 +521,8 @@ public class TetheringService extends IntentService {
 
     private boolean checkWifiIdle() {
         if (prefs.getBoolean(IDLE_TETHERING_OFF, false)) {
-            if (getTime().getTimeInMillis() - lastAccess > Integer.valueOf(prefs.getString(IDLE_TETHERING_OFF_TIME, DEFAULT_IDLE_TETHERING_OFF_TIME)) * MINUTE_IN_MS) {
+            int idleTetheringOffTime = Utils.strToInt(prefs.getString(IDLE_TETHERING_OFF_TIME, DEFAULT_IDLE_TETHERING_OFF_TIME));
+            if (getTime().getTimeInMillis() - lastAccess > idleTetheringOffTime * MINUTE_IN_MS) {
                 return true;
             }
         }
@@ -665,7 +668,6 @@ public class TetheringService extends IntentService {
                     .setSmallIcon(icon)
                     .setContentTitle(caption);
             notify = builder.build();
-
         }
         return notify;
     }

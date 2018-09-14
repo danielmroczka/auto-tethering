@@ -73,9 +73,9 @@ public class Utils {
                 }
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            MyLog.e("connectedClients", e);
         } catch (IOException e) {
-            e.printStackTrace();
+            MyLog.e("connectedClients", e);
         }
 
         return res;
@@ -224,7 +224,7 @@ public class Utils {
         int mnc = 0, mcc = 0, lac = 0, cid = 0;
         String networkOperator = tel.getNetworkOperator();
 
-        if (!TextUtils.isEmpty(networkOperator) && networkOperator.length() >= 3) {
+        if (!TextUtils.isEmpty(networkOperator) && networkOperator.length() > 3) {
             try {
                 mcc = Integer.parseInt(networkOperator.substring(0, 3));
                 mnc = Integer.parseInt(networkOperator.substring(3));
@@ -337,20 +337,14 @@ public class Utils {
     }
 
     public static WifiConfiguration getDefaultWifiConfiguration(Context context, SharedPreferences prefs) {
+        String ssid = prefs.getString("default.wifi.network", null);
         WifiConfiguration netConfig = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            WifiManager manager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-            netConfig = manager.getConfiguredNetworks().get(0);
-
-        } else {
-            String ssid = prefs.getString("default.wifi.network", null);
-            if (ssid != null) {
-                List<WiFiTethering> list = DBManager.getInstance(context).readWiFiTethering();
-                for (WiFiTethering item : list) {
-                    if (ssid.equals(item.getSsid())) {
-                        netConfig = saveWifiConfiguration(context, item);
-                        break;
-                    }
+        if (ssid != null) {
+            List<WiFiTethering> list = DBManager.getInstance(context).readWiFiTethering();
+            for (WiFiTethering item : list) {
+                if (ssid.equals(item.getSsid())) {
+                    netConfig = saveWifiConfiguration(context, item);
+                    break;
                 }
             }
         }
@@ -371,5 +365,17 @@ public class Utils {
         }
         wifi.saveConfiguration();
         return netConfig;
+    }
+
+    public static int strToInt(String value) {
+        return strToInt(value, 0);
+    }
+
+    public static int strToInt(String value, int defaultValue) {
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException nfe) {
+            return defaultValue;
+        }
     }
 }

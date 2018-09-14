@@ -59,7 +59,7 @@ android {
     defaultConfig {
         applicationId "com.labs.dm.auto_tethering"
         minSdkVersion 9
-        maxSdkVersion 26
+        maxSdkVersion 25 // Android 7.1 Nougat
         targetSdkVersion 22
         versionCode VERSION_CODE
         versionName "0.0." + VERSION_CODE

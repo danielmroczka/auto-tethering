@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 public class UtilsTest {
 
     @Test
-    public void testValidateTime() throws Exception {
+    public void testValidateTime() {
         assertTrue(Utils.validateTime("0:00"));
         assertTrue(Utils.validateTime("23:59"));
         assertFalse(Utils.validateTime("24:60"));
@@ -28,7 +28,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testMaskToDays() throws Exception {
+    public void testMaskToDays() {
         assertEquals("", Utils.maskToDays(0));
         assertEquals("Mon", Utils.maskToDays(1));
         assertEquals("Tue", Utils.maskToDays(2));
@@ -45,7 +45,7 @@ public class UtilsTest {
     }*/
 
     @Test
-    public void testFindPreferredDevices() throws Exception {
+    public void testFindPreferredDevices() {
         SharedPreferences preferences = mock(SharedPreferences.class);
         Map map = new HashMap<>();
         map.put("bt.devices.ITEM1", "ITEM1");
@@ -63,18 +63,30 @@ public class UtilsTest {
     }
 
     @Test
-    public void humanReadableByteCount() throws Exception {
+    public void humanReadableByteCount() {
         assertEquals("1023B", Utils.humanReadableByteCount(1023));
         //assertEquals("2,0kB", Utils.humanReadableByteCount(2000));
         //assertEquals("15,6kB", Utils.humanReadableByteCount(16000));
     }
 
     @Test
-    public void humanReadableDistance() throws Exception {
+    public void humanReadableDistance() {
         assertEquals("999m", Utils.humanReadableDistance(999));
         //assertEquals("2,00km", Utils.humanReadableDistance(2000));
         //assertEquals("2,12km", Utils.humanReadableDistance(2123));
         //assertEquals("10km", Utils.humanReadableDistance(9999));
         //assertEquals("12km", Utils.humanReadableDistance(12345));
+    }
+
+    @Test
+    public void strToIntDefaultValue() {
+        assertEquals(1, Utils.strToInt("1"));
+        assertEquals(2, Utils.strToInt("2", 1));
+        assertEquals(0, Utils.strToInt(""));
+        assertEquals(1, Utils.strToInt("", 1));
+        assertEquals(0, Utils.strToInt(" "));
+        assertEquals(1, Utils.strToInt(" ", 1));
+        assertEquals(0, Utils.strToInt("a"));
+        assertEquals(1, Utils.strToInt("a", 1));
     }
 }
