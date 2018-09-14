@@ -22,3 +22,10 @@ before_install:
   - export GRADLE_HOME=$PWD/gradle-3.4.1
   - export PATH=$GRADLE_HOME/bin:$PATH
 after_success: ./merge_to_dev.sh
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
