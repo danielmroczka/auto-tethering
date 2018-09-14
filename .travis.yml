@@ -1,18 +1,22 @@
 language: android
 install: true
 script: gradle clean assembleDebug
+
 android:
   components:
     - tools
     - build-tools-26.0.3
     - extra
     - android-26
+
 jdk:
   - oraclejdk8
+
 licenses:
   - 'android-sdk-preview-license-.+'
   - 'android-sdk-license-.+'
   - 'google-gdk-license-.+'
+
 before_install:
   # Gradle
   - echo y | android update sdk --no-ui --all --filter "tools"
@@ -21,11 +25,20 @@ before_install:
   - unzip gradle-3.4.1-bin.zip
   - export GRADLE_HOME=$PWD/gradle-3.4.1
   - export PATH=$GRADLE_HOME/bin:$PATH
+
 after_success: ./merge_to_dev.sh
+
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
 cache:
   directories:
+    # Android SDK
+    - $HOME/android-sdk-dl
+    - $HOME/android-sdk
+    # Gradle dependencies
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+    # Android build cache (see http://tools.android.com/tech-docs/build-cache)
+    - $HOME/.android/build-cache
