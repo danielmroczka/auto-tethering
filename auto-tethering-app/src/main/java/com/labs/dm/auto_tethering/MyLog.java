@@ -29,6 +29,16 @@ public class MyLog {
         }
     }
 
+    enum LEVEL {
+        debug(0), info(1), warn(2), error(3);
+
+        private final int value;
+
+        LEVEL(int level) {
+            this.value = level;
+        }
+    }
+
     /**
      * 0 - debug
      * 1 - info
@@ -38,11 +48,11 @@ public class MyLog {
      * @param level
      * @return
      */
-    public static String getContent(int level) {
+    public static String getContent(LEVEL level) {
         StringBuilder sb = new StringBuilder(log.size() / 2);
 
         for (Item item : log) {
-            if (item.level >= level) {
+            if (item.level >= level.value) {
                 sb.append(item.content);
                 sb.append("\n");
             }
@@ -57,13 +67,17 @@ public class MyLog {
     }
 
     public static void e(String tag, String msg) {
-        Log.e(tag, msg);
+        Log.e(tag, msg != null ? msg : "");
         add(new Item(3, formatMsg(msg)));
+    }
+
+    public static void e(String tag, Exception ex) {
+        e(tag, ex != null ? ex.getMessage() : "exception is null!");
     }
 
     public static void e(String tag, String msg, Exception e) {
         Log.e(tag, msg, e);
-        String context = formatMsg(msg) + "\n" + e.getMessage();
+        String context = formatMsg(msg) + "\n" + (e != null ? e.getMessage() : "exception is null!");
         add(new Item(3, context));
     }
 
@@ -89,7 +103,7 @@ public class MyLog {
     }
 
     private static String formatMsg(String msg) {
-        return msg;
+        return msg == null ? "" : msg;
     }
 
     public static void clean() {

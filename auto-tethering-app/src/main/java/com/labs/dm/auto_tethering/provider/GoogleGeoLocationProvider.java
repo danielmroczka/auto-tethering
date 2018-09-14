@@ -56,9 +56,9 @@ public class GoogleGeoLocationProvider {
                 inputStream.close();
             }
         } catch (IOException e) {
-            MyLog.e("HttpRequest", e.getMessage());
+            MyLog.e("HttpRequest", e);
         } catch (JSONException e) {
-            MyLog.e("JSONException", e.getMessage());
+            MyLog.e("JSONException", e);
         }
     }
 

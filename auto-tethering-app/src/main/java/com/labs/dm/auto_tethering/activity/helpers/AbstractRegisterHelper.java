@@ -63,7 +63,7 @@ public abstract class AbstractRegisterHelper {
                     return null;
                 }
             } catch (NumberFormatException nfe) {
-                MyLog.e("InputFilterMinMax", nfe.getMessage());
+                MyLog.e("InputFilterMinMax", nfe);
             }
             return "";
         }

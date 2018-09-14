@@ -15,7 +15,7 @@ public class LogActivity extends Activity {
         setContentView(R.layout.activity_log);
         show();
 
-        ScrollView view = (ScrollView) findViewById(R.id.scrollView);
+        ScrollView view = findViewById(R.id.scrollView);
         view.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -27,7 +27,7 @@ public class LogActivity extends Activity {
     }
 
     private void show() {
-        final TextView tv = (TextView) findViewById(R.id.textView);
+        final TextView textView = findViewById(R.id.textView);
 
         final ProgressDialog progress = new ProgressDialog(this, R.style.MyTheme);
         progress.setCancelable(false);
@@ -38,7 +38,7 @@ public class LogActivity extends Activity {
             @Override
             public void run() {
                 //try {
-                log.append(MyLog.getContent(0));
+                log.append(MyLog.getContent(MyLog.LEVEL.debug));
 //                    Process process = Runtime.getRuntime().exec("logcat -d TetheringService:D *:S");
 //                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 //                    String line;
@@ -51,7 +51,7 @@ public class LogActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        tv.setText(log.toString());
+                        textView.setText(log.toString());
                         progress.dismiss();
                     }
                 });

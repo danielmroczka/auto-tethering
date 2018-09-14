@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.widget.RemoteViews;
+
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.activity.ConfigurationActivity;
@@ -85,7 +86,7 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
                         }
                         handler.sendEmptyMessage(0);
                     } catch (InterruptedException ex) {
-                        MyLog.e(TAG, ex.getMessage());
+                        MyLog.e(TAG, ex);
                     }
                 }
             }.start();
