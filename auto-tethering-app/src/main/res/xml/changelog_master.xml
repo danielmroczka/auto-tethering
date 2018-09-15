@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
+        version="0.0.71"
+        versioncode="71">
+        <change>Resolved the issue during the startup for Android version older than 4.1</change>
+    </release>
+    <release
         version="0.0.70"
         versioncode="70">
         <change>Fixed several minor bugs</change>
@@ -29,10 +34,5 @@
         </change>
         <change>Add info in status bar about source (device name) of Bluetooth activation</change>
         <change>Add info in status bar about WiFi hotspot name</change>
-    </release>
-    <release
-        version="0.0.64"
-        versioncode="64">
-        <change>Modify UI for form default WiFi Network</change>
     </release>
 </changelog>

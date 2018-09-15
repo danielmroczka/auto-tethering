@@ -15,7 +15,7 @@ public class LogActivity extends Activity {
         setContentView(R.layout.activity_log);
         show();
 
-        ScrollView view = findViewById(R.id.scrollView);
+        ScrollView view = (ScrollView) findViewById(R.id.scrollView);
         view.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -27,7 +27,7 @@ public class LogActivity extends Activity {
     }
 
     private void show() {
-        final TextView textView = findViewById(R.id.textView);
+        final TextView textView = (TextView) findViewById(R.id.textView);
 
         final ProgressDialog progress = new ProgressDialog(this, R.style.MyTheme);
         progress.setCancelable(false);

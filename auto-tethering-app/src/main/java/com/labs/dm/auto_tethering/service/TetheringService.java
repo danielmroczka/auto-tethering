@@ -662,12 +662,8 @@ public class TetheringService extends IntentService {
             //notify = new Notification(icon, caption, System.currentTimeMillis());
             //notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
         } else {
-            Notification.Builder builder = new Notification.Builder(getApplicationContext())
-                    .setWhen(System.currentTimeMillis())
-                    .setContentIntent(pendingIntent)
-                    .setSmallIcon(icon)
-                    .setContentTitle(caption);
-            notify = builder.build();
+            notify = new Notification(icon, caption, System.currentTimeMillis());
+            notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
         }
         return notify;
     }
