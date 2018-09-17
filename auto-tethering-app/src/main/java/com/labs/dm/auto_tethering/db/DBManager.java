@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class DBManager extends SQLiteOpenHelper {
 
-    private final static String DB_NAME = "autowifi.db";
+    private static final String DB_NAME = "autowifi.db";
     private static final int DB_VERSION = 8;
     //TODO to remove because of Lint performance warning: StaticFieldLeak: Static Field Leaks
     private final Context context;
@@ -211,7 +211,7 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
     public int removeCron(final int id) {
-        return getWritableDatabase().delete(Cron.NAME, "id=" + String.valueOf(id), null);
+        return getWritableDatabase().delete(Cron.NAME, "id=" + id, null);
     }
 
     public long addOrUpdateCron(Cron cron) {
