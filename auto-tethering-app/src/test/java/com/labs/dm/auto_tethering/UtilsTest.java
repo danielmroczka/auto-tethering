@@ -80,6 +80,7 @@ public class UtilsTest {
 
     @Test
     public void strToIntDefaultValue() {
+        assertEquals(0, Utils.strToInt("nil"));
         assertEquals(1, Utils.strToInt("1"));
         assertEquals(2, Utils.strToInt("2", 1));
         assertEquals(0, Utils.strToInt(""));

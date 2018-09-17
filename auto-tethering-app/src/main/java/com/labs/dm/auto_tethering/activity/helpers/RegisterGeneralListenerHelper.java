@@ -1,6 +1,7 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,6 +15,7 @@ import android.view.Gravity;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
@@ -133,7 +135,12 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
         p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                activity.startActivityForResult(preference.getIntent(), ON_CHANGE_SSID);
+                try {
+                    activity.startActivityForResult(preference.getIntent(), ON_CHANGE_SSID);
+                } catch (ActivityNotFoundException ex) {
+                    Toast.makeText(activity, R.string.cannot_load_wifihotspot, Toast.LENGTH_LONG).show();
+                    MyLog.e("Hotspot", ex);
+                }
                 return true;
             }
         });

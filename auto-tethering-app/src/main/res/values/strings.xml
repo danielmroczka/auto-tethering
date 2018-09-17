@@ -103,6 +103,7 @@
     <string name="temp_off">Tethering turned off due to high battery temperature</string>
     <string name="temp_on">Tethering turned on due to return to normal battery temperature</string>
     <string name="usb.activate.onconnect.unselect">Once option \'Start service on power connection\' has been disabled options below settings won\'t work unless service is running</string>
+    <string name="cannot_load_wifihotspot">Cannot load system WiFi hotspot configuration!</string>
     <string name="close">Close</string>
     <string name="initial_prompt_lollipop">On devices with Android version 5.0 (Lollipop) and newer Auto WiFi Tethering app cannot manage internet connection due to security policy.</string>
 </resources>
