@@ -25,7 +25,7 @@ public class DBManagerTest {
     private DBManager db;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         activity = Robolectric.buildActivity(MainActivity.class)
                 .create()
                 .resume()
@@ -34,14 +34,14 @@ public class DBManagerTest {
     }
 
     @Test
-    public void shouldAddCron() throws Exception {
+    public void shouldAddCron() {
         Cron cron = new Cron(9, 0, 12, 0, 0, 0);
         long res = db.addOrUpdateCron(cron);
         assertTrue(res > 0);
     }
 
     @Test
-    public void shouldGetCrons() throws Exception {
+    public void shouldGetCrons() {
         Cron cron = new Cron(9, 0, 12, 0, 0, 0);
         long id = db.addOrUpdateCron(cron);
 

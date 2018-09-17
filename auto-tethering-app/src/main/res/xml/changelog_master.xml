@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
+        version="0.0.72"
+        versioncode="72">
+        <change>Fixed issue: Cannot perform operation on closed database connection</change>
+        <change>Fixed issue: Application crashed once hotspot settings cannot be opened</change>
+        <change>Fixed several minor bugs</change>
+    </release>
+    <release
         version="0.0.71"
         versioncode="71">
         <change>Resolved the issue during the startup for Android version older than 4.1</change>
@@ -25,14 +32,5 @@
         version="0.0.67"
         versioncode="67">
         <change>New changelog dialog</change>
-    </release>
-    <release
-        version="0.0.65"
-        versioncode="65">
-        <change>Add 'Listen for Bluetooth connection' feature. Triggers tethering once connection to
-            Bluetooth device has been established
-        </change>
-        <change>Add info in status bar about source (device name) of Bluetooth activation</change>
-        <change>Add info in status bar about WiFi hotspot name</change>
     </release>
 </changelog>

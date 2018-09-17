@@ -11,14 +11,14 @@ import static org.junit.Assert.assertEquals;
  */
 public class WiFiTetheringTest {
     @Test
-    public void name() throws Exception {
+    public void name() {
         assertEquals(SECURITY_TYPE.WPAPSK, SECURITY_TYPE.valueOf("WPAPSK"));
         assertEquals(SECURITY_TYPE.WPA2PSK, SECURITY_TYPE.valueOf("WPA2PSK"));
         assertEquals(SECURITY_TYPE.OPEN, SECURITY_TYPE.valueOf("OPEN"));
     }
 
     @Test
-    public void code() throws Exception {
+    public void code() {
         assertEquals(4, SECURITY_TYPE.WPA2PSK.getCode());
     }
 }

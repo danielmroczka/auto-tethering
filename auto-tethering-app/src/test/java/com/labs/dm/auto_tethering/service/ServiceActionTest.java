@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 public class ServiceActionTest {
 
     @Test
-    public void general() throws Exception {
+    public void general() {
         assertTrue(ServiceAction.INTERNET_OFF.isInternet());
         assertFalse(ServiceAction.INTERNET_OFF.isOn());
         assertFalse(ServiceAction.INTERNET_OFF.isTethering());

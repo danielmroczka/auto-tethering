@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
-def VERSION_CODE = 71
+def VERSION_CODE = 72
 def BUILD_TOOL_VERSION = '26.0.3'
 
 repositories {

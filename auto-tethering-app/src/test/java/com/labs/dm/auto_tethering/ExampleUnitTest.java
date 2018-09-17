@@ -20,7 +20,7 @@ import static org.mockito.Mockito.verify;
 public class ExampleUnitTest {
 
     @Test
-    public void dummyTest() throws Exception {
+    public void dummyTest() {
         assertTrue(true);
     }
 

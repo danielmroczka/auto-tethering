@@ -42,7 +42,7 @@ public class ServiceHelper {
 
     public ServiceHelper(Context context) {
         this.context = context;
-        this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        this.wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
     }
 
     /**
@@ -92,7 +92,7 @@ public class ServiceHelper {
      * @return network SSID
      */
     public String getTetheringSSID() {
-        WifiConfiguration cfg = getWifiApConfiguration(context);
+        WifiConfiguration cfg = getWifiApConfiguration();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getString("default.wifi.network", cfg != null ? cfg.SSID : "");
     }
@@ -182,7 +182,7 @@ public class ServiceHelper {
         }
     }
 
-    private WifiConfiguration getWifiApConfiguration(final Context ctx) {
+    private WifiConfiguration getWifiApConfiguration() {
         final Method method = getWifiManagerMethod("getWifiApConfiguration", wifiManager);
         if (method != null) {
             try {

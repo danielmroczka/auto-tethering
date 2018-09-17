@@ -64,8 +64,9 @@ public class Utils {
 
     public static int connectedClients() {
         int res = 0;
+        BufferedReader br = null;
         try {
-            BufferedReader br = new BufferedReader(new FileReader("/proc/net/arp"));
+            br = new BufferedReader(new FileReader("/proc/net/arp"));
             String line;
             while ((line = br.readLine()) != null) {
                 if (!line.startsWith("IP")) {
@@ -76,6 +77,14 @@ public class Utils {
             MyLog.e("connectedClients", e);
         } catch (IOException e) {
             MyLog.e("connectedClients", e);
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    MyLog.e("Close Reader", e);
+                }
+            }
         }
 
         return res;
@@ -352,7 +361,7 @@ public class Utils {
     }
 
     public static WifiConfiguration saveWifiConfiguration(Context context, WiFiTethering wifiTethering) {
-        WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifi = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiConfiguration netConfig = null;
         if (wifiTethering != null) {
             netConfig = new WifiConfiguration();

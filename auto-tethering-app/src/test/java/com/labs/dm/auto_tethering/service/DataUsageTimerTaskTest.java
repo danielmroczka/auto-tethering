@@ -28,7 +28,7 @@ public class DataUsageTimerTaskTest {
     private DataUsageTimerTask task;
 
     @Before
-    public void setUps() throws Exception {
+    public void setUps() {
         context = ShadowApplication.getInstance().getApplicationContext();
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
         task = new DataUsageTimerTask(context);
