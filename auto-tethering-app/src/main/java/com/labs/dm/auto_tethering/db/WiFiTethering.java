@@ -5,7 +5,7 @@ package com.labs.dm.auto_tethering.db;
  */
 
 public class WiFiTethering {
-    public final static String NAME = "WIFI_TETHERING";
+    public static final String NAME = "WIFI_TETHERING";
 
     private int id;
     private String ssid;

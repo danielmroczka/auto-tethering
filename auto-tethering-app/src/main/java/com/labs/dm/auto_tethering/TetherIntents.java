@@ -4,6 +4,10 @@ package com.labs.dm.auto_tethering;
  * Created by Daniel Mroczka on 6/8/2016.
  */
 public class TetherIntents {
+
+    private TetherIntents() {
+    }
+
     public static final String PREFIX = "com.labs.dm.auto_tethering.";
     //Invents registered in TetherService
     public static final String EXIT = PREFIX + "EXIT";

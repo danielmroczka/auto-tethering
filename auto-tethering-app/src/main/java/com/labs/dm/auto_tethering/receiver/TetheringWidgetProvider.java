@@ -57,6 +57,7 @@ public class TetheringWidgetProvider extends AppWidgetProvider {
             context.getSharedPreferences("widget", MODE_PRIVATE).edit().putInt("clicks", ++clickCount).apply();
 
             final Handler handler = new Handler() {
+                @Override
                 public void handleMessage(Message msg) {
                     int clickCount = context.getSharedPreferences("widget", MODE_PRIVATE).getInt("clicks", 0);
                     MyLog.i(TAG, "ClickCount: " + clickCount);

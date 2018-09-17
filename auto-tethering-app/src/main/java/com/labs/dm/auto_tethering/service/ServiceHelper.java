@@ -37,8 +37,8 @@ public class ServiceHelper {
 
     private final Context context;
     private final WifiManager wifiManager;
-    private final static String TAG = "ServiceHelper";
-    private final static int TIMEOUT = 5000;
+    private static final String TAG = "ServiceHelper";
+    private static final int TIMEOUT = 5000;
 
     public ServiceHelper(Context context) {
         this.context = context;
@@ -183,7 +183,6 @@ public class ServiceHelper {
     }
 
     private WifiConfiguration getWifiApConfiguration(final Context ctx) {
-        final WifiManager wifiManager = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
         final Method method = getWifiManagerMethod("getWifiApConfiguration", wifiManager);
         if (method != null) {
             try {
@@ -219,10 +218,10 @@ public class ServiceHelper {
                 try {
                     available = (String[]) method.invoke(cm);
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    MyLog.e("USB Tethering", e);
                     return;
                 } catch (InvocationTargetException e) {
-                    e.printStackTrace();
+                    MyLog.e("USB Tethering", e);
                     return;
                 }
                 break;
@@ -234,20 +233,17 @@ public class ServiceHelper {
                 try {
                     code = (Integer) method.invoke(cm, available != null ? available[0] : null);
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    MyLog.e("USB Tethering", e);
                     return;
                 } catch (InvocationTargetException e) {
-                    e.printStackTrace();
+                    MyLog.e("USB Tethering", e);
                     return;
                 }
                 break;
             }
         }
 
-        if (code == 0)
-            MyLog.d(TAG, "Enable usb tethering successfully!");
-        else
-            MyLog.d(TAG, "Enable usb tethering failed!");
+        MyLog.d(TAG, code == 0 ? "Enable usb tethering successfully!" : "Enable usb tethering failed!");
     }
 
     public static long getDataUsage() {

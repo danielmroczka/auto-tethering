@@ -145,7 +145,7 @@ public class TetheringService extends IntentService {
 
     private Status previousStatus, status = Status.DEFAULT;
 
-    private final String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF,
+    private static final String[] invents = {TETHERING, WIDGET, RESUME, EXIT, USB_ON, USB_OFF,
             BT_STOP, BT_CONNECTED, BT_DISCONNECTED, BT_START_SEARCH, BT_START_TASKSEARCH, TEMPERATURE_ABOVE_LIMIT, TEMPERATURE_BELOW_LIMIT, CHANGE_NETWORK_STATE, TetherIntents.TETHER_ON, TetherIntents.TETHER_OFF, TetherIntents.INTERNET_ON, TetherIntents.INTERNET_OFF,
             EVENT_TETHER_OFF, EVENT_TETHER_ON, EVENT_MOBILE_OFF, EVENT_MOBILE_ON, EVENT_WIFI_OFF, EVENT_WIFI_ON, SERVICE_ON, CHANGE_CELL, ACTION_BATTERY_CHANGED
     };
@@ -867,18 +867,23 @@ public class TetheringService extends IntentService {
 
                 case EVENT_TETHER_OFF:
                     onTetheringOff();
+                    break;
 
                 case EVENT_TETHER_ON:
                     onTetheringOn();
+                    break;
 
                 case EVENT_MOBILE_OFF:
                     onMobileOff();
+                    break;
 
                 case EVENT_MOBILE_ON:
                     onMobileOn();
+                    break;
 
                 case EVENT_WIFI_OFF:
                     onWifiOff();
+                    break;
 
                 case EVENT_WIFI_ON:
                     onWifiOn();
