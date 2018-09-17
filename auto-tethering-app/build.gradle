@@ -44,7 +44,7 @@ android {
         debug {
             debuggable true
             buildConfigField "String", "GOOGLE_API_KEY", getMyApiKey("GOOGLE_API_KEY_DEBUG")
-            ext.enableCrashlytics = false
+            ext.enableCrashlytics = true
         }
         coverage {
             debuggable true

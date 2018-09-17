@@ -270,7 +270,9 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         MenuItem item = menu.findItem(R.id.action_log);
         if (!BuildConfig.DEBUG) {
             item.setEnabled(false);
-            item.getIcon().setAlpha(128);
+            if (item.getIcon() != null) {
+                item.getIcon().setAlpha(128);
+            }
         }
         return true;
     }

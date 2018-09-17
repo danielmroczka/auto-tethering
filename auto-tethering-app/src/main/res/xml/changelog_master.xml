@@ -5,6 +5,9 @@
         versioncode="72">
         <change>Fixed issue: Cannot perform operation on closed database connection</change>
         <change>Fixed issue: Application crashed once hotspot settings cannot be opened</change>
+        <change>Fixed issue: Opening About Form on Android older than 4.1 could crash the
+            application
+        </change>
         <change>Fixed several minor bugs</change>
     </release>
     <release

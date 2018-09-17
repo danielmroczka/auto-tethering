@@ -114,7 +114,12 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
                                     Intent intent = new Intent();
                                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     intent.setAction(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS);
-                                    activity.startActivity(intent);
+                                    try {
+                                        activity.startActivity(intent);
+                                    } catch (ActivityNotFoundException ex) {
+                                        Toast.makeText(activity, "Cannot open system Data Roaming settings!", Toast.LENGTH_LONG).show();
+                                        MyLog.e("Data Roaming", ex);
+                                    }
                                 }
                             })
                             .setNegativeButton(R.string.no, null
