@@ -4,13 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.labs.dm.auto_tethering.BuildConfig;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowApplication;
 
 import static org.junit.Assert.assertEquals;
@@ -20,7 +17,7 @@ import static org.junit.Assert.assertTrue;
  * Created by Daniel Mroczka on 10/12/2016.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
+//@Config(constants = BuildConfig.class)
 public class DataUsageTimerTaskTest {
 
     private Context context;

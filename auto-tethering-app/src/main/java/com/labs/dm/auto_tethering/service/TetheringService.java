@@ -15,6 +15,7 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
@@ -662,8 +663,47 @@ public class TetheringService extends IntentService {
             //notify = new Notification(icon, caption, System.currentTimeMillis());
             //notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
         } else {
-            notify = new Notification(icon, caption, System.currentTimeMillis());
-            notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                    .setTicker(caption)
+                    .setContentText(caption)
+                    .setContentTitle(getText(R.string.app_name))
+                    .setOngoing(true)
+                    .setSmallIcon(icon)
+                    .setContentIntent(pendingIntent)
+                    .setPriority(Notification.PRIORITY_MAX)
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
+
+            Intent onIntent = new Intent(TETHERING);
+            PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            int drawable = R.drawable.ic_service24;
+            String ticker = "Service ON";
+
+            if (forceOff && !forceOn) {
+                drawable = R.drawable.ic_wifi_off;
+                ticker = "Tethering OFF";
+            } else if (forceOn && !forceOff) {
+                drawable = R.drawable.ic_wifi_on;
+                ticker = "Tethering ON";
+            }
+
+            builder.addAction(drawable, ticker, onPendingIntent);
+
+            if (status == Status.DEACTIVATED_ON_IDLE) {
+                Intent onResumeIntent = new Intent(RESUME);
+                PendingIntent onResumePendingIntent = PendingIntent.getBroadcast(this, 0, onResumeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.addAction(R.drawable.ic_resume24, "Resume", onResumePendingIntent);
+            } else if (status == Status.DATA_USAGE_LIMIT_EXCEED) {
+                Intent onLimitIntent = new Intent(TetherIntents.UNLOCK);
+                PendingIntent onLimitPendingIntent = PendingIntent.getBroadcast(this, 0, onLimitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.addAction(R.drawable.ic_unlocked, "Unlock", onLimitPendingIntent);
+            }
+
+            builder.addAction(R.drawable.ic_exit24, "Exit", exitPendingIntent);
+            notify = builder.build();
+            // NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+            //notify = new Notification(icon, caption, System.currentTimeMillis());
+            //notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
         }
         return notify;
     }

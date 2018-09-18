@@ -1,6 +1,5 @@
 package com.labs.dm.auto_tethering.db;
 
-import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.activity.MainActivity;
 
 import org.junit.Before;
@@ -9,7 +8,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -18,7 +16,7 @@ import static junit.framework.Assert.assertTrue;
  * Created by Daniel Mroczka on 2016-09-27.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
+//@Config(constants = BuildConfig.class)
 @Ignore
 public class DBManagerTest {
     private MainActivity activity;
