@@ -19,6 +19,8 @@ import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.MyLog;
+import com.labs.dm.auto_tethering.service.oreo.OnStartTetheringCallback;
+import com.labs.dm.auto_tethering.service.oreo.OreoWifiManager;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -139,17 +141,37 @@ public class ServiceHelper {
         if (enable) {
             wifiManager.setWifiEnabled(false);
         }
-        Method[] methods = wifiManager.getClass().getDeclaredMethods();
-        for (Method method : methods) {
-            if (method.getName().equals("setWifiApEnabled")) {
-                try {
-                    MyLog.i(TAG, "setWifiTethering to " + enable);
-                    method.invoke(wifiManager, netConfig, enable);
-                } catch (Exception ex) {
-                    MyLog.e(TAG, "Switch on tethering", ex);
-                    Toast.makeText(context, ex.getMessage(), Toast.LENGTH_LONG).show();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            Method[] methods = wifiManager.getClass().getDeclaredMethods();
+            for (Method method : methods) {
+                if (method.getName().equals("setWifiApEnabled")) {
+                    try {
+                        MyLog.i(TAG, "setWifiTethering to " + enable);
+                        method.invoke(wifiManager, netConfig, enable);
+                    } catch (Exception ex) {
+                        MyLog.e(TAG, "Switch on tethering", ex);
+                        Toast.makeText(context, ex.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                    break;
                 }
-                break;
+            }
+        } else {
+            OreoWifiManager oreoWifiManager = new OreoWifiManager(context.getApplicationContext());
+            OnStartTetheringCallback callback = new OnStartTetheringCallback() {
+                @Override
+                public void onTetheringStarted() {
+                    Toast.makeText(context, "Oreo tethering On", Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onTetheringFailed() {
+                    Toast.makeText(context, "Oreo tethering failed", Toast.LENGTH_LONG).show();
+                }
+            };
+            if (enable) {
+                oreoWifiManager.startTethering(callback, null);
+            } else {
+                oreoWifiManager.stopTethering();
             }
         }
     }

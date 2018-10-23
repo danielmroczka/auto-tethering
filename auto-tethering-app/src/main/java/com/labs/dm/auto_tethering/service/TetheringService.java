@@ -15,6 +15,7 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
@@ -36,8 +37,6 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import static android.content.Intent.ACTION_BATTERY_CHANGED;
-import static android.os.Build.VERSION;
-import static android.os.Build.VERSION_CODES;
 import static android.telephony.PhoneStateListener.LISTEN_NONE;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
@@ -619,8 +618,9 @@ public class TetheringService extends IntentService {
         Intent exitIntent = new Intent(EXIT);
         PendingIntent exitPendingIntent = PendingIntent.getBroadcast(this, 0, exitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
-            Notification.Builder builder = new Notification.Builder(this)
+        //TODO Reimplement once back to support android 2.x
+        //if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setTicker(caption)
                     .setContentText(caption)
                     .setContentTitle(getText(R.string.app_name))
@@ -628,7 +628,7 @@ public class TetheringService extends IntentService {
                     .setSmallIcon(icon)
                     .setContentIntent(pendingIntent)
                     .setPriority(Notification.PRIORITY_MAX)
-                    .setStyle(new Notification.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
 
             Intent onIntent = new Intent(TETHERING);
             PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -661,10 +661,10 @@ public class TetheringService extends IntentService {
             //} //else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             //notify = new Notification(icon, caption, System.currentTimeMillis());
             //notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
-        } else {
-            notify = new Notification(icon, caption, System.currentTimeMillis());
-            notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
-        }
+        //} else {
+        //notify = new Notification(icon, caption, System.currentTimeMillis());
+        //notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
+        //}
         return notify;
     }
 
