@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,6 +16,7 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -618,9 +620,10 @@ public class TetheringService extends IntentService {
         Intent exitIntent = new Intent(EXIT);
         PendingIntent exitPendingIntent = PendingIntent.getBroadcast(this, 0, exitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+
         //TODO Reimplement once back to support android 2.x
         //if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
                     .setTicker(caption)
                     .setContentText(caption)
                     .setContentTitle(getText(R.string.app_name))
@@ -629,6 +632,15 @@ public class TetheringService extends IntentService {
                     .setContentIntent(pendingIntent)
                     .setPriority(Notification.PRIORITY_MAX)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            int notificationId = 1;
+            String channelId = "channel-01";
+            String channelName = "Channel Name";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+
+            builder.setChannelId(channelId);
+        }
 
             Intent onIntent = new Intent(TETHERING);
             PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -665,6 +677,17 @@ public class TetheringService extends IntentService {
         //notify = new Notification(icon, caption, System.currentTimeMillis());
         //notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
         //}
+
+        //View view;
+        //Context context;
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
+        stackBuilder.addNextIntent(intent);
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(
+                0,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
+        builder.setContentIntent(resultPendingIntent);
+
         return notify;
     }
 
@@ -672,11 +695,49 @@ public class TetheringService extends IntentService {
         showNotification(lastNotificationTickerText, getNotificationIcon());
     }
 
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public Notification buildNotification2(String caption, int icon) {
+        Notification notify;
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+        int notificationId = 1;
+        String channelId = "channel-01";
+        String channelName = "Channel Name";
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+//            NotificationChannel mChannel = new NotificationChannel(
+//                    channelId, channelName, importance);
+//            notificationManager.createNotificationChannel(mChannel);
+//        }
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), channelId)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("dupa")
+                .setContentText(caption);
+
+//        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
+//        stackBuilder.addNextIntent(new Intent("dupa"));
+//        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(
+//                0,
+//                PendingIntent.FLAG_UPDATE_CURRENT
+//        );
+//        mBuilder.setContentIntent(resultPendingIntent);
+
+        notify = mBuilder.build();
+        return notify;
+        //notificationManager.notify(notificationId, mBuilder.build());
+    }
+
     private void showNotification(String body, int icon) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         Notification notification = buildNotification(body, icon);
         notificationManager.cancelAll();
         notificationManager.notify(NOTIFICATION_ID, notification);
+
+        //showNotification(this, "tT", body, new Intent(""));
+
         MyLog.i(TAG, "Notification: " + body);
     }
 
