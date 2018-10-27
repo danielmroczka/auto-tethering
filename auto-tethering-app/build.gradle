@@ -6,6 +6,7 @@ def BUILD_TOOL_VERSION = '28.0.3'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
+    maven { url 'https://maven.google.com' }
 }
 
 apply plugin: 'jacoco-android'
@@ -15,6 +16,7 @@ buildscript {
         mavenCentral()
         jcenter()
         maven { url 'https://maven.fabric.io/public' }
+        maven { url 'https://maven.google.com' }
     }
 
     dependencies {
