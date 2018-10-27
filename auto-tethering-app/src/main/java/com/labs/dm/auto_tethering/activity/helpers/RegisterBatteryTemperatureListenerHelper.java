@@ -43,6 +43,11 @@ public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHe
     public void registerUIListeners() {
         Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (newValue == null || newValue.toString().isEmpty()) {
+                    Toast.makeText(activity, "Provide not empty value!", Toast.LENGTH_LONG).show();
+                    return false;
+                }
+
                 if (TEMP_VALUE_START.equals(preference.getKey())) {
                     if (Integer.parseInt((String) newValue) >= Integer.parseInt(prefs.getString(TEMP_VALUE_STOP, "40"))) {
                         Toast.makeText(activity, "Value should be less than " + prefs.getString(TEMP_VALUE_STOP, "40"), Toast.LENGTH_LONG).show();
