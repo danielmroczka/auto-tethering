@@ -467,7 +467,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
         @Override
         public void onLocationChanged(Location location) {
-            MyLog.i(TAG, "onLocationChanged;accuracy=" + location.getAccuracy());
+            MyLog.i(TAG, "onLocationChanged;accuracy=" + (location != null ? location.getAccuracy() : "unknown"));
         }
 
         @Override
