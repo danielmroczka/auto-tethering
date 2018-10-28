@@ -2,21 +2,21 @@ package com.labs.dm.auto_tethering.service;
 
 import android.app.IntentService;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -604,15 +604,15 @@ public class TetheringService extends IntentService {
         boolean internet = serviceHelper.isConnectedToInternetThroughMobile();
 
         if (tethering && internet) {
-            return R.drawable.app_on;
+            return Color.GREEN;
         } else if (tethering || internet) {
-            return R.drawable.app_yellow;
+            return Color.YELLOW;
         } else {
-            return R.drawable.app_off;
+            return Color.RED;
         }
     }
 
-    private Notification buildNotification(String caption, int icon) {
+    private Notification buildNotification(String caption, int color) {
         lastNotificationTickerText = caption;
         Notification notify;
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -620,17 +620,28 @@ public class TetheringService extends IntentService {
         Intent exitIntent = new Intent(EXIT);
         PendingIntent exitPendingIntent = PendingIntent.getBroadcast(this, 0, exitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            int notificationId = 1;
+            String channelId = "ch01";
+            String channelName = "Channel Name";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+            NotificationChannel mChannel = new NotificationChannel(channelId, channelName, importance);
+            notificationManager.createNotificationChannel(mChannel);
+        }
 
         //TODO Reimplement once back to support android 2.x
         //if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
-                    .setTicker(caption)
-                    .setContentText(caption)
-                    .setContentTitle(getText(R.string.app_name))
-                    .setOngoing(true)
-                    .setSmallIcon(icon)
-                    .setContentIntent(pendingIntent)
-                    .setPriority(Notification.PRIORITY_MAX)
+                .setTicker(caption)
+                .setContentText(caption)
+                .setContentTitle(getText(R.string.app_name))
+                .setOngoing(true)
+                .setColor(Color.DKGRAY)
+                .setSmallIcon(R.drawable.app_white)
+                .setContentIntent(pendingIntent)
+                .setPriority(Notification.PRIORITY_MAX)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -642,92 +653,47 @@ public class TetheringService extends IntentService {
             builder.setChannelId(channelId);
         }
 
-            Intent onIntent = new Intent(TETHERING);
-            PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent onIntent = new Intent(TETHERING);
+        PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            int drawable = R.drawable.ic_service24;
-            String ticker = "Service ON";
+        int drawable = R.drawable.ic_service24;
+        String ticker = "Service ON";
 
-            if (forceOff && !forceOn) {
-                drawable = R.drawable.ic_wifi_off;
-                ticker = "Tethering OFF";
-            } else if (forceOn && !forceOff) {
-                drawable = R.drawable.ic_wifi_on;
-                ticker = "Tethering ON";
-            }
+        if (forceOff && !forceOn) {
+            drawable = R.drawable.ic_wifi_off;
+            ticker = "Tethering OFF";
+        } else if (forceOn && !forceOff) {
+            drawable = R.drawable.ic_wifi_on;
+            ticker = "Tethering ON";
+        }
 
-            builder.addAction(drawable, ticker, onPendingIntent);
+        builder.addAction(drawable, ticker, onPendingIntent);
 
-            if (status == Status.DEACTIVATED_ON_IDLE) {
-                Intent onResumeIntent = new Intent(RESUME);
-                PendingIntent onResumePendingIntent = PendingIntent.getBroadcast(this, 0, onResumeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                builder.addAction(R.drawable.ic_resume24, "Resume", onResumePendingIntent);
-            } else if (status == Status.DATA_USAGE_LIMIT_EXCEED) {
-                Intent onLimitIntent = new Intent(TetherIntents.UNLOCK);
-                PendingIntent onLimitPendingIntent = PendingIntent.getBroadcast(this, 0, onLimitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                builder.addAction(R.drawable.ic_unlocked, "Unlock", onLimitPendingIntent);
-            }
+        if (status == Status.DEACTIVATED_ON_IDLE) {
+            Intent onResumeIntent = new Intent(RESUME);
+            PendingIntent onResumePendingIntent = PendingIntent.getBroadcast(this, 0, onResumeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.addAction(R.drawable.ic_resume24, "Resume", onResumePendingIntent);
+        } else if (status == Status.DATA_USAGE_LIMIT_EXCEED) {
+            Intent onLimitIntent = new Intent(TetherIntents.UNLOCK);
+            PendingIntent onLimitPendingIntent = PendingIntent.getBroadcast(this, 0, onLimitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.addAction(R.drawable.ic_unlocked, "Unlock", onLimitPendingIntent);
+        }
 
-            builder.addAction(R.drawable.ic_exit24, "Exit", exitPendingIntent);
-            notify = builder.build();
-            //} //else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            //notify = new Notification(icon, caption, System.currentTimeMillis());
-            //notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
+        builder.addAction(R.drawable.ic_exit24, "Exit", exitPendingIntent);
+        notify = builder.build();
+        //} //else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+        //notify = new Notification(icon, caption, System.currentTimeMillis());
+        //notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
         //} else {
         //notify = new Notification(icon, caption, System.currentTimeMillis());
         //notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
         //}
 
-        //View view;
-        //Context context;
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-        stackBuilder.addNextIntent(intent);
-        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(
-                0,
-                PendingIntent.FLAG_UPDATE_CURRENT
-        );
-        builder.setContentIntent(resultPendingIntent);
-
         return notify;
     }
 
     private void updateNotification() {
-        showNotification(lastNotificationTickerText, getNotificationIcon());
-    }
-
-
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public Notification buildNotification2(String caption, int icon) {
-        Notification notify;
-        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-
-        int notificationId = 1;
-        String channelId = "channel-01";
-        String channelName = "Channel Name";
-        int importance = NotificationManager.IMPORTANCE_HIGH;
-
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-//            NotificationChannel mChannel = new NotificationChannel(
-//                    channelId, channelName, importance);
-//            notificationManager.createNotificationChannel(mChannel);
-//        }
-
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), channelId)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("dupa")
-                .setContentText(caption);
-
-//        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-//        stackBuilder.addNextIntent(new Intent("dupa"));
-//        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(
-//                0,
-//                PendingIntent.FLAG_UPDATE_CURRENT
-//        );
-//        mBuilder.setContentIntent(resultPendingIntent);
-
-        notify = mBuilder.build();
-        return notify;
-        //notificationManager.notify(notificationId, mBuilder.build());
+        showNotification(lastNotificationTickerText, Color.DKGRAY);
     }
 
     private void showNotification(String body, int icon) {
@@ -735,9 +701,6 @@ public class TetheringService extends IntentService {
         Notification notification = buildNotification(body, icon);
         notificationManager.cancelAll();
         notificationManager.notify(NOTIFICATION_ID, notification);
-
-        //showNotification(this, "tT", body, new Intent(""));
-
         MyLog.i(TAG, "Notification: " + body);
     }
 
