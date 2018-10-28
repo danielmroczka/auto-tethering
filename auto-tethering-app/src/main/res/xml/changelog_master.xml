@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
+        version="0.0.73"
+        versioncode="73">
+        <change>Fixed issue: Problem with changelog on some mobile phones</change>
+        <change>Fixed issue: NumberFormatException while changing temperature limit</change>
+        <change>Fixed issue: NullPointerException in Location Listener</change>
+    </release>
+    <release
         version="0.0.72"
         versioncode="72">
         <change>Fixed issue: Cannot perform operation on closed database connection</change>
