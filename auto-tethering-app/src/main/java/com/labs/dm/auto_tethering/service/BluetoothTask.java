@@ -107,7 +107,7 @@ class BluetoothTask {
                     String previousConnectedDeviceName = connectedDeviceName;
                     connectedDeviceName = device.getName();
 
-                    if (connectedDeviceName != null && (previousConnectedDeviceName == null || !connectedDeviceName.equals(previousConnectedDeviceName))) {
+                    if (connectedDeviceName != null && !connectedDeviceName.equals(previousConnectedDeviceName)) {
                         MyLog.i(TAG, "New connection to " + device.getName());
                         btIntent = new Intent(BT_CONNECTED);
                     } else if (connectedDeviceName != null && !serviceHelper.isTetheringWiFi()) {

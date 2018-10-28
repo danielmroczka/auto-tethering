@@ -33,7 +33,6 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if (prefs.getBoolean("bt.incoming.listen", false)) {
-            BluetoothDevice bluetoothDevice;
             boolean isTethering = new ServiceHelper(context).isTetheringWiFi();
             switch (intent.getAction()) {
                 case BluetoothDevice.ACTION_ACL_CONNECTED:

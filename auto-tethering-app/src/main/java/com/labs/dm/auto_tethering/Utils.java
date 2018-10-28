@@ -92,7 +92,7 @@ public class Utils {
 
     public static String maskToDays(int mask) {
         String binary = String.format("%7s", Integer.toBinaryString(mask)).replace(' ', '0');
-        String result = "";
+        StringBuilder result = new StringBuilder();
         Map<Integer, String> map = new HashMap<>();
         map.put(6, "Mon");
         map.put(5, "Tue");
@@ -104,11 +104,11 @@ public class Utils {
 
         for (int i = binary.length() - 1; i >= 0; i--) {
             if ("1".equals(binary.substring(i, i + 1))) {
-                result += map.get(i) + " ";
+                result.append(map.get(i)).append(" ");
             }
         }
-        result = result.trim().replaceAll(" ", ", ");
-        return result;
+        result = new StringBuilder(result.toString().trim().replaceAll(" ", ", "));
+        return result.toString();
     }
 
     public static int adapterDayOfWeek(int day) {

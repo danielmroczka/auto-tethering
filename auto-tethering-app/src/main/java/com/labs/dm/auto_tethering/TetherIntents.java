@@ -8,7 +8,7 @@ public class TetherIntents {
     private TetherIntents() {
     }
 
-    public static final String PREFIX = "com.labs.dm.auto_tethering.";
+    private static final String PREFIX = "com.labs.dm.auto_tethering.";
     //Invents registered in TetherService
     public static final String EXIT = PREFIX + "EXIT";
     public static final String RESUME = PREFIX + ".RESUME";

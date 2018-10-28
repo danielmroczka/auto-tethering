@@ -29,7 +29,7 @@ import static com.labs.dm.auto_tethering.TetherIntents.TEMPERATURE_BELOW_LIMIT;
  */
 public class RegisterBatteryTemperatureListenerHelper extends AbstractRegisterHelper {
 
-    public static final String TEMP_VALUE_STOP = "temp.value.stop";
+    private static final String TEMP_VALUE_STOP = "temp.value.stop";
     public static final String TEMP_VALUE_START = "temp.value.start";
     private float lastTemperature;
     private final BatteryReceiver batteryReceiver;
