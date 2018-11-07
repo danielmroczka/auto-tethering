@@ -33,6 +33,7 @@ import android.widget.ListAdapter;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.ListenerManager;
 import com.labs.dm.auto_tethering.LogActivity;
@@ -83,7 +84,9 @@ public class MainActivity extends PermissionsActivity implements SharedPreferenc
     protected void onCreate(Bundle savedInstanceState) {
         db = DBManager.getInstance(getApplicationContext());
         super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
+        Fabric.with(this, new Crashlytics.Builder()
+                .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
+                .build());
         addPreferencesFromResource(R.xml.preferences);
         serviceHelper = new ServiceHelper(getApplicationContext());
         loadPrefs();

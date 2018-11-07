@@ -2,7 +2,6 @@ package com.labs.dm.auto_tethering.service;
 
 import android.app.IntentService;
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
@@ -620,16 +619,16 @@ public class TetheringService extends IntentService {
         Intent exitIntent = new Intent(EXIT);
         PendingIntent exitPendingIntent = PendingIntent.getBroadcast(this, 0, exitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            int notificationId = 1;
-            String channelId = "ch01";
-            String channelName = "Channel Name";
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-
-            NotificationChannel mChannel = new NotificationChannel(channelId, channelName, importance);
-            notificationManager.createNotificationChannel(mChannel);
-        }
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+//            int notificationId = 1;
+//            String channelId = "ch01";
+//            String channelName = "Channel Name";
+//            int importance = NotificationManager.IMPORTANCE_HIGH;
+//            NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+//
+//            NotificationChannel mChannel = new NotificationChannel(channelId, channelName, importance);
+//            notificationManager.createNotificationChannel(mChannel);
+//        }
 
         //TODO Reimplement once back to support android 2.x
         //if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
@@ -641,6 +640,7 @@ public class TetheringService extends IntentService {
                 .setColor(Color.DKGRAY)
                 .setSmallIcon(R.drawable.app_white)
                 .setContentIntent(pendingIntent)
+                .setDefaults(Notification.DEFAULT_LIGHTS)
                 .setPriority(Notification.PRIORITY_MAX)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
 
@@ -768,6 +768,7 @@ public class TetheringService extends IntentService {
                         blockForceInternet = false;
                         execute(TETHER_OFF);
                         execute(INTERNET_OFF);
+
                     } else if (!forceOff && !forceOn) {
                         // Turn ON
                         forceOn = true;
@@ -779,8 +780,8 @@ public class TetheringService extends IntentService {
                         forceOff = false;
                         forceOn = false;
                         onService();
-                        updateNotification();
                     }
+                    updateNotification();
                     break;
 
                 case WIDGET:
