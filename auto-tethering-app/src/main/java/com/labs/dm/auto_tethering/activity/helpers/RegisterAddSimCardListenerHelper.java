@@ -1,11 +1,14 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
+import android.support.v4.app.ActivityCompat;
 import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 import android.view.View;

@@ -620,8 +620,6 @@ public class TetheringService extends IntentService {
         Intent exitIntent = new Intent(EXIT);
         PendingIntent exitPendingIntent = PendingIntent.getBroadcast(this, 0, exitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-
-
         //TODO Reimplement once back to support android 2.x
         //if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
@@ -632,14 +630,15 @@ public class TetheringService extends IntentService {
                 .setColor(Color.DKGRAY)
                 .setSmallIcon(R.drawable.app_white)
                 .setContentIntent(pendingIntent)
+
                 //  .setDefaults(Notification.DEFAULT_LIGHTS)
-                .setPriority(Notification.PRIORITY_DEFAULT)
+                .setPriority(Notification.PRIORITY_LOW)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             String channelId = "ch01";
             String channelName = "Channel Name";
-            NotificationChannel mChannel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_MIN);
+            NotificationChannel mChannel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW);
             NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(mChannel);
             builder.setChannelId(channelId);

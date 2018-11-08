@@ -82,8 +82,8 @@ public class MainActivity extends PermissionsActivity implements SharedPreferenc
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        db = DBManager.getInstance(getApplicationContext());
         super.onCreate(savedInstanceState);
+        db = DBManager.getInstance(getApplicationContext());
         Fabric.with(this, new Crashlytics.Builder()
                 .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
                 .build());

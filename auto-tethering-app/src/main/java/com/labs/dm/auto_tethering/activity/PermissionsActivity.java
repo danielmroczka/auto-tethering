@@ -15,6 +15,8 @@ public abstract class PermissionsActivity extends PreferenceActivity {
 
     static final int MY_PERMISSIONS_MANAGE_WRITE_SETTINGS = 100;
     static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 69;
+    static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 70;
+    static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 71;
 
     private boolean mLocationPermission = false;
     private boolean mSettingPermission = true;
@@ -45,33 +47,48 @@ public abstract class PermissionsActivity extends PreferenceActivity {
         }
     }
 
-
     private void locationsPermission() {
         mLocationPermission = true;
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            mLocationPermission = false;
-            // Permission is not granted
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
 
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
+        String[] permissions = new String[]{Manifest.permission.READ_PHONE_STATE, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
 
-            } else {
-
-                // No explanation needed; request the permission
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
-
-                // MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
+        for (String perm : permissions) {
+            if (ActivityCompat.checkSelfPermission(this, perm) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{perm}, MY_PERMISSIONS_REQUEST_READ_PHONE_STATE);
             }
         }
+//
+//
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+//                != PackageManager.PERMISSION_GRANTED) {
+//            mLocationPermission = false;
+//            // Permission is not granted
+//            // Should we show an explanation?
+//            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
+//
+//                // Show an explanation to the user *asynchronously* -- don't block
+//                // this thread waiting for the user's response! After the user
+//                // sees the explanation, try again to request the permission.
+//
+//            } else {
+//
+//                // No explanation needed; request the permission
+//                ActivityCompat.requestPermissions(this,
+//                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+//                        MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
+//                ActivityCompat.requestPermissions(this,
+//                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+//                        MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+//                ActivityCompat.requestPermissions(this,
+//                        new String[]{Manifest.permission.READ_PHONE_STATE},
+//                        MY_PERMISSIONS_REQUEST_READ_PHONE_STATE);
+//
+//                // MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION is an
+//                // app-defined int constant. The callback method gets the
+//                // result of the request.
+//            }
+
     }
 
     @Override
@@ -87,7 +104,7 @@ public abstract class PermissionsActivity extends PreferenceActivity {
             }
         }
 
-        if (requestCode == MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION) {
+        if (requestCode == MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION || requestCode == MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION || requestCode == MY_PERMISSIONS_REQUEST_READ_PHONE_STATE) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 mLocationPermission = true;

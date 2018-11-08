@@ -73,10 +73,10 @@ android {
         targetSdkVersion 26
         versionCode VERSION_CODE
         versionName "0.0." + VERSION_CODE
-       testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         //testInstrumentationRunner "android.test.InstrumentationTestRunner"
         //testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-       // testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        // testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + getDateAsMillis() + "L)"
         buildConfigField "String", "GOOGLE_API_KEY", getMyApiKey("GOOGLE_API_KEY")
     }
@@ -103,7 +103,7 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     implementation 'com.linkedin.dexmaker:dexmaker-mockito:2.19.0'
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.2@aar'
-    implementation ('com.crashlytics.sdk.android:crashlytics:2.9.3@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.9.3@aar') {
         transitive = true
     }
 
