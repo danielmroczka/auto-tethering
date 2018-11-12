@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.text.Html;
@@ -70,7 +71,7 @@ import static com.labs.dm.auto_tethering.TetherIntents.WIFI_DEFAULT_REFRESH;
 /**
  * Created by Daniel Mroczka
  */
-public class MainActivity extends PermissionsActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final int ON_CHANGE_SSID = 1, ON_CHANGE_SCHEDULE = 2;
     private static final int NOTIFICATION_ID = 1234;
