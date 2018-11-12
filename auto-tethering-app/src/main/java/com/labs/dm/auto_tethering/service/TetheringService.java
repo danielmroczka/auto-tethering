@@ -620,6 +620,8 @@ public class TetheringService extends IntentService {
         Intent exitIntent = new Intent(EXIT);
         PendingIntent exitPendingIntent = PendingIntent.getBroadcast(this, 0, exitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        boolean showNotification = prefs.getBoolean("show.notification", true);
+
         //TODO Reimplement once back to support android 2.x
         //if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
@@ -632,13 +634,13 @@ public class TetheringService extends IntentService {
                 .setContentIntent(pendingIntent)
 
                 //  .setDefaults(Notification.DEFAULT_LIGHTS)
-                .setPriority(Notification.PRIORITY_LOW)
+                .setPriority(showNotification ? Notification.PRIORITY_HIGH : Notification.PRIORITY_LOW)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             String channelId = "ch01";
             String channelName = "Channel Name";
-            NotificationChannel mChannel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW);
+            NotificationChannel mChannel = new NotificationChannel(channelId, channelName, showNotification ? NotificationManager.IMPORTANCE_HIGH : NotificationManager.IMPORTANCE_LOW);
             NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(mChannel);
             builder.setChannelId(channelId);

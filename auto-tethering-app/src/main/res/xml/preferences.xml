@@ -342,6 +342,13 @@
             android:key="vibrate.on.tethering"
             android:summary="Vibrate on tethering state change"
             android:title="Vibrate" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:icon="@drawable/ic_notification"
+            android:key="show.notification"
+            android:summary="Display heads up notifications"
+            android:title="Notification" />
+
     </PreferenceScreen>
 
     <PreferenceCategory
