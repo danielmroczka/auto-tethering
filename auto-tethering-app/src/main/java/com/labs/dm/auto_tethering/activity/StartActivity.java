@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
@@ -87,33 +88,29 @@ public class StartActivity extends Activity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Check which request we're responding to
-        switch (requestCode) {
-            case MY_PERMISSIONS_MANAGE_WRITE_SETTINGS: {
-                // Make sure the request was successful
-                if (resultCode == RESULT_OK) {
-                    hasWritePermission = true;
-                    if (!hasLocationPermission)
-                        setLocationsPermission();
-                } else {
-                    setWritePermission();
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MY_PERMISSIONS_REQUEST) {
+            hasLocationPermission = true;
+            for (int perm : grantResults) {
+                if (perm < 0) {
+                    hasLocationPermission = false;
+                    break;
                 }
-                break;
-            }
-            case MY_PERMISSIONS_REQUEST: {
-                if (resultCode == RESULT_OK) {
-                    hasLocationPermission = true;
-                    if (!hasWritePermission) setWritePermission();
-                } else {
-                    setLocationsPermission();
-                }
-                break;
-            }
 
+            }
+            check();
         }
+    }
 
-        check();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == MY_PERMISSIONS_MANAGE_WRITE_SETTINGS) {
+            if (resultCode == RESULT_OK) {
+                hasWritePermission = true;
+            }
+            setLocationsPermission();
+        }
     }
 
     private void onPermissionsOkay() {

@@ -634,13 +634,13 @@ public class TetheringService extends IntentService {
                 .setContentIntent(pendingIntent)
 
                 //  .setDefaults(Notification.DEFAULT_LIGHTS)
-                .setPriority(showNotification ? Notification.PRIORITY_HIGH : Notification.PRIORITY_LOW)
+                .setPriority(showNotification ? Notification.PRIORITY_HIGH : Notification.PRIORITY_MIN)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             String channelId = "ch01";
             String channelName = "Channel Name";
-            NotificationChannel mChannel = new NotificationChannel(channelId, channelName, showNotification ? NotificationManager.IMPORTANCE_HIGH : NotificationManager.IMPORTANCE_LOW);
+            NotificationChannel mChannel = new NotificationChannel(channelId, channelName, showNotification ? NotificationManager.IMPORTANCE_HIGH : NotificationManager.IMPORTANCE_MIN);
             NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(mChannel);
             builder.setChannelId(channelId);
