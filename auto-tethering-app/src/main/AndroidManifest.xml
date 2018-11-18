@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.labs.dm.auto_tethering">
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -15,6 +16,9 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+
+    <uses-sdk tools:overrideLibrary="android.support.v4, android.support.v7.cardview, android.support.mediacompat, android.support.fragment, android.support.coreutils,
+        android.support.coreui, android.support.compat, android.arch.lifecycle" />
 
     <uses-feature
         android:name="android.hardware.telephony"

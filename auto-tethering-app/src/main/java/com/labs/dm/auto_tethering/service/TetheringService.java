@@ -622,55 +622,55 @@ public class TetheringService extends IntentService {
         boolean showNotification = prefs.getBoolean("show.notification", true);
 
         //TODO Reimplement once back to support android 2.x
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
-                    .setTicker(caption)
-                    .setContentText(caption)
-                    .setContentTitle(getText(R.string.app_name))
-                    .setOngoing(true)
-                    .setColor(Color.DKGRAY)
-                    .setSmallIcon(R.drawable.app_white)
-                    .setContentIntent(pendingIntent)
-                    .setPriority(Notification.PRIORITY_HIGH)
-                    .setStyle(new NotificationCompat.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
+        //  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+                .setTicker(caption)
+                .setContentText(caption)
+                .setContentTitle(getText(R.string.app_name))
+                .setOngoing(true)
+                .setColor(Color.DKGRAY)
+                .setSmallIcon(R.drawable.app_white)
+                .setContentIntent(pendingIntent)
+                .setPriority(Notification.PRIORITY_HIGH)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
 
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                builder.setChannelId(showNotification ? CHANNEL_ID : SILENT_CHANNEL_ID);
-            }
-
-            Intent onIntent = new Intent(TETHERING);
-            PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-            int drawable = R.drawable.ic_service24;
-            String ticker = "Service ON";
-
-            if (forceOff && !forceOn) {
-                drawable = R.drawable.ic_wifi_off;
-                ticker = "Tethering OFF";
-            } else if (forceOn && !forceOff) {
-                drawable = R.drawable.ic_wifi_on;
-                ticker = "Tethering ON";
-            }
-
-            builder.addAction(drawable, ticker, onPendingIntent);
-
-            if (status == Status.DEACTIVATED_ON_IDLE) {
-                Intent onResumeIntent = new Intent(RESUME);
-                PendingIntent onResumePendingIntent = PendingIntent.getBroadcast(this, 0, onResumeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                builder.addAction(R.drawable.ic_resume24, "Resume", onResumePendingIntent);
-            } else if (status == Status.DATA_USAGE_LIMIT_EXCEED) {
-                Intent onLimitIntent = new Intent(TetherIntents.UNLOCK);
-                PendingIntent onLimitPendingIntent = PendingIntent.getBroadcast(this, 0, onLimitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                builder.addAction(R.drawable.ic_unlocked, "Unlock", onLimitPendingIntent);
-            }
-
-            builder.addAction(R.drawable.ic_exit24, "Exit", exitPendingIntent);
-            notify = builder.build();
-        } else {
-            notify = new Notification(R.drawable.app_white, caption, System.currentTimeMillis());
-            //TODO
-            //notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            builder.setChannelId(showNotification ? CHANNEL_ID : SILENT_CHANNEL_ID);
         }
+
+        Intent onIntent = new Intent(TETHERING);
+        PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        int drawable = R.drawable.ic_service24;
+        String ticker = "Service ON";
+
+        if (forceOff && !forceOn) {
+            drawable = R.drawable.ic_wifi_off;
+            ticker = "Tethering OFF";
+        } else if (forceOn && !forceOff) {
+            drawable = R.drawable.ic_wifi_on;
+            ticker = "Tethering ON";
+        }
+
+        builder.addAction(drawable, ticker, onPendingIntent);
+
+        if (status == Status.DEACTIVATED_ON_IDLE) {
+            Intent onResumeIntent = new Intent(RESUME);
+            PendingIntent onResumePendingIntent = PendingIntent.getBroadcast(this, 0, onResumeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.addAction(R.drawable.ic_resume24, "Resume", onResumePendingIntent);
+        } else if (status == Status.DATA_USAGE_LIMIT_EXCEED) {
+            Intent onLimitIntent = new Intent(TetherIntents.UNLOCK);
+            PendingIntent onLimitPendingIntent = PendingIntent.getBroadcast(this, 0, onLimitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.addAction(R.drawable.ic_unlocked, "Unlock", onLimitPendingIntent);
+        }
+
+        builder.addAction(R.drawable.ic_exit24, "Exit", exitPendingIntent);
+        notify = builder.build();
+        //    } else {
+        //      notify = new Notification(R.drawable.app_white, caption, System.currentTimeMillis());
+        //      //TODO
+        //      notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
+        //   }
 
         return notify;
     }
