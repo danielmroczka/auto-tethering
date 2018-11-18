@@ -47,7 +47,7 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
                 if ((Boolean) newValue) {
 
                     Toast toast = Toast.makeText(activity, "Once application has been closed tethering and internet connection state will be restored to state before open this application", Toast.LENGTH_LONG);
-                    TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
+                    TextView v = toast.getView().findViewById(android.R.id.message);
                     if (v != null) {
                         v.setGravity(Gravity.CENTER);
                         v.setPadding(12, 12, 12, 12);
@@ -180,6 +180,13 @@ public class RegisterGeneralListenerHelper extends AbstractRegisterHelper {
                     Toast.makeText(activity, R.string.usb_activate_onconnect_unselect, Toast.LENGTH_LONG).show();
                 }
                 return true;
+            }
+        });
+
+        startService.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                return false;
             }
         });
 

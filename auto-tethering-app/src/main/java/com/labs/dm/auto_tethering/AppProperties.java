@@ -58,4 +58,7 @@ public class AppProperties {
     public static final String ACTIVATE_ON_ROAMING_HC = "activate.on.roaming.home.country";
     public static final String RETURN_TO_PREV_STATE = "return.state";
 
+    public static final String SILENT_CHANNEL_ID = "TETHERING_SILENT_001";
+    public static final String CHANNEL_ID = "TETHERING_001";
+
 }

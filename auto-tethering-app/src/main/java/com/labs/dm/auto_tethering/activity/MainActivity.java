@@ -107,6 +107,12 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             switchOffPreferences("activate.3g", "idle.3g.off", "usb.internet.force.off", "usb.internet.force.on");
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            switchOffPreferences("vibrate.on.tethering");
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            switchOffPreferences("show.notification");
+        }
     }
 
     private void switchOffPreferences(String... names) {

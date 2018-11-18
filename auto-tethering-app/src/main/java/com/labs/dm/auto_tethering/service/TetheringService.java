@@ -48,6 +48,7 @@ import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_SIMCARD;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_TETHERING;
 import static com.labs.dm.auto_tethering.AppProperties.BT_TIMER_INTERVAL;
 import static com.labs.dm.auto_tethering.AppProperties.BT_TIMER_START_DELAY;
+import static com.labs.dm.auto_tethering.AppProperties.CHANNEL_ID;
 import static com.labs.dm.auto_tethering.AppProperties.DATAUSAGE_TIMER_INTERVAL;
 import static com.labs.dm.auto_tethering.AppProperties.DATAUSAGE_TIMER_START_DELAY;
 import static com.labs.dm.auto_tethering.AppProperties.DEFAULT_IDLE_TETHERING_OFF_TIME;
@@ -56,6 +57,7 @@ import static com.labs.dm.auto_tethering.AppProperties.IDLE_3G_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF;
 import static com.labs.dm.auto_tethering.AppProperties.IDLE_TETHERING_OFF_TIME;
 import static com.labs.dm.auto_tethering.AppProperties.RETURN_TO_PREV_STATE;
+import static com.labs.dm.auto_tethering.AppProperties.SILENT_CHANNEL_ID;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_CONNECTED;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_DISCONNECTED;
 import static com.labs.dm.auto_tethering.TetherIntents.BT_START_SEARCH;
@@ -164,6 +166,7 @@ public class TetheringService extends IntentService {
         init();
         registerReceivers();
         registerTimeTask();
+        createNotificationChannels();
     }
 
     private void registerTimeTask() {
@@ -512,9 +515,7 @@ public class TetheringService extends IntentService {
     private boolean check3GIdle() {
         if (prefs.getBoolean(IDLE_3G_OFF, false)) {
             int idle3gOffTime = Utils.strToInt(prefs.getString(IDLE_3G_OFF_TIME, "60"), 60);
-            if (getTime().getTimeInMillis() - lastAccess > idle3gOffTime * MINUTE_IN_MS) {
-                return true;
-            }
+            return getTime().getTimeInMillis() - lastAccess > idle3gOffTime * MINUTE_IN_MS;
         }
 
         return false;
@@ -523,9 +524,7 @@ public class TetheringService extends IntentService {
     private boolean checkWifiIdle() {
         if (prefs.getBoolean(IDLE_TETHERING_OFF, false)) {
             int idleTetheringOffTime = Utils.strToInt(prefs.getString(IDLE_TETHERING_OFF_TIME, DEFAULT_IDLE_TETHERING_OFF_TIME));
-            if (getTime().getTimeInMillis() - lastAccess > idleTetheringOffTime * MINUTE_IN_MS) {
-                return true;
-            }
+            return getTime().getTimeInMillis() - lastAccess > idleTetheringOffTime * MINUTE_IN_MS;
         }
         return false;
     }
@@ -623,72 +622,55 @@ public class TetheringService extends IntentService {
         boolean showNotification = prefs.getBoolean("show.notification", true);
 
         //TODO Reimplement once back to support android 2.x
-        //if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
-                .setTicker(caption)
-                .setContentText(caption)
-                .setContentTitle(getText(R.string.app_name))
-                .setOngoing(true)
-                .setColor(Color.DKGRAY)
-                .setSmallIcon(R.drawable.app_white)
-                .setContentIntent(pendingIntent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+                    .setTicker(caption)
+                    .setContentText(caption)
+                    .setContentTitle(getText(R.string.app_name))
+                    .setOngoing(true)
+                    .setColor(Color.DKGRAY)
+                    .setSmallIcon(R.drawable.app_white)
+                    .setContentIntent(pendingIntent)
+                    .setPriority(Notification.PRIORITY_HIGH)
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
 
-                //  .setDefaults(Notification.DEFAULT_LIGHTS)
-                .setPriority(showNotification ? Notification.PRIORITY_HIGH : Notification.PRIORITY_MIN)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                builder.setChannelId(showNotification ? CHANNEL_ID : SILENT_CHANNEL_ID);
+            }
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            String channelId = "ch01";
-            String channelName = "Channel Name";
-            NotificationChannel mChannel = new NotificationChannel(channelId, channelName, showNotification ? NotificationManager.IMPORTANCE_HIGH : NotificationManager.IMPORTANCE_MIN);
-            NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.createNotificationChannel(mChannel);
-            builder.setChannelId(channelId);
+            Intent onIntent = new Intent(TETHERING);
+            PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            int drawable = R.drawable.ic_service24;
+            String ticker = "Service ON";
+
+            if (forceOff && !forceOn) {
+                drawable = R.drawable.ic_wifi_off;
+                ticker = "Tethering OFF";
+            } else if (forceOn && !forceOff) {
+                drawable = R.drawable.ic_wifi_on;
+                ticker = "Tethering ON";
+            }
+
+            builder.addAction(drawable, ticker, onPendingIntent);
+
+            if (status == Status.DEACTIVATED_ON_IDLE) {
+                Intent onResumeIntent = new Intent(RESUME);
+                PendingIntent onResumePendingIntent = PendingIntent.getBroadcast(this, 0, onResumeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.addAction(R.drawable.ic_resume24, "Resume", onResumePendingIntent);
+            } else if (status == Status.DATA_USAGE_LIMIT_EXCEED) {
+                Intent onLimitIntent = new Intent(TetherIntents.UNLOCK);
+                PendingIntent onLimitPendingIntent = PendingIntent.getBroadcast(this, 0, onLimitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.addAction(R.drawable.ic_unlocked, "Unlock", onLimitPendingIntent);
+            }
+
+            builder.addAction(R.drawable.ic_exit24, "Exit", exitPendingIntent);
+            notify = builder.build();
+        } else {
+            notify = new Notification(R.drawable.app_white, caption, System.currentTimeMillis());
+            //TODO
+            //notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
         }
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-//            int notificationId = 1;
-//            String channelId = "channel-01";
-//            String channelName = "Channel Name";
-//            int importance = NotificationManager.IMPORTANCE_HIGH;
-//            builder.setPriority(importance);
-//            builder.setChannelId(channelId);
-//        }
-
-        Intent onIntent = new Intent(TETHERING);
-        PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        int drawable = R.drawable.ic_service24;
-        String ticker = "Service ON";
-
-        if (forceOff && !forceOn) {
-            drawable = R.drawable.ic_wifi_off;
-            ticker = "Tethering OFF";
-        } else if (forceOn && !forceOff) {
-            drawable = R.drawable.ic_wifi_on;
-            ticker = "Tethering ON";
-        }
-
-        builder.addAction(drawable, ticker, onPendingIntent);
-
-        if (status == Status.DEACTIVATED_ON_IDLE) {
-            Intent onResumeIntent = new Intent(RESUME);
-            PendingIntent onResumePendingIntent = PendingIntent.getBroadcast(this, 0, onResumeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.addAction(R.drawable.ic_resume24, "Resume", onResumePendingIntent);
-        } else if (status == Status.DATA_USAGE_LIMIT_EXCEED) {
-            Intent onLimitIntent = new Intent(TetherIntents.UNLOCK);
-            PendingIntent onLimitPendingIntent = PendingIntent.getBroadcast(this, 0, onLimitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.addAction(R.drawable.ic_unlocked, "Unlock", onLimitPendingIntent);
-        }
-
-        builder.addAction(R.drawable.ic_exit24, "Exit", exitPendingIntent);
-        notify = builder.build();
-        //} //else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-        //notify = new Notification(icon, caption, System.currentTimeMillis());
-        //notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
-        //} else {
-        //notify = new Notification(icon, caption, System.currentTimeMillis());
-        //notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
-        //}
 
         return notify;
     }
@@ -703,6 +685,23 @@ public class TetheringService extends IntentService {
         notificationManager.cancelAll();
         notificationManager.notify(NOTIFICATION_ID, notification);
         MyLog.i(TAG, "Notification: " + body);
+    }
+
+    private void createNotificationChannels() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+            String silentChannelName = "Not intrusive Notification";
+            NotificationChannel silentChannel = new NotificationChannel(SILENT_CHANNEL_ID, silentChannelName, NotificationManager.IMPORTANCE_LOW);
+            silentChannel.enableVibration(prefs.getBoolean("vibrate.on.tethering", false));
+            notificationManager.createNotificationChannel(silentChannel);
+
+            String channelName = "Normal Notification";
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_HIGH);
+            channel.enableVibration(prefs.getBoolean("vibrate.on.tethering", false));
+            channel.enableLights(true);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     @Override
@@ -972,6 +971,7 @@ public class TetheringService extends IntentService {
                 }
             }
         }
+
     }
 
     private void onWifiOn() {
