@@ -17,6 +17,7 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -638,21 +639,7 @@ public class TetheringService extends IntentService {
                 builder.setChannelId(showNotification ? CHANNEL_ID : SILENT_CHANNEL_ID);
             }
 
-            Intent onIntent = new Intent(TETHERING);
-            PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-            int drawable = R.drawable.ic_service24;
-            String ticker = "Service ON";
-
-            if (forceOff && !forceOn) {
-                drawable = R.drawable.ic_wifi_off;
-                ticker = "Tethering OFF";
-            } else if (forceOn && !forceOff) {
-                drawable = R.drawable.ic_wifi_on;
-                ticker = "Tethering ON";
-            }
-
-            builder.addAction(drawable, ticker, onPendingIntent);
+            builder.addAction(buildAction());
 
             if (status == Status.DEACTIVATED_ON_IDLE) {
                 Intent onResumeIntent = new Intent(RESUME);
@@ -673,6 +660,25 @@ public class TetheringService extends IntentService {
         }
 
         return notify;
+    }
+
+    @NonNull
+    private NotificationCompat.Action buildAction() {
+        Intent onIntent = new Intent(TETHERING);
+        PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        int drawable = R.drawable.ic_service24;
+        String ticker = "Turn ON";
+
+        if (forceOff && !forceOn) {
+            drawable = R.drawable.ic_wifi_on;
+            ticker = "Service ON";
+        } else if (forceOn && !forceOff) {
+            drawable = R.drawable.ic_service24;
+            ticker = "Turn OFF";
+        }
+
+        return new NotificationCompat.Action.Builder(drawable, ticker, onPendingIntent).build();
     }
 
     private void updateNotification() {
@@ -779,6 +785,7 @@ public class TetheringService extends IntentService {
                         // Service ON
                         forceOff = false;
                         forceOn = false;
+                        checkCellular();
                         onService();
                     }
                     updateNotification();
@@ -933,6 +940,7 @@ public class TetheringService extends IntentService {
 
                 case CHANGE_CELL:
                     checkCellular();
+                    //send Broadcast Intent to update Cellular on UI Component
                     sendBroadcast(new Intent(TetherIntents.CHANGE_CELL_FORM));
                     break;
 
