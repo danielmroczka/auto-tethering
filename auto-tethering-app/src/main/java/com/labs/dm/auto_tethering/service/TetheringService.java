@@ -2,7 +2,6 @@ package com.labs.dm.auto_tethering.service;
 
 import android.app.IntentService;
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
@@ -694,20 +693,7 @@ public class TetheringService extends IntentService {
     }
 
     private void createNotificationChannels() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-
-            String silentChannelName = "Not intrusive Notification";
-            NotificationChannel silentChannel = new NotificationChannel(SILENT_CHANNEL_ID, silentChannelName, NotificationManager.IMPORTANCE_LOW);
-            silentChannel.enableVibration(prefs.getBoolean("vibrate.on.tethering", false));
-            notificationManager.createNotificationChannel(silentChannel);
-
-            String channelName = "Normal Notification";
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_HIGH);
-            channel.enableVibration(prefs.getBoolean("vibrate.on.tethering", false));
-            channel.enableLights(true);
-            notificationManager.createNotificationChannel(channel);
-        }
+        NotificationHelper.createChannels(this);
     }
 
     @Override
