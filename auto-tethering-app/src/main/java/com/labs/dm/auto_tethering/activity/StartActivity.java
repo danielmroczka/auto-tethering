@@ -119,7 +119,7 @@ public class StartActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == MY_PERMISSIONS_MANAGE_WRITE_SETTINGS) {
-            if (resultCode == RESULT_OK) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Settings.System.canWrite(getApplicationContext())) {
                 hasWritePermission = true;
             }
             setLocationsPermission();
@@ -131,13 +131,13 @@ public class StartActivity extends Activity {
     }
 
     private void onGrantedPermissions() {
-        new Handler().postDelayed(new Runnable() {
+        new Handler().post(new Runnable() {
             @Override
             public void run() {
                 startActivity(new Intent(StartActivity.this, MainActivity.class));
                 finish();
             }
-        }, 1);
+        });
     }
 
 }

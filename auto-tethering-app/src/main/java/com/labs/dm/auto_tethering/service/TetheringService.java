@@ -639,18 +639,8 @@ public class TetheringService extends IntentService {
             }
 
             builder.addAction(buildAction());
+            buildAdditionalAction(exitPendingIntent, builder);
 
-            if (status == Status.DEACTIVATED_ON_IDLE) {
-                Intent onResumeIntent = new Intent(RESUME);
-                PendingIntent onResumePendingIntent = PendingIntent.getBroadcast(this, 0, onResumeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                builder.addAction(R.drawable.ic_resume24, "Resume", onResumePendingIntent);
-            } else if (status == Status.DATA_USAGE_LIMIT_EXCEED) {
-                Intent onLimitIntent = new Intent(TetherIntents.UNLOCK);
-                PendingIntent onLimitPendingIntent = PendingIntent.getBroadcast(this, 0, onLimitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                builder.addAction(R.drawable.ic_unlocked, "Unlock", onLimitPendingIntent);
-            }
-
-            builder.addAction(R.drawable.ic_exit24, "Exit", exitPendingIntent);
             notify = builder.build();
         } else {
             notify = new Notification(R.drawable.app_white, caption, System.currentTimeMillis());
@@ -659,6 +649,20 @@ public class TetheringService extends IntentService {
         }
 
         return notify;
+    }
+
+    private void buildAdditionalAction(PendingIntent exitPendingIntent, NotificationCompat.Builder builder) {
+        if (status == Status.DEACTIVATED_ON_IDLE) {
+            Intent onResumeIntent = new Intent(RESUME);
+            PendingIntent onResumePendingIntent = PendingIntent.getBroadcast(this, 0, onResumeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.addAction(R.drawable.ic_resume24, "Resume", onResumePendingIntent);
+        } else if (status == Status.DATA_USAGE_LIMIT_EXCEED) {
+            Intent onLimitIntent = new Intent(TetherIntents.UNLOCK);
+            PendingIntent onLimitPendingIntent = PendingIntent.getBroadcast(this, 0, onLimitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.addAction(R.drawable.ic_unlocked, "Unlock", onLimitPendingIntent);
+        }
+
+        builder.addAction(R.drawable.ic_exit24, "Exit", exitPendingIntent);
     }
 
     @NonNull
