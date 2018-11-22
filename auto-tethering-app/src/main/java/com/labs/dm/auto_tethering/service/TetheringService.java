@@ -670,14 +670,14 @@ public class TetheringService extends IntentService {
         Intent onIntent = new Intent(TETHERING);
         PendingIntent onPendingIntent = PendingIntent.getBroadcast(this, 0, onIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        int drawable = R.drawable.ic_service24;
+        int drawable = R.drawable.ic_wifi_on;
         String ticker = "Turn ON";
 
         if (forceOff && !forceOn) {
-            drawable = R.drawable.ic_wifi_on;
+            drawable = R.drawable.ic_service24;
             ticker = "Service ON";
         } else if (forceOn && !forceOff) {
-            drawable = R.drawable.ic_service24;
+            drawable = R.drawable.ic_wifi_off;
             ticker = "Turn OFF";
         }
 
@@ -764,7 +764,6 @@ public class TetheringService extends IntentService {
                         blockForceInternet = false;
                         execute(TETHER_OFF);
                         execute(INTERNET_OFF);
-
                     } else if (!forceOff && !forceOn) {
                         // Turn ON
                         forceOn = true;
@@ -777,6 +776,7 @@ public class TetheringService extends IntentService {
                         forceOn = false;
                         checkCellular();
                         onService();
+                        showNotification("Service waits for activation signals", Color.DKGRAY);
                     }
                     updateNotification();
                     break;
