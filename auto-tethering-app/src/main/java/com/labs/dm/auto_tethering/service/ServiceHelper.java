@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -339,5 +340,13 @@ public class ServiceHelper {
 
     public boolean isWifiEnabled() {
         return wifiManager.isWifiEnabled();
+    }
+
+    public void registerReceiver(BroadcastReceiver receiver, String... actions) {
+        IntentFilter filter = new IntentFilter();
+        for (String action : actions) {
+            filter.addAction(action);
+        }
+        context.registerReceiver(receiver, filter);
     }
 }

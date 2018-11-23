@@ -31,6 +31,8 @@ import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.Cron.STATUS;
 import com.labs.dm.auto_tethering.db.DBManager;
+import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
+import com.labs.dm.auto_tethering.receiver.ChargeBroadcastReceiver;
 
 import java.util.Calendar;
 import java.util.List;
@@ -39,6 +41,8 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import static android.content.Intent.ACTION_BATTERY_CHANGED;
+import static android.content.Intent.ACTION_POWER_CONNECTED;
+import static android.content.Intent.ACTION_POWER_DISCONNECTED;
 import static android.telephony.PhoneStateListener.LISTEN_NONE;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
@@ -181,12 +185,12 @@ public class TetheringService extends IntentService {
     }
 
     private void registerReceivers() {
-        IntentFilter filter = new IntentFilter();
-        for (String invent : invents) {
-            filter.addAction(invent);
-        }
-        receiver = new TetheringServiceReceiver();
-        registerReceiver(receiver, filter);
+        // Own receivers
+        serviceHelper.registerReceiver(new TetheringServiceReceiver(), invents);
+        // Register ChargeBroadcastReceiver
+        serviceHelper.registerReceiver(new ChargeBroadcastReceiver(), ACTION_POWER_CONNECTED, ACTION_POWER_DISCONNECTED);
+        // Register BootCompletedReceiver
+        //serviceHelper.registerReceiver(new BootCompletedReceiver(), "android.intent.action.BOOT_COMPLETED");
     }
 
     @Override
