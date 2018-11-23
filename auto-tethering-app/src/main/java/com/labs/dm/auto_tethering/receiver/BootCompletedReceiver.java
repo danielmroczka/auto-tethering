@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.preference.PreferenceManager;
 
 import com.labs.dm.auto_tethering.Utils;
@@ -25,7 +26,11 @@ public class BootCompletedReceiver extends BroadcastReceiver {
         final Intent serviceIntent = new Intent(context, TetheringService.class);
         int delay = Utils.strToInt(prefs.getString("activate.on.startup.delay", "0"));
         if (delay == 0) {
-            context.startService(serviceIntent);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                context.startService(serviceIntent);
+            } else {
+                context.startForegroundService(serviceIntent);
+            }
         } else {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             PendingIntent onPendingIntent = PendingIntent.getService(context, 0, serviceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
