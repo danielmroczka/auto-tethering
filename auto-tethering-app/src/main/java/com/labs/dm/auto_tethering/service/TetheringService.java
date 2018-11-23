@@ -8,7 +8,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -31,8 +30,10 @@ import com.labs.dm.auto_tethering.db.Cellular;
 import com.labs.dm.auto_tethering.db.Cron;
 import com.labs.dm.auto_tethering.db.Cron.STATUS;
 import com.labs.dm.auto_tethering.db.DBManager;
-import com.labs.dm.auto_tethering.receiver.BootCompletedReceiver;
 import com.labs.dm.auto_tethering.receiver.ChargeBroadcastReceiver;
+import com.labs.dm.auto_tethering.receiver.NetworkConnectionReceiver;
+import com.labs.dm.auto_tethering.receiver.TetheringStateReceiver;
+import com.labs.dm.auto_tethering.receiver.TetheringWidgetProvider;
 
 import java.util.Calendar;
 import java.util.List;
@@ -184,13 +185,23 @@ public class TetheringService extends IntentService {
         }
     }
 
+    /**
+     * Since Android 26 (Oreo) some broadcasts can no longer register broadcast receivers for implicit broadcasts in their manifest.
+     *
+     * @see <a href="https://developer.android.com/guide/components/broadcast-exceptions">Implicit Broadcast Exceptions</a>
+     */
     private void registerReceivers() {
         // Own receivers
-        serviceHelper.registerReceiver(new TetheringServiceReceiver(), invents);
-        // Register ChargeBroadcastReceiver
-        serviceHelper.registerReceiver(new ChargeBroadcastReceiver(), ACTION_POWER_CONNECTED, ACTION_POWER_DISCONNECTED);
-        // Register BootCompletedReceiver
-        //serviceHelper.registerReceiver(new BootCompletedReceiver(), "android.intent.action.BOOT_COMPLETED");
+        receiver = new TetheringServiceReceiver();
+        serviceHelper.registerReceiver(receiver, invents);
+
+        // Register receivers declared in Manifest
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            serviceHelper.registerReceiver(new ChargeBroadcastReceiver(), ACTION_POWER_CONNECTED, ACTION_POWER_DISCONNECTED);
+            serviceHelper.registerReceiver(new TetheringWidgetProvider(), "android.appwidget.action.APPWIDGET_UPDATE");
+            serviceHelper.registerReceiver(new NetworkConnectionReceiver(), "android.net.conn.CONNECTIVITY_CHANGE", "android.net.wifi.WIFI_AP_STATE_CHANGED");
+            serviceHelper.registerReceiver(new TetheringStateReceiver(), "android.net.wifi.WIFI_AP_STATE_CHANGED");
+        }
     }
 
     @Override
@@ -708,17 +719,22 @@ public class TetheringService extends IntentService {
     public void onDestroy() {
         MyLog.i(TAG, "onDestroy");
         flag = false;
-        revertToInitialState();
-        stopForeground(true);
-        stopSelf();
-        unregisterReceiver(receiver);
-        dataUsageTimer.cancel();
-        bluetoothTimer.cancel();
-        dataUsageTask.cancel();
-        bluetoothTask.cancel();
-        final TelephonyManager telManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        telManager.listen(myPhoneStateListener, LISTEN_NONE);
-        super.onDestroy();
+        try {
+            revertToInitialState();
+            stopForeground(true);
+            stopSelf();
+            dataUsageTimer.cancel();
+            bluetoothTimer.cancel();
+            dataUsageTask.cancel();
+            bluetoothTask.cancel();
+            final TelephonyManager telManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+            telManager.listen(myPhoneStateListener, LISTEN_NONE);
+            unregisterReceiver(receiver);
+        } catch (Exception ex) {
+            MyLog.e(TAG, ex);
+        } finally {
+            super.onDestroy();
+        }
     }
 
     private void revertToInitialStateAsync() {

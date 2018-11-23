@@ -12,6 +12,8 @@ import android.preference.PreferenceManager;
 import com.labs.dm.auto_tethering.Utils;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 /**
  * Main responsibility of this receiver is to start TetheringService instance just after boot has been completed
  * <p>
@@ -26,7 +28,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
         final Intent serviceIntent = new Intent(context, TetheringService.class);
         int delay = Utils.strToInt(prefs.getString("activate.on.startup.delay", "0"));
         if (delay == 0) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            if (SDK_INT < Build.VERSION_CODES.O) {
                 context.startService(serviceIntent);
             } else {
                 context.startForegroundService(serviceIntent);
@@ -34,7 +36,14 @@ public class BootCompletedReceiver extends BroadcastReceiver {
         } else {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             PendingIntent onPendingIntent = PendingIntent.getService(context, 0, serviceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay * 1000L, onPendingIntent);
+
+            if (SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay * 1000L, onPendingIntent);
+            } else if (SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay * 1000L, onPendingIntent);
+            } else {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay * 1000L, onPendingIntent);
+            }
         }
     }
 }
