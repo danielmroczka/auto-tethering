@@ -10,6 +10,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 
 import com.labs.dm.auto_tethering.Utils;
+import com.labs.dm.auto_tethering.activity.MainActivity;
 import com.labs.dm.auto_tethering.service.TetheringService;
 
 import static android.os.Build.VERSION.SDK_INT;
@@ -35,7 +36,8 @@ public class BootCompletedReceiver extends BroadcastReceiver {
             }
         } else {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            PendingIntent onPendingIntent = PendingIntent.getService(context, 0, serviceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            Intent mStartActivity = new Intent(context, MainActivity.class);
+            PendingIntent onPendingIntent = PendingIntent.getActivity(context, 123456, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
 
             if (SDK_INT >= Build.VERSION_CODES.M) {
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay * 1000L, onPendingIntent);
@@ -44,6 +46,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
             } else {
                 alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay * 1000L, onPendingIntent);
             }
+
         }
     }
 }
