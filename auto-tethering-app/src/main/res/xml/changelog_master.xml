@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
+        version="0.0.74"
+        versioncode="74">
+        <change>Added support Android 8.0 (Oreo)</change>
+    </release>
+    <release
         version="0.0.72"
         versioncode="72">
         <change>Fixed issue: Cannot perform operation on closed database connection</change>
@@ -24,16 +29,5 @@
         version="0.0.69"
         versioncode="69">
         <change>Added support for Android 7.x</change>
-    </release>
-    <release
-        version="0.0.68"
-        versioncode="68">
-        <change>Fixed WiFi network validation dialog</change>
-        <change>Fixed Listen for BT connection setting</change>
-    </release>
-    <release
-        version="0.0.67"
-        versioncode="67">
-        <change>New changelog dialog</change>
     </release>
 </changelog>

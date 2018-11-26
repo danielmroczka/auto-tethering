@@ -33,7 +33,9 @@
         android:logo="@drawable/app"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="73213470f134283bc8c44f2046885e6bd53f6b66" />
         <!-- Activities -->
         <activity
             android:name=".activity.StartActivity"
@@ -87,6 +89,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
         <receiver

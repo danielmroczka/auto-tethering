@@ -33,8 +33,6 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.core.CrashlyticsCore;
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.ListenerManager;
 import com.labs.dm.auto_tethering.LogActivity;
@@ -54,7 +52,6 @@ import java.util.Date;
 import java.util.Map;
 
 import de.cketti.library.changelog.ChangeLog;
-import io.fabric.sdk.android.Fabric;
 
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
@@ -85,9 +82,6 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         db = DBManager.getInstance(getApplicationContext());
-        Fabric.with(this, new Crashlytics.Builder()
-                .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
-                .build());
         addPreferencesFromResource(R.xml.preferences);
         serviceHelper = new ServiceHelper(getApplicationContext());
         loadPrefs();

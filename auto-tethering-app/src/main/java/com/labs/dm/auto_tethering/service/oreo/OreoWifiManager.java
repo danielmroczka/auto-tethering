@@ -1,15 +1,11 @@
 package com.labs.dm.auto_tethering.service.oreo;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
-
-import com.labs.dm.auto_tethering.receiver.NetworkConnectionReceiver;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -66,11 +62,6 @@ public class OreoWifiManager {
                 Log.e(TAG, "startTetheringMethod is null");
             } else {
                 method.invoke(manager, TETHERING_WIFI, false, mSystemCallback, handler);
-
-                Intent intent = new Intent("android.net.wifi.WIFI_AP_STATE_CHANGED");
-                intent.putExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_ENABLED);
-                new NetworkConnectionReceiver().onReceive(mContext.getApplicationContext(), intent);
-
             }
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
@@ -93,10 +84,6 @@ public class OreoWifiManager {
                 Log.e(TAG, "stopTetheringMethod is null");
             } else {
                 method.invoke(manager, TETHERING_WIFI);
-
-                Intent intent = new Intent("android.net.wifi.WIFI_AP_STATE_CHANGED");
-                intent.putExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_DISABLED);
-                new NetworkConnectionReceiver().onReceive(mContext.getApplicationContext(), intent);
             }
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
