@@ -180,7 +180,7 @@ public class TetheringService extends IntentService {
         bluetoothTimer = new Timer();
         dataUsageTimer = new Timer();
         dataUsageTimer.schedule(dataUsageTask, DATAUSAGE_TIMER_START_DELAY, DATAUSAGE_TIMER_INTERVAL);
-        if (prefs.getBoolean("bt.start.discovery", false)) {
+        if (prefs.getBoolean("bt.incoming.listen", false)) {
             bluetoothTimer.schedule(bluetoothTask, BT_TIMER_START_DELAY, BT_TIMER_INTERVAL);
         }
     }

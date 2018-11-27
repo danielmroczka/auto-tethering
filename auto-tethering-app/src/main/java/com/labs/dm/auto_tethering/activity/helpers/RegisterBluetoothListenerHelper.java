@@ -94,8 +94,8 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         buildAdapter(dialog, which, arrayAdapter, devices, pairedDevices, list);
-                                        if (!prefs.getBoolean("bt.start.discovery", false)) {
-                                            Toast.makeText(activity, "You have successfully added device but you haven't select 'Scan for Bluetooth devices'\nUntil this option is selected, background service won't find Bluetooth devices!", Toast.LENGTH_LONG).show();
+                                        if (!prefs.getBoolean("bt.incoming.listen", false)) {
+                                            Toast.makeText(activity, "You have successfully added device but you haven't selected 'Activate thethering once Bluetooth..'\nUntil this option is not selected, background service won't find Bluetooth devices!", Toast.LENGTH_LONG).show();
                                         }
                                     }
                                 }
@@ -136,7 +136,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                 }
         );
 
-        final CheckBoxPreference btCheckBox = getCheckBoxPreference("bt.start.discovery");
+        final CheckBoxPreference btCheckBox = getCheckBoxPreference("bt.incoming.listen");
         btCheckBox.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -153,7 +153,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
                 return true;
             }
         });
-        btCheckBox.setChecked(prefs.getBoolean("bt.start.discovery", false));
+        btCheckBox.setChecked(prefs.getBoolean("bt.incoming.listen", false));
 
         final CheckBoxPreference listenCheckBox = getCheckBoxPreference("bt.incoming.listen");
         listenCheckBox.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
