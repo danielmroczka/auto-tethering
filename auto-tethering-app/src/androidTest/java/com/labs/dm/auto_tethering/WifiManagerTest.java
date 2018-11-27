@@ -8,6 +8,8 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.labs.dm.auto_tethering.service.ServiceHelper;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -20,6 +22,15 @@ public class WifiManagerTest {
 
     private final ServiceHelper helper = new ServiceHelper(InstrumentationRegistry.getTargetContext());
     private final int TIMEOUT = 2000;
+
+    @Before
+    @After
+    public void cleanup() {
+        if (helper.isTetheringWiFi()) {
+            helper.setWifiTethering(false, null);
+            SystemClock.sleep(TIMEOUT);
+        }
+    }
 
     @Test
     public void startTethering() {
