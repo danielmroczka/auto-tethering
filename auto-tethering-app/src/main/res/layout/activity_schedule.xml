@@ -67,8 +67,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:checked="true"
-                    android:textOff="M"
-                    android:textOn="M"/>
+                android:textOff="Mo"
+                android:textOn="Mo" />
 
             <ToggleButton
                     android:id="@+id/btnTuesday"
@@ -76,8 +76,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:checked="true"
-                    android:textOff="T"
-                    android:textOn="T"/>
+                android:textOff="Tu"
+                android:textOn="Tu" />
 
             <ToggleButton
                     android:id="@+id/btnWednesday"
@@ -85,8 +85,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:checked="true"
-                    android:textOff="W"
-                    android:textOn="W"/>
+                android:textOff="We"
+                android:textOn="We" />
 
             <ToggleButton
                     android:id="@+id/btnThursday"
@@ -94,8 +94,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:checked="true"
-                    android:textOff="T"
-                    android:textOn="T"/>
+                android:textOff="Th"
+                android:textOn="Th" />
 
             <ToggleButton
                     android:id="@+id/btnFriday"
@@ -103,8 +103,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:checked="true"
-                    android:textOff="F"
-                    android:textOn="F"/>
+                android:textOff="Fr"
+                android:textOn="Fr" />
 
             <ToggleButton
                     android:id="@+id/btnSaturday"
@@ -113,8 +113,8 @@
                     android:layout_weight="1"
                     android:checked="true"
                     android:textColor="@color/indicator"
-                    android:textOff="S"
-                    android:textOn="S"/>
+                android:textOff="Sa"
+                android:textOn="Sa" />
 
             <ToggleButton
                     android:id="@+id/btnSunday"
@@ -123,8 +123,8 @@
                     android:layout_weight="1"
                     android:checked="true"
                     android:textColor="@color/indicator"
-                    android:textOff="S"
-                    android:textOn="S"/>
+                android:textOff="Su"
+                android:textOn="Su" />
         </LinearLayout>
 
         <LinearLayout
