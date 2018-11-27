@@ -14,8 +14,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(AndroidJUnit4.class)
 @SmallTest
+@RunWith(AndroidJUnit4.class)
 public class UtilsTest {
 
     @Test
