@@ -51,9 +51,19 @@ public class StartActivity extends Activity {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.System.canWrite(getApplicationContext())) {
-                hasWritePermission = false;
-                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:" + getPackageName()));
-                startActivityForResult(intent, MY_PERMISSIONS_MANAGE_WRITE_SETTINGS);
+                AlertDialog dlg = new AlertDialog.Builder(this).create();
+                dlg.setTitle("Write permission request");
+                dlg.setMessage("For Android Oreo it is necessary to grant following permission to manage write system setting.\nYou will be forwarded to settings system page where you need to grant permission");
+                dlg.setButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        hasWritePermission = false;
+                        Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:" + getPackageName()));
+                        startActivityForResult(intent, MY_PERMISSIONS_MANAGE_WRITE_SETTINGS);
+                    }
+                });
+                dlg.show();
             } else {
                 setLocationsPermission();
             }
@@ -97,7 +107,6 @@ public class StartActivity extends Activity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         setWritePermission();
-                        //setLocationsPermission();
                     }
                 })
                 .setNeutralButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -119,7 +128,6 @@ public class StartActivity extends Activity {
                     hasLocationPermission = false;
                     break;
                 }
-
             }
             check();
         }

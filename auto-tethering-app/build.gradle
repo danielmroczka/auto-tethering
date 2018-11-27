@@ -89,12 +89,6 @@ android {
 }
 
 dependencies {
-    //testCompile -->
-    //androidTestCompile -->
-    //androidTestCompile 'com.android.support.test:runner:0.5'
-    //androidTestCompile 'com.android.support.test:rules:0.5'
-    //androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
-
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:design:26.1.0'
     implementation 'com.android.support:support-v4:26.1.0'
@@ -108,26 +102,16 @@ dependencies {
     }
 
     testImplementation 'junit:junit:4.12'
-    testImplementation 'org.mockito:mockito-core:2.19.0'
+    testImplementation 'org.mockito:mockito-core:2.23.0'
     testImplementation 'org.hamcrest:hamcrest-library:1.3'
-    testImplementation 'org.robolectric:robolectric:3.8'
+    testImplementation 'org.robolectric:robolectric:4.0'
 
     androidTestImplementation 'junit:junit:4.12'
-    androidTestImplementation 'org.mockito:mockito-core:2.19.0'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'org.mockito:mockito-core:2.23.0'
     androidTestImplementation 'org.hamcrest:hamcrest-library:1.3'
-    //androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
-    //androidTestImplementation 'org.robolectric:robolectric:4.0'
-
-//    androidTestImplementation 'androidx.test:runner:1.1.0'
-//    androidTestImplementation 'androidx.test:rules:1.1.0'
-//    // Optional -- Hamcrest library
-//    androidTestImplementation 'org.hamcrest:hamcrest-library:1.3'
-//    // Optional -- UI testing with Espresso
-//    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
-//    // Optional -- UI testing with UI Automator
-//   // androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
 
 Properties props = new Properties()

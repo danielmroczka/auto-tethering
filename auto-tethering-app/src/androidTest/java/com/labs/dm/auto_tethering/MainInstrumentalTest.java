@@ -8,6 +8,7 @@ import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.labs.dm.auto_tethering.db.Cellular;
+import com.labs.dm.auto_tethering.service.ServiceHelper;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +16,7 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @MediumTest
@@ -22,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 public class MainInstrumentalTest {
 
     private final Context context = InstrumentationRegistry.getContext();
+    private final ServiceHelper helper = new ServiceHelper(context);
 
     @Test
     public void getCellInfo() {
@@ -39,5 +42,13 @@ public class MainInstrumentalTest {
     public void getBluetoothDevices() {
         List<BluetoothDevice> devices = Utils.getBluetoothDevices(context, true);
         assertNotNull(devices);
+    }
+
+    @Test
+    public void name() {
+        helper.setMobileDataEnabled(true);
+        assertTrue(helper.isConnectedtToInternet());
+        helper.setMobileDataEnabled(false);
+        assertFalse(helper.isConnectedtToInternet());
     }
 }
