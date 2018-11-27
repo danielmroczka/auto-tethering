@@ -111,7 +111,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     private void switchOffPreferences(String... names) {
         for (String name : names) {
-            findPreference(name).setEnabled(false);
+            findPreference(name).setLayoutResource(R.layout.hidden);
             ((CheckBoxPreference) findPreference(name)).setChecked(false);
         }
     }
