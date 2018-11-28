@@ -32,6 +32,7 @@ public class StartActivity extends Activity {
 
     private boolean hasWritePermission = false;
     private boolean hasLocationPermission = true;
+    private boolean infoDisplayed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,19 +52,29 @@ public class StartActivity extends Activity {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.System.canWrite(getApplicationContext())) {
-                AlertDialog dlg = new AlertDialog.Builder(this).create();
-                dlg.setTitle("Write permission request");
-                dlg.setMessage("For Android Oreo it is necessary to grant following permission to manage write system setting.\nYou will be forwarded to settings system page where you need to grant permission");
-                dlg.setButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        hasWritePermission = false;
-                        Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:" + getPackageName()));
-                        startActivityForResult(intent, MY_PERMISSIONS_MANAGE_WRITE_SETTINGS);
-                    }
-                });
-                dlg.show();
+                if (!infoDisplayed) {
+                    AlertDialog dlg = new AlertDialog.Builder(this).create();
+                    dlg.setTitle("Write permission request");
+                    dlg.setMessage(
+                            "Your version of Android requires to grant permission to manage write system setting.\n" +
+                                    "You will be forwarded to settings system page where you need to grant permission\n" +
+                                    "Otherwise application cannot work correctly and will be closed");
+                    dlg.setButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            hasWritePermission = false;
+                            Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:" + getPackageName()));
+                            startActivityForResult(intent, MY_PERMISSIONS_MANAGE_WRITE_SETTINGS);
+                        }
+                    });
+                    dlg.show();
+                    infoDisplayed = true;
+                } else {
+                    hasWritePermission = false;
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:" + getPackageName()));
+                    startActivityForResult(intent, MY_PERMISSIONS_MANAGE_WRITE_SETTINGS);
+                }
             } else {
                 setLocationsPermission();
             }
