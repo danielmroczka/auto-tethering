@@ -1,14 +1,20 @@
 package com.labs.dm.auto_tethering.service;
 
+import android.Manifest;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
+import android.support.v4.content.ContextCompat;
 
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.TetherIntents;
+import com.labs.dm.auto_tethering.Utils;
 
 import static android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID;
 import static android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID;
@@ -26,6 +32,8 @@ public class WidgetService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        if (checkPermissions()) return;
+
         boolean state = serviceHelper.isTetheringWiFi();
         MyLog.i("WidgetService", "onHandleIntent, state=" + state + ", extras=" + intent.getExtras().toString());
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -49,6 +57,25 @@ public class WidgetService extends IntentService {
         } else {
             changeState(state, prefs, widgetId);
         }
+    }
+
+    private boolean checkPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.System.canWrite(getApplicationContext())) {
+                Utils.showToast(this, "For first usage after installation please run service first to configure!");
+                return true;
+            }
+
+            String[] permissionsToGrant = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_PHONE_STATE};
+
+            for (String permission : permissionsToGrant) {
+                if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                    Utils.showToast(this, "For first usage after installation please run service first to configure!");
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void changeState(boolean state, SharedPreferences prefs, int widgetId) {
