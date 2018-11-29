@@ -106,5 +106,8 @@
     <string name="cannot_load_wifihotspot">Cannot load system WiFi hotspot configuration!</string>
     <string name="close">Close</string>
     <string name="initial_prompt_lollipop">On devices with Android version 5.0 (Lollipop) and newer Auto WiFi Tethering app cannot manage internet connection due to security policy.</string>
+
+    <string name="applink">You may find more details on: <a href="https://play.google.com/store/apps/details?id=com.labs.dm.auto_tethering">Auto WiFi Tethering on Google Play</a>
+</string>
 </resources>
 
