@@ -15,8 +15,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.BuildConfig;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.view.LayoutInflater;
-import android.view.View;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
@@ -42,6 +40,7 @@ public class StartActivity extends Activity {
         Fabric.with(this, new Crashlytics.Builder()
                 .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
                 .build());
+
         setWritePermission();
     }
 
@@ -54,11 +53,12 @@ public class StartActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.System.canWrite(getApplicationContext())) {
                 if (!infoDisplayed) {
-                    LayoutInflater li = LayoutInflater.from(this);
-                    final View promptsView = li.inflate(R.layout.permission_dialog, null);
                     AlertDialog dlg = new AlertDialog.Builder(this).create();
                     dlg.setTitle("Write permission request");
-                    dlg.setView(promptsView);
+                    dlg.setMessage(
+                            "Your version of Android requires to grant permission to manage write system setting.\n" +
+                                    "You will be forwarded to settings system page where you need to grant permission\n" +
+                                    "Otherwise application cannot work correctly and will be closed");
                     dlg.setButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
