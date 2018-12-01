@@ -2,6 +2,8 @@
     android:configure="com.labs.dm.auto_tethering.activity.ConfigurationActivity"
     android:initialKeyguardLayout="@layout/widget_layout_off"
     android:initialLayout="@layout/widget_layout_off"
+    android:minWidth="40dp"
+    android:minHeight="40dp"
     android:previewImage="@mipmap/ic_launcher"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="0"

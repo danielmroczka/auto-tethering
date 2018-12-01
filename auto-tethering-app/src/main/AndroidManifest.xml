@@ -33,7 +33,9 @@
         android:logo="@drawable/app"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="73213470f134283bc8c44f2046885e6bd53f6b66" />
         <!-- Activities -->
         <activity
             android:name=".activity.StartActivity"
@@ -143,7 +145,6 @@
         <service
             android:name=".service.WidgetService"
             android:exported="false" />
-
 
     </application>
 
