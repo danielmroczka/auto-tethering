@@ -67,6 +67,7 @@ public class StartActivity extends Activity {
                             startActivityForResult(intent, MY_PERMISSIONS_MANAGE_WRITE_SETTINGS);
                         }
                     });
+
                     dlg.show();
                     infoDisplayed = true;
                 } else {
@@ -166,6 +167,11 @@ public class StartActivity extends Activity {
                 finish();
             }
         });
+    }
+
+    public void onClick(View view) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.labs.dm.auto_tethering"));
+        startActivity(browserIntent);
     }
 
 }

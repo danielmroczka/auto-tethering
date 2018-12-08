@@ -53,9 +53,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autoLink="web"
+                android:linksClickable="true"
+                android:onClick="onClick"
                 android:padding="8dp"
                 android:text="@string/applink"
-                android:textSize="18sp"></TextView>
+                android:textSize="18sp" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
