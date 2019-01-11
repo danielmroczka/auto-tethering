@@ -433,10 +433,10 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
         switch (item.getItemId()) {
             case R.id.action_log:
                 startActivity(new Intent(this, LogActivity.class));
-                return true;
+                return false;
             case R.id.action_info:
                 startActivity(new Intent(this, AboutActivity.class));
-                return true;
+                return false;
             case R.id.action_reset:
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle(R.string.warning)
