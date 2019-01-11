@@ -306,7 +306,7 @@ public class ServiceHelper {
         }
     }
 
-    public void setBlockingBluetoothStatus(boolean bluetoothStatus) {
+    private void setBlockingBluetoothStatus(boolean bluetoothStatus) {
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         setBluetoothStatus(bluetoothStatus);
         long time = currentThreadTimeMillis();

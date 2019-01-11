@@ -6,7 +6,6 @@ package com.labs.dm.auto_tethering.db;
 
 public class Cellular {
     public final static String NAME = "CELLULAR";
-
     private int id, mcc, mnc, lac, cid, status, cellGroup;
     private double lat, lon;
 
@@ -75,7 +74,7 @@ public class Cellular {
         return status;
     }
 
-    public Cellular() {
+    private Cellular() {
     }
 
     public Cellular(int mcc, int mnc, int lac, int cid) {

@@ -37,6 +37,7 @@ import android.widget.Toast;
 import com.labs.dm.auto_tethering.BuildConfig;
 import com.labs.dm.auto_tethering.ListenerManager;
 import com.labs.dm.auto_tethering.LogActivity;
+import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.R;
 import com.labs.dm.auto_tethering.TetherIntents;
 import com.labs.dm.auto_tethering.Utils;
@@ -369,9 +370,14 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
                 if (version < BuildConfig.VERSION_CODE) {
                     /** First start after update **/
-                    ChangeLog cl = new ChangeLog(MainActivity.this);
-                    if (cl.isFirstRun()) {
-                        cl.getLogDialog().show();
+                    try {
+                        ChangeLog cl = new ChangeLog(MainActivity.this);
+                        if (cl.isFirstRun()) {
+                            cl.getLogDialog().show();
+                        }
+                    } catch (Exception ex) {
+                        Toast.makeText(MainActivity.this, "Failed to load changelog", Toast.LENGTH_LONG).show();
+                        MyLog.e("ChangeLog", ex);
                     }
                     prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
                 } else if (version == BuildConfig.VERSION_CODE) {
