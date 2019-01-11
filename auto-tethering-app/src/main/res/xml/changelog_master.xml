@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
-        version="0.0.74"
-        versioncode="74">
-        <change>Added support Android 8.0 (Oreo)</change>
+        version="0.0.76"
+        versioncode="76">
+        <change>Prepared support Android 8.0 (Oreo)</change>
+        <change>Improved the security and granting permission according to new Google Play policy</change>
+        <change>Merge settings: Listen and scan for BT connections</change>
+        <change>Application doesnt autostart after system reboot</change>
+        <change>USB doesn't trigger tethering</change>
+        <change>Hide unsupported features for particular OS version</change>
+        <change>Fixed many minor issues</change>
     </release>
     <release
         version="0.0.72"
@@ -19,15 +25,5 @@
         version="0.0.71"
         versioncode="71">
         <change>Resolved the issue during the startup for Android version older than 4.1</change>
-    </release>
-    <release
-        version="0.0.70"
-        versioncode="70">
-        <change>Fixed several minor bugs</change>
-    </release>
-    <release
-        version="0.0.69"
-        versioncode="69">
-        <change>Added support for Android 7.x</change>
     </release>
 </changelog>

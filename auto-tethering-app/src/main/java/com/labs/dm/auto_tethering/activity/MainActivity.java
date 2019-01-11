@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.text.Html;
@@ -93,16 +94,24 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void adjustSettingForOS() {
+        // Android 3.0 Honeycomb
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             if (getActionBar() != null) {
                 getActionBar().setDisplayUseLogoEnabled(true);
             }
         }
+        // Android 5.0 Lollipop
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             switchOffPreferences("activate.3g", "idle.3g.off", "usb.internet.force.off", "usb.internet.force.on");
         }
+        // Android 8.0 Oreo
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             switchOffPreferences("vibrate.on.tethering");
+            final PreferenceScreen ssid = (PreferenceScreen) findPreference("ssid.screen");
+            final PreferenceCategory wifiList = (PreferenceCategory) findPreference("wifi.list");
+            if (ssid != null && wifiList != null) {
+                ssid.removePreference(wifiList);
+            }
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             switchOffPreferences("show.notification");
@@ -112,7 +121,9 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     private void switchOffPreferences(String... names) {
         for (String name : names) {
             findPreference(name).setLayoutResource(R.layout.hidden);
-            ((CheckBoxPreference) findPreference(name)).setChecked(false);
+            if (findPreference(name) instanceof CheckBoxPreference) {
+                ((CheckBoxPreference) findPreference(name)).setChecked(false);
+            }
         }
     }
 
@@ -511,10 +522,13 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
 
     @Override
     protected void onDestroy() {
-        unregisterReceiver(receiver);
-        listenerManager.unregisterAll();
-        //db.close(); TODO Check if it's OK
-        super.onDestroy();
+        try {
+            unregisterReceiver(receiver);
+            listenerManager.unregisterAll();
+            db.close();
+        } finally {
+            super.onDestroy();
+        }
     }
 
     @Override
