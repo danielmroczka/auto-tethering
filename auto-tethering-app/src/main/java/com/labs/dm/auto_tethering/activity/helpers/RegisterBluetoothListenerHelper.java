@@ -48,7 +48,7 @@ public class RegisterBluetoothListenerHelper extends AbstractRegisterHelper {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 prepareBTList();
-                return true;
+                return false;
             }
         });
 
