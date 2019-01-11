@@ -88,7 +88,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Provide group name");
-        final EditText input = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput);
+        final EditText input = promptsView.findViewById(R.id.editTextDialogUserInput);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
         new Handler().postDelayed(new Runnable() {
             public void run() {

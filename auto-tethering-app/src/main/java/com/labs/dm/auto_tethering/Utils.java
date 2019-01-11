@@ -219,7 +219,7 @@ public class Utils {
             @Override
             public void run() {
                 Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
-                TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
+                TextView v = toast.getView().findViewById(android.R.id.message);
                 if (v != null) {
                     v.setPadding(2, 2, 2, 2);
                 }
