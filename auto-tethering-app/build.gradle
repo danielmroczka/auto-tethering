@@ -68,7 +68,7 @@ android {
 
     defaultConfig {
         applicationId "com.labs.dm.auto_tethering"
-        minSdkVersion 14
+        minSdkVersion 9
         maxSdkVersion 25 // Android 8.0
         targetSdkVersion 26
         versionCode VERSION_CODE
