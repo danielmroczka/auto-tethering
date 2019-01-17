@@ -21,9 +21,9 @@ before_install:
   # Gradle
   - echo y | android update sdk --no-ui --all --filter "tools"
   - echo y | android update sdk --no-ui --all --filter "build-tools-28.0.3"
-  - wget http://services.gradle.org/distributions/gradle-4.10-bin.zip
-  - unzip gradle-4.10-bin.zip
-  - export GRADLE_HOME=$PWD/gradle-4.10
+  - wget http://services.gradle.org/distributions/gradle-4.10.3-bin.zip
+  - unzip gradle-4.10.3-bin.zip
+  - export GRADLE_HOME=$PWD/gradle-4.10.3
   - export PATH=$GRADLE_HOME/bin:$PATH
 
 after_success: ./merge_to_dev.sh
