@@ -36,17 +36,23 @@ public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
     @Override
     public void registerUIListeners() {
         final TelephonyManager tMgr = (TelephonyManager) activity.getSystemService(TELEPHONY_SERVICE);
-        final String ssn = tMgr.getSimSerialNumber();
+        String ssn = "";
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            ssn = tMgr.getSimSerialNumber();
+        }
         boolean status = db.isOnWhiteList(ssn);
 
         PreferenceScreen addSimCard = getPreferenceScreen("add.current.simcard");
         addSimCard.setEnabled(!status);
-        final String[] number = {""};
         addSimCard.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
+                final String[] number = {""};
 
-                number[0] = tMgr.getLine1Number();
+                if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+                    number[0] = tMgr.getLine1Number();
+                }
+
                 // TODO:
                 if (number[0] == null || number[0].isEmpty()) {
                     LayoutInflater li = LayoutInflater.from(activity);
@@ -60,7 +66,7 @@ public class RegisterAddSimCardListenerHelper extends AbstractRegisterHelper {
 
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    final EditText userInput = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput);
+                                    final EditText userInput = promptsView.findViewById(R.id.editTextDialogUserInput);
                                     number[0] = userInput.getText().toString();
                                     addSimCard(number[0]);
                                 }
