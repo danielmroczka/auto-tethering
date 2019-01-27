@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
-def VERSION_CODE = 76
+def VERSION_CODE = 77
 def BUILD_TOOL_VERSION = '28.0.3'
 
 repositories {
@@ -70,7 +70,7 @@ android {
     defaultConfig {
         applicationId "com.labs.dm.auto_tethering"
         minSdkVersion 14
-        maxSdkVersion 25 // Android 8.0
+        maxSdkVersion 26 // Android 8.0
         targetSdkVersion 26
         versionCode VERSION_CODE
         versionName "0.0." + VERSION_CODE

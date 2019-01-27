@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 import com.labs.dm.auto_tethering.MyLog;
 import com.labs.dm.auto_tethering.service.oreo.OnStartTetheringCallback;
-import com.labs.dm.auto_tethering.service.oreo.OreoWifiManager;
+import com.labs.dm.auto_tethering.service.oreo.OreoWiFiManager;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -157,7 +157,7 @@ public class ServiceHelper {
                 }
             }
         } else {
-            OreoWifiManager oreoWifiManager = new OreoWifiManager(context.getApplicationContext());
+            OreoWiFiManager oreoWifiManager = new OreoWiFiManager(context.getApplicationContext());
             OnStartTetheringCallback callback = new OnStartTetheringCallback() {
                 @Override
                 public void onTetheringStarted() {

@@ -7,23 +7,24 @@ import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
+import com.labs.dm.auto_tethering.MyLog;
+
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
-public class OreoWifiManager {
+public class OreoWiFiManager {
 
     /**
      * From {@link ConnectivityManager}
      */
     private static final int TETHERING_WIFI = 0;
 
-    private static final String TAG = OreoWifiManager.class.getSimpleName();
+    private static final String TAG = OreoWiFiManager.class.getSimpleName();
 
     private Context mContext;
 
-    public OreoWifiManager(Context c) {
+    public OreoWiFiManager(Context c) {
         mContext = c;
     }
 
@@ -36,42 +37,30 @@ public class OreoWifiManager {
             Constructor constructor = mSystemCallbackClazz.getDeclaredConstructor(int.class);
             mSystemCallback = constructor.newInstance(0);
 
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+        } catch (ReflectiveOperationException e) {
+            MyLog.e(TAG, e);
         }
 
         ConnectivityManager manager = mContext.getApplicationContext().getSystemService(ConnectivityManager.class);
-        Method method;
         Class callbackClass = null;
         try {
             try {
                 callbackClass = Class.forName("android.net.ConnectivityManager$OnStartTetheringCallback");
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                MyLog.e(TAG, e);
             }
 
-            method = manager.getClass().getDeclaredMethod("startTethering", int.class, boolean.class, callbackClass, Handler.class);
+            Method method = manager.getClass().getDeclaredMethod("startTethering", int.class, boolean.class, callbackClass, Handler.class);
 
             if (method == null) {
-                Log.e(TAG, "startTetheringMethod is null");
+                Log.e(TAG, "ConnectivityManager:startTethering method not found");
             } else {
                 method.invoke(manager, TETHERING_WIFI, false, mSystemCallback, handler);
             }
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+        } catch (ReflectiveOperationException e) {
+            MyLog.e(TAG, e);
         }
     }
-
 
     public void stopTethering() {
 
@@ -85,15 +74,8 @@ public class OreoWifiManager {
             } else {
                 method.invoke(manager, TETHERING_WIFI);
             }
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+        } catch (ReflectiveOperationException e) {
+            MyLog.e(TAG, e);
         }
-
     }
-
-
 }
