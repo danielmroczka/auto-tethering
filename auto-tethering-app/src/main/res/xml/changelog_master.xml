@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
+        version="0.0.80"
+        versioncode="80">
+        <change>Support for Android 8.0 (Oreo)\n\nDue to many restrictions introduced by Google in
+            Android Oreo for some cases WiFi Tethering could not to work properly.\n\nThank you for
+            your understanding
+        </change>
+    </release>
+    <release
         version="0.0.76"
         versioncode="76">
         <change>Prepared support Android 8.0 (Oreo)</change>
@@ -17,20 +25,5 @@
         <change>Fixed issue: Problem with changelog on some mobile phones</change>
         <change>Fixed issue: NumberFormatException while changing temperature limit</change>
         <change>Fixed issue: NullPointerException in Location Listener</change>
-    </release>
-    <release
-        version="0.0.72"
-        versioncode="72">
-        <change>Fixed issue: Cannot perform operation on closed database connection</change>
-        <change>Fixed issue: Application crashed once hotspot settings cannot be opened</change>
-        <change>Fixed issue: Opening About Form on Android older than 4.1 could crash the
-            application
-        </change>
-        <change>Fixed several minor bugs</change>
-    </release>
-    <release
-        version="0.0.71"
-        versioncode="71">
-        <change>Resolved the issue during the startup for Android version older than 4.1</change>
     </release>
 </changelog>
