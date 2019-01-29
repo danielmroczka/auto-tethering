@@ -118,8 +118,7 @@ public class DBManager extends SQLiteOpenHelper {
         try {
             cursor = getReadableDatabase().rawQuery("SELECT id, ssn, number, status FROM SIMCARD", null);
             list = new ArrayList<>(cursor.getCount());
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
+            if (cursor.moveToFirst()) {
                 do {
                     SimCard p = new SimCard(cursor.getString(1), cursor.getString(2), cursor.getInt(3));
                     list.add(p);
@@ -165,8 +164,7 @@ public class DBManager extends SQLiteOpenHelper {
         Cursor cursor = null;
         try {
             cursor = getReadableDatabase().query(Cron.NAME, null, null, null, null, null, null);
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
+            if (cursor.moveToFirst()) {
                 do {
                     Cron cron = new Cron(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getInt(5), cursor.getInt(6));
                     cron.setId(cursor.getInt(0));
@@ -196,8 +194,7 @@ public class DBManager extends SQLiteOpenHelper {
         Cron cron = null;
         try {
             cursor = getReadableDatabase().query(Cron.NAME, null, "id=" + id, null, null, null, null);
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
+            if (cursor.moveToFirst()) {
                 cron = new Cron(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getInt(5), cursor.getInt(6));
                 cron.setId(cursor.getInt(0));
             }
@@ -230,6 +227,8 @@ public class DBManager extends SQLiteOpenHelper {
         getWritableDatabase().delete(Cron.NAME, null, null);
         getWritableDatabase().delete(Cellular.NAME, null, null);
         getWritableDatabase().delete(CellGroup.NAME, null, null);
+        getWritableDatabase().delete(Bluetooth.NAME, null, null);
+        getWritableDatabase().delete(WiFiTethering.NAME, null, null);
     }
 
     public long addOrUpdateCellular(Cellular cellular) {
@@ -251,8 +250,7 @@ public class DBManager extends SQLiteOpenHelper {
         try {
             cursor = getReadableDatabase().rawQuery("SELECT id, mcc, mnc, lac, cid, lat, lon, status, cellgroup FROM CELLULAR where cellgroup=" + groupId, null);
             list = new ArrayList<>(cursor.getCount());
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
+            if (cursor.moveToFirst()) {
                 do {
                     Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getDouble(5), cursor.getDouble(6), cursor.getInt(7), cursor.getInt(8));
                     p.setId(cursor.getInt(0));
@@ -289,8 +287,7 @@ public class DBManager extends SQLiteOpenHelper {
         Cursor cursor = null;
         try {
             cursor = getReadableDatabase().query(CellGroup.NAME, null, "type=?", new String[]{type}, "type, name", null, "status desc, name");
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
+            if (cursor.moveToFirst()) {
                 do {
                     CellGroup cellGroup = new CellGroup(cursor.getString(1), cursor.getString(2), cursor.getInt(3));
                     cellGroup.setId(cursor.getInt(0));
@@ -327,8 +324,7 @@ public class DBManager extends SQLiteOpenHelper {
         try {
             cursor = getReadableDatabase().rawQuery("SELECT c.id, c.mcc, c.mnc, c.lac, c.cid, c.lat, c.lon, c.status, c.cellgroup FROM CELLULAR c, CELL_GROUP g where c.cellgroup = g.id and g.type='" + type + "'", null);
             list = new ArrayList<>(cursor.getCount());
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
+            if (cursor.moveToFirst()) {
                 do {
                     Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getDouble(5), cursor.getDouble(6), cursor.getInt(7), cursor.getInt(8));
                     p.setId(cursor.getInt(0));
@@ -351,8 +347,7 @@ public class DBManager extends SQLiteOpenHelper {
         try {
             cursor = getReadableDatabase().rawQuery("SELECT c.id, c.mcc, c.mnc, c.lac, c.cid, c.lat, c.lon, c.status, c.cellgroup FROM CELLULAR c, CELL_GROUP g where c.cellgroup = g.id and g.status = " + CellGroup.STATUS.ENABLED.getValue() + " and g.type='" + type + "'", null);
             list = new ArrayList<>(cursor.getCount());
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
+            if (cursor.moveToFirst()) {
                 do {
                     Cellular p = new Cellular(cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getDouble(5), cursor.getDouble(6), cursor.getInt(7), cursor.getInt(8));
                     p.setId(cursor.getInt(0));
@@ -375,8 +370,7 @@ public class DBManager extends SQLiteOpenHelper {
         try {
             cursor = getReadableDatabase().rawQuery("SELECT id, name, address, parcelId FROM BLUETOOTH order by used desc", null);
             list = new ArrayList<>(cursor.getCount());
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
+            if (cursor.moveToFirst()) {
                 do {
                     Bluetooth p = new Bluetooth(cursor.getString(1), cursor.getString(2));
                     p.setId(cursor.getInt(0));
@@ -430,8 +424,7 @@ public class DBManager extends SQLiteOpenHelper {
         try {
             cursor = getReadableDatabase().rawQuery("SELECT id, ssid, type, password, channel, hidden, status FROM WIFI_TETHERING order by status desc, ssid", null);
             list = new ArrayList<>(cursor.getCount());
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
+            if (cursor.moveToFirst()) {
                 do {
                     WiFiTethering p = new WiFiTethering(cursor.getString(1), WiFiTethering.SECURITY_TYPE.valueOf(cursor.getInt(2)), cursor.getString(3), cursor.getInt(4), cursor.getInt(5) == 1, cursor.getInt(6));
                     p.setId(cursor.getInt(0));
@@ -452,8 +445,7 @@ public class DBManager extends SQLiteOpenHelper {
         WiFiTethering wiFiTethering = null;
         try {
             cursor = getReadableDatabase().query(WiFiTethering.NAME, null, "id=" + id, null, null, null, null);
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
+            if (cursor.moveToFirst()) {
                 wiFiTethering = new WiFiTethering(cursor.getString(1), WiFiTethering.SECURITY_TYPE.valueOf(cursor.getInt(2)), cursor.getString(3), cursor.getInt(4), cursor.getInt(5) == 1, cursor.getInt(6));
                 wiFiTethering.setId(cursor.getInt(0));
             }

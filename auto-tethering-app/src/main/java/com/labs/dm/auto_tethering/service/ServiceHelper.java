@@ -86,7 +86,7 @@ public class ServiceHelper {
         Intent batteryStatus = context.registerReceiver(null, ifilter);
         int level = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) : 0;
         int scale = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1) : 0;
-        return level / (float) scale;
+        return scale != 0 ? level / (float) scale : 0;
     }
 
     /**

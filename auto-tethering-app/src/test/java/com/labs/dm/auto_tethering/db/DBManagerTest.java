@@ -1,14 +1,13 @@
 package com.labs.dm.auto_tethering.db;
 
 import com.labs.dm.auto_tethering.BuildConfig;
-import com.labs.dm.auto_tethering.activity.MainActivity;
 
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import static junit.framework.Assert.assertEquals;
@@ -19,18 +18,18 @@ import static junit.framework.Assert.assertTrue;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class)
-@Ignore
 public class DBManagerTest {
-    private MainActivity activity;
     private DBManager db;
 
     @Before
     public void setUp() {
-        activity = Robolectric.buildActivity(MainActivity.class)
-                .create()
-                .resume()
-                .get();
-        db = DBManager.getInstance(activity);
+        db = DBManager.getInstance(RuntimeEnvironment.application);
+    }
+
+    @After
+    public void tearDown() {
+        db.removeAllData();
+        db.close();
     }
 
     @Test
@@ -49,4 +48,19 @@ public class DBManagerTest {
         assertEquals(id, db.getCrons().get(0).getId());
     }
 
+    @Test
+    public void checkEmptyDB() {
+        assertTrue(db.getCrons().isEmpty());
+        assertTrue(db.loadCellGroup("").isEmpty());
+        assertTrue(db.readAllCellular("").isEmpty());
+        assertTrue(db.readCellular(0).isEmpty());
+        assertTrue(db.readCellular("").isEmpty());
+
+        assertTrue(db.readAllCellular("").isEmpty());
+        assertTrue(db.readBluetooth().isEmpty());
+        assertTrue(db.readSimCard().isEmpty());
+
+        assertEquals(null, db.getCron(1));
+        assertEquals(null, db.getWifiTethering(1));
+    }
 }

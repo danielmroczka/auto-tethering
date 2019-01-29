@@ -55,6 +55,7 @@ import java.util.Map;
 
 import de.cketti.library.changelog.ChangeLog;
 
+import static android.os.Process.killProcess;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_3G;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_KEEP_SERVICE;
 import static com.labs.dm.auto_tethering.AppProperties.ACTIVATE_ON_STARTUP;
@@ -357,12 +358,7 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
                         new AlertDialog.Builder(MainActivity.this)
                                 .setTitle(R.string.warning)
                                 .setMessage(getString(R.string.initial_prompt_lollipop))
-                                .setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-
-                                    }
-                                })
+                                .setPositiveButton(R.string.close, null)
                                 .show();
                     }
                     prefs.edit().putString(LATEST_VERSION, String.valueOf(BuildConfig.VERSION_CODE)).apply();
@@ -485,17 +481,26 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void restartApp() {
-        Intent mStartActivity = new Intent(getApplicationContext(), MainActivity.class);
-        PendingIntent mPendingIntent = PendingIntent.getActivity(getApplicationContext(), 123456, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
-        AlarmManager mgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        mgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 100, mPendingIntent);
-        finish();
+        try {
+            Intent mStartActivity = new Intent(getApplicationContext(), MainActivity.class);
+            PendingIntent mPendingIntent = PendingIntent.getActivity(getApplicationContext(), 123456, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+            AlarmManager mgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            mgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 100, mPendingIntent);
+        } finally {
+            finish();
+        }
     }
 
     private void exitApp() {
-        Intent serviceIntent = new Intent(this, TetheringService.class);
-        stopService(serviceIntent);
-        finish();
+        try {
+            Intent serviceIntent = new Intent(this, TetheringService.class);
+            stopService(serviceIntent);
+            moveTaskToBack(true);
+            killProcess(android.os.Process.myPid());
+            System.exit(1);
+        } finally {
+            finish();
+        }
     }
 
     @Override
