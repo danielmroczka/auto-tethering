@@ -1,52 +1,62 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingBottom="@dimen/activity_vertical_margin"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="@dimen/activity_vertical_margin"
-                tools:context="com.labs.dm.auto_tethering.activity.MainActivity">
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.labs.dm.auto_tethering.activity.MainActivity">
 
     <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_toEndOf="@+id/imageView"
-            android:layout_toRightOf="@+id/imageView"
-            android:text="@string/app_name"
-            android:textAppearance="?android:attr/textAppearanceLarge"/>
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_toEndOf="@+id/imageView"
+        android:layout_toRightOf="@+id/imageView"
+        android:text="@string/app_name"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignTop="@+id/textView"
-            android:src="@drawable/app"/>
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/textView"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/app" />
 
     <TextView
-            android:id="@+id/versionTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/textView"
-            android:layout_toEndOf="@+id/imageView"
-            android:layout_toRightOf="@+id/imageView"
-            android:text="@string/version"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+        android:id="@+id/versionTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView"
+        android:layout_toEndOf="@+id/imageView"
+        android:layout_toRightOf="@+id/imageView"
+        android:text="@string/version"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/versionTextView"
-            android:layout_toEndOf="@+id/imageView"
-            android:layout_toRightOf="@+id/imageView"
-            android:autoLink="email"
-            android:text="@string/author"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/versionTextView"
+        android:layout_toEndOf="@+id/imageView"
+        android:layout_toRightOf="@+id/imageView"
+        android:autoLink="email"
+        android:text="@string/author"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="bottom"
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-1157452200682568/1801061245" />
 </RelativeLayout>

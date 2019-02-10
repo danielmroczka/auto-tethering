@@ -2,6 +2,8 @@ package com.labs.dm.auto_tethering;
 
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -73,6 +75,9 @@ public class MyLog {
 
     public static void e(String tag, Exception ex) {
         e(tag, ex != null ? ex.getMessage() : "exception is null!");
+        if (!BuildConfig.DEBUG && ex != null) {
+            Crashlytics.logException(ex);
+        }
     }
 
     public static void e(String tag, String msg, Exception e) {

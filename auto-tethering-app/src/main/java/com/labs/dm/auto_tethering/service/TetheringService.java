@@ -636,32 +636,25 @@ public class TetheringService extends IntentService {
 
         boolean showNotification = prefs.getBoolean("show.notification", true);
 
-        //TODO Reimplement once back to support android 2.x
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
-                    .setTicker(caption)
-                    .setContentText(caption)
-                    .setContentTitle(getText(R.string.app_name))
-                    .setOngoing(true)
-                    .setColor(Color.DKGRAY)
-                    .setSmallIcon(R.drawable.app_white)
-                    .setContentIntent(pendingIntent)
-                    .setPriority(Notification.PRIORITY_HIGH)
-                    .setStyle(new NotificationCompat.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+                .setTicker(caption)
+                .setContentText(caption)
+                .setContentTitle(getText(R.string.app_name))
+                .setOngoing(true)
+                .setColor(Color.DKGRAY)
+                .setSmallIcon(R.drawable.app_white)
+                .setContentIntent(pendingIntent)
+                .setPriority(Notification.PRIORITY_HIGH)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(caption).setBigContentTitle(getText(R.string.app_name)));
 
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                builder.setChannelId(showNotification ? CHANNEL_ID : SILENT_CHANNEL_ID);
-            }
-
-            builder.addAction(buildAction());
-            buildAdditionalAction(exitPendingIntent, builder);
-
-            notify = builder.build();
-        } else {
-            notify = new Notification(R.drawable.app_white, caption, System.currentTimeMillis());
-            //TODO
-            //notify.setLatestEventInfo(getApplicationContext(), getText(R.string.app_name), caption, pendingIntent);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            builder.setChannelId(showNotification ? CHANNEL_ID : SILENT_CHANNEL_ID);
         }
+
+        builder.addAction(buildAction());
+        buildAdditionalAction(exitPendingIntent, builder);
+
+        notify = builder.build();
 
         return notify;
     }
@@ -704,11 +697,15 @@ public class TetheringService extends IntentService {
     }
 
     private void showNotification(String body, int icon) {
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification notification = buildNotification(body, icon);
-        notificationManager.cancelAll();
-        notificationManager.notify(NOTIFICATION_ID, notification);
-        MyLog.i(TAG, "Notification: " + body);
+        try {
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            Notification notification = buildNotification(body, icon);
+            notificationManager.cancelAll();
+            notificationManager.notify(NOTIFICATION_ID, notification);
+            MyLog.i(TAG, "Notification: " + body);
+        } catch (Exception ex) {
+            MyLog.e(TAG, ex);
+        }
     }
 
     private void createNotificationChannels() {

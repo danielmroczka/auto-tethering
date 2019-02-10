@@ -499,7 +499,13 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
             killProcess(android.os.Process.myPid());
             System.exit(1);
         } finally {
-            finish();
+            if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 21) {
+                finishAffinity();
+            } else if (Build.VERSION.SDK_INT >= 21) {
+                finishAndRemoveTask();
+            } else {
+                finish();
+            }
         }
     }
 

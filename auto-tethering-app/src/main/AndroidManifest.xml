@@ -36,7 +36,11 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="73213470f134283bc8c44f2046885e6bd53f6b66" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-1157452200682568~5931877947" />
         <!-- Activities -->
+
         <activity
             android:name=".activity.StartActivity"
             android:label="@string/app_name">
