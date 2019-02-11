@@ -84,8 +84,6 @@ public class StartActivity extends Activity {
     }
 
     private void setLocationsPermission() {
-        //if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-
         String[] permissionsToGrant = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_PHONE_STATE};
         hasLocationPermission = true;
         List<String> perms = new ArrayList<>();
@@ -135,7 +133,7 @@ public class StartActivity extends Activity {
         if (requestCode == MY_PERMISSIONS_REQUEST) {
             hasLocationPermission = true;
             for (int perm : grantResults) {
-                if (perm < 0) {
+                if (perm == PackageManager.PERMISSION_DENIED) {
                     hasLocationPermission = false;
                     break;
                 }

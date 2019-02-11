@@ -1,5 +1,6 @@
 package com.labs.dm.auto_tethering.service;
 
+import android.Manifest;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -9,6 +10,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
@@ -17,6 +19,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
@@ -219,7 +222,9 @@ public class TetheringService extends IntentService {
         myPhoneStateListener = new MyPhoneStateListener(getApplicationContext());
         final TelephonyManager telManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         int events = PhoneStateListener.LISTEN_CELL_LOCATION;
-        telManager.listen(myPhoneStateListener, events);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            telManager.listen(myPhoneStateListener, events);
+        }
     }
 
     private void init() {

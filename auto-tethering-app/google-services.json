@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "258938777907",
+    "firebase_url": "https://admob-b74e0.firebaseio.com",
+    "project_id": "admob-b74e0",
+    "storage_bucket": "admob-b74e0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:258938777907:android:c7ba67ba86edc223",
+        "android_client_info": {
+          "package_name": "com.labs.dm.auto_tethering"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "258938777907-nvt607ik8mssjoprhm29oitjbeigh2le.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.labs.dm.auto_tethering",
+            "certificate_hash": "7088d53fe48b9b903fcc0a3056d8b9f069f84869"
+          }
+        },
+        {
+          "client_id": "258938777907-mic5c7omtt46jsiia8vb8ad4dfip28o0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6AA9jcExwLVn5EXOPTOMHp7__3ZK8_uM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "258938777907-mic5c7omtt46jsiia8vb8ad4dfip28o0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

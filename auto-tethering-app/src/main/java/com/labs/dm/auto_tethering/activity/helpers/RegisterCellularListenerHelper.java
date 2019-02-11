@@ -1,9 +1,11 @@
 package com.labs.dm.auto_tethering.activity.helpers;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -18,6 +20,8 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -63,7 +67,7 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
     @Override
     public void registerUIListeners() {
-        new GetLastLocationTask().execute();
+        executeGetLastLocationTask();
         activateGroupAdd.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -76,6 +80,15 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
                 return addGroup(deactivateList, "D");
             }
         });
+    }
+
+    public void executeGetLastLocationTask() {
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 12345);
+        } else {
+            new GetLastLocationTask().execute();
+        }
     }
 
     private boolean addGroup(final PreferenceCategory list, final String type) {
@@ -149,9 +162,11 @@ public class RegisterCellularListenerHelper extends AbstractRegisterHelper {
 
             final LocationListener gpsListener = new MyLocationListener("GPS-Provider");
             final LocationListener networkListener = new MyLocationListener("Network-Provider");
+
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, gpsListener, Looper.getMainLooper());
             }
+
             if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
                 locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, networkListener, Looper.getMainLooper());
             }

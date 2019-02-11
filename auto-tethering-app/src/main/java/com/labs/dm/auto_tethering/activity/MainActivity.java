@@ -1,5 +1,6 @@
 package com.labs.dm.auto_tethering.activity;
 
+import android.Manifest;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -22,6 +23,9 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.view.Menu;
@@ -323,6 +327,10 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     }
 
     private void startService() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 12345);
+        }
+
         if (!serviceHelper.isServiceRunning(TetheringService.class)) {
             Intent serviceIntent = new Intent(this, TetheringService.class);
             serviceIntent.putExtra("runFromActivity", true);
@@ -558,5 +566,21 @@ public class MainActivity extends PreferenceActivity implements SharedPreference
     protected void onStop() {
         super.onStop();
         prefs.unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 12345: {
+                if (grantResults.length > 0) {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        restartApp();
+                    } else {
+                        exitApp();
+                    }
+                }
+            }
+        }
     }
 }
