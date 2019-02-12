@@ -211,7 +211,7 @@ public class ServiceHelper {
             try {
                 return (WifiConfiguration) method.invoke(wifiManager);
             } catch (Exception e) {
-                MyLog.e(TAG, e);
+                MyLog.e(TAG, e, false);
             }
         }
         return null;

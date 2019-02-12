@@ -73,11 +73,15 @@ public class MyLog {
         add(new Item(3, formatMsg(msg)));
     }
 
-    public static void e(String tag, Exception ex) {
+    public static void e(String tag, Exception ex, boolean sendToCrashlytics) {
         e(tag, ex != null ? ex.getMessage() : "exception is null!");
-        if (!BuildConfig.DEBUG && ex != null) {
+        if (sendToCrashlytics && !BuildConfig.DEBUG && ex != null) {
             Crashlytics.logException(ex);
         }
+    }
+
+    public static void e(String tag, Exception ex) {
+        e(tag, ex, true);
     }
 
     public static void e(String tag, String msg, Exception e) {
