@@ -731,7 +731,11 @@ public class TetheringService extends IntentService {
             bluetoothTask.cancel();
             final TelephonyManager telManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             telManager.listen(myPhoneStateListener, LISTEN_NONE);
-            unregisterReceiver(receiver);
+            try {
+                unregisterReceiver(receiver);
+            } catch (IllegalArgumentException iae) {
+                MyLog.e(TAG, iae, false);
+            }
         } catch (Exception ex) {
             MyLog.e(TAG, ex);
         } finally {
